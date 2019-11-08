@@ -80,6 +80,62 @@ print('done')
 
 
 
+##################################### read in situ
+
+print( 'read MESSENGER')
+#get insitu data
+mes= pickle.load( open( "data/MES_2007to2015_SCEQ_removed.p", "rb" ) )
+#time conversion
+#mes_time=IDL_time_to_num(mes.time)
+print( 'read MESSENGER done.')
+
+
+
+print ('read VEX')
+#get insitu data
+vex= pickle.load( open( "data/VEX_2007to2014_SCEQ_removed.p", "rb" ) )
+#time conversion
+#vex_time=IDL_time_to_num(vex.time)
+print( 'read VEX done.')
+
+
+
+print( 'read Wind')
+#get insitu data
+wind= pickle.load( open( "data/WIND_2007to2018_HEEQ.p", "rb" ) )
+#time conversion
+#wind_time=IDL_time_to_num(wind.time)
+print( 'read Wind done.')
+
+
+
+
+print( 'read STEREO-A')
+#get insitu data
+sta= pickle.load( open( "data/STA_2007to2015_SCEQ.p", "rb" ) )
+#time conversion
+#sta_time=IDL_time_to_num(sta.time)
+print( 'read STA done.')
+
+
+
+
+print( 'read STEREO-B')
+#get insitu data
+stb= pickle.load( open( "data/STB_2007to2014_SCEQ.p", "rb" ) )
+
+#time conversion
+#stb_time=IDL_time_to_num(stb.time)
+print( 'read STB done.')
+
+#save times
+#pickle.dump([vex_time,wind_time,sta_time,stb_time,mes_time], open( "DATACAT/Insitu_times_mdates_2.p", "wb" ) )
+
+#quicker when just reloading times
+#[vex_time,wind_time,sta_time,stb_time,mes_time]=pickle.load( open( "DATACAT/Insitu_times_mdates_2.p", "rb" ) )
+#print 'loaded in situ times'
+######################################
+
 
 
 
