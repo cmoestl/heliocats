@@ -1,7 +1,6 @@
-#cme_stats_module.py
-
-
-#This is the module for the cme_verify repo containing functions and procedures
+#data.py
+#load data for heliocats
+#https://github.com/cmoestl/heliocats
 
 import numpy as np
 import scipy
@@ -13,8 +12,61 @@ import urllib
 import json
 import os
 import pdb
+import scipy.io
+import pickle
+import sys
 
 
+######################################################### MAVEN ####################################
+'''
+Hi Christian,
+
+I just did a run on the MAVEN datasets that you had with my new technique (and using the Gruesbeck model). The mat file is here:
+
+https://oeawcloud.oeaw.ac.at/index.php/s/Hjc8BVmtQT3k0ub
+
+Password is:      maven2019
+
+The save command in matlab I have used is the following:
+save('Data-MAVEN-SolarWind.mat', 'timeD','np','Vx','Vy','Vz','VT','Tp','Bx','By','Bz','BT','Xsc','Ysc','Zsc');
+
+Note that Xsc, Ysc, and Zsc are given in units of Mars radius (Rp = 3389.5 km). All other ones are the original units of the cdf file you gave me. I have also gone through the data and set to NaN all negative values of density np, temperature Tp and total magnetic field BT.
+
+It would be interesting to compare your old results with these ones, also as a double check that the data was filtered correctly, although the 3D model of Gruesbeck+ 2018 does not assume an aberration angle of 4 degrees like the polar model of Edberg+ 2008 -- which I am not sure you took into account originally when processing the data.
+
+Cheers,
+
+Cyril
+
+P.S. I'm writing a compendium for all the details of the technique I used. Hopefully this should be finished soon.
+'''
+def convert_MAVEN_mat_to_pickle():
+
+    print('load MAVEN from MAT')
+    file='data/MAVEN_2014to2018_removed_cyril.mat'
+    mav = scipy.io.loadmat(file)
+    print('save MAVEN as pickle')
+    pickle.dump(mav, open("data/MAVEN_2014to2018_removed_cyril.p", "wb"))
+
+def load_MAVEN():
+    
+    print('load MAVEN from pickle')
+    file='data/MAVEN_2014to2018_removed_cyril.p'
+    mav=pickle.load( open( file, 'rb' ) )
+    return mav
+    
+
+
+
+
+
+
+
+
+
+
+
+'''
 # use
 # import importlib
 # importlib.reload(cme_stats_module)
@@ -285,3 +337,5 @@ print( 'read VEX done.')
 plt.figure(1)
 plt.plot_date(vex_time,vex.btot,'-k')
 plt.show()
+
+'''

@@ -1,14 +1,15 @@
-# cme_stats.py
+# icmecat_maker.py
 #
-# analyses HELCATS ICMECAT data for paper on CME statistics Moestl et al. 2019 
+# makes the ICMECAT
 
 #Author: C. Moestl, IWF Graz, Austria
-#twitter @chrisoutofspace, https://github.com/cmoestl
-#last update November 2018
+#twitter @chrisoutofspace, https://github.com/cmoestl/heliocats
+#last update November 2019
 
-#python 3.5.5 with sunpy, seaborn ipython 4.2.0
+#python > 3.7 
 
-#needs file cme_stats_module.py
+
+#needs file /heliocats/data
 
 #current status:
 #work in progress
@@ -30,20 +31,64 @@ import seaborn as sns
 import os
 import urllib
 import json
+import importlib
 
 
 
 
-import cme_stats_module
-from cme_stats_module import dynamic_pressure
-from cme_stats_module import getcat
-from cme_stats_module import decode_array
-from cme_stats_module import time_to_num_cat
-from cme_stats_module import gaussian
-from cme_stats_module import get_omni2_data
-from cme_stats_module import load_url_current_directory
+from heliocats import data as hd
+
+importlib.reload(hd) #reload again while debugging
 
 
+
+'''
+
+to do:
+
+- smooth MAVEN data (like before in IDL)
+- read in data files of every spacecraft
+- go through all ICMEs and extract data
+- save as ICMECAT2.0
+
+
+'''
+
+
+
+##########################################################################################
+######################################## MAIN PROGRAM ####################################
+##########################################################################################
+
+
+#hd.convert_MAVEN_mat_to_pickle()
+
+mav=hd.load_MAVEN()
+
+plt.plot_date(mav['timeD'],mav['BT'],'-k') 
+
+
+
+
+
+
+#smooth with median filter?
+
+print('done')
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
 #ignore warnings
 #import warnings
 #warnings.filterwarnings('ignore')
@@ -76,10 +121,6 @@ from cme_stats_module import load_url_current_directory
 #alternative
 #from astropy.io import ascii
 #data = ascii.read('cats/MSL_event_table_forstner_2019.txt')  
-
-##########################################################################################
-######################################## MAIN PROGRAM ####################################
-##########################################################################################
 
 
 ### ORDER: 1 durations, 2 B field, 3 time inside, 4 ICME frequency
@@ -1945,7 +1986,7 @@ mean14=np.mean([histwin[7],histvex[7],histsta[7],histstb[7],histmes[7]])
 print(np.mean([mean12,mean13,mean14]))
 
 
-
+'''
 
 
 

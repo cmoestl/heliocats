@@ -1,5 +1,5 @@
 # cme_stats.py
-#
+# https://github.com/cmoestl/heliocats
 # analyses HELCATS ICMECAT data for paper on CME statistics Moestl et al. 2019 
 
 #Author: C. Moestl, IWF Graz, Austria
