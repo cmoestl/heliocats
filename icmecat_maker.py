@@ -109,7 +109,7 @@ pickle.dump([psp_t1,psp_m1,psp_t2,psp_m2], open(file, "wb"))
 [t1,m1,t2,m2]=pickle.load( open( file, 'rb' ) )
 
 
-pos1=psp_sat.trajectory(t1, frame="HEE")
+#pos1=psp_sat.trajectory(t1, frame="HEE")
 #pos2=psp_sat.trajectory(t1, frame="J2000")
 
 
