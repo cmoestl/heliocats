@@ -15,6 +15,7 @@ import pdb
 import scipy.io
 import pickle
 import sys
+import cdflib
 
 
 ######################################################### MAVEN ####################################
@@ -39,6 +40,22 @@ Cheers,
 Cyril
 
 P.S. I'm writing a compendium for all the details of the technique I used. Hopefully this should be finished soon.
+
+Hallo Christian,
+
+Super, happy that it looks fine! :) Yes, agreed with the median filtering, this should take care of the spikes. 
+There were also many strange spikes in Xsc, Ysc and Zsc (very large values >2.9e27, probably due to an issue with the SPICE kernel, 
+about 1685 points, i.e., 0.087% of the data), so I set all of these anomalous data points to NaN too (all variables including Xsc, Ysc, Zsc).
+
+Cheers,
+
+Cyril
+
+
+Mehr anzeigen von Christian Möstl
+
+
+
 '''
 def convert_MAVEN_mat_to_pickle():
 
@@ -55,8 +72,6 @@ def load_MAVEN():
     mav=pickle.load( open( file, 'rb' ) )
     return mav
     
-
-
 
 
 

@@ -22,9 +22,10 @@ import sys
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from matplotlib.dates import  DateFormatter
 import numpy as np
 import astropy.constants as const
-import sunpy.time
+from sunpy.time import parse_time
 import time
 import pickle
 import seaborn as sns
@@ -56,10 +57,146 @@ to do:
 
 
 
+
+#@jit(nopython=True)
+def cart2sphere(x,y,z):
+    r = np.sqrt(x**2+ y**2 + z**2)            # r
+    theta = np.arctan2(z,np.sqrt(x**2+ y**2))     # theta
+    phi = np.arctan2(y,x)                        # phi
+    return (r, theta, phi)
+    
+    
+    
+    
 ##########################################################################################
 ######################################## MAIN PROGRAM ####################################
 ##########################################################################################
 
+
+
+
+
+
+
+import heliopy.data.spice as spicedata
+import heliopy.spice as spice
+
+import astropy
+
+
+import heliosat
+import datetime
+
+psp_sat = heliosat.PSP()
+file="data/psp_orbits_1_2.p"
+
+
+
+t_start = datetime.datetime(2018, 10, 14)
+t_end = datetime.datetime(2018, 12, 20)
+psp_t1, psp_m1 = psp_sat.get_data_raw(t_start, t_end, "mag")
+#t1p, p1 = psp_sat.get_data_raw(t_start, t_end, "proton")
+psp_t1=parse_time(psp_t1,format='unix').datetime  
+
+t_start2 = datetime.datetime(2019, 3, 1)
+t_end2 = datetime.datetime(2019, 4, 18)
+psp_t2, psp_m2 = psp_sat.get_data_raw(t_start2, t_end2, "mag")
+psp_t2=parse_time(psp_t2,format='unix').datetime  
+
+
+pickle.dump([psp_t1,psp_m1,psp_t2,psp_m2], open(file, "wb"))
+
+[t1,m1,t2,m2]=pickle.load( open( file, 'rb' ) )
+
+
+pos1=psp_sat.trajectory(t1, frame="HEE")
+#pos2=psp_sat.trajectory(t1, frame="J2000")
+
+
+
+
+##########################################  PSP
+
+starttime =datetime.datetime(2018, 8,13)
+endtime = datetime.datetime(2019, 8, 31)
+psp_time = []
+while starttime < endtime:
+    psp_time.append(starttime)
+    starttime += datetime.timedelta(days=1/24.)
+psp_time_num=mdates.date2num(psp_time)     
+
+spice.furnish(spicedata.get_kernel('psp_pred'))
+psp=spice.Trajectory('SPP')
+psp.generate_positions(psp_time,'Sun','HEEQ')
+print('PSP pos')
+
+psp.change_units(astropy.units.AU)  
+[psp_r, psp_lat, psp_lon]=cart2sphere(psp.x,psp.y,psp.z)
+print('PSP conv')
+
+
+
+
+bx1=m1[:,0]  
+by1=m1[:,1]  
+bz1=m1[:,2]  
+bt1=np.sqrt(bx1**2+by1**2+bz1**2)
+
+bx2=m2[:,0]  
+by2=m2[:,1]  
+bz2=m2[:,2]  
+bt2=np.sqrt(bx2**2+by2**2+bz2**2)
+
+plt.close('all')
+
+
+fig1=plt.figure(figsize=[15, 5],dpi=100)
+ 
+
+ax1=plt.subplot(321)
+plt.plot_date(t1,bx1,'-r')
+plt.plot_date(t1,by1,'-g')
+plt.plot_date(t1,bz1,'-b')
+plt.plot_date(t1,bt1,'-k')
+#ax1.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+
+ax2=plt.subplot(322)
+plt.plot_date(t2,bx2,'-r')
+plt.plot_date(t2,by2,'-g')
+plt.plot_date(t2,bz2,'-b')
+plt.plot_date(t2,bt2,'-k')
+#ax2.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+
+ax3=plt.subplot(323)
+plt.plot_date(psp_time,psp_r,'-k')
+ax3.set_xlim(t1[0],t1[-1])
+ax3.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+
+ax4=plt.subplot(324)
+plt.plot_date(psp_time,psp_r,'-k')
+ax4.set_xlim(t2[0],t2[-1])
+ax4.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+
+
+ax5=plt.subplot(325)
+plt.plot_date(psp_time,np.rad2deg(psp_lon),'-r')
+ax5.set_xlim(t1[0],t1[-1])
+ax5.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+
+ax6=plt.subplot(326)
+plt.plot_date(psp_time,np.rad2deg(psp_lon),'-r')
+ax6.set_xlim(t2[0],t2[-1])
+ax6.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+
+
+
+
+
+plt.show()
+
+
+
+sys.exit()
 
 #hd.convert_MAVEN_mat_to_pickle()
 
