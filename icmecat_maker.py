@@ -181,15 +181,15 @@ plt.close('all')
 
 
 sns.set_style('darkgrid')
-fig1=plt.figure(figsize=[20, 10],dpi=100)
+fig1=plt.figure(figsize=[25, 12],dpi=100)
  
 
 plt.suptitle('PSP first 2 orbits')
 
 ax1=plt.subplot(421)
-plt.plot_date(t1,bx1,'-r',label='BR',linewidth=0.8)
-plt.plot_date(t1,by1,'-g',label='BT',linewidth=0.8)
-plt.plot_date(t1,bz1,'-b',label='BN',linewidth=0.8)
+plt.plot_date(t1,bx1,'-r',label='BR',linewidth=0.5)
+plt.plot_date(t1,by1,'-g',label='BT',linewidth=0.5)
+plt.plot_date(t1,bz1,'-b',label='BN',linewidth=0.5)
 plt.plot_date(t1,bt1,'-k',label='Btotal')
 ax1.set_ylabel('B [nT]')
 plt.legend(loc=2)
@@ -197,9 +197,9 @@ ax1.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d %H') )
 ax1.set_xlim(t1[0],t1[-1])
 
 ax2=plt.subplot(422)
-plt.plot_date(t2,bx2,'-r',label='BR', linewidth=0.8)
-plt.plot_date(t2,by2,'-g',label='BT', linewidth=0.8)
-plt.plot_date(t2,bz2,'-b',label='BN', linewidth=0.8)
+plt.plot_date(t2,bx2,'-r',label='BR', linewidth=0.5)
+plt.plot_date(t2,by2,'-g',label='BT', linewidth=0.5)
+plt.plot_date(t2,bz2,'-b',label='BN', linewidth=0.5)
 plt.plot_date(t2,bt2,'-k',label='Btotal')
 ax2.set_ylabel('B [nT]')
 plt.legend(loc=2)
