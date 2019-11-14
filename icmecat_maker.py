@@ -33,8 +33,14 @@ import os
 import urllib
 import json
 import importlib
+import heliopy.data.spice as spicedata
+import heliopy.spice as spice
+import astropy
+import heliosat
+import datetime
+import seaborn as sns
 
-
+from numba import njit
 
 
 from heliocats import data as hd
@@ -58,7 +64,7 @@ to do:
 
 
 
-#@jit(nopython=True)
+@njit
 def cart2sphere(x,y,z):
     r = np.sqrt(x**2+ y**2 + z**2)            # r
     theta = np.arctan2(z,np.sqrt(x**2+ y**2))     # theta
@@ -66,6 +72,62 @@ def cart2sphere(x,y,z):
     return (r, theta, phi)
     
     
+def save_psp_mag(file):
+     
+    t_start = datetime.datetime(2018, 10, 14)
+    t_end = datetime.datetime(2018, 12, 20)
+    
+    #fields
+    psp_t1, psp_m1 = psp_sat.get_data_raw(t_start, t_end, "mag")
+    #t1p, p1 = psp_sat.get_data_raw(t_start, t_end, "proton")
+    psp_t1=parse_time(psp_t1,format='unix').datetime  
+    
+    #sweap
+    t_swe1, swe1 = psp_sat.get_data_raw(t_start, t_end, "spc_l3i")
+    t_swe1=parse_time(t_swe1,format='unix').datetime  
+    
+
+    #fields
+    t_start2 = datetime.datetime(2019, 3, 1)
+    t_end2 = datetime.datetime(2019, 5, 30)
+    psp_t2, psp_m2 = psp_sat.get_data_raw(t_start2, t_end2, "mag")
+    psp_t2=parse_time(psp_t2,format='unix').datetime  
+    
+    #sweap
+    t_swe2, swe2 = psp_sat.get_data_raw(t_start2, t_end2, "spc_l3i")
+    t_swe2=parse_time(t_swe2,format='unix').datetime  
+
+
+
+
+
+    pos1=psp_sat.trajectory(psp_t1, frame="HEEQ")
+    pos2=psp_sat.trajectory(psp_t2, frame="HEEQ")
+
+    '''
+    starttime =datetime.datetime(2018, 8,13)
+    endtime = datetime.datetime(2019, 8, 31)
+    psp_time = []
+    while starttime < endtime:
+        psp_time.append(starttime)
+        starttime += datetime.timedelta(days=1/24.)
+    psp_time_num=mdates.date2num(psp_time)     
+
+    spice.furnish(spicedata.get_kernel('psp_pred'))
+    psp=spice.Trajectory('SPP')
+    psp.generate_positions(psp_time,'Sun','HEEQ')
+    print('PSP pos')
+
+    psp.change_units(astropy.units.AU)  
+    '''
+    
+    [pos1_r, pos1_lat, pos1_lon]=cart2sphere(pos1[:,0],pos1[:,1],pos1[:,2])
+    [pos2_r, pos2_lat, pos2_lon]=cart2sphere(pos2[:,0],pos2[:,1],pos2[:,2])
+
+
+    pickle.dump([pos1_r, pos1_lat, pos1_lon, pos2_r, pos2_lat, pos2_lon,  psp_t1,psp_m1,psp_t2,psp_m2,t_swe1,swe1,t_swe2,swe2], open(file, "wb"))
+
+
     
     
 ##########################################################################################
@@ -78,64 +140,26 @@ def cart2sphere(x,y,z):
 
 
 
-import heliopy.data.spice as spicedata
-import heliopy.spice as spice
-
-import astropy
-
-
-import heliosat
-import datetime
-
 psp_sat = heliosat.PSP()
 file="data/psp_orbits_1_2.p"
 
+#save_psp_mag(file)
 
 
-t_start = datetime.datetime(2018, 10, 14)
-t_end = datetime.datetime(2018, 12, 20)
-psp_t1, psp_m1 = psp_sat.get_data_raw(t_start, t_end, "mag")
-#t1p, p1 = psp_sat.get_data_raw(t_start, t_end, "proton")
-psp_t1=parse_time(psp_t1,format='unix').datetime  
-
-t_start2 = datetime.datetime(2019, 3, 1)
-t_end2 = datetime.datetime(2019, 4, 18)
-psp_t2, psp_m2 = psp_sat.get_data_raw(t_start2, t_end2, "mag")
-psp_t2=parse_time(psp_t2,format='unix').datetime  
-
-
-pickle.dump([psp_t1,psp_m1,psp_t2,psp_m2], open(file, "wb"))
-
-[t1,m1,t2,m2]=pickle.load( open( file, 'rb' ) )
-
-
-#pos1=psp_sat.trajectory(t1, frame="HEE")
-#pos2=psp_sat.trajectory(t1, frame="J2000")
+[r1, lat1, lon1, r2, lat2, lon2, t1,m1,t2,m2, t_swe1,swe1, t_swe2, swe2]=pickle.load( open( file, 'rb' ) )
 
 
 
 
-##########################################  PSP
-
-starttime =datetime.datetime(2018, 8,13)
-endtime = datetime.datetime(2019, 8, 31)
-psp_time = []
-while starttime < endtime:
-    psp_time.append(starttime)
-    starttime += datetime.timedelta(days=1/24.)
-psp_time_num=mdates.date2num(psp_time)     
-
-spice.furnish(spicedata.get_kernel('psp_pred'))
-psp=spice.Trajectory('SPP')
-psp.generate_positions(psp_time,'Sun','HEEQ')
-print('PSP pos')
-
-psp.change_units(astropy.units.AU)  
-[psp_r, psp_lat, psp_lon]=cart2sphere(psp.x,psp.y,psp.z)
-print('PSP conv')
-
-
-
+'''
+#cme
+t1=t1[40000:48000]
+m1=m1[40000:48000,:]
+#t_swe1=t_swe1[40000:48000]
+#swe1=swe1[40000:48000,:]
+r1=r1[40000:48000]
+lon1=lon1[40000:48000]
+'''
 
 bx1=m1[:,0]  
 by1=m1[:,1]  
@@ -147,54 +171,95 @@ by2=m2[:,1]
 bz2=m2[:,2]  
 bt2=np.sqrt(bx2**2+by2**2+bz2**2)
 
+
+v1=swe1[:,2] 
+v2=swe2[:,2] 
+
+
 plt.close('all')
 
 
-fig1=plt.figure(figsize=[15, 5],dpi=100)
+
+sns.set_style('darkgrid')
+fig1=plt.figure(figsize=[20, 10],dpi=100)
  
 
-ax1=plt.subplot(321)
-plt.plot_date(t1,bx1,'-r')
-plt.plot_date(t1,by1,'-g')
-plt.plot_date(t1,bz1,'-b')
-plt.plot_date(t1,bt1,'-k')
-#ax1.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+plt.suptitle('PSP first 2 orbits')
 
-ax2=plt.subplot(322)
-plt.plot_date(t2,bx2,'-r')
-plt.plot_date(t2,by2,'-g')
-plt.plot_date(t2,bz2,'-b')
-plt.plot_date(t2,bt2,'-k')
-#ax2.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+ax1=plt.subplot(421)
+plt.plot_date(t1,bx1,'-r',label='BR',linewidth=0.8)
+plt.plot_date(t1,by1,'-g',label='BT',linewidth=0.8)
+plt.plot_date(t1,bz1,'-b',label='BN',linewidth=0.8)
+plt.plot_date(t1,bt1,'-k',label='Btotal')
+ax1.set_ylabel('B [nT]')
+plt.legend(loc=2)
+ax1.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d %H') )
+ax1.set_xlim(t1[0],t1[-1])
 
-ax3=plt.subplot(323)
-plt.plot_date(psp_time,psp_r,'-k')
+ax2=plt.subplot(422)
+plt.plot_date(t2,bx2,'-r',label='BR', linewidth=0.8)
+plt.plot_date(t2,by2,'-g',label='BT', linewidth=0.8)
+plt.plot_date(t2,bz2,'-b',label='BN', linewidth=0.8)
+plt.plot_date(t2,bt2,'-k',label='Btotal')
+ax2.set_ylabel('B [nT]')
+plt.legend(loc=2)
+ax2.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d %H') )
+ax2.set_xlim(t2[0],t2[-1])
+
+
+
+ax3=plt.subplot(423, sharex=ax1)
+plt.plot_date(t_swe1,v1,'-k',label='V', linewidth=0.8)
+ax3.set_ylabel('V [km/s]')
+ax3.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d %H') )
 ax3.set_xlim(t1[0],t1[-1])
-ax3.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
 
-ax4=plt.subplot(324)
-plt.plot_date(psp_time,psp_r,'-k')
+
+
+ax4=plt.subplot(424,sharex=ax2)
+plt.plot_date(t_swe2,v2,'-k',label='V', linewidth=0.8)
 ax4.set_xlim(t2[0],t2[-1])
-ax4.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+ax4.set_ylabel('V [km/s]')
+ax4.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d %H') )
 
 
-ax5=plt.subplot(325)
-plt.plot_date(psp_time,np.rad2deg(psp_lon),'-r')
-ax5.set_xlim(t1[0],t1[-1])
+ax5=plt.subplot(425,sharex=ax1)
+plt.plot_date(t1,r1,'-k')
+ax5.set_ylabel('R [AU]')
 ax5.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+ax5.set_xlim(t1[0],t1[-1])
 
-ax6=plt.subplot(326)
-plt.plot_date(psp_time,np.rad2deg(psp_lon),'-r')
-ax6.set_xlim(t2[0],t2[-1])
+
+ax6=plt.subplot(426,sharex=ax2)
+plt.plot_date(t2,r2,'-k')
+ax6.set_ylabel('R [AU]')
 ax6.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+ax6.set_xlim(t2[0],t2[-1])
 
 
+ax7=plt.subplot(427,sharex=ax1)
+plt.plot_date(t1,np.rad2deg(lon1),'-r')
+ax7.set_xlim(t1[0],t1[-1])
+ax7.set_ylabel('HEEQ longitude [deg]')
+ax7.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+
+
+ax8=plt.subplot(428,sharex=ax2)
+plt.plot_date(t2,np.rad2deg(lon2),'-r')
+ax8.set_xlim(t2[0],t2[-1])
+ax8.set_ylabel('HEEQ longitude [deg]')
+ax8.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
+
+
+plt.tight_layout()
 
 
 
 plt.show()
 
 
+
+plt.savefig('results/psp_orbit12.jpg')
 
 sys.exit()
 

@@ -16,6 +16,7 @@ import scipy.io
 import pickle
 import sys
 import cdflib
+import heliosat
 
 
 ######################################################### MAVEN ####################################
