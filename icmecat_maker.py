@@ -72,7 +72,7 @@ def cart2sphere(x,y,z):
     return (r, theta, phi)
     
     
-def save_psp_mag(file):
+def save_psp_data2(file):
      
     t_start = datetime.datetime(2018, 10, 14)
     t_end = datetime.datetime(2018, 12, 20)
@@ -128,11 +128,89 @@ def save_psp_mag(file):
     pickle.dump([pos1_r, pos1_lat, pos1_lon, pos2_r, pos2_lat, pos2_lon,  psp_t1,psp_m1,psp_t2,psp_m2,t_swe1,swe1,t_swe2,swe2], open(file, "wb"))
 
 
+
+
+def save_wind_data(file):
     
+    wind_sat = heliosat.WIND()
+    t_start = datetime.datetime(2018, 10, 1)
+    t_end = datetime.datetime(2019, 5, 31)
+    tm, mag = wind_sat.get_data_raw(t_start, t_end, "mag")
+    tp, pro = wind_sat.get_data_raw(t_start, t_end, "proton")
+    
+    tm=parse_time(tm,format='unix').datetime 
+    tp=parse_time(tp,format='unix').datetime 
+    
+    pickle.dump([tm,mag, tp,pro], open(file, "wb"))
+    
+
+def save_stereoa_data(file):
+    
+    sta_sat = heliosat.STA()
+    t_start = datetime.datetime(2018, 10, 11)
+    t_end = datetime.datetime(2019, 5, 31)
+    tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag")
+    #tp, pro = sta_sat.get_data_raw(t_start, t_end, "proton")
+    
+    tm=parse_time(tm,format='unix').datetime 
+    #tp=parse_time(tp,format='unix').datetime 
+
+    
+    #pickle.dump([tm,mag, tp,pro], open(file, "wb"))
+    
+    
+    pickle.dump([tm,mag], open(file, "wb"))
+    
+    
+def save_psp_data(file):
+     
+     
+    psp_sat = heliosat.PSP()
+     
+    t_start = datetime.datetime(2018, 10, 10)
+    t_end = datetime.datetime(2019, 5, 31)
+    
+    tm, mag = psp_sat.get_data_raw(t_start, t_end, "mag")
+    tp, pro = psp_sat.get_data_raw(t_start, t_end, "spc_l3i")
+
+    tm=parse_time(tm,format='unix').datetime 
+    tp=parse_time(tp,format='unix').datetime 
+
+
+    pickle.dump([tm,mag, tp,pro], open(file, "wb"))
+
+
     
 ##########################################################################################
 ######################################## MAIN PROGRAM ####################################
 ##########################################################################################
+
+
+#
+#file="data/wind_2018_2019.p"
+#save_wind_data(file)
+
+
+#file="data/psp_2018_2019.p"
+#save_psp_data(file)
+
+file="data/sta_2018_2019.p"
+print('start')
+sta_sat = heliosat.STA()
+t_start = datetime.datetime(2018, 10, 1)
+t_end = datetime.datetime(2018, 11, 30)
+tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag")
+print('download complete')
+   
+tm=parse_time(tm,format='unix').datetime 
+print('time convert done')
+pickle.dump([tm,mag], open(file, "wb"))
+print('file saved')
+
+sys.exit()
+
+file="data/sta_2018_2019.p"
+save_stereoa_data(file)
 
 
 
