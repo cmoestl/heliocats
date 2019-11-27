@@ -33,10 +33,10 @@ import os
 import urllib
 import json
 import importlib
-import heliopy.data.spice as spicedata
-import heliopy.spice as spice
+#import heliopy.data.spice as spicedata
+#import heliopy.spice as spice
 import astropy
-import heliosat
+#import heliosat
 import datetime
 import seaborn as sns
 
@@ -145,12 +145,35 @@ def save_wind_data(file):
     
 
 def save_stereoa_data(file):
-    
+
+
+
+    file="data/sta_2018_2019_2.p"
+    print('start')
+    sta_sat = heliosat.STA()
+    t_start = datetime.datetime(2018, 10, 10)
+    t_end = datetime.datetime(2019, 5, 25)
+    tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag_beacon")
+    #tp, pro = sta_sat.get_data_raw(t_start, t_end, "proton_beacon")
+
+    print('download complete')
+   
+    tm=parse_time(tm,format='unix').datetime 
+    #tp=parse_time(tp,format='unix').datetime 
+
+    print('time convert done')
+    #pickle.dump([tm,mag, tp, pro], open(file, "wb"))
+    pickle.dump([ tp, pro], open(file, "wb"))
+
+    print('file saved')    
     sta_sat = heliosat.STA()
     t_start = datetime.datetime(2018, 10, 11)
     t_end = datetime.datetime(2019, 5, 31)
-    tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag")
+    print('download')
+    tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag_beacon")
     #tp, pro = sta_sat.get_data_raw(t_start, t_end, "proton")
+
+    print('convert time')
     
     tm=parse_time(tm,format='unix').datetime 
     #tp=parse_time(tp,format='unix').datetime 
@@ -158,7 +181,8 @@ def save_stereoa_data(file):
     
     #pickle.dump([tm,mag, tp,pro], open(file, "wb"))
     
-    
+    print('save file')
+
     pickle.dump([tm,mag], open(file, "wb"))
     
     
@@ -186,13 +210,53 @@ def save_psp_data(file):
 ##########################################################################################
 
 
+
+
+file="data/sta_2018_2019.p"
+print('start')
+sta_sat = heliosat.STA()
+t_start = datetime.datetime(2018, 10, 10)
+t_end = datetime.datetime(2018, 12, 10)
+tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag_beacon")
+print('download complete')
+   
+tm=parse_time(tm,format='unix').datetime 
+
+print('time convert done')
+pickle.dump([tm,mag], open(file, "wb"))
+
+#pickle.dump([ tp, pro], open(file, "wb"))
+
+print('file saved')
+
+
+sys.exit()
+
+file="data/sta_2018_2019.p"
+save_stereoa_data(file)
+
+
+
+
+
+file="data/psp_2018_2019.p"
+save_psp_data(file)
+
+sys.exit()
+file="data/psp_2018_2019.p"
+save_psp_data(file)
+
+
+
 #
 #file="data/wind_2018_2019.p"
 #save_wind_data(file)
 
 
-#file="data/psp_2018_2019.p"
-#save_psp_data(file)
+
+sys.exit()
+
+'''
 
 file="data/sta_2018_2019.p"
 print('start')
@@ -207,11 +271,7 @@ print('time convert done')
 pickle.dump([tm,mag], open(file, "wb"))
 print('file saved')
 
-sys.exit()
-
-file="data/sta_2018_2019.p"
-save_stereoa_data(file)
-
+'''
 
 
 
