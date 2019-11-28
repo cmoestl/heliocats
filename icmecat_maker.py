@@ -33,10 +33,10 @@ import os
 import urllib
 import json
 import importlib
-#import heliopy.data.spice as spicedata
-#import heliopy.spice as spice
+import heliopy.data.spice as spicedata
+import heliopy.spice as spice
 import astropy
-#import heliosat
+import heliosat
 import datetime
 import seaborn as sns
 
@@ -212,11 +212,11 @@ def save_psp_data(file):
 
 
 
-file="data/sta_2018_2019.p"
+file="data/sta_2018_2019_orbit2.p"
 print('start')
 sta_sat = heliosat.STA()
-t_start = datetime.datetime(2018, 10, 10)
-t_end = datetime.datetime(2018, 12, 10)
+t_start = datetime.datetime(2019, 3, 1)
+t_end = datetime.datetime(2019, 5, 31)
 tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag_beacon")
 print('download complete')
    
@@ -230,19 +230,25 @@ pickle.dump([tm,mag], open(file, "wb"))
 print('file saved')
 
 
+#file="data/sta_2018_2019.p"
+#save_stereoa_data(file)
+
+
+
+
+
 sys.exit()
-
-file="data/sta_2018_2019.p"
-save_stereoa_data(file)
-
-
-
 
 
 file="data/psp_2018_2019.p"
 save_psp_data(file)
 
-sys.exit()
+
+
+
+
+
+
 file="data/psp_2018_2019.p"
 save_psp_data(file)
 

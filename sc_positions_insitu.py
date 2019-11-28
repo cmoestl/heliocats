@@ -41,8 +41,8 @@ import sunpy.time
 import pickle
 import seaborn as sns
 import sys
-#import heliopy.data.spice as spicedata
-#import heliopy.spice as spice
+import heliopy.data.spice as spicedata
+import heliopy.spice as spice
 import astropy
 import time
 import numba
@@ -55,7 +55,7 @@ warnings.filterwarnings('ignore')
 
 
 
-
+matplotlib.use('Agg')
 
 
 ############################################ SETTINGS
@@ -82,9 +82,9 @@ plot_parker=True
 #plot_parker=False
 
 
-outputdirectory='results/sc_insitu_plots_3'
+outputdirectory='results/sc_insitu_plots_orbit2'
 
-animdirectory='results/sc_insitu_anim_3'
+animdirectory='results/sc_insitu_anim_orbit2'
 
 if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
 if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
@@ -92,16 +92,20 @@ if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
 
 high_res_mode=False
 
-start_time_str='2018-Oct-20 00:00:00'
+#start_time_str='2018-Oct-15 00:00:00'
+
+
+start_time_str='2019-Mar-10 00:00:00'
+
 
 #Time resolution
-res_in_days=1/24.
+res_in_days=1/12.
 
 
-kend=1200
+kend=600
 
 
-
+days_window=3
 
 
 
@@ -319,7 +323,7 @@ def make_positions():
      venus=np.rec.array([venus_time_num,venus_r,venus_lon,venus_lat, venus.x, venus.y,venus.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
      mars=np.rec.array([mars_time_num,mars_r,mars_lon,mars_lat, mars.x, mars.y,mars.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
      mercury=np.rec.array([mercury_time_num,mercury_r,mercury_lon,mercury_lat,mercury.x, mercury.y,mercury.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
-     pickle.dump([psp, bepi, solo, sta, earth, venus, mars, mercury,frame], open( 'results/positions_psp_solo_bepi_sta_planets_'+frame+'_3hours.p', "wb" ) )
+     pickle.dump([psp, bepi, solo, sta, earth, venus, mars, mercury,frame], open( 'results/positions_psp_solo_bepi_sta_planets_'+frame+'_2hours.p', "wb" ) )
      #load with [psp, bepi, solo, sta, earth, venus, mars, mercury,frame]=pickle.load( open( 'positions_psp_solo_bepi_sta_planets_HCI_6hours_2018_2025.p', "rb" ) )
  
  
@@ -359,21 +363,28 @@ def make_frame(k):
      '''
 
 
+
+     if back:     fig=plt.figure(1, figsize=(19.5,11), dpi=100, facecolor='black', edgecolor='black')
+     if not back: fig=plt.figure(1, figsize=(20,10), dpi=100)
+
+
+
      if not back: 
-      ax = plt.subplot2grid((5,2), (0, 0), rowspan=5, projection='polar')
-      backcolor='black'
-      psp_color='black'
-      bepi_color='blue'
-      solo_color='green'
+           ax = plt.subplot2grid((5,2), (0, 0), rowspan=5, projection='polar')
+           backcolor='black'
+           psp_color='black'
+           bepi_color='blue'
+           solo_color='green'
      if back: 
-      ax = plt.subplot(121,projection='polar',facecolor='black') 
-      #ax = plt.subplot2grid((5,2), (0, 0), rowspan=5, projection='polar')
-      backcolor='white'
-      psp_color='white'
-      bepi_color='skyblue'
-      solo_color='springgreen'
-      sta_color='salmon'
-  
+           ax = plt.subplot(121,projection='polar',facecolor='black') 
+           #ax = plt.subplot2grid((5,2), (0, 0), rowspan=5, projection='polar')
+           backcolor='white'
+           psp_color='white'
+           bepi_color='skyblue'
+           solo_color='springgreen'
+           sta_color='salmon'
+
+
 
      
      frame_time_str=str(mdates.num2date(frame_time_num+k*res_in_days))
@@ -439,7 +450,7 @@ def make_frame(k):
 
      #positions text
  
-     f10=plt.figtext(0.01,0.93,'              R       lon        lat', fontsize=fsize+2, ha='left',color=backcolor)
+     f10=plt.figtext(0.01,0.93,'              R     lon     lat', fontsize=fsize+2, ha='left',color=backcolor)
 
      if frame=='HEEQ': earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{0.0:8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
      else: earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(earth.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
@@ -449,13 +460,13 @@ def make_frame(k):
  
 
      #position and text 
-     if psp_timeind > 0:
-       #plot trajectorie
-       ax.scatter(psp.lon[psp_timeind], psp.r[psp_timeind]*np.cos(psp.lat[psp_timeind]), s=symsize_spacecraft, c=psp_color, marker='s', alpha=1,lw=0,zorder=3)
-       #plot positiona as text
-       psp_text='PSP:   '+str(f'{psp.r[psp_timeind]:6.2f}')+str(f'{np.rad2deg(psp.lon[psp_timeind]):8.1f}')+str(f'{np.rad2deg(psp.lat[psp_timeind]):8.1f}')
-       f5=plt.figtext(0.01,0.78,psp_text, fontsize=fsize, ha='left',color=backcolor)
-       if plot_orbit: ax.plot(psp.lon[psp_timeind-fadeind:psp_timeind+fadeind], psp.r[psp_timeind-fadeind:psp_timeind+fadeind]*np.cos(psp.lat[psp_timeind-fadeind:psp_timeind+fadeind]), c=psp_color, alpha=0.6,lw=1,zorder=3)
+     #if psp_timeind > 0:
+     #plot trajectorie
+     ax.scatter(psp.lon[psp_timeind], psp.r[psp_timeind]*np.cos(psp.lat[psp_timeind]), s=symsize_spacecraft, c=psp_color, marker='s', alpha=1,lw=0,zorder=3)
+     #plot positiona as text
+     psp_text='PSP:   '+str(f'{psp.r[psp_timeind]:6.2f}')+str(f'{np.rad2deg(psp.lon[psp_timeind]):8.1f}')+str(f'{np.rad2deg(psp.lat[psp_timeind]):8.1f}')
+     f5=plt.figtext(0.01,0.78,psp_text, fontsize=fsize, ha='left',color=backcolor)
+     if plot_orbit: ax.plot(psp.lon[psp_timeind-fadeind:psp_timeind+fadeind], psp.r[psp_timeind-fadeind:psp_timeind+fadeind]*np.cos(psp.lat[psp_timeind-fadeind:psp_timeind+fadeind]), c=psp_color, alpha=0.6,lw=1,zorder=3)
    
 
      if bepi_timeind > 0:
@@ -483,15 +494,15 @@ def make_frame(k):
 
      #parker spiral
      if plot_parker:
-      for p in np.arange(0,6):
+      for p in np.arange(0,12):
        #parker spiral
        #sidereal rotation
        omega=2*np.pi/(sun_rot*60*60*24) #solar rotation in seconds
        v=400/AUkm #km/s
        r0=695000/AUkm
        r=v/omega*theta+r0*7
-       if not back: ax.plot(-theta+np.deg2rad(0+(360/24.47)*res_in_days*k+360/6*p), r, alpha=0.4, lw=0.5,color='grey',zorder=2)
-       if back: ax.plot(-theta+np.deg2rad(0+(360/24.47)*res_in_days*k+360/6*p), r, alpha=0.7, lw=0.7,color='grey',zorder=2)
+       if not back: ax.plot(-theta+np.deg2rad(0+(360/24.47)*res_in_days*k+360/12*p), r, alpha=0.4, lw=0.5,color='grey',zorder=2)
+       if back: ax.plot(-theta+np.deg2rad(0+(360/24.47)*res_in_days*k+360/12*p), r, alpha=0.7, lw=0.7,color='grey',zorder=2)
  
  
  
@@ -500,7 +511,9 @@ def make_frame(k):
      ax.set_theta_zero_location('S')
      plt.thetagrids(range(0,360,45),(u'0\u00b0 '+frame+' longitude',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',fontsize=fsize+2,color=backcolor, alpha=0.9)
  
-     plt.rgrids((0.10,0.39,0.72,1.00,1.52),('0.10','0.39','0.72','1.0','1.52 AU'),angle=125, fontsize=fsize,alpha=0.9, color=backcolor)
+     #plt.rgrids((0.10,0.39,0.72,1.00,1.52),('0.10','0.39','0.72','1.0','1.52 AU'),angle=125, fontsize=fsize,alpha=0.9, color=backcolor)
+     plt.rgrids((0.1,0.3,0.5,0.7,1.0),('0.10','0.3','0.5','0.7','1.0 AU'),angle=125, fontsize=fsize-3,alpha=0.5, color=backcolor)
+
      #ax.set_ylim(0, 1.75) with Mars
      ax.set_ylim(0, 1.2) 
  
@@ -512,7 +525,7 @@ def make_frame(k):
      ############################ IN SITU  
  
  
- 
+
  
      time_now=frame_time_num+k*res_in_days
  
@@ -526,14 +539,14 @@ def make_frame(k):
      ax2.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
      ax2.set_ylabel('B [nT]')
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
-     ax2.set_xlim(time_now-3,time_now+3)
+     ax2.set_xlim(time_now-days_window,time_now+days_window)
      plt.ylim((-110, 110))
      ax2.set_xticklabels([])
 
 
      ax3 = plt.subplot2grid((5,2), (1, 1))
      plt.plot_date(p_tp,pv,'-k',label='V',linewidth=0.5)
-     ax3.set_xlim(time_now-3,time_now+3)
+     ax3.set_xlim(time_now-days_window,time_now+days_window)
      ax3.plot_date([time_now,time_now], [0,800],'-k', lw=0.5, alpha=0.8)
      ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
      plt.ylabel('V [km/s]')
@@ -551,8 +564,8 @@ def make_frame(k):
      ax4.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
      ax4.set_ylabel('B [nT]')
      ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
-     ax4.set_xlim(time_now-3,time_now+3)
-     plt.ylim((-21, 21))
+     ax4.set_xlim(time_now-days_window,time_now+days_window)
+     plt.ylim((-18, 18))
      ax4.set_xticklabels([])
 
 
@@ -560,7 +573,7 @@ def make_frame(k):
      ax5 = plt.subplot2grid((5,2), (3, 1))
      plt.plot_date(w_tp,wv,'-k',label='V',linewidth=0.5)
      ax5.plot_date([time_now,time_now], [0,800],'-k', lw=0.5, alpha=0.8)
-     ax5.set_xlim(time_now-3,time_now+3)
+     ax5.set_xlim(time_now-days_window,time_now+days_window)
      plt.ylabel('V [km/s]')
      plt.ylim((250, 700))
      ax5.set_xticklabels([])
@@ -577,10 +590,11 @@ def make_frame(k):
      plt.plot_date(s_tm,sbz,'-b',label='BN',linewidth=0.5)
      plt.plot_date(s_tm,sbt,'-k',label='Btotal')
      ax6.set_ylabel('B [nT]')
+     ax6.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
      ax6.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
-     ax6.set_xlim(time_now-3,time_now+3)
+     ax6.set_xlim(time_now-days_window,time_now+days_window)
      plt.tick_params( axis='x', labelbottom='off')
-     plt.ylim((-31, 31))
+     plt.ylim((-18, 18))
 
      '''
      ax7 = plt.subplot2grid((5,2), (5, 1))
@@ -654,8 +668,6 @@ start=time.time()
 ########## MAKE TRAJECTORIES ############
 #make_positions()
 
-
-
 file="data/psp_2018_2019.p"
 [p_tm,p_mag,p_tp,p_pro]=pickle.load( open( file, 'rb' ) )
 pbx=p_mag[:,0]  
@@ -672,7 +684,7 @@ wbz=w_mag[:,2]
 wbt=np.sqrt(wbx**2+wby**2+wbz**2)
 wv=w_pro[:,1]
 
-file="data/sta_2018_2019.p"
+file="data/sta_2018_2019_orbit2.p"
 [s_tm,s_mag]=pickle.load( open( file, 'rb' ) )
 sbx=s_mag[:,0]  
 sby=s_mag[:,1]  
@@ -682,7 +694,7 @@ sbt=np.sqrt(sbx**2+sby**2+sbz**2)
 
 ######################## Animation
 
-[psp, bepi, solo, sta, earth, venus, mars, mercury,frame]=pickle.load( open( 'results/positions_psp_solo_bepi_sta_planets_HEEQ_3hours.p', "rb" ) )
+[psp, bepi, solo, sta, earth, venus, mars, mercury,frame]=pickle.load( open( 'results/positions_psp_solo_bepi_sta_planets_HEEQ_2hours.p', "rb" ) )
 
 
 plt.close('all')
@@ -699,18 +711,13 @@ frame_time_num=mdates.date2num(sunpy.time.parse_time(start_time_str).datetime)
 if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
 
 sns.set_context('talk')
+
 if back: sns.set_style('white',{'grid.linestyle': ':', 'grid.color': '.35'})   
 if not back: sns.set_style('darkgrid'),#{'grid.linestyle': ':', 'grid.color': '.35'}) 
 
 
-if back: fig=plt.figure(6, figsize=(19.5,11), dpi=100, facecolor='black', edgecolor='black')
-if not back: fig=plt.figure(6, figsize=(20,10), dpi=100)
-
-
-fsize=15
+fsize=13
 fadeind=int(60/res_in_days)
-
-
 
 symsize_planet=110
 symsize_spacecraft=80
@@ -720,9 +727,11 @@ AUkm=149597870.7
 #for parker spiral   
 theta=np.arange(0,np.deg2rad(180),0.01)
 
+  
+
 
 #run multiprocessing pool to make all movie frames, depending only on frame number
-pool = multiprocessing.Pool()
+pool = multiprocessing.Pool(processes=20)
 print('Using multiprocessing, nr of cores',multiprocessing.cpu_count())
 input=[i for i in range(kend)]
 pool.map(make_frame, input)
@@ -731,12 +740,12 @@ pool.join()
 
 
 
-print('time in sec: ',time.time()-start)
+print('time in min: ',np.round((time.time()-start)/60))
  
  
 print('plots done')
  
-os.system('ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k -r 25 '+str(animdirectory)+'/pos_anim.mp4 -y -loglevel quiet')
+os.system('ffmpeg -r 20 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k -r 20 '+str(animdirectory)+'/pos_anim2.mp4 -y -loglevel quiet')
 
 
 
