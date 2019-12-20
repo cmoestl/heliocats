@@ -82,9 +82,9 @@ plot_parker=True
 #plot_parker=False
 
 
-outputdirectory='results/sc_insitu_plots_orbit2'
+outputdirectory='results/sc_insitu_plots_orbit3'
 
-animdirectory='results/sc_insitu_anim_orbit2'
+animdirectory='results/sc_insitu_anim_orbit3'
 
 if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
 if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
