@@ -8,8 +8,8 @@
 
 #python > 3.7 
 
-
-#needs file /heliocats/data
+#needs file /heliocats/data.py
+#saves under /data and /results
 
 #current status:
 #work in progress
@@ -39,170 +39,22 @@ import astropy
 import heliosat
 import datetime
 import seaborn as sns
-
 from numba import njit
 
 
 from heliocats import data as hd
-
 importlib.reload(hd) #reload again while debugging
-
-
 
 '''
 
 to do:
 
-- smooth MAVEN data (like before in IDL)
-- read in data files of every spacecraft
+- smooth MAVEN data (like before in IDL) and save as recarray
+- make new recarray in save_helcats_into_one() and save now datetime as vex.time etc.
 - go through all ICMEs and extract data
 - save as ICMECAT2.0
 
-
 '''
-
-
-
-
-@njit
-def cart2sphere(x,y,z):
-    r = np.sqrt(x**2+ y**2 + z**2)            # r
-    theta = np.arctan2(z,np.sqrt(x**2+ y**2))     # theta
-    phi = np.arctan2(y,x)                        # phi
-    return (r, theta, phi)
-    
-    
-def save_psp_data2(file):
-     
-    t_start = datetime.datetime(2018, 10, 14)
-    t_end = datetime.datetime(2018, 12, 20)
-    
-    #fields
-    psp_t1, psp_m1 = psp_sat.get_data_raw(t_start, t_end, "mag")
-    #t1p, p1 = psp_sat.get_data_raw(t_start, t_end, "proton")
-    psp_t1=parse_time(psp_t1,format='unix').datetime  
-    
-    #sweap
-    t_swe1, swe1 = psp_sat.get_data_raw(t_start, t_end, "spc_l3i")
-    t_swe1=parse_time(t_swe1,format='unix').datetime  
-    
-
-    #fields
-    t_start2 = datetime.datetime(2019, 3, 1)
-    t_end2 = datetime.datetime(2019, 5, 30)
-    psp_t2, psp_m2 = psp_sat.get_data_raw(t_start2, t_end2, "mag")
-    psp_t2=parse_time(psp_t2,format='unix').datetime  
-    
-    #sweap
-    t_swe2, swe2 = psp_sat.get_data_raw(t_start2, t_end2, "spc_l3i")
-    t_swe2=parse_time(t_swe2,format='unix').datetime  
-
-
-
-
-
-    pos1=psp_sat.trajectory(psp_t1, frame="HEEQ")
-    pos2=psp_sat.trajectory(psp_t2, frame="HEEQ")
-
-    '''
-    starttime =datetime.datetime(2018, 8,13)
-    endtime = datetime.datetime(2019, 8, 31)
-    psp_time = []
-    while starttime < endtime:
-        psp_time.append(starttime)
-        starttime += datetime.timedelta(days=1/24.)
-    psp_time_num=mdates.date2num(psp_time)     
-
-    spice.furnish(spicedata.get_kernel('psp_pred'))
-    psp=spice.Trajectory('SPP')
-    psp.generate_positions(psp_time,'Sun','HEEQ')
-    print('PSP pos')
-
-    psp.change_units(astropy.units.AU)  
-    '''
-    
-    [pos1_r, pos1_lat, pos1_lon]=cart2sphere(pos1[:,0],pos1[:,1],pos1[:,2])
-    [pos2_r, pos2_lat, pos2_lon]=cart2sphere(pos2[:,0],pos2[:,1],pos2[:,2])
-
-
-    pickle.dump([pos1_r, pos1_lat, pos1_lon, pos2_r, pos2_lat, pos2_lon,  psp_t1,psp_m1,psp_t2,psp_m2,t_swe1,swe1,t_swe2,swe2], open(file, "wb"))
-
-
-
-
-def save_wind_data(file):
-    
-    wind_sat = heliosat.WIND()
-    t_start = datetime.datetime(2018, 10, 1)
-    t_end = datetime.datetime(2019, 5, 31)
-    tm, mag = wind_sat.get_data_raw(t_start, t_end, "mag")
-    tp, pro = wind_sat.get_data_raw(t_start, t_end, "proton")
-    
-    tm=parse_time(tm,format='unix').datetime 
-    tp=parse_time(tp,format='unix').datetime 
-    
-    pickle.dump([tm,mag, tp,pro], open(file, "wb"))
-    
-
-def save_stereoa_data(file):
-
-
-    print('start')
-    sta_sat = heliosat.STA()
-    t_start = datetime.datetime(2018, 10, 10)
-    t_end = datetime.datetime(2018, 10, 25)
-    tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag_beacon")
-    tp, pro = sta_sat.get_data_raw(t_start, t_end, "sta_plastic_beacon")
-
-    print('download complete')
-   
-    tm=parse_time(tm,format='unix').datetime 
-    tp=parse_time(tp,format='unix').datetime 
-
-    print('time convert done')
-    pickle.dump([tm,mag, tp, pro], open(file, "wb"))
-    #pickle.dump([ tp, pro], open(file, "wb"))
-
-
-    '''
-    print('file saved')    
-    sta_sat = heliosat.STA()
-    t_start = datetime.datetime(2018, 10, 10)
-    t_end = datetime.datetime(2018, 10, 25)
-    print('download')
-    tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag_beacon")
-    tp, pro = sta_sat.get_data_raw(t_start, t_end, "sta_plastic_beacon")
-
-    print('convert time')
-    
-    tm=parse_time(tm,format='unix').datetime 
-    tp=parse_time(tp,format='unix').datetime 
-
-    
-    pickle.dump([tm,mag, tp,pro], open(file, "wb"))
-    
-    print('save file')
-
-    #pickle.dump([tm,mag], open(file, "wb"))
-    '''
-    
-    
-def save_psp_data(file):
-     
-     
-    psp_sat = heliosat.PSP()
-     
-    t_start = datetime.datetime(2018, 10, 10)
-    t_end = datetime.datetime(2019, 5, 31)
-    
-    tm, mag = psp_sat.get_data_raw(t_start, t_end, "mag")
-    tp, pro = psp_sat.get_data_raw(t_start, t_end, "spc_l3i")
-
-    tm=parse_time(tm,format='unix').datetime 
-    tp=parse_time(tp,format='unix').datetime 
-
-
-    pickle.dump([tm,mag, tp,pro], open(file, "wb"))
 
 
     
@@ -211,106 +63,98 @@ def save_psp_data(file):
 ##########################################################################################
 
 
-
-#file="data/sta_2018_2019_1new.p"
-#save_stereoa_data(file)
-#sys.exit()
-
-file="data/sta_2018_2019_3.p"
-[s_tm,s_mag,tp,pro]=pickle.load( open( file, 'rb' ) )
-sbx=s_mag[:,0]  
-sby=s_mag[:,1]  
-sbz=s_mag[:,2]  
-sbt=np.sqrt(sbx**2+sby**2+sbz**2)
+##################################### (1) get new data if necessary
 
 
+'''
+#Wind
+file="data/wind_jan2018_nov2019.p"
+hd.save_wind_data(file)
+windnew=pickle.load(open(file, "rb" ) )  
 
-sys.exit()
+#PSP
+file="data/psp_oct2018_may2019.p"
+hd.save_psp_data(file)
+psp=pickle.load(open(file, "rb" ) )  
+'''
 
-file="data/sta_2018_2019_orbit2.p"
-print('start')
-sta_sat = heliosat.STA()
-t_start = datetime.datetime(2019, 3, 1)
-t_end = datetime.datetime(2019, 5, 31)
-tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag_beacon")
-print('download complete')
-   
-tm=parse_time(tm,format='unix').datetime 
-
-print('time convert done')
-pickle.dump([tm,mag], open(file, "wb"))
-
-#pickle.dump([ tp, pro], open(file, "wb"))
-
-print('file saved')
-
-
-#file="data/sta_2018_2019.p"
-#save_stereoa_data(file)
+#STEREO-A
+file="data/sta_jan2018_may2019.p"
+hd.save_stereoa_data(file)
+stanew=pickle.load(open(file, "rb" ) )  
 
 
 
 
-
-sys.exit()
-
-
-file="data/psp_2018_2019.p"
-save_psp_data(file)
-
-
-
-
-
-
-
-file="data/psp_2018_2019.p"
-save_psp_data(file)
-
-
-
+#BepiColombo
 #
-#file="data/wind_2018_2019.p"
-#save_wind_data(file)
-
+#ä
 
 
 sys.exit()
 
+
+#MAVEN
+
+mav=hd.load_MAVEN()
+
+##################################### (2) load HELCATS DATACAT
+
+#make if necessary
+#hd.save_helcats_datacat()
+[vex,vex_time,wind,wind_time,sta,sta_time,stb,stb_time,mes,mes_time]=hd.load_helcats_datacat() 
+
+
+sys.exit()
+
+
+
+
+
+
+
+################################ (3) make ICMECAT 
+
+
+
+
+
+
+
+
+
+
+
+
+################################ (4) save ICMECAT in various formats
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 '''
-
-file="data/sta_2018_2019.p"
-print('start')
-sta_sat = heliosat.STA()
-t_start = datetime.datetime(2018, 10, 1)
-t_end = datetime.datetime(2018, 11, 30)
-tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag")
-print('download complete')
-   
-tm=parse_time(tm,format='unix').datetime 
-print('time convert done')
-pickle.dump([tm,mag], open(file, "wb"))
-print('file saved')
-
-'''
-
-
-
-
-
-
 psp_sat = heliosat.PSP()
 file="data/psp_orbits_1_2.p"
-
-#save_psp_mag(file)
-
-
 [r1, lat1, lon1, r2, lat2, lon2, t1,m1,t2,m2, t_swe1,swe1, t_swe2, swe2]=pickle.load( open( file, 'rb' ) )
-
-
-
-
-'''
 #cme
 t1=t1[40000:48000]
 m1=m1[40000:48000,:]
@@ -318,7 +162,6 @@ m1=m1[40000:48000,:]
 #swe1=swe1[40000:48000,:]
 r1=r1[40000:48000]
 lon1=lon1[40000:48000]
-'''
 
 bx1=m1[:,0]  
 by1=m1[:,1]  
@@ -436,66 +279,9 @@ plt.plot_date(mav['timeD'],mav['BT'],'-k')
 #smooth with median filter?
 
 print('done')
+'''
 
 
-
-
-
-##################################### read in situ
-
-print( 'read MESSENGER')
-#get insitu data
-mes= pickle.load( open( "data/MES_2007to2015_SCEQ_removed.p", "rb" ) )
-#time conversion
-#mes_time=IDL_time_to_num(mes.time)
-print( 'read MESSENGER done.')
-
-
-
-print ('read VEX')
-#get insitu data
-vex= pickle.load( open( "data/VEX_2007to2014_SCEQ_removed.p", "rb" ) )
-#time conversion
-#vex_time=IDL_time_to_num(vex.time)
-print( 'read VEX done.')
-
-
-
-print( 'read Wind')
-#get insitu data
-wind= pickle.load( open( "data/WIND_2007to2018_HEEQ.p", "rb" ) )
-#time conversion
-#wind_time=IDL_time_to_num(wind.time)
-print( 'read Wind done.')
-
-
-
-
-print( 'read STEREO-A')
-#get insitu data
-sta= pickle.load( open( "data/STA_2007to2015_SCEQ.p", "rb" ) )
-#time conversion
-#sta_time=IDL_time_to_num(sta.time)
-print( 'read STA done.')
-
-
-
-
-print( 'read STEREO-B')
-#get insitu data
-stb= pickle.load( open( "data/STB_2007to2014_SCEQ.p", "rb" ) )
-
-#time conversion
-#stb_time=IDL_time_to_num(stb.time)
-print( 'read STB done.')
-
-#save times
-#pickle.dump([vex_time,wind_time,sta_time,stb_time,mes_time], open( "DATACAT/Insitu_times_mdates_2.p", "wb" ) )
-
-#quicker when just reloading times
-#[vex_time,wind_time,sta_time,stb_time,mes_time]=pickle.load( open( "DATACAT/Insitu_times_mdates_2.p", "rb" ) )
-#print 'loaded in situ times'
-######################################
 
 
 

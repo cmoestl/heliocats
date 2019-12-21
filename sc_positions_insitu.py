@@ -82,9 +82,9 @@ plot_parker=True
 #plot_parker=False
 
 
-outputdirectory='results/sc_insitu_plots_orbit3'
+outputdirectory='results/sc_insitu_plots_orbit2_final'
 
-animdirectory='results/sc_insitu_anim_orbit3'
+animdirectory='results/sc_insitu_anim_orbit2_final'
 
 if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
 if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
@@ -92,17 +92,17 @@ if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
 
 high_res_mode=False
 
-#start_time_str='2018-Oct-15 00:00:00'
+start_time_str='2018-Oct-15 00:00:00'
 
 
-start_time_str='2019-Mar-10 00:00:00'
+#start_time_str='2019-Mar-10 00:00:00'
 
 
 #Time resolution
-res_in_days=1/12.
+res_in_days=1/24.
 
 
-kend=600
+kend=1200
 
 
 days_window=3
@@ -363,7 +363,6 @@ def make_frame(k):
      '''
 
 
-
      if back:     fig=plt.figure(1, figsize=(19.5,11), dpi=100, facecolor='black', edgecolor='black')
      if not back: fig=plt.figure(1, figsize=(20,10), dpi=100)
 
@@ -494,15 +493,15 @@ def make_frame(k):
 
      #parker spiral
      if plot_parker:
-      for p in np.arange(0,12):
+      for q in np.arange(0,12):
        #parker spiral
        #sidereal rotation
        omega=2*np.pi/(sun_rot*60*60*24) #solar rotation in seconds
        v=400/AUkm #km/s
        r0=695000/AUkm
        r=v/omega*theta+r0*7
-       if not back: ax.plot(-theta+np.deg2rad(0+(360/24.47)*res_in_days*k+360/12*p), r, alpha=0.4, lw=0.5,color='grey',zorder=2)
-       if back: ax.plot(-theta+np.deg2rad(0+(360/24.47)*res_in_days*k+360/12*p), r, alpha=0.7, lw=0.7,color='grey',zorder=2)
+       if not back: ax.plot(-theta+np.deg2rad(0+(360/24.47)*res_in_days*k+360/12*q), r, alpha=0.4, lw=0.5,color='grey',zorder=2)
+       if back: ax.plot(-theta+np.deg2rad(0+(360/24.47)*res_in_days*k+360/12*q), r, alpha=0.7, lw=0.7,color='grey',zorder=2)
  
  
  
@@ -532,10 +531,19 @@ def make_frame(k):
      #### PSP
 
      ax2 = plt.subplot2grid((5,2), (0, 1))
+     '''
      plt.plot_date(p_tm,pbx,'-r',label='BR',linewidth=0.5)
      plt.plot_date(p_tm,pby,'-g',label='BT',linewidth=0.5)
      plt.plot_date(p_tm,pbz,'-b',label='BN',linewidth=0.5)
      plt.plot_date(p_tm,pbt,'-k',label='Btotal',lw=0.5)
+     '''
+     
+     plt.plot_date(p.time,p.bx,'-r',label='BR',linewidth=0.5)
+     plt.plot_date(p.time,p.by,'-g',label='BT',linewidth=0.5)
+     plt.plot_date(p.time,p.bz,'-b',label='BN',linewidth=0.5)
+     plt.plot_date(p.time,p.bt,'-k',label='Btotal',lw=0.5)
+
+     
      ax2.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
      ax2.set_ylabel('B [nT]')
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
@@ -545,7 +553,9 @@ def make_frame(k):
 
 
      ax3 = plt.subplot2grid((5,2), (1, 1))
-     plt.plot_date(p_tp,pv,'-k',label='V',linewidth=0.5)
+     #plt.plot_date(p_tp,pv,'-k',label='V',linewidth=0.5)
+     plt.plot_date(p.time,p.v,'-k',label='V',linewidth=0.5)
+
      ax3.set_xlim(time_now-days_window,time_now+days_window)
      ax3.plot_date([time_now,time_now], [0,800],'-k', lw=0.5, alpha=0.8)
      ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
@@ -557,10 +567,16 @@ def make_frame(k):
      ########## Wind
 
      ax4 = plt.subplot2grid((5,2), (2, 1))
-     plt.plot_date(w_tm,wbx,'-r',label='BR',linewidth=0.5)
-     plt.plot_date(w_tm,wby,'-g',label='BT',linewidth=0.5)
-     plt.plot_date(w_tm,wbz,'-b',label='BN',linewidth=0.5)
-     plt.plot_date(w_tm,wbt,'-k',label='Btotal',lw=0.5)
+     #plt.plot_date(w_tm,wbx,'-r',label='BR',linewidth=0.5)
+     #plt.plot_date(w_tm,wby,'-g',label='BT',linewidth=0.5)
+     #plt.plot_date(w_tm,wbz,'-b',label='BN',linewidth=0.5)
+     #plt.plot_date(w_tm,wbt,'-k',label='Btotal',lw=0.5)
+     plt.plot_date(w.time,w.bx,'-r',label='BR',linewidth=0.5)
+     plt.plot_date(w.time,w.by,'-g',label='BT',linewidth=0.5)
+     plt.plot_date(w.time,w.bz,'-b',label='BN',linewidth=0.5)
+     plt.plot_date(w.time,w.bt,'-k',label='Btotal',lw=0.5)
+
+
      ax4.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
      ax4.set_ylabel('B [nT]')
      ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
@@ -571,7 +587,9 @@ def make_frame(k):
 
 
      ax5 = plt.subplot2grid((5,2), (3, 1))
-     plt.plot_date(w_tp,wv,'-k',label='V',linewidth=0.5)
+     plt.plot_date(w.time,w.v,'-k',label='V',linewidth=0.5)
+     #plt.plot_date(w_tp,wv,'-k',label='V',linewidth=0.5)
+
      ax5.plot_date([time_now,time_now], [0,800],'-k', lw=0.5, alpha=0.8)
      ax5.set_xlim(time_now-days_window,time_now+days_window)
      plt.ylabel('V [km/s]')
@@ -585,11 +603,17 @@ def make_frame(k):
  
 
      ax6 = plt.subplot2grid((5,2), (4, 1))
-     plt.plot_date(s_tm,sbx,'-r',label='BR',linewidth=0.5)
-     plt.plot_date(s_tm,sby,'-g',label='BT',linewidth=0.5)
-     plt.plot_date(s_tm,sbz,'-b',label='BN',linewidth=0.5)
-     plt.plot_date(s_tm,sbt,'-k',label='Btotal')
+     #plt.plot_date(s_tm,sbx,'-r',label='BR',linewidth=0.5)
+     #plt.plot_date(s_tm,sby,'-g',label='BT',linewidth=0.5)
+     #plt.plot_date(s_tm,sbz,'-b',label='BN',linewidth=0.5)
+     #plt.plot_date(s_tm,sbt,'-k',label='Btotal')
+     plt.plot_date(s.time,s.bx,'-r',label='BR',linewidth=0.5)
+     plt.plot_date(s.time,s.by,'-g',label='BT',linewidth=0.5)
+     plt.plot_date(s.time,s.bz,'-b',label='BN',linewidth=0.5)
+     plt.plot_date(s.time,s.bt,'-k',label='Btotal')
+ 
      ax6.set_ylabel('B [nT]')
+ 
      ax6.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
      ax6.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
      ax6.set_xlim(time_now-days_window,time_now+days_window)
@@ -668,6 +692,21 @@ start=time.time()
 ########## MAKE TRAJECTORIES ############
 #make_positions()
 
+file="data/psp_oct2018_may2019.p"
+p=pickle.load(open(file, "rb" ) )  
+
+
+file="data/wind_jan2018_nov2019.p"
+w=pickle.load(open(file, "rb" ) )  
+
+file="data/sta_jan2018_may2019.p"
+s=pickle.load(open(file, "rb" ) )  
+
+
+
+'''
+
+
 file="data/psp_2018_2019.p"
 [p_tm,p_mag,p_tp,p_pro]=pickle.load( open( file, 'rb' ) )
 pbx=p_mag[:,0]  
@@ -690,7 +729,7 @@ sbx=s_mag[:,0]
 sby=s_mag[:,1]  
 sbz=s_mag[:,2]  
 sbt=np.sqrt(sbx**2+sby**2+sbz**2)
-
+'''
 
 ######################## Animation
 
@@ -728,11 +767,12 @@ AUkm=149597870.7
 theta=np.arange(0,np.deg2rad(180),0.01)
 
   
+sys.exit()
 
-
+nr_of_processes_used=20
 #run multiprocessing pool to make all movie frames, depending only on frame number
-pool = multiprocessing.Pool(processes=20)
-print('Using multiprocessing, nr of cores',multiprocessing.cpu_count())
+pool = multiprocessing.Pool(processes=nr_of_processes_used)
+print('Using multiprocessing, nr of cores',multiprocessing.cpu_count(), 'with nr of processes used: ',nr_of_processes_used)
 input=[i for i in range(kend)]
 pool.map(make_frame, input)
 pool.close()
@@ -745,7 +785,7 @@ print('time in min: ',np.round((time.time()-start)/60))
  
 print('plots done')
  
-os.system('ffmpeg -r 20 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k -r 20 '+str(animdirectory)+'/pos_anim2.mp4 -y -loglevel quiet')
+os.system('ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k -r 25 '+str(animdirectory)+'/pos_anim2.mp4 -y -loglevel quiet')
 
 
 
