@@ -3,6 +3,7 @@
 #https://github.com/cmoestl/heliocats
 
 import numpy as np
+import pandas as pd
 import scipy
 import copy
 import sunpy
@@ -19,6 +20,55 @@ import cdflib
 import heliosat
 from numba import njit
 from sunpy.time import parse_time
+import heliopy.data.spice as spicedata
+import heliopy.spice as spice
+import astropy
+
+
+
+###################################### HELCATS #############################################
+
+
+
+
+def load_helcats_icmecat(file):
+
+    print('load HELCATS ICMECAT from file:', file)
+    ic=pd.read_excel(file)
+    
+
+    #convert times to datetime objects
+    for i in np.arange(0,ic.shape[0]):    
+    
+        a=str(ic.icme_start_time[i]).strip() #remove leading and ending blank spaces if any
+        ic.icme_start_time[i]=sunpy.time.parse_time(a).datetime
+        
+        a=str(ic.mo_start_time[i]).strip() #remove leading and ending blank spaces if any
+        ic.mo_start_time[i]=sunpy.time.parse_time(a).datetime 
+
+        a=str(ic.mo_end_time[i]).strip() #remove leading and ending blank spaces if any
+        ic.mo_end_time[i]=sunpy.time.parse_time(a).datetime 
+
+        
+        a=str(ic.icme_end_time[i]).strip() #remove leading and ending blank spaces if any
+        
+        if a!= '9999-99-99T99:99Z':
+            ic.icme_end_time[i]=sunpy.time.parse_time(a).datetime 
+        else: ic.icme_end_time[i]=np.nan
+
+
+
+    return ic
+
+
+
+
+
+
+
+
+
+
 
 ######################################################### MAVEN ####################################
 '''
@@ -114,8 +164,6 @@ def save_wind_data(file):
     
     tm=parse_time(tm,format='unix').datetime 
     tp=parse_time(tp,format='unix').datetime 
-    print('time convert done')
-    
     
     #convert to matplotlib time for linear interpolation
     tm_mat=mdates.date2num(tm) 
@@ -123,6 +171,19 @@ def save_wind_data(file):
     
     print('time convert done')
         
+    
+    
+    print('position start')
+    frame='HEEQ'
+    planet_kernel=spicedata.get_kernel('planet_trajectories')
+    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
+    earth.generate_positions(time,'Sun',frame)
+    earth.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(earth.x,earth.y,earth.z)
+    print('position end ')
+    
+    
+    
     
     #linear interpolation to time_mat times    
     bx = np.interp(time_mat, tm_mat, mag[:,0] )
@@ -138,22 +199,31 @@ def save_wind_data(file):
 
     
     #make array
-    wind=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('p0', float),('v', float),('p2', float),('p3', float),('p4', float)])   
+    win=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('p0', float),('v', float),('p2', float),('p3', float),('p4', float),('x', float),('y', float),('z', float),('r', float),('lat', float),('lon', float)])   
        
     #convert to recarray
-    wind = wind.view(np.recarray)  
+    win = win.view(np.recarray)  
 
     #fill with data
-    wind.time=time
-    wind.bx=bx
-    wind.by=by
-    wind.bz=bz 
-    wind.bt=bt
+    win.time=time
+    win.bx=bx
+    win.by=by
+    win.bz=bz 
+    win.bt=bt
+
+
+    win.x=earth.x
+    win.y=earth.y
+    win.z=earth.z
+    
+    win.r=r
+    win.lat=lat
+    win.lon=lon
 
     
     #wind.p0=p0
     #wind.p1=p1    
-    wind.v=v    
+    win.v=v    
     #wind.p3=p3
     #wind.p4=p4
     
@@ -161,7 +231,7 @@ def save_wind_data(file):
 
     #pickle.dump([tm,mag, tp,pro], open(file, "wb"))
     #[tm,mag, tp,pro]=pickle.load(open( "data/wind_oct2018_may2019.p", "rb" ) )  
-    pickle.dump(wind, open(file, "wb"))
+    pickle.dump(win, open(file, "wb"))
     
     
     print('wind done')
@@ -198,6 +268,19 @@ def save_stereoa_data(file):
     tp_mat=mdates.date2num(tp) 
     
     print('time convert done')
+    
+    
+    print('position start')
+    frame='HEEQ'
+    spice.furnish(spicedata.get_kernel('stereo_a_pred'))
+    statra=spice.Trajectory('-234')
+    statra.generate_positions(time,'Sun',frame)
+    statra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(statra.x,statra.y,statra.z)
+    print('position end ')
+    
+    
+  
         
     
     #linear interpolation to time_mat times    
@@ -214,7 +297,7 @@ def save_stereoa_data(file):
 
     
     #make array
-    sta=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('p0', float),('v', float),('p2', float),('p3', float),('p4', float)])   
+    sta=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('p0', float),('v', float),('p2', float),('p3', float),('p4', float),('x', float),('y', float),('z', float),('r', float),('lat', float),('lon', float)])   
        
     #convert to recarray
     sta = sta.view(np.recarray)  
@@ -225,6 +308,17 @@ def save_stereoa_data(file):
     sta.by=by
     sta.bz=bz 
     sta.bt=bt
+
+
+
+    sta.x=statra.x
+    sta.y=statra.x
+    sta.z=statra.x
+    
+    sta.r=r
+    sta.lat=lat
+    sta.lon=lon
+
 
     
     #sta.p0=p0
@@ -254,13 +348,16 @@ def save_stereoa_data(file):
     print()
 
 
+
+
+
     
 def save_psp_data(file):
      
     print('start PSP')
      
     psp_sat = heliosat.PSP()
-    t_start = datetime.datetime(2018, 10, 6)
+    t_start = datetime.datetime(2018, 10, 15)
     t_end = datetime.datetime(2019, 5, 31)
     
     #create an array with 1 minute resolution between t start and end
@@ -280,6 +377,23 @@ def save_psp_data(file):
     tp_mat=mdates.date2num(tp) 
     
     print('time convert done')
+
+      
+    print('position start')
+    frame='HEEQ'
+    spice.furnish(spicedata.get_kernel('psp_pred'))
+    psptra=spice.Trajectory('SPP')
+    psptra.generate_positions(time,'Sun',frame)
+    psptra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(psptra.x,psptra.y,psptra.z)
+    print('PSP pos')
+    
+
+
+    
+    print('position end')
+    
+
     
     #linear interpolation to time_mat times    
     bx = np.interp(time_mat, tm_mat, mag[:,0] )
@@ -295,7 +409,7 @@ def save_psp_data(file):
 
     
     #make array
-    psp=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('p0', float),('p1', float),('v', float),('p3', float),('p4', float)])   
+    psp=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('p0', float),('p1', float),('v', float),('p3', float),('p4', float),('x', float),('y', float),('z', float),('r', float),('lat', float),('lon', float)])   
        
     #convert to recarray
     psp = psp.view(np.recarray)  
@@ -306,7 +420,16 @@ def save_psp_data(file):
     psp.by=by
     psp.bz=bz 
     psp.bz=bt
+    
+    psp.x=psptra.x
+    psp.y=psptra.x
+    psp.z=psptra.x
+    
+    psp.r=r
+    psp.lat=lat
+    psp.lon=lon
 
+    
     
     psp.p0=p0
     psp.p1=p1    
@@ -327,11 +450,9 @@ def save_psp_data(file):
   
   
   
-def save_helcats_into_one():  
-  
-  
-    ################ read in situ
-    
+def save_helcats_datacat():  
+    ''' to save all of helcats DATACAT into a single file'''
+      
     print('save all helcats DATACAT into single file')
 
     datacat_path='/nas/helio/data/DATACAT/'
@@ -341,72 +462,56 @@ def save_helcats_into_one():
     mes= pickle.load( open( datacat_path+"MES_2007to2015_SCEQ_removed.p", "rb" ) )
     #time conversion
     mes_time=parse_time(mes.time,format='utime').datetime
+    #replace mes.time with datetime object
+    mes=mes.astype([(('time', 'TIME'), 'object'), (('btot', 'BTOT'), '>f8'), (('bx', 'BX'), '>f8'), (('by', 'BY'), '>f8'), (('bz', 'BZ'), '>f8'), (('mes_radius_in_km_heeq', 'MES_RADIUS_IN_KM_HEEQ'), '>f8'), (('mes_latitude_in_radians_heeq', 'MES_LATITUDE_IN_RADIANS_HEEQ'), '>f8'), (('mes_longitude_in_radians_heeq', 'MES_LONGITUDE_IN_RADIANS_HEEQ'), '>f8')])       
+    mes.time=mes_time
     print( 'read MESSENGER done.')
 
-
-
     print ('read VEX')
-    #get insitu data
     vex= pickle.load( open(datacat_path+ "VEX_2007to2014_SCEQ_removed.p", "rb" ) )
-    #time conversion
     vex_time=parse_time(vex.time,format='utime').datetime
+    vex=vex.astype([(('time', 'TIME'), 'object'), (('btot', 'BTOT'), '>f8'), (('bx', 'BX'), '>f8'), (('by', 'BY'), '>f8'), (('bz', 'BZ'), '>f8'), (('vex_radius_in_km_heeq', 'VEX_RADIUS_IN_KM_HEEQ'), '>f8'), (('vex_latitude_in_radians_heeq', 'VEX_LATITUDE_IN_RADIANS_HEEQ'), '>f8'), (('vex_longitude_in_radians_heeq', 'VEX_LONGITUDE_IN_RADIANS_HEEQ'), '>f8')])       
+    vex.time=vex_time
     print( 'read VEX done.')
 
-
-
     print( 'read Wind')
-    #get insitu data
-    wind= pickle.load( open(datacat_path+ "WIND_2007to2018_HEEQ.p", "rb" ) )
-    #time conversion
-    wind_time=parse_time(wind.time,format='utime').datetime
+    win= pickle.load( open(datacat_path+ "WIND_2007to2018_HEEQ.p", "rb" ) )
+    win_time=parse_time(win.time,format='utime').datetime
+    win=win.astype([(('time', 'TIME'),'object'), (('btot', 'BTOT'), '>f8'), (('bx', 'BX'), '>f8'), (('by', 'BY'), '>f8'), (('bz', 'BZ'), '>f8'), (('vtot', 'VTOT'), '>f8'), (('vx', 'VX'), '>f8'), (('vy', 'VY'), '>f8'), (('vz', 'VZ'), '>f8'), (('temperature', 'TEMPERATURE'), '>f8'), (('density', 'DENSITY'), '>f8'), (('win_radius_in_km_heeq', 'WIN_RADIUS_IN_KM_HEEQ'), '>f8'), (('win_latitude_in_radians_heeq', 'WIN_LATITUDE_IN_RADIANS_HEEQ'), '>f8'), (('win_longitude_in_radians_heeq', 'WIN_LONGITUDE_IN_RADIANS_HEEQ'), '>f8')])       
+    win.time=win_time
     print( 'read Wind done.')
 
-
-
-
     print( 'read STEREO-A')
-    #get insitu data
     sta= pickle.load( open(datacat_path+ "STA_2007to2015_SCEQ.p", "rb" ) )
-    #time conversion
     sta_time=parse_time(sta.time,format='utime').datetime
+    sta=sta.astype([(('time', 'TIME'),'object'), (('btot', 'BTOT'), '>f8'), (('bx', 'BX'), '>f8'), (('by', 'BY'), '>f8'), (('bz', 'BZ'), '>f8'), (('vtot', 'VTOT'), '>f8'), (('vx', 'VX'), '>f8'), (('vy', 'VY'), '>f8'), (('vz', 'VZ'), '>f8'), (('temperature', 'TEMPERATURE'), '>f8'), (('density', 'DENSITY'), '>f8'), (('sta_radius_in_km_heeq', 'STA_RADIUS_IN_KM_HEEQ'), '>f8'), (('sta_latitude_in_radians_heeq', 'STA_LATITUDE_IN_RADIANS_HEEQ'), '>f8'), (('sta_longitude_in_radians_heeq', 'STA_LONGITUDE_IN_RADIANS_HEEQ'), '>f8')])       
+    sta.time=sta_time
     print( 'read STA done.')
 
-
     print( 'read STEREO-B')
-    #get insitu data
     stb= pickle.load( open(datacat_path+ "STB_2007to2014_SCEQ.p", "rb" ) )
-
-    #time conversion
     stb_time=parse_time(stb.time,format='utime').datetime
+    stb=stb.astype([(('time', 'TIME'),'object'), (('btot', 'BTOT'), '>f8'), (('bx', 'BX'), '>f8'), (('by', 'BY'), '>f8'), (('bz', 'BZ'), '>f8'), (('vtot', 'VTOT'), '>f8'), (('vx', 'VX'), '>f8'), (('vy', 'VY'), '>f8'), (('vb', 'VZ'), '>f8'), (('temperature', 'TEMPERATURE'), '>f8'), (('density', 'DENSITY'), '>f8'), (('stb_radius_in_km_heeq', 'STB_RADIUS_IN_KM_HEEQ'), '>f8'), (('stb_latitude_in_radians_heeq', 'STB_LATITUDE_IN_RADIANS_HEEQ'), '>f8'), (('stb_longitude_in_radians_heeq', 'STB_LONGITUDE_IN_RADIANS_HEEQ'), '>f8')])       
+    stb.time=stb_time
     print( 'read STB done.')
 
-    #save times
-    #pickle.dump([vex_time,wind_time,sta_time,stb_time,mes_time], open(datacat_path+ "all_insitu_times_mdates.p", "wb" ) )
 
+    pickle.dump([vex,win,mes,sta,stb], open(datacat_path+ "helcats_all_data.p", "wb" ) )
 
-    #pickle.dump([vex,vex_time,wind,wind_time,sta,sta_time,stb,stb_time,mes,mes_time], open(datacat_path+ "helcats_all.p", "wb" ) )
-    pickle.dump([vex,vex_time,wind,wind_time,sta,sta_time,stb,stb_time,mes,mes_time], open(datacat_path+ "helcats_all.p", "wb" ) )
-
-
-    #quicker when just reloading times
-    #[vex_time,wind_time,sta_time,stb_time,mes_time]=pickle.load( open( "DATACAT/Insitu_times_mdates_2.p", "rb" ) )
-    #print 'loaded in situ times'
-    ######################################
 
 
 
 
   
-def load_helcats_datacat():  
-
-    print('load all helcats DATACAT from single file')
-    all_datacat_path='/nas/helio/data/DATACAT/helcats_all.p'
-    print(all_datacat_path)
-    [vex,vex_time,wind,wind_time,sta,sta_time,stb,stb_time,mes,mes_time]=pickle.load( open(all_datacat_path, "rb" ) )
-    print('use vex,vex_time,wind,wind_time,sta,sta_time,stb,stb_time,mes,mes_time')
-
-    return [vex,vex_time,wind,wind_time,sta,sta_time,stb,stb_time,mes,mes_time]
+def load_helcats_datacat(file):  
+    ''' to load all of helcats DATACAT from a single file'''
     
+    print('load all helcats DATACAT from single file: ', file)
+    [vex,win,mes,sta,stb]=pickle.load( open(file, "rb" ) )
+    print('use vex,win,sta,stb,mes to access data and position')
+    return [vex,win,mes,sta,stb]
+    
+     
 
 
 '''

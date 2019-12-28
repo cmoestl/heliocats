@@ -281,7 +281,7 @@ def make_positions():
     [mercury_r, mercury_lat, mercury_lon]=cart2sphere(mercury.x,mercury.y,mercury.z)
     print('mercury') 
 
-    ################# venusus
+    ################# venus
     venus_time_num=earth_time_num
     venus=spice.Trajectory('2')  
     venus.generate_positions(earth_time,'Sun',frame)  

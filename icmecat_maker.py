@@ -1,18 +1,18 @@
 # icmecat_maker.py
 #
-# makes the ICMECAT
+# makes the ICMECATv2.0
 
-#Author: C. Moestl, IWF Graz, Austria
-#twitter @chrisoutofspace, https://github.com/cmoestl/heliocats
-#last update November 2019
+# Author: C. Moestl, IWF Graz, Austria
+# twitter @chrisoutofspace, https://github.com/cmoestl/heliocats
+# last update December 2019
 
-#python > 3.7 
+# python > 3.7 
 
-#needs file /heliocats/data.py
-#saves under /data and /results
+# needs file /heliocats/data.py
+# saves under /data and /results
 
-#current status:
-#work in progress
+# current status:
+# work in progress
 
 
 from scipy import stats
@@ -36,6 +36,8 @@ import importlib
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 import astropy
+import pandas as pd
+import openpyxl
 import heliosat
 import datetime
 import seaborn as sns
@@ -49,10 +51,11 @@ importlib.reload(hd) #reload again while debugging
 
 to do:
 
-- smooth MAVEN data (like before in IDL) and save as recarray
-- make new recarray in save_helcats_into_one() and save now datetime as vex.time etc.
+- smooth MAVEN data (like before in IDL) and save as recarray, add position MAVEN (only Mars?)
+- new B and V for STA, Wind and PSP as SCEQ components
+- set data gaps to NaN so linear interpolation does not show wrong data
 - go through all ICMEs and extract data
-- save as ICMECAT2.0
+- save as ICMECAT2.0 txt und .p
 
 '''
 
@@ -63,52 +66,57 @@ to do:
 ##########################################################################################
 
 
-##################################### (1) get new data if necessary
+
+##################################### (1) get new data 
+
+filewin2="data/wind_jan2018_nov2019_GSE_HEEQ.p" #*******GSE?
+filesta2="data/sta_jan2018_may2019_RTN_HEEQ.p"
+filepsp="data/psp_oct2018_may2019_RTN_HEEQ.p"
 
 
-'''
-#Wind
-file="data/wind_jan2018_nov2019.p"
-hd.save_wind_data(file)
-windnew=pickle.load(open(file, "rb" ) )  
 
-#PSP
-file="data/psp_oct2018_may2019.p"
-hd.save_psp_data(file)
-psp=pickle.load(open(file, "rb" ) )  
-'''
-
-#STEREO-A
-file="data/sta_jan2018_may2019.p"
-hd.save_stereoa_data(file)
-stanew=pickle.load(open(file, "rb" ) )  
+#hd.save_psp_data(filepsp)
 
 
+#sys.exit()
+
+
+# save files from raw data if necessary
+#hd.save_wind_data(filewin2)
+
+#sys.exit()
+
+#hd.save_stereoa_data(filesta2)
+
+#sys.exit()
+
+#hd.save_psp_data(filepsp)
+
+
+
+#load 
+print('load wind from 2018, PSP, and STEREO-A')
+win2=pickle.load(open(filewin2, "rb" ) )  
+sta2=pickle.load(open(filesta2, "rb" ) )  
+psp=pickle.load(open(filepsp, "rb" ) )  
 
 
 #BepiColombo
 #
-#ä
 
+#MAVEN  *** TO DO
+#mav=hd.load_MAVEN()
 
-sys.exit()
-
-
-#MAVEN
-
-mav=hd.load_MAVEN()
 
 ##################################### (2) load HELCATS DATACAT
 
-#make if necessary
-#hd.save_helcats_datacat()
-[vex,vex_time,wind,wind_time,sta,sta_time,stb,stb_time,mes,mes_time]=hd.load_helcats_datacat() 
+#make a single helcats data file if necessary
+hd.save_helcats_datacat()
 
+#download if you need this file and change the path, url for this file is: ###########********* TO DO
+[vex,win,mes,sta,stb]=hd.load_helcats_datacat('/nas/helio/data/DATACAT/helcats_all_data.p') 
 
-sys.exit()
-
-
-
+#sys.exit()
 
 
 
@@ -116,20 +124,68 @@ sys.exit()
 ################################ (3) make ICMECAT 
 
 
+ic=hd.load_helcats_icmecat('data/HELCATS_ICMECAT_v20_master.xlsx')
+
+#get indices for all spacecraft
+win=np.where(ic.sc_insitu == 'Wind')[:][0] 
+vex=np.where(ic.sc_insitu == 'VEX')[:][0]  
+mes=np.where(ic.sc_insitu == 'MESSENGER')[:][0]   
+sta=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
+stb=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
+mav=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
+psp=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
+
+
+
+#get parameters
+
+win_istart=mdates.date2num(ic.icme_start_time[win])   
+win_iend=mdates.date2num(ic.icme_end_time[win])   
+ic.icme_duration[win]=np.round((win_iend-win_istart)*24,2)
+
+
+
+sta_mstart=mdates.date2num(ic.mo_start_time[sta])   
+sta_mend=mdates.date2num(ic.mo_end_time[sta])   
+ic.mo_duration[sta]=np.round((sta_mend-sta_mstart)*24,2)
 
 
 
 
+################################ (4) save ICMECAT #################################
+
+
+#use date and time format from master table
+ic2=pd.read_excel('data/HELCATS_ICMECAT_v20_master.xlsx')
+ic.icme_start_time=ic2.icme_start_time
+ic.mo_start_time=ic2.mo_start_time
+ic.mo_end_time=ic2.mo_end_time
+ic.icme_end_time=ic2.icme_end_time
+
+#save
+file='data/HELCATS_ICMECAT_v20.xlsx'
+ic.to_excel(file)
+
+#save as json
+file='data/HELCATS_ICMECAT_v20.json'
+ic.to_json(file)
+
+file='data/HELCATS_ICMECAT_v20.csv'
+ic.to_csv(file)
+
+#save as txt
+#file='data/HELCATS_ICMECAT_v20.txt'
+#np.savetxt(file, ic.values, fmt='%d')
 
 
 
 
+######################################################################################
+################################### END MAIN #########################################
+######################################################################################
 
 
-################################ (4) save ICMECAT in various formats
-
-
-
+sys.exit()
 
 
 
