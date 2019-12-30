@@ -9,7 +9,7 @@
 # python > 3.7 
 
 # needs file /heliocats/data.py
-# saves under /data and /results
+# saves under /data and /results and /icmecat
 
 # current status:
 # work in progress
@@ -41,21 +41,25 @@ import openpyxl
 import heliosat
 import datetime
 import seaborn as sns
+import copy
 from numba import njit
 
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
+
+#plt.ion() 
+
 '''
 
 to do:
 
 - smooth MAVEN data (like before in IDL) and save as recarray, add position MAVEN (only Mars?)
-- new B and V for STA, Wind and PSP as SCEQ components
+- new B and V for STA, Wind and PSP converted to SCEQ components
 - set data gaps to NaN so linear interpolation does not show wrong data
 - go through all ICMEs and extract data
-- save as ICMECAT2.0 txt und .p
+- add Ulysses from .sav
 
 '''
 
@@ -66,57 +70,61 @@ to do:
 ##########################################################################################
 
 
-
-##################################### (1) get new data 
-
-filewin2="data/wind_jan2018_nov2019_GSE_HEEQ.p" #*******GSE?
-filesta2="data/sta_jan2018_may2019_RTN_HEEQ.p"
-filepsp="data/psp_oct2018_may2019_RTN_HEEQ.p"
+#hd.save_ulysses_data()
+#fileuly='data/ulysses.p'
+#uly=pickle.load(open(fileuly, 'rb' ) )
+#plt.plot(uly.time,uly.r)
 
 
+hd.convert_MAVEN_mat_to_pickle()
+filemav='data/MAVEN_2014to2018_removed_cyril_2.p'
+mav=pickle.load(open(filemav, 'rb' ) )
 
-#hd.save_psp_data(filepsp)
-
-
-#sys.exit()
-
-
-# save files from raw data if necessary
-#hd.save_wind_data(filewin2)
-
-#sys.exit()
-
-#hd.save_stereoa_data(filesta2)
-
-#sys.exit()
-
-#hd.save_psp_data(filepsp)
+sys.exit()
+##################################### (1) load new data with HelioSat and heliocats.data
 
 
-
-#load 
-print('load wind from 2018, PSP, and STEREO-A')
-win2=pickle.load(open(filewin2, "rb" ) )  
-sta2=pickle.load(open(filesta2, "rb" ) )  
-psp=pickle.load(open(filepsp, "rb" ) )  
+load_data=0
 
 
-#BepiColombo
-#
+if load_data >0:
 
-#MAVEN  *** TO DO
-#mav=hd.load_MAVEN()
+    filewin2="data/wind_jan2018_nov2019_GSE_HEEQ.p" #*******GSE?
+    filesta2="data/sta_jan2018_may2019_RTN_HEEQ.p"
+    filepsp="data/psp_oct2018_may2019_RTN_HEEQ.p"
+    filemav='data/MAVEN_2014to2018_removed_cyril.p'
+    # ADD BepiColombo  
+    # ADD Solar Orbiter
 
 
-##################################### (2) load HELCATS DATACAT
+    # save files from raw data if necessary for updates
+    #hd.save_psp_data(filepsp)
+    #hd.save_wind_data(filewin2)
+    #hd.save_stereoa_data(filesta2)
+    #hd.convert_MAVEN_mat_to_pickle() from C. S. Wedlund
+    # ADD BepiColombo  
+    # ADD Solar Orbiter
+    #sys.exit()
 
-#make a single helcats data file if necessary
-hd.save_helcats_datacat()
 
-#download if you need this file and change the path, url for this file is: ###########********* TO DO
-[vex,win,mes,sta,stb]=hd.load_helcats_datacat('/nas/helio/data/DATACAT/helcats_all_data.p') 
+    #load new data
+    print('load new Wind, STEREO-A, MAVEN, and ParkerProbe data')
+    win2=pickle.load(open(filewin2, "rb" ) )  
+    sta2=pickle.load(open(filesta2, "rb" ) )  
+    psp=pickle.load(open(filepsp, "rb" ) )  
+    mav=pickle.load(open(filemav, 'rb' ) )
+    # ADD BepiColombo  
+    # ADD Solar Orbiter
 
-#sys.exit()
+
+
+    ##################################### (2) load HELCATS DATACAT
+
+    #make a single helcats data file if necessary
+    #hd.save_helcats_datacat()
+
+    #download if you need this file and change the path, url for this file is: ###########********* TO DO
+    [vex,win,mes,sta,stb]=hd.load_helcats_datacat('/nas/helio/data/DATACAT/helcats_all_data.p') 
 
 
 
@@ -124,61 +132,87 @@ hd.save_helcats_datacat()
 ################################ (3) make ICMECAT 
 
 
-ic=hd.load_helcats_icmecat('data/HELCATS_ICMECAT_v20_master.xlsx')
+
+ic=hd.load_helcats_icmecat_master_from_excel('icmecat/HELCATS_ICMECAT_v20_master.xlsx')
 
 #get indices for all spacecraft
-win=np.where(ic.sc_insitu == 'Wind')[:][0] 
-vex=np.where(ic.sc_insitu == 'VEX')[:][0]  
-mes=np.where(ic.sc_insitu == 'MESSENGER')[:][0]   
-sta=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
-stb=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
-mav=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
-psp=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
+wini=np.where(ic.sc_insitu == 'Wind')[:][0] 
+vexi=np.where(ic.sc_insitu == 'VEX')[:][0]  
+mesi=np.where(ic.sc_insitu == 'MESSENGER')[:][0]   
+stai=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
+stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
+mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
+pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
 
 
 
 #get parameters
 
-win_istart=mdates.date2num(ic.icme_start_time[win])   
-win_iend=mdates.date2num(ic.icme_end_time[win])   
-ic.icme_duration[win]=np.round((win_iend-win_istart)*24,2)
+win_istart=mdates.date2num(ic.icme_start_time[wini])   
+win_iend=mdates.date2num(ic.icme_end_time[wini])   
+ic.icme_duration.loc[wini]=np.round((win_iend-win_istart)*24,2)
 
 
 
-sta_mstart=mdates.date2num(ic.mo_start_time[sta])   
-sta_mend=mdates.date2num(ic.mo_end_time[sta])   
-ic.mo_duration[sta]=np.round((sta_mend-sta_mstart)*24,2)
+sta_mstart=mdates.date2num(ic.mo_start_time[stai])   
+sta_mend=mdates.date2num(ic.mo_end_time[stai])   
+ic.mo_duration.loc[stai]=np.round((sta_mend-sta_mstart)*24,2)
 
 
 
 
 ################################ (4) save ICMECAT #################################
 
+ic_date=copy.deepcopy(ic)  
+
+#pickle, excel, json, csv, txt (cdf? votable?)
+
+#save as pickle with datetime
+file='icmecat/HELCATS_ICMECAT_v20.p'
+pickle.dump(ic, open(file, 'wb'))
+
+
 
 #use date and time format from master table
-ic2=pd.read_excel('data/HELCATS_ICMECAT_v20_master.xlsx')
+ic2=pd.read_excel('icmecat/HELCATS_ICMECAT_v20_master.xlsx')
 ic.icme_start_time=ic2.icme_start_time
 ic.mo_start_time=ic2.mo_start_time
 ic.mo_end_time=ic2.mo_end_time
 ic.icme_end_time=ic2.icme_end_time
+del(ic2)
 
-#save
-file='data/HELCATS_ICMECAT_v20.xlsx'
-ic.to_excel(file)
+#save as Excel
+file='icmecat/HELCATS_ICMECAT_v20.xlsx'
+ic.to_excel(file,sheet_name='ICMECATv2.0')
 
 #save as json
-file='data/HELCATS_ICMECAT_v20.json'
+file='icmecat/HELCATS_ICMECAT_v20.json'
 ic.to_json(file)
 
-file='data/HELCATS_ICMECAT_v20.csv'
+#save as csv
+file='icmecat/HELCATS_ICMECAT_v20.csv'
 ic.to_csv(file)
 
+
+#save as hdf needs pip install tables
+#file='icmecat/HELCATS_ICMECAT_v20.hdf'
+#ic.to_hdf(file,key='icmecat')
+
+
+#save as .mat does not work yet
+#ile='icmecat/HELCATS_ICMECAT_v20.mat'
+#icdict=ic.to_dict()
+#scipy.io.savemat(file,ic.values)
+
+
 #save as txt
-#file='data/HELCATS_ICMECAT_v20.txt'
-#np.savetxt(file, ic.values, fmt='%d')
+file='icmecat/HELCATS_ICMECAT_v20.txt'
+np.savetxt(file, ic.values.astype(str), fmt='%s' )
 
 
 
+
+#icl=pickle.load(open(file, 'rb' ) )
 
 ######################################################################################
 ################################### END MAIN #########################################

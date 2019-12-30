@@ -31,30 +31,31 @@ import astropy
 
 
 
-def load_helcats_icmecat(file):
+def load_helcats_icmecat_master_from_excel(file):
 
     print('load HELCATS ICMECAT from file:', file)
     ic=pd.read_excel(file)
+    
     
 
     #convert times to datetime objects
     for i in np.arange(0,ic.shape[0]):    
     
         a=str(ic.icme_start_time[i]).strip() #remove leading and ending blank spaces if any
-        ic.icme_start_time[i]=sunpy.time.parse_time(a).datetime
-        
+        ic.icme_start_time.loc[i]=sunpy.time.parse_time(a).datetime
+
         a=str(ic.mo_start_time[i]).strip() #remove leading and ending blank spaces if any
-        ic.mo_start_time[i]=sunpy.time.parse_time(a).datetime 
+        ic.mo_start_time.loc[i]=sunpy.time.parse_time(a).datetime 
 
         a=str(ic.mo_end_time[i]).strip() #remove leading and ending blank spaces if any
-        ic.mo_end_time[i]=sunpy.time.parse_time(a).datetime 
+        ic.mo_end_time.loc[i]=sunpy.time.parse_time(a).datetime 
 
         
         a=str(ic.icme_end_time[i]).strip() #remove leading and ending blank spaces if any
         
         if a!= '9999-99-99T99:99Z':
-            ic.icme_end_time[i]=sunpy.time.parse_time(a).datetime 
-        else: ic.icme_end_time[i]=np.nan
+            ic.icme_end_time.loc[i]=sunpy.time.parse_time(a).datetime 
+        else: ic.icme_end_time.loc[i]=np.nan
 
 
 
@@ -129,16 +130,35 @@ def convert_MAVEN_mat_to_pickle():
 
     print('load MAVEN from MAT')
     file='data/MAVEN_2014to2018_removed_cyril.mat'
-    mav = scipy.io.loadmat(file)
-    print('save MAVEN as pickle')
-    pickle.dump(mav, open("data/MAVEN_2014to2018_removed_cyril.p", "wb"))
-
-def load_MAVEN():
+    mavraw = scipy.io.loadmat(file)
     
-    print('load MAVEN from pickle')
-    file='data/MAVEN_2014to2018_removed_cyril.p'
-    mav=pickle.load( open( file, 'rb' ) )
-    return mav
+    
+    #now make recarray
+    #make array 
+    #******************** no 2D array
+    mav=np.zeros([len(mavraw['Bx']),len(mavraw)],dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('tp', float),('np', float),('vt', float),('vx', float),('vy', float),('vz', float),('xsc', float),('ysc', float),('zsc', float),('r', float),('lat', float),('lon', float)])   
+    #convert to recarray
+    mav = mav.view(np.recarray)  
+    mav.time=mdates.num2date(mavraw['timeD'])      
+    mav.bx=mavraw['Bx']      
+    mav.by=mavraw['By']      
+    mav.bz=mavraw['Bz']      
+    mav.bt=mavraw['BT']      
+    
+    mav.tp=mavraw['Tp']      
+    mav.np=mavraw['np']      
+    
+    
+    
+    #add position
+    
+    
+    
+    #smooth with median for each orbit, take times of apogees (search with scipy)
+    
+    print('save MAVEN as pickle')
+    pickle.dump(mav, open("data/MAVEN_2014to2018_removed_cyril_2.p", "wb"))
+
     
 
 
@@ -447,6 +467,85 @@ def save_psp_data(file):
     print()
 
   
+
+
+def save_ulysses_data():
+
+   
+    print('read Ulysses data from cdf and convert to pickle')   
+
+    #load cdf
+    ulycdf = cdflib.CDF('data/ulysses_1990_2009_CDAWEB.cdf') 
+    #check variables
+    #ulycdf.cdf_info()
+
+    #time conversion to datetime      
+    time=ulycdf.varget('Epoch')
+    t=parse_time(time,format='cdf_epoch').datetime  
+    
+    
+    #cut so that it starts with available position on Oct 6 1990
+    t=t[6696:-1]
+
+    
+    print('Ulysses position start')
+    #position starts on Oct 6 1990
+    frame='HEEQ'
+    spice.furnish(spicedata.get_kernel('ulysses'))
+    upos=spice.Trajectory('-55')
+    upos.generate_positions(t,'Sun',frame)
+    upos.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(upos.x,upos.y,upos.z)
+    print('position end ')
+    
+    
+    uly=np.zeros(len(t),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('np', float),('vp', float),('tp', float),('x', float),('y', float),('z', float),('r', float),('lat', float),('lon', float)])   
+    #convert to recarray
+    uly = uly.view(np.recarray)  
+    
+    
+    uly.time=t
+    
+    uly.bx=ulycdf.varget('BR')[6696:-1]
+    uly.by=ulycdf.varget('BT')[6696:-1]
+    uly.bz=ulycdf.varget('BN')[6696:-1]
+    uly.bt=ulycdf.varget('ABS_B')[6696:-1]
+    uly.vp=ulycdf.varget('plasmaFlowSpeed')[6696:-1]
+    uly.np=ulycdf.varget('protonDensity')[6696:-1]
+    uly.tp=ulycdf.varget('protonTempLarge')[6696:-1]
+    
+    
+    uly.x=upos.x
+    uly.y=upos.y
+    uly.z=upos.z
+    
+    uly.r=r
+    uly.lat=lat
+    uly.lon=lon
+    
+        
+    badmag=np.where(uly.bt < -10000)
+    uly.bt[badmag]=np.nan  
+    uly.bx[badmag]=np.nan  
+    uly.by[badmag]=np.nan  
+    uly.bz[badmag]=np.nan  
+    
+    badv=np.where(uly.vp < -100000)
+    uly.vp[badv]=np.nan  
+    
+    badn=np.where(uly.np < -100000)
+    uly.np[badn]=np.nan  
+    
+    badt=np.where(uly.tp < -100000)
+    uly.tp[badt]=np.nan  
+    
+
+    file='data/ulysses.p'
+    pickle.dump(uly, open(file, "wb"))
+    
+    print('Ulysses done')
+
+    return 0
   
   
   
@@ -494,9 +593,17 @@ def save_helcats_datacat():
     stb=stb.astype([(('time', 'TIME'),'object'), (('btot', 'BTOT'), '>f8'), (('bx', 'BX'), '>f8'), (('by', 'BY'), '>f8'), (('bz', 'BZ'), '>f8'), (('vtot', 'VTOT'), '>f8'), (('vx', 'VX'), '>f8'), (('vy', 'VY'), '>f8'), (('vb', 'VZ'), '>f8'), (('temperature', 'TEMPERATURE'), '>f8'), (('density', 'DENSITY'), '>f8'), (('stb_radius_in_km_heeq', 'STB_RADIUS_IN_KM_HEEQ'), '>f8'), (('stb_latitude_in_radians_heeq', 'STB_LATITUDE_IN_RADIANS_HEEQ'), '>f8'), (('stb_longitude_in_radians_heeq', 'STB_LONGITUDE_IN_RADIANS_HEEQ'), '>f8')])       
     stb.time=stb_time
     print( 'read STB done.')
+    
+    
+    print( 'read Ulysses from CDAWEB cdf')    
+    hd.save_ulysses_data()
+    fileuly='data/ulysses.p'
+    uly=pickle.load(open(fileuly, 'rb' ) )
 
 
-    pickle.dump([vex,win,mes,sta,stb], open(datacat_path+ "helcats_all_data.p", "wb" ) )
+    
+
+    pickle.dump([vex,win,mes,sta,stb,uly], open(datacat_path+ "helcats_all_data.p", "wb" ) )
 
 
 
