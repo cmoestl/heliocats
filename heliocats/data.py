@@ -26,17 +26,13 @@ import astropy
 
 
 
-###################################### HELCATS #############################################
-
-
+###################################### ICMECAT operations ################################
 
 
 def load_helcats_icmecat_master_from_excel(file):
 
     print('load HELCATS ICMECAT from file:', file)
     ic=pd.read_excel(file)
-    
-    
 
     #convert times to datetime objects
     for i in np.arange(0,ic.shape[0]):    
@@ -52,12 +48,9 @@ def load_helcats_icmecat_master_from_excel(file):
 
         
         a=str(ic.icme_end_time[i]).strip() #remove leading and ending blank spaces if any
-        
         if a!= '9999-99-99T99:99Z':
             ic.icme_end_time.loc[i]=sunpy.time.parse_time(a).datetime 
         else: ic.icme_end_time.loc[i]=np.nan
-
-
 
     return ic
 
@@ -71,7 +64,7 @@ def load_helcats_icmecat_master_from_excel(file):
 
 
 
-######################################################### MAVEN ####################################
+####################################### get new data ####################################
 '''
 Hi Christian,
 
@@ -84,9 +77,14 @@ Password is:      maven2019
 The save command in matlab I have used is the following:
 save('Data-MAVEN-SolarWind.mat', 'timeD','np','Vx','Vy','Vz','VT','Tp','Bx','By','Bz','BT','Xsc','Ysc','Zsc');
 
-Note that Xsc, Ysc, and Zsc are given in units of Mars radius (Rp = 3389.5 km). All other ones are the original units of the cdf file you gave me. I have also gone through the data and set to NaN all negative values of density np, temperature Tp and total magnetic field BT.
+Note that Xsc, Ysc, and Zsc are given in units of Mars radius (Rp = 3389.5 km). 
+All other ones are the original units of the cdf file you gave me. 
+I have also gone through the data and set to NaN all negative values of density np, temperature Tp and total magnetic field BT.
 
-It would be interesting to compare your old results with these ones, also as a double check that the data was filtered correctly, although the 3D model of Gruesbeck+ 2018 does not assume an aberration angle of 4 degrees like the polar model of Edberg+ 2008 -- which I am not sure you took into account originally when processing the data.
+It would be interesting to compare your old results with these ones, also 
+as a double check that the data was filtered correctly, although the 3D model of Gruesbeck+ 2018 
+does not assume an aberration angle of 4 degrees like the polar model of Edberg+ 2008 -- which I 
+am not sure you took into account originally when processing the data.
 
 Cheers,
 
@@ -97,8 +95,10 @@ P.S. I'm writing a compendium for all the details of the technique I used. Hopef
 Hallo Christian,
 
 Super, happy that it looks fine! :) Yes, agreed with the median filtering, this should take care of the spikes. 
-There were also many strange spikes in Xsc, Ysc and Zsc (very large values >2.9e27, probably due to an issue with the SPICE kernel, 
-about 1685 points, i.e., 0.087% of the data), so I set all of these anomalous data points to NaN too (all variables including Xsc, Ysc, Zsc).
+There were also many strange spikes in Xsc, Ysc and Zsc (very large values >2.9e27, probably due to 
+an issue with the SPICE kernel, 
+about 1685 points, i.e., 0.087% of the data), so I set all of these anomalous data points to NaN too 
+(all variables including Xsc, Ysc, Zsc).
 
 Cheers,
 
@@ -115,16 +115,7 @@ Mehr anzeigen von Christian Möstl
 '''
 
 
-
-@njit
-def cart2sphere(x,y,z):
-    r = np.sqrt(x**2+ y**2 + z**2)            # r
-    theta = np.arctan2(z,np.sqrt(x**2+ y**2))     # theta
-    phi = np.arctan2(y,x)                        # phi
-    return (r, theta, phi)
-    
-
-
+### **SMOOTH AND ADD CRUISE PHASE POSITION
 
 def convert_MAVEN_mat_to_pickle():
 
@@ -132,32 +123,84 @@ def convert_MAVEN_mat_to_pickle():
     file='data/MAVEN_2014to2018_removed_cyril.mat'
     mavraw = scipy.io.loadmat(file)
     
-    
-    #now make recarray
     #make array 
-    #******************** no 2D array
-    mav=np.zeros([len(mavraw['Bx']),len(mavraw)],dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('tp', float),('np', float),('vt', float),('vx', float),('vy', float),('vz', float),('xsc', float),('ysc', float),('zsc', float),('r', float),('lat', float),('lon', float)])   
+    mav=np.zeros(np.size(mavraw['BT']),dtype=[('time',object),('bt', float),('bx', float),\
+                ('by', float),('bz', float),('vt', float),('vx', float),('vy', float),\
+                ('vz', float),('tp', float),('np', float),('r', float),('lat', float),\
+                ('lon', float),('x', float),('y', float),('z', float),\
+                ('rmso', float), ('latmso', float), ('lonmso', float),\
+                ('xmso', float), ('ymso', float), ('zmso', float)])   
     #convert to recarray
     mav = mav.view(np.recarray)  
-    mav.time=mdates.num2date(mavraw['timeD'])      
-    mav.bx=mavraw['Bx']      
-    mav.by=mavraw['By']      
-    mav.bz=mavraw['Bz']      
-    mav.bt=mavraw['BT']      
+    #convert time from matlab to python
+    t=mavraw['timeD'][:,0]
+    for p in np.arange(np.size(t)):
+        mav.time[p]= datetime.datetime.fromordinal(t[p].astype(int) ) + \
+        datetime.timedelta(days=t[p]%1) - datetime.timedelta(days = 366) 
     
-    mav.tp=mavraw['Tp']      
-    mav.np=mavraw['np']      
+    mav.bx=mavraw['Bx'][:,0]       
+    mav.by=mavraw['By'][:,0] 
+    mav.bz=mavraw['Bz'][:,0]      
+    mav.bt=mavraw['BT'][:,0]      
+
+    mav.vx=mavraw['Vx'][:,0]      
+    mav.vy=mavraw['Vy'][:,0]      
+    mav.vz=mavraw['Vz'][:,0]      
+    mav.vt=mavraw['VT'][:,0] 
+
+    
+    mav.tp=mavraw['Tp'][:,0]      
+    mav.np=mavraw['np'][:,0]      
+    
+    
+    smooth=0
+    
+    
+    if smooth >0:
+    
+       print('smoothing')
+       #smooth with median for each orbit, take times of apogees (search with scipy)
+       #***
+       #
+       #
     
     
     
-    #add position
     
+    #add position with respect to Mars center
+    mars_radius=3389.5
+    mav.xmso=mavraw['Xsc'][:,0]*mars_radius
+    mav.ymso=mavraw['Ysc'][:,0]*mars_radius
+    mav.zmos=mavraw['Zsc'][:,0]*mars_radius  
+    [mav.rmso,mav.latmso,mav.lonmso]=cart2sphere(mav.xmso,mav.ymso,mav.zmso)
+    mav.lonmso=np.rad2deg(mav.lonmso)   
+    mav.latmso=np.rad2deg(mav.latmso)
+
+    ''' with cruise phase!
+    #add position in HEEQ    
+    print('position start')
+    frame='HEEQ'
+    planet_kernel=spicedata.get_kernel('planet_trajectories')
+    mars=spice.Trajectory('MARS BARYCENTER ')
+    mars.generate_positions(mav.time,'Sun',frame)
+    mars.change_units(astropy.units.AU)  
+    mav.x=mars.x
+    mav.y=mars.y
+    mav.z=mars.z
+    [mav.r, mav.lat, mav.lon]=cart2sphere(mav.x,mav.y,mav.z)
+    #convert to degree
+    mav.lon=np.rad2deg(mav.lon)   
+    mav.lat=np.rad2deg(mav.lat)
+    print('position end ')
+    '''
     
-    
-    #smooth with median for each orbit, take times of apogees (search with scipy)
     
     print('save MAVEN as pickle')
-    pickle.dump(mav, open("data/MAVEN_2014to2018_removed_cyril_2.p", "wb"))
+    if smooth==0: 
+        pickle.dump(mav, open("data/MAVEN_2014to2018_removed_wedlund.p", "wb"))
+
+    if smooth>0: 
+        pickle.dump(mav, open("data/MAVEN_2014to2018_smoothed_wedlund.p", "wb"))
 
     
 
@@ -219,7 +262,10 @@ def save_wind_data(file):
 
     
     #make array
-    win=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('p0', float),('v', float),('p2', float),('p3', float),('p4', float),('x', float),('y', float),('z', float),('r', float),('lat', float),('lon', float)])   
+    win=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('p0', float),('v', float),('p2', float),\
+                ('p3', float),('p4', float),('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
        
     #convert to recarray
     win = win.view(np.recarray)  
@@ -317,7 +363,10 @@ def save_stereoa_data(file):
 
     
     #make array
-    sta=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('p0', float),('v', float),('p2', float),('p3', float),('p4', float),('x', float),('y', float),('z', float),('r', float),('lat', float),('lon', float)])   
+    sta=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('p0', float),('v', float),('p2', float),\
+                ('p3', float),('p4', float),('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
        
     #convert to recarray
     sta = sta.view(np.recarray)  
@@ -406,15 +455,10 @@ def save_psp_data(file):
     psptra.generate_positions(time,'Sun',frame)
     psptra.change_units(astropy.units.AU)  
     [r, lat, lon]=cart2sphere(psptra.x,psptra.y,psptra.z)
-    print('PSP pos')
-    
-
-
-    
+    print('PSP pos')    
     print('position end')
     
 
-    
     #linear interpolation to time_mat times    
     bx = np.interp(time_mat, tm_mat, mag[:,0] )
     by = np.interp(time_mat, tm_mat, mag[:,1] )
@@ -429,7 +473,10 @@ def save_psp_data(file):
 
     
     #make array
-    psp=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('p0', float),('p1', float),('v', float),('p3', float),('p4', float),('x', float),('y', float),('z', float),('r', float),('lat', float),('lon', float)])   
+    psp=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('p0', float),('p1', float),('v', float),\
+                ('p3', float),('p4', float),('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
        
     #convert to recarray
     psp = psp.view(np.recarray)  
@@ -449,6 +496,7 @@ def save_psp_data(file):
     psp.lat=lat
     psp.lon=lon
 
+    #set missing data to nan!!
     
     
     psp.p0=p0
@@ -469,13 +517,25 @@ def save_psp_data(file):
   
 
 
+
+
+
+
+
+
+
+
+############################# HELCATS DATA into single file ###############################
+
+
 def save_ulysses_data():
 
    
     print('read Ulysses data from cdf and convert to pickle')   
 
+    datacat_path='/nas/helio/data/DATACAT/'
     #load cdf
-    ulycdf = cdflib.CDF('data/ulysses_1990_2009_CDAWEB.cdf') 
+    ulycdf = cdflib.CDF(datacat_path+'ulysses_merged_1990_2009_CDAWEB.cdf') 
     #check variables
     #ulycdf.cdf_info()
 
@@ -484,7 +544,7 @@ def save_ulysses_data():
     t=parse_time(time,format='cdf_epoch').datetime  
     
     
-    #cut so that it starts with available position on Oct 6 1990
+    #cutoff time and later data so that it starts with available position on Oct 6 1990
     t=t[6696:-1]
 
     
@@ -498,11 +558,13 @@ def save_ulysses_data():
     [r, lat, lon]=cart2sphere(upos.x,upos.y,upos.z)
     print('position end ')
     
-    
-    uly=np.zeros(len(t),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),('np', float),('vp', float),('tp', float),('x', float),('y', float),('z', float),('r', float),('lat', float),('lon', float)])   
+    #make custom array
+    uly=np.zeros(len(t),dtype=[('time',object),('bx', float),('by', float), \
+     ('bz', float), ('bt', float),('vt', float),('np', float),('tp', float), \
+      ('x', float),('y', float), ('z', float),('r', float),('lat', float), \
+      ('lon', float)])   
     #convert to recarray
     uly = uly.view(np.recarray)  
-    
     
     uly.time=t
     
@@ -540,12 +602,12 @@ def save_ulysses_data():
     uly.tp[badt]=np.nan  
     
 
-    file='data/ulysses.p'
+    file=datacat_path+'ulysses_merged_1990_2009_CDAWEB.p'
     pickle.dump(uly, open(file, "wb"))
     
     print('Ulysses done')
 
-    return 0
+
   
   
   
@@ -553,60 +615,98 @@ def save_helcats_datacat():
     ''' to save all of helcats DATACAT into a single file'''
       
     print('save all helcats DATACAT into single file')
-
     datacat_path='/nas/helio/data/DATACAT/'
+    print('all data in', datacat_path)
+      
 
     print( 'read MESSENGER')
-    #get insitu data
+    #get insitu data from helcats, converted from IDL .sav to pickle
     mes= pickle.load( open( datacat_path+"MES_2007to2015_SCEQ_removed.p", "rb" ) )
     #time conversion
     mes_time=parse_time(mes.time,format='utime').datetime
     #replace mes.time with datetime object
-    mes=mes.astype([(('time', 'TIME'), 'object'), (('btot', 'BTOT'), '>f8'), (('bx', 'BX'), '>f8'), (('by', 'BY'), '>f8'), (('bz', 'BZ'), '>f8'), (('mes_radius_in_km_heeq', 'MES_RADIUS_IN_KM_HEEQ'), '>f8'), (('mes_latitude_in_radians_heeq', 'MES_LATITUDE_IN_RADIANS_HEEQ'), '>f8'), (('mes_longitude_in_radians_heeq', 'MES_LONGITUDE_IN_RADIANS_HEEQ'), '>f8')])       
+    #new variable names                  
+    mes=mes.astype([('time', 'object'), ('bt', 'float'),\
+                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
+                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])                        
+   
+    #convert distance from Sun from km to AU, astropy constant is given in m
+    mes.r=mes.r/(astropy.constants.au.value/1e3)
+    #convert radians to degrees
+    mes.lon=np.rad2deg(mes.lon)   
+    mes.lat=np.rad2deg(mes.lat)
     mes.time=mes_time
-    print( 'read MESSENGER done.')
+    print( 'convert MESSENGER done.')    
+
 
     print ('read VEX')
     vex= pickle.load( open(datacat_path+ "VEX_2007to2014_SCEQ_removed.p", "rb" ) )
     vex_time=parse_time(vex.time,format='utime').datetime
-    vex=vex.astype([(('time', 'TIME'), 'object'), (('btot', 'BTOT'), '>f8'), (('bx', 'BX'), '>f8'), (('by', 'BY'), '>f8'), (('bz', 'BZ'), '>f8'), (('vex_radius_in_km_heeq', 'VEX_RADIUS_IN_KM_HEEQ'), '>f8'), (('vex_latitude_in_radians_heeq', 'VEX_LATITUDE_IN_RADIANS_HEEQ'), '>f8'), (('vex_longitude_in_radians_heeq', 'VEX_LONGITUDE_IN_RADIANS_HEEQ'), '>f8')])       
+    vex=vex.astype([('time', 'object'), ('bt', 'float'),\
+                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
+                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])                                          
+    vex.r=vex.r/(astropy.constants.au.value/1e3)
+    vex.lon=np.rad2deg(vex.lon)   
+    vex.lat=np.rad2deg(vex.lat)
     vex.time=vex_time
-    print( 'read VEX done.')
+    print( 'convert VEX done.')
 
+    #**remove spikes in v
     print( 'read Wind')
     win= pickle.load( open(datacat_path+ "WIND_2007to2018_HEEQ.p", "rb" ) )
     win_time=parse_time(win.time,format='utime').datetime
-    win=win.astype([(('time', 'TIME'),'object'), (('btot', 'BTOT'), '>f8'), (('bx', 'BX'), '>f8'), (('by', 'BY'), '>f8'), (('bz', 'BZ'), '>f8'), (('vtot', 'VTOT'), '>f8'), (('vx', 'VX'), '>f8'), (('vy', 'VY'), '>f8'), (('vz', 'VZ'), '>f8'), (('temperature', 'TEMPERATURE'), '>f8'), (('density', 'DENSITY'), '>f8'), (('win_radius_in_km_heeq', 'WIN_RADIUS_IN_KM_HEEQ'), '>f8'), (('win_latitude_in_radians_heeq', 'WIN_LATITUDE_IN_RADIANS_HEEQ'), '>f8'), (('win_longitude_in_radians_heeq', 'WIN_LONGITUDE_IN_RADIANS_HEEQ'), '>f8')])       
+    win=win.astype([('time', 'object'), ('bt', 'float'),\
+                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
+                    ('vt', 'float'), ('vx', 'float'), ('vy', 'float'), \
+                    ('vz', 'float'), ('tp', 'float'), ('np', 'float'), \
+                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])     
+    win.r=win.r/(astropy.constants.au.value/1e3)
+    win.lon=np.rad2deg(win.lon)   
+    win.lat=np.rad2deg(win.lat)
     win.time=win_time
-    print( 'read Wind done.')
+    print( 'convert Wind done.')
+
 
     print( 'read STEREO-A')
     sta= pickle.load( open(datacat_path+ "STA_2007to2015_SCEQ.p", "rb" ) )
     sta_time=parse_time(sta.time,format='utime').datetime
-    sta=sta.astype([(('time', 'TIME'),'object'), (('btot', 'BTOT'), '>f8'), (('bx', 'BX'), '>f8'), (('by', 'BY'), '>f8'), (('bz', 'BZ'), '>f8'), (('vtot', 'VTOT'), '>f8'), (('vx', 'VX'), '>f8'), (('vy', 'VY'), '>f8'), (('vz', 'VZ'), '>f8'), (('temperature', 'TEMPERATURE'), '>f8'), (('density', 'DENSITY'), '>f8'), (('sta_radius_in_km_heeq', 'STA_RADIUS_IN_KM_HEEQ'), '>f8'), (('sta_latitude_in_radians_heeq', 'STA_LATITUDE_IN_RADIANS_HEEQ'), '>f8'), (('sta_longitude_in_radians_heeq', 'STA_LONGITUDE_IN_RADIANS_HEEQ'), '>f8')])       
+    sta=sta.astype([('time', 'object'), ('bt', 'float'),\
+                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
+                    ('vt', 'float'), ('vx', 'float'), ('vy', 'float'), \
+                    ('vz', 'float'), ('tp', 'float'), ('np', 'float'), \
+                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])     
+    sta.r=sta.r/(astropy.constants.au.value/1e3)
+    sta.lon=np.rad2deg(sta.lon)   
+    sta.lat=np.rad2deg(sta.lat)
     sta.time=sta_time
     print( 'read STA done.')
+
 
     print( 'read STEREO-B')
     stb= pickle.load( open(datacat_path+ "STB_2007to2014_SCEQ.p", "rb" ) )
     stb_time=parse_time(stb.time,format='utime').datetime
-    stb=stb.astype([(('time', 'TIME'),'object'), (('btot', 'BTOT'), '>f8'), (('bx', 'BX'), '>f8'), (('by', 'BY'), '>f8'), (('bz', 'BZ'), '>f8'), (('vtot', 'VTOT'), '>f8'), (('vx', 'VX'), '>f8'), (('vy', 'VY'), '>f8'), (('vb', 'VZ'), '>f8'), (('temperature', 'TEMPERATURE'), '>f8'), (('density', 'DENSITY'), '>f8'), (('stb_radius_in_km_heeq', 'STB_RADIUS_IN_KM_HEEQ'), '>f8'), (('stb_latitude_in_radians_heeq', 'STB_LATITUDE_IN_RADIANS_HEEQ'), '>f8'), (('stb_longitude_in_radians_heeq', 'STB_LONGITUDE_IN_RADIANS_HEEQ'), '>f8')])       
+    stb=stb.astype([('time', 'object'), ('bt', 'float'),\
+                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
+                    ('vt', 'float'), ('vx', 'float'), ('vy', 'float'), \
+                    ('vz', 'float'), ('tp', 'float'), ('np', 'float'), \
+                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])     
+    stb.r=stb.r/(astropy.constants.au.value/1e3)
+    stb.lon=np.rad2deg(stb.lon)   
+    stb.lat=np.rad2deg(stb.lat) 
     stb.time=stb_time
     print( 'read STB done.')
     
     
-    print( 'read Ulysses from CDAWEB cdf')    
-    hd.save_ulysses_data()
-    fileuly='data/ulysses.p'
+    #the Ulysses file has been generated by selecting the merged Ulysses data in CDAWEB
+    #and then saved as one cdf 2.7 file
+    print('read Ulysses from CDAWEB cdf')    
+    save_ulysses_data()
+    fileuly=datacat_path+'ulysses_merged_1990_2009_CDAWEB.p'
     uly=pickle.load(open(fileuly, 'rb' ) )
-
-
-    
+  
 
     pickle.dump([vex,win,mes,sta,stb,uly], open(datacat_path+ "helcats_all_data.p", "wb" ) )
-
-
-
+    print('saved as ' +datacat_path+ 'helcats_all_data.p')
 
 
   
@@ -614,10 +714,57 @@ def load_helcats_datacat(file):
     ''' to load all of helcats DATACAT from a single file'''
     
     print('load all helcats DATACAT from single file: ', file)
-    [vex,win,mes,sta,stb]=pickle.load( open(file, "rb" ) )
-    print('use vex,win,sta,stb,mes to access data and position')
-    return [vex,win,mes,sta,stb]
+    [vex,win,mes,sta,stb,uly]=pickle.load( open(file, "rb" ) )
+    print('use vex,win,sta,stb,mes,uly to access data and position')
+    return [vex,win,mes,sta,stb,uly]
     
+#################################### MATH ################################################
+
+
+
+@njit
+def cart2sphere(x,y,z):
+    r = np.sqrt(x**2+ y**2 + z**2)            # r
+    theta = np.arctan2(z,np.sqrt(x**2+ y**2))     # theta
+    phi = np.arctan2(y,x)                        # phi
+    return (r, theta, phi)
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##################### OLD CODE
+
+
+
+
+
+
      
 
 

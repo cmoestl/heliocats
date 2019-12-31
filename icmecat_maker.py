@@ -59,7 +59,7 @@ to do:
 - new B and V for STA, Wind and PSP converted to SCEQ components
 - set data gaps to NaN so linear interpolation does not show wrong data
 - go through all ICMEs and extract data
-- add Ulysses from .sav
+
 
 '''
 
@@ -70,14 +70,8 @@ to do:
 ##########################################################################################
 
 
-#hd.save_ulysses_data()
-#fileuly='data/ulysses.p'
-#uly=pickle.load(open(fileuly, 'rb' ) )
-#plt.plot(uly.time,uly.r)
-
-
 hd.convert_MAVEN_mat_to_pickle()
-filemav='data/MAVEN_2014to2018_removed_cyril_2.p'
+filemav='data/MAVEN_2014to2018_removed_wedlund.p'
 mav=pickle.load(open(filemav, 'rb' ) )
 
 sys.exit()
@@ -124,7 +118,7 @@ if load_data >0:
     #hd.save_helcats_datacat()
 
     #download if you need this file and change the path, url for this file is: ###########********* TO DO
-    [vex,win,mes,sta,stb]=hd.load_helcats_datacat('/nas/helio/data/DATACAT/helcats_all_data.p') 
+    [vex,win,mes,sta,stb,uly]=hd.load_helcats_datacat('/nas/helio/data/DATACAT/helcats_all_data.p') 
 
 
 
