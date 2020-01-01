@@ -20,9 +20,14 @@ import cdflib
 import heliosat
 from numba import njit
 from sunpy.time import parse_time
+import heliopy.data.cassini as cassinidata
+import heliopy.data.helios as heliosdata
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 import astropy
+
+
+
 
 
 
@@ -115,7 +120,7 @@ Mehr anzeigen von Christian Möstl
 '''
 
 
-### **SMOOTH AND ADD CRUISE PHASE POSITION
+### **SMOOTH data for each orbit
 
 def convert_MAVEN_mat_to_pickle():
 
@@ -128,8 +133,8 @@ def convert_MAVEN_mat_to_pickle():
                 ('by', float),('bz', float),('vt', float),('vx', float),('vy', float),\
                 ('vz', float),('tp', float),('np', float),('r', float),('lat', float),\
                 ('lon', float),('x', float),('y', float),('z', float),\
-                ('rmso', float), ('latmso', float), ('lonmso', float),\
-                ('xmso', float), ('ymso', float), ('zmso', float)])   
+                ('ro', float), ('lato', float), ('lono', float),\
+                ('xo', float), ('yo', float), ('zo', float)])   
     #convert to recarray
     mav = mav.view(np.recarray)  
     #convert time from matlab to python
@@ -137,7 +142,8 @@ def convert_MAVEN_mat_to_pickle():
     for p in np.arange(np.size(t)):
         mav.time[p]= datetime.datetime.fromordinal(t[p].astype(int) ) + \
         datetime.timedelta(days=t[p]%1) - datetime.timedelta(days = 366) 
-    
+        
+
     mav.bx=mavraw['Bx'][:,0]       
     mav.by=mavraw['By'][:,0] 
     mav.bz=mavraw['Bz'][:,0]      
@@ -148,14 +154,11 @@ def convert_MAVEN_mat_to_pickle():
     mav.vz=mavraw['Vz'][:,0]      
     mav.vt=mavraw['VT'][:,0] 
 
-    
     mav.tp=mavraw['Tp'][:,0]      
     mav.np=mavraw['np'][:,0]      
     
     
     smooth=0
-    
-    
     if smooth >0:
     
        print('smoothing')
@@ -165,42 +168,68 @@ def convert_MAVEN_mat_to_pickle():
        #
     
     
-    
-    
-    #add position with respect to Mars center
+    #add position with respect to Mars center in km in MSO
     mars_radius=3389.5
-    mav.xmso=mavraw['Xsc'][:,0]*mars_radius
-    mav.ymso=mavraw['Ysc'][:,0]*mars_radius
-    mav.zmos=mavraw['Zsc'][:,0]*mars_radius  
-    [mav.rmso,mav.latmso,mav.lonmso]=cart2sphere(mav.xmso,mav.ymso,mav.zmso)
-    mav.lonmso=np.rad2deg(mav.lonmso)   
-    mav.latmso=np.rad2deg(mav.latmso)
+    mav.xo=mavraw['Xsc'][:,0]*mars_radius
+    mav.yo=mavraw['Ysc'][:,0]*mars_radius
+    mav.zo=mavraw['Zsc'][:,0]*mars_radius  
+    [mav.ro,mav.lato,mav.lono]=cart2sphere(mav.xo,mav.yo,mav.zo)
+    mav.lono=np.rad2deg(mav.lono)   
+    mav.lato=np.rad2deg(mav.lato)
 
-    ''' with cruise phase!
-    #add position in HEEQ    
-    print('position start')
+
+
+    print('HEEQ position start')
     frame='HEEQ'
+    
+    #add position in HEEQ for cruise phase and orbit
+    insertion=datetime.datetime(2014,9,22,2,24,0)
+    #these are the indices of the times for the cruise phase     
+    tc=np.where(mdates.date2num(mav.time) < mdates.date2num(insertion))       
+    
+    #cruise phase
+    #use heliopy to load own bsp spice file from MAVEN 
+    #obtained through https://naif.jpl.nasa.gov/pub/naif/pds/pds4/maven/maven_spice/spice_kernels/spk/
+    spice.furnish('data/maven_cru_rec_131118_140923_v1.bsp') 
+    cruise=spice.Trajectory('MAVEN') #or NAIF CODE -202 
+    cruise.generate_positions(mav.time[tc],'Sun',frame)     
+    cruise.change_units(astropy.units.AU)  
+    mav.x[tc]=cruise.x
+    mav.y[tc]=cruise.y
+    mav.z[tc]=cruise.z
+    [mav.r[tc], mav.lat[tc], mav.lon[tc]]=cart2sphere(mav.x[tc],mav.y[tc],mav.z[tc])
+
+    
+    #these are the indices of the times for the cruise phase     
+    to=np.where(mdates.date2num(mav.time) > mdates.date2num(insertion))       
+
     planet_kernel=spicedata.get_kernel('planet_trajectories')
-    mars=spice.Trajectory('MARS BARYCENTER ')
-    mars.generate_positions(mav.time,'Sun',frame)
+    mars=spice.Trajectory('MARS BARYCENTER')
+    mars.generate_positions(mav.time[to],'Sun',frame)
     mars.change_units(astropy.units.AU)  
-    mav.x=mars.x
-    mav.y=mars.y
-    mav.z=mars.z
-    [mav.r, mav.lat, mav.lon]=cart2sphere(mav.x,mav.y,mav.z)
+    mav.x[to]=mars.x
+    mav.y[to]=mars.y
+    mav.z[to]=mars.z
+    [mav.r[to], mav.lat[to], mav.lon[to]]=cart2sphere(mav.x[to],mav.y[to],mav.z[to])
+
+
     #convert to degree
     mav.lon=np.rad2deg(mav.lon)   
     mav.lat=np.rad2deg(mav.lat)
     print('position end ')
-    '''
+
     
+    #add header
+    #header=
+
+
     
     print('save MAVEN as pickle')
     if smooth==0: 
         pickle.dump(mav, open("data/MAVEN_2014to2018_removed_wedlund.p", "wb"))
 
     if smooth>0: 
-        pickle.dump(mav, open("data/MAVEN_2014to2018_smoothed_wedlund.p", "wb"))
+        pickle.dump(mav, open("data/MAVEN_2014to2018_removed_smoothed_wedlund.p", "wb"))
 
     
 
@@ -523,6 +552,54 @@ def save_psp_data(file):
 
 
 
+########################################## load HISTORIC DATA ############################
+
+
+def save_helios_data(file):
+
+
+
+    print('start Helios')
+    t_start = datetime.datetime(1975, 1, 1)
+    t_end = datetime.datetime(1980, 12, 31)
+     
+    #create an array with 1 minute resolution between t start and end
+    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
+
+
+    #h1=heliosdata.corefit(1,t_start,t_end)
+    #h2=heliosdata.corefit(2,t_start,t_end)
+    h1=heliosdata.merged(1,t_start,t_end)  
+
+    print('end Helios')
+
+
+
+
+def save_cassini_data(file):
+
+
+
+    print('start Cassini')
+    t_start = datetime.datetime(1999, 8, 16)
+    t_end = datetime.datetime(2016, 12, 31)
+     
+    #create an array with 1 minute resolution between t start and end
+    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
+
+
+    coords='RTN'
+
+    #Cassini Orbiter Magnetometer Calibrated MAG data in 1 minute averages available covering the period 1999-08-16 (DOY 228) to 2016-12-31 (DOY 366). The data are provided in RTN coordinates throughout the mission, with Earth, Jupiter, and Saturn centered coordinates for the respective flybys of those planets.
+    cas=cassinidata.mag_hires(t_start,t_end, coords)
+
+
+
+
+
+
+
+
 
 
 ############################# HELCATS DATA into single file ###############################
@@ -636,6 +713,14 @@ def save_helcats_datacat():
     mes.lon=np.rad2deg(mes.lon)   
     mes.lat=np.rad2deg(mes.lat)
     mes.time=mes_time
+    
+    #add orbit position after orbit insertion
+    #https://naif.jpl.nasa.gov/pub/naif/pds/data/mess-e_v_h-spice-6-v1.0/messsp_1000/aareadme.htm
+    #or from MES_2007to2015_RTN.sav
+    
+    
+    mes2= pickle.load( open( datacat_path+"MES_2007to2015_RTN.p", "rb" ) )
+    
     print( 'convert MESSENGER done.')    
 
 
@@ -649,6 +734,11 @@ def save_helcats_datacat():
     vex.lon=np.rad2deg(vex.lon)   
     vex.lat=np.rad2deg(vex.lat)
     vex.time=vex_time
+   
+    #add orbit position after orbit insertion
+    #https://www.cosmos.esa.int/web/spice/spice-for-vex
+    #or from VEX_2007to2014_VSO.p
+   
     print( 'convert VEX done.')
 
     #**remove spikes in v

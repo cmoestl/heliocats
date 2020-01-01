@@ -55,9 +55,11 @@ importlib.reload(hd) #reload again while debugging
 
 to do:
 
-- smooth MAVEN data (like before in IDL) and save as recarray, add position MAVEN (only Mars?)
-- new B and V for STA, Wind and PSP converted to SCEQ components
-- set data gaps to NaN so linear interpolation does not show wrong data
+- smooth MAVEN data (like before in IDL with median) 
+- add VEX and MESSENGER position in orbit from older files before Alexey converted them
+- new B and V for STA, Wind and PSP converted to SCEQ components, plasma correct for new PSP, wind, sta
+- set data gaps to NaN so linear interpolation does not show wrong data at PSP
+- save helios and Cassini in similar format
 - go through all ICMEs and extract data
 
 
@@ -70,11 +72,14 @@ to do:
 ##########################################################################################
 
 
-hd.convert_MAVEN_mat_to_pickle()
-filemav='data/MAVEN_2014to2018_removed_wedlund.p'
-mav=pickle.load(open(filemav, 'rb' ) )
-
+file='data/helios.p'
+hd.save_helios_data(file)
 sys.exit()
+
+filecas='data/cassini_1999_2000.p'
+hd.save_cassini_data(filecas)
+sys.exit()
+
 ##################################### (1) load new data with HelioSat and heliocats.data
 
 
@@ -86,7 +91,7 @@ if load_data >0:
     filewin2="data/wind_jan2018_nov2019_GSE_HEEQ.p" #*******GSE?
     filesta2="data/sta_jan2018_may2019_RTN_HEEQ.p"
     filepsp="data/psp_oct2018_may2019_RTN_HEEQ.p"
-    filemav='data/MAVEN_2014to2018_removed_cyril.p'
+    filemav='data/MAVEN_2014to2018_removed_wedlund.p'
     # ADD BepiColombo  
     # ADD Solar Orbiter
 
@@ -95,7 +100,7 @@ if load_data >0:
     #hd.save_psp_data(filepsp)
     #hd.save_wind_data(filewin2)
     #hd.save_stereoa_data(filesta2)
-    #hd.convert_MAVEN_mat_to_pickle() from C. S. Wedlund
+    #hd.convert_MAVEN_mat_to_pickle() data from C. S. Wedlund
     # ADD BepiColombo  
     # ADD Solar Orbiter
     #sys.exit()
@@ -118,6 +123,7 @@ if load_data >0:
     #hd.save_helcats_datacat()
 
     #download if you need this file and change the path, url for this file is: ###########********* TO DO
+    #add mes vex orbit position
     [vex,win,mes,sta,stb,uly]=hd.load_helcats_datacat('/nas/helio/data/DATACAT/helcats_all_data.p') 
 
 
