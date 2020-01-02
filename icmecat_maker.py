@@ -55,24 +55,54 @@ importlib.reload(hd) #reload again while debugging
 
 to do:
 
-- smooth MAVEN data (like before in IDL with median) set xo yo to nan before orbit, check step
-- despike sta stb wind
-- new B and V for STA, Wind and PSP converted to SCEQ components, plasma correct for new PSP, wind, sta
+- check header
 - set data gaps to NaN so linear interpolation does not show wrong data at PSP
+- smooth MAVEN data (like before in IDL with median) check pos
+- ask Cyril for non removed data
+- despike sta stb wind
 - go through all ICMEs and extract data
 
+
+- (new B and V for STA, Wind and PSP converted to SCEQ components, plasma correct for new PSP, wind, sta)
 
 '''
 
 
+#where the final data are located
+data_path='/nas/helio/data/insitu_python/'
     
 ##########################################################################################
 ######################################## MAIN PROGRAM ####################################
 ##########################################################################################
 
-#hd.save_helcats_datacat(removed=True)
-#hd.save_helcats_datacat(removed=False)
+
+
+
+filewin2="wind_2018_2019.p" 
+filesta2="stereoa_2018_2019.p"
+filepsp="psp_2018_2019.p"
+
+
+hd.save_psp_data(data_path, filepsp)
+
+
+hd.save_wind_data(data_path,filewin2)
+hd.save_stereoa_data(data_path, filesta2)
+
+
+
+
+
+
+#hd.convert_MAVEN_mat_to_pickle(data_path) 
+#filemav=data_path+'maven_2014_2018_removed.p'
+#[mav,hmav]=pickle.load(open(filemav, 'rb' ) )
+
 sys.exit()
+
+
+hd.save_helcats_datacat(data_path,removed=True)
+hd.save_helcats_datacat(data_path,removed=False)
 
 
 

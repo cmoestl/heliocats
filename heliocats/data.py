@@ -26,205 +26,12 @@ import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 import astropy
 
-
-
-
-
-
-###################################### ICMECAT operations ################################
-
-
-def load_helcats_icmecat_master_from_excel(file):
-
-    print('load HELCATS ICMECAT from file:', file)
-    ic=pd.read_excel(file)
-
-    #convert times to datetime objects
-    for i in np.arange(0,ic.shape[0]):    
-    
-        a=str(ic.icme_start_time[i]).strip() #remove leading and ending blank spaces if any
-        ic.icme_start_time.loc[i]=sunpy.time.parse_time(a).datetime
-
-        a=str(ic.mo_start_time[i]).strip() #remove leading and ending blank spaces if any
-        ic.mo_start_time.loc[i]=sunpy.time.parse_time(a).datetime 
-
-        a=str(ic.mo_end_time[i]).strip() #remove leading and ending blank spaces if any
-        ic.mo_end_time.loc[i]=sunpy.time.parse_time(a).datetime 
-
-        
-        a=str(ic.icme_end_time[i]).strip() #remove leading and ending blank spaces if any
-        if a!= '9999-99-99T99:99Z':
-            ic.icme_end_time.loc[i]=sunpy.time.parse_time(a).datetime 
-        else: ic.icme_end_time.loc[i]=np.nan
-
-    return ic
-
-
-
-
-
-
-
+data_path='/nas/helio/data/insitu_python/'
 
 
 
 
 ####################################### get new data ####################################
-'''
-Hi Christian,
-
-I just did a run on the MAVEN datasets that you had with my new technique (and using the Gruesbeck model). The mat file is here:
-
-https://oeawcloud.oeaw.ac.at/index.php/s/Hjc8BVmtQT3k0ub
-
-Password is:      maven2019
-
-The save command in matlab I have used is the following:
-save('Data-MAVEN-SolarWind.mat', 'timeD','np','Vx','Vy','Vz','VT','Tp','Bx','By','Bz','BT','Xsc','Ysc','Zsc');
-
-Note that Xsc, Ysc, and Zsc are given in units of Mars radius (Rp = 3389.5 km). 
-All other ones are the original units of the cdf file you gave me. 
-I have also gone through the data and set to NaN all negative values of density np, temperature Tp and total magnetic field BT.
-
-It would be interesting to compare your old results with these ones, also 
-as a double check that the data was filtered correctly, although the 3D model of Gruesbeck+ 2018 
-does not assume an aberration angle of 4 degrees like the polar model of Edberg+ 2008 -- which I 
-am not sure you took into account originally when processing the data.
-
-Cheers,
-
-Cyril
-
-P.S. I'm writing a compendium for all the details of the technique I used. Hopefully this should be finished soon.
-
-Hallo Christian,
-
-Super, happy that it looks fine! :) Yes, agreed with the median filtering, this should take care of the spikes. 
-There were also many strange spikes in Xsc, Ysc and Zsc (very large values >2.9e27, probably due to 
-an issue with the SPICE kernel, 
-about 1685 points, i.e., 0.087% of the data), so I set all of these anomalous data points to NaN too 
-(all variables including Xsc, Ysc, Zsc).
-
-Cheers,
-
-Cyril
-
-
-'''
-
-
-### **SMOOTH data for each orbit
-
-def convert_MAVEN_mat_to_pickle():
-
-    print('load MAVEN from MAT')
-    file='data/MAVEN_2014to2018_removed_cyril.mat'
-    mavraw = scipy.io.loadmat(file)
-    
-    #make array 
-    mav=np.zeros(np.size(mavraw['BT']),dtype=[('time',object),('bt', float),('bx', float),\
-                ('by', float),('bz', float),('vt', float),('vx', float),('vy', float),\
-                ('vz', float),('tp', float),('np', float),('r', float),('lat', float),\
-                ('lon', float),('x', float),('y', float),('z', float),\
-                ('ro', float), ('lato', float), ('lono', float),\
-                ('xo', float), ('yo', float), ('zo', float)])   
-    #convert to recarray
-    mav = mav.view(np.recarray)  
-    #convert time from matlab to python
-    t=mavraw['timeD'][:,0]
-    for p in np.arange(np.size(t)):
-        mav.time[p]= datetime.datetime.fromordinal(t[p].astype(int) ) + \
-        datetime.timedelta(days=t[p]%1) - datetime.timedelta(days = 366) 
-        
-
-    mav.bx=mavraw['Bx'][:,0]       
-    mav.by=mavraw['By'][:,0] 
-    mav.bz=mavraw['Bz'][:,0]      
-    mav.bt=mavraw['BT'][:,0]      
-
-    mav.vx=mavraw['Vx'][:,0]      
-    mav.vy=mavraw['Vy'][:,0]      
-    mav.vz=mavraw['Vz'][:,0]      
-    mav.vt=mavraw['VT'][:,0] 
-
-    mav.tp=mavraw['Tp'][:,0]      
-    mav.np=mavraw['np'][:,0]      
-    
-    
-    smooth=0
-    if smooth >0:
-    
-       print('smoothing')
-       #smooth with median for each orbit, take times of apogees (search with scipy)
-       #***
-       #
-       #
-    
-    
-    #add position with respect to Mars center in km in MSO
-    mars_radius=3389.5
-    mav.xo=mavraw['Xsc'][:,0]*mars_radius
-    mav.yo=mavraw['Ysc'][:,0]*mars_radius
-    mav.zo=mavraw['Zsc'][:,0]*mars_radius  
-    [mav.ro,mav.lato,mav.lono]=cart2sphere(mav.xo,mav.yo,mav.zo)
-    mav.lono=np.rad2deg(mav.lono)   
-    mav.lato=np.rad2deg(mav.lato)
-
-
-
-    print('HEEQ position start')
-    frame='HEEQ'
-    
-    #add position in HEEQ for cruise phase and orbit
-    insertion=datetime.datetime(2014,9,22,2,24,0)
-    #these are the indices of the times for the cruise phase     
-    tc=np.where(mdates.date2num(mav.time) < mdates.date2num(insertion))       
-    
-    #cruise phase
-    #use heliopy to load own bsp spice file from MAVEN 
-    #obtained through https://naif.jpl.nasa.gov/pub/naif/pds/pds4/maven/maven_spice/spice_kernels/spk/
-    spice.furnish('data/maven_cru_rec_131118_140923_v1.bsp') 
-    cruise=spice.Trajectory('MAVEN') #or NAIF CODE -202 
-    cruise.generate_positions(mav.time[tc],'Sun',frame)     
-    cruise.change_units(astropy.units.AU)  
-    mav.x[tc]=cruise.x
-    mav.y[tc]=cruise.y
-    mav.z[tc]=cruise.z
-    [mav.r[tc], mav.lat[tc], mav.lon[tc]]=cart2sphere(mav.x[tc],mav.y[tc],mav.z[tc])
-
-    
-   
-    to=np.where(mdates.date2num(mav.time) > mdates.date2num(insertion))       
-
-    planet_kernel=spicedata.get_kernel('planet_trajectories')
-    mars=spice.Trajectory('MARS BARYCENTER')
-    mars.generate_positions(mav.time[to],'Sun',frame)
-    mars.change_units(astropy.units.AU)  
-    mav.x[to]=mars.x
-    mav.y[to]=mars.y
-    mav.z[to]=mars.z
-    [mav.r[to], mav.lat[to], mav.lon[to]]=cart2sphere(mav.x[to],mav.y[to],mav.z[to])
-
-
-    #convert to degree
-    mav.lon=np.rad2deg(mav.lon)   
-    mav.lat=np.rad2deg(mav.lat)
-    print('position end ')
-
-    
-    #add header
-    #header=
-
-
-    
-    print('save MAVEN as pickle')
-    if smooth==0: 
-        pickle.dump(mav, open("data/MAVEN_2014to2018_removed_wedlund.p", "wb"))
-
-    if smooth>0: 
-        pickle.dump(mav, open("data/MAVEN_2014to2018_removed_smoothed_wedlund.p", "wb"))
-
-    
 
 
 
@@ -443,7 +250,7 @@ def save_stereoa_data(file):
 
 
     
-def save_psp_data(file):
+def save_psp_data(path, file):
      
     print('start PSP')
      
@@ -531,13 +338,144 @@ def save_psp_data(file):
 
     #pickle.dump([tm,mag, tp,pro], open(file, "wb"))
     #[tm,mag, tp,pro]=pickle.load(open( "data/psp_oct2018_may2019.p", "rb" ) )  
-    pickle.dump(psp, open(file, "wb"))
+    pickle.dump(psp, open(path+file, "wb"))
 
     print('done psp')
     print()
 
   
 
+
+
+
+
+
+def convert_MAVEN_mat_to_pickle(data_path):
+
+    print('load MAVEN from MAT')
+    
+    file=data_path+'input/MAVEN_2014to2018_removed_cyril.mat'
+    mavraw = scipy.io.loadmat(file)
+    
+    #make array 
+    mav=np.zeros(np.size(mavraw['BT']),dtype=[('time',object),('bt', float),('bx', float),\
+                ('by', float),('bz', float),('vt', float),('vx', float),('vy', float),\
+                ('vz', float),('tp', float),('np', float),('r', float),('lat', float),\
+                ('lon', float),('x', float),('y', float),('z', float),\
+                ('ro', float), ('lato', float), ('lono', float),\
+                ('xo', float), ('yo', float), ('zo', float)])   
+    #convert to recarray
+    mav = mav.view(np.recarray)  
+    #convert time from matlab to python
+    t=mavraw['timeD'][:,0]
+    for p in np.arange(np.size(t)):
+        mav.time[p]= datetime.datetime.fromordinal(t[p].astype(int) ) + \
+        datetime.timedelta(days=t[p]%1) - datetime.timedelta(days = 366) 
+        
+
+    mav.bx=mavraw['Bx'][:,0]       
+    mav.by=mavraw['By'][:,0] 
+    mav.bz=mavraw['Bz'][:,0]      
+    mav.bt=mavraw['BT'][:,0]      
+
+    mav.vx=mavraw['Vx'][:,0]      
+    mav.vy=mavraw['Vy'][:,0]      
+    mav.vz=mavraw['Vz'][:,0]      
+    mav.vt=mavraw['VT'][:,0] 
+
+    mav.tp=mavraw['Tp'][:,0]      
+    mav.np=mavraw['np'][:,0]      
+    
+    
+    smooth=0
+    if smooth >0:
+    
+       print('smoothing')
+       #smooth with median for each orbit, take times of apogees (search with scipy)
+       #***np.gradient for getting maxima and check sign reversal
+       #
+       #
+    
+    
+    #add position with respect to Mars center in km in MSO
+ 
+    print('orbit position start')
+    
+    insertion=datetime.datetime(2014,9,22,2,24,0)
+    #these are the indices of the times for the cruise phase     
+    tc=np.where(mdates.date2num(mav.time) < mdates.date2num(insertion))       
+
+    mars_radius=3389.5
+    mav.xo=mavraw['Xsc'][:,0]*mars_radius
+    mav.yo=mavraw['Ysc'][:,0]*mars_radius
+    mav.zo=mavraw['Zsc'][:,0]*mars_radius  
+    
+    #set to nan for cruise phase
+    mav.xo[tc]=np.nan
+    mav.yo[tc]=np.nan
+    mav.zo[tc]=np.nan
+    
+    [mav.ro,mav.lato,mav.lono]=cart2sphere(mav.xo,mav.yo,mav.zo)
+    mav.lono=np.rad2deg(mav.lono)   
+    mav.lato=np.rad2deg(mav.lato)
+
+
+
+    print('HEEQ position start')
+    frame='HEEQ'
+    
+    #add position in HEEQ for cruise phase and orbit
+    
+    #cruise phase
+    #use heliopy to load own bsp spice file from MAVEN 
+    #obtained through https://naif.jpl.nasa.gov/pub/naif/pds/pds4/maven/maven_spice/spice_kernels/spk/
+    spice.furnish(data_path+'input/maven_cru_rec_131118_140923_v1.bsp') 
+    cruise=spice.Trajectory('MAVEN') #or NAIF CODE -202 
+    cruise.generate_positions(mav.time[tc],'Sun',frame)     
+    cruise.change_units(astropy.units.AU)  
+    mav.x[tc]=cruise.x
+    mav.y[tc]=cruise.y
+    mav.z[tc]=cruise.z
+    [mav.r[tc], mav.lat[tc], mav.lon[tc]]=cart2sphere(mav.x[tc],mav.y[tc],mav.z[tc])
+
+    #times in orbit
+    to=np.where(mdates.date2num(mav.time) > mdates.date2num(insertion))       
+
+    planet_kernel=spicedata.get_kernel('planet_trajectories')
+    mars=spice.Trajectory('MARS BARYCENTER')
+    mars.generate_positions(mav.time[to],'Sun',frame)
+    mars.change_units(astropy.units.AU)  
+    mav.x[to]=mars.x
+    mav.y[to]=mars.y
+    mav.z[to]=mars.z
+    [mav.r[to], mav.lat[to], mav.lon[to]]=cart2sphere(mav.x[to],mav.y[to],mav.z[to])
+
+    #convert to degree
+    mav.lon=np.rad2deg(mav.lon)   
+    mav.lat=np.rad2deg(mav.lat)
+    print('position end ')
+
+        
+    print('save MAVEN as pickle')
+    if smooth==0: 
+         header='MAVEN merged magnetic field and plasma data, obtained from Toulouse. '+ \
+         'Timerange: '+mav.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+mav.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
+         '. The magnetosphere is removed with the Gruesbeck et al. 3D model (C.S. Wedlund). '+ \
+         'Units are btxyz [nT, MSO], vtxyz [km/s, MSO], np [#/cm-3], tp[?], orbital position: '+ \
+         'xo/yo/zo/ro/lono/lato [km, degree, MSO], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+         
+         pickle.dump([mav,header], open(data_path+'maven_2014_2018_removed.p', "wb"))
+
+    if smooth>0: 
+         header='MAVEN merged magnetic field and plasma data, obtained from Toulouse. '+ \
+         'Timerange: '+mav.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+mav.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
+         '. The magnetosphere is removed with the Gruesbeck et al. 3D model (C.S. Wedlund). '+ \
+         'Units are btxyz [nT], vtxyz [km/s], np [#/cm-3], tp[?], orbital position: '+ \
+         'xo/yo/zo/ro/lono/lato [km, MSO], heliospheric position x/y/z/r/lon/lat [AU, HEEQ]'
+                
+         pickle.dump([mav,header], open(data_path+'maven_2014_2018_removed_smoothed.p', "wb"))
+
+    
 
 
 
@@ -603,14 +541,7 @@ def save_omni_data(file):
 
 
 
-
-
-
-
-############################# HELCATS DATA into single file ###############################
-
-
-def save_ulysses_data():
+def save_ulysses_data(data_path):
 
    
     print('read Ulysses data from cdf and convert to pickle')   
@@ -683,9 +614,15 @@ def save_ulysses_data():
     badt=np.where(uly.tp < -100000)
     uly.tp[badt]=np.nan  
     
+ 
+    header='Ulysses merged magnetic field and plasma data, obtained from CDAWEB. '+ \
+    'Timerange: '+uly.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+uly.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
+    'Units are btxyz [nT, RTN], vt [km/s], np [#/cm-3], tp[K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+            
 
-    file=datacat_path+'ulysses_merged_1990_2009_CDAWEB.p'
-    pickle.dump(uly, open(file, "wb"))
+    file=data_path+'ulysses_1990_2009_helcats.p'
+    pickle.dump([uly,header], open(file, "wb"))
+    
     
     print('Ulysses done')
 
@@ -697,12 +634,16 @@ def save_ulysses_data():
 
 
 
+############################# HELCATS DATA into single file ###############################
 
 
+
+
+
   
   
   
-def save_helcats_datacat(removed):  
+def save_helcats_datacat(data_path,removed):  
     ''' to save all of helcats DATACAT into a single file'''
       
     print('save all helcats DATACAT into single file')
@@ -756,11 +697,17 @@ def save_helcats_datacat(removed):
     #**remove spikes in v
     #https://datascience.stackexchange.com/questions/27031/how-to-get-spike-values-from-a-value-sequence
     del(winin)
-    print( 'convert Wind done.')
-      
-    #pickle.dump(win, open(datacat_path+ "win_test.p", "wb" ) )
-   
+    
+    hwin='Wind merged magnetic field and plasma data, obtained from HELCATS (A. Isavnin). '+ \
+    'Timerange: '+win.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+win.time[-1].strftime("%d-%b-%Y %H:%M:%S") +\
+    'Units are btxyz [nT, SCEQ], vtxyz [km/s, SCEQ], np [#/cm-3], tp[K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+    
+    pickle.dump([win,hwin], open(data_path+ "wind_2007_2018_helcats.p", "wb" ) )
+    print( 'convert Wind done.')   
      
+    
+    
+    
     
 
     print( 'read STEREO-A')
@@ -804,9 +751,15 @@ def save_helcats_datacat(removed):
     #**remove spikes in v
     #https://datascience.stackexchange.com/questions/27031/how-to-get-spike-values-from-a-value-sequence
     del(stain)
-    
+  
+    hsta='STEREO-A merged magnetic field and plasma data, obtained from HELCATS (A. Isavnin). '+ \
+    'Timerange: '+sta.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+sta.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
+    'Units are btxyz [nT, SCEQ], vtxyz [km/s, SCEQ], np [#/cm-3], tp[K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+    pickle.dump([sta,hsta], open(data_path+ "stereoa_2007_2015_helcats.p", "wb" ) )
     print( 'read STA done.')
     
+  
+  
     
     
     print( 'read STEREO-B')
@@ -850,10 +803,15 @@ def save_helcats_datacat(removed):
     #**remove spikes in v
     #https://datascience.stbckexchange.com/questions/27031/how-to-get-spike-values-from-a-value-sequence
     del(stbin)
-    
+    hstb='STEREO-B merged magnetic field and plasma data, obtained from HELCATS (A. Isavnin). '+ \
+    'Timerange: '+stb.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+stb.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
+    'Units are btxyz [nT, SCEQ], vtxyz [km/s, SCEQ], np [#/cm-3], tp[K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+    pickle.dump([stb,hstb], open(data_path+ "stereob_2007_2014_helcats.p", "wb" ) )
     print( 'read STB done.')
     
      
+      
+      
       
 
     print( 'read MESSENGER')
@@ -916,11 +874,28 @@ def save_helcats_datacat(removed):
     del(mesin)
     del(mes2in)
     
+    
+    
+    if removed == True:   
+      hmes='MESSENGER magnetic field data, obtained from NASA PDS. '+ \
+      'Timerange: '+mes.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+mes.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
+      '. The magnetosphere is removed with a manual magnetopause crossings list (Lydia Philpott, Reka Winslow, Brian Anderson). '+ \
+      'Units are btxyz [nT, SCEQ], orbital position: '+ \
+      'xo/yo/zo/ro/lono/lato [km, degree, MSO], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+      pickle.dump([mes,hmes], open(data_path+ "messenger_2007_2015_helcats_removed.p", "wb" ) )
+     
+    
+    if removed == False:  
+       hmes='MESSENGER magnetic field data, obtained from NASA PDS. '+ \
+       'Timerange: '+mes.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+mes.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
+       '. The magnetosphere is removed with a manual magnetopause crossings list (Lydia Philpott, Reka Winslow, Brian Anderson). '+ \
+       'Units are btxyz [nT, SCEQ], orbital position: '+ \
+       'xo/yo/zo/ro/lono/lato [km, degree, MSO], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+       pickle.dump([mes,hmes], open(data_path+ "messenger_2007_2015_helcats.p", "wb" ) )
+    
     print('convert MESSENGER done.')    
     
-    #pickle.dump(mes, open(datacat_path+ "mes_test.p", "wb" ) )
-    
-    
+        
 
 
     print ('read VEX')
@@ -969,29 +944,46 @@ def save_helcats_datacat(removed):
     del(vexin)
     del(vex2in)
 
-   
-    print( 'convert VEX done.')
-    #pickle.dump(mes, open(datacat_path+ "vex_test.p", "wb" ) )
+  
     
-   
- 
+    if removed == True:   
+     hvex='VEX magnetic field data, obtained from the VEX magnetometer PI T. Zhang IWF Graz, Austria. '+ \
+     'Timerange: '+vex.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+vex.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
+     '. The magnetosphere was removed with the ???? model. '+ \
+     'Units are btxyz [nT, SCEQ], orbital position: '+ \
+     'xo/yo/zo/ro/lono/lato [km, degree, VSO], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+     pickle.dump([vex,hvex], open(data_path+ "vex_2007_2014_helcats_removed.p", "wb" ) )
+     
+    
+    if removed == False:  
+     hvex='VEX magnetic field data, obtained from the VEX magnetometer PI T. Zhang IWF Graz, Austria. '+ \
+     'Timerange: '+vex.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+vex.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
+     'Units are btxyz [nT, SCEQ], orbital position: '+ \
+     'xo/yo/zo/ro/lono/lato [km, degree, VSO], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+     pickle.dump([vex,hvex], open(data_path+ "vex_2007_2014_helcats.p", "wb" ) )
+    
+    print( 'convert VEX done.')
+    
+    
+    
+    
 
     
     #the Ulysses file has been generated by selecting the merged Ulysses data in CDAWEB
     #and then saved as one cdf 2.7 file
     print('read Ulysses from CDAWEB cdf')    
-    #save_ulysses_data()
-    fileuly=datacat_path+'ulysses_merged_1990_2009_CDAWEB.p'
-    uly=pickle.load(open(fileuly, 'rb' ) )
+    save_ulysses_data(data_path)
+    fileuly=data_path+'ulysses_1990_2009_helcats.p'
+    [uly,huly]=pickle.load(open(fileuly, 'rb' ) )
   
 
     if removed==True: 
-        pickle.dump([vex,win,mes,sta,stb,uly], open(datacat_path+ "helcats_all_data_removed.p", "wb" ) )
-        print('saved as ' +datacat_path+ 'helcats_all_non_removed.p')
+        pickle.dump([vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly], open(data_path+ "helcats_all_data_removed.p", "wb" ) )
+        print('saved as ' +data_path+ 'helcats_all_non_removed.p')
 
     if removed==False: 
-        pickle.dump([vex,win,mes,sta,stb,uly], open(datacat_path+ "helcats_all_data_non_removed.p", "wb" ) )
-        print('saved as ' +datacat_path+ 'helcats_all_data_non_removed.p')
+        pickle.dump([vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly], open(data_path+ "helcats_all_data_non_removed.p", "wb" ) )
+        print('saved as ' +data_path+ 'helcats_all_data_non_removed.p')
 
 
 
@@ -1001,9 +993,21 @@ def load_helcats_datacat(file):
     ''' to load all of helcats DATACAT from a single file'''
     
     print('load all helcats DATACAT from single file: ', file)
-    [vex,win,mes,sta,stb,uly]=pickle.load( open(file, "rb" ) )
-    print('use vex,win,sta,stb,mes,uly to access data and position')
-    return [vex,win,mes,sta,stb,uly]
+    [vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly]=pickle.load( open(file, "rb" ) )
+    print('Use vex,win,sta,stb,mes,uly to access data and position, hvex,hwin, hmes, hsta, hstb, huly for headers.')
+    return [vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly]
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 #################################### MATH ################################################
 
@@ -1030,6 +1034,35 @@ def sphere2cart(r,theta,phi):
 
 
 
+
+
+###################################### ICMECAT operations ################################
+
+
+def load_helcats_icmecat_master_from_excel(file):
+
+    print('load HELCATS ICMECAT from file:', file)
+    ic=pd.read_excel(file)
+
+    #convert times to datetime objects
+    for i in np.arange(0,ic.shape[0]):    
+    
+        a=str(ic.icme_start_time[i]).strip() #remove leading and ending blank spaces if any
+        ic.icme_start_time.loc[i]=sunpy.time.parse_time(a).datetime
+
+        a=str(ic.mo_start_time[i]).strip() #remove leading and ending blank spaces if any
+        ic.mo_start_time.loc[i]=sunpy.time.parse_time(a).datetime 
+
+        a=str(ic.mo_end_time[i]).strip() #remove leading and ending blank spaces if any
+        ic.mo_end_time.loc[i]=sunpy.time.parse_time(a).datetime 
+
+        
+        a=str(ic.icme_end_time[i]).strip() #remove leading and ending blank spaces if any
+        if a!= '9999-99-99T99:99Z':
+            ic.icme_end_time.loc[i]=sunpy.time.parse_time(a).datetime 
+        else: ic.icme_end_time.loc[i]=np.nan
+
+    return ic
 
 
 
