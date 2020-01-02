@@ -110,13 +110,6 @@ Cheers,
 Cyril
 
 
-Mehr anzeigen von Christian Möstl
-
-
-
-
-
-
 '''
 
 
@@ -200,7 +193,7 @@ def convert_MAVEN_mat_to_pickle():
     [mav.r[tc], mav.lat[tc], mav.lon[tc]]=cart2sphere(mav.x[tc],mav.y[tc],mav.z[tc])
 
     
-    #these are the indices of the times for the cruise phase     
+   
     to=np.where(mdates.date2num(mav.time) > mdates.date2num(insertion))       
 
     planet_kernel=spicedata.get_kernel('planet_trajectories')
@@ -598,6 +591,18 @@ def save_cassini_data(file):
 
 
 
+def save_omni_data(file):
+
+    return 0
+
+
+
+
+
+
+
+
+
 
 
 
@@ -685,118 +690,310 @@ def save_ulysses_data():
     print('Ulysses done')
 
 
+
+
+
+
+
+
+
+
+
   
   
   
-def save_helcats_datacat():  
+def save_helcats_datacat(removed):  
     ''' to save all of helcats DATACAT into a single file'''
       
     print('save all helcats DATACAT into single file')
     datacat_path='/nas/helio/data/DATACAT/'
     print('all data in', datacat_path)
       
+      
+      
+      
+      
+    print( 'read Wind')
+    winin= pickle.load( open(datacat_path+ "WIND_2007to2018_HEEQ.p", "rb" ) )
+    winin_time=parse_time(winin.time,format='utime').datetime
+    winin=winin.astype([('time', 'object'), ('bt', 'float64'),\
+                    ('bx', 'float64'), ('by', 'float64'), ('bz', 'float64'), \
+                    ('vt', 'float64'), ('vx', 'float64'), ('vy', 'float64'), \
+                    ('vz', 'float64'), ('tp', 'float64'), ('np', 'float64'), \
+                    ('r', 'float64'),('lat', 'float64'), ('lon', 'float64')])  
+    #make new array with xyz                
+    win=np.zeros(np.size(winin),[('time', 'object'), ('bt', 'float64'),\
+                    ('bx', 'float64'), ('by', 'float64'), ('bz', 'float64'), \
+                    ('vt', 'float64'), ('vx', 'float64'), ('vy', 'float64'), \
+                    ('vz', 'float64'), ('tp', 'float64'), ('np', 'float64'),\
+                    ('x', 'float64'),('y', 'float64'), ('z', 'float64'),\
+                    ('r', 'float64'),('lat', 'float64'), ('lon', 'float64')])      
+                    
+    win = win.view(np.recarray)                                                       
+    
+    win.time=winin_time
+    win.bx=winin.bx
+    win.by=winin.by
+    win.bz=winin.bz
+    win.bt=winin.bt
+
+    win.vt=winin.vt
+    win.vx=winin.vx
+    win.vy=winin.vy
+    win.vz=winin.vz
+
+    win.np=winin.np
+    win.tp=winin.tp
+ 
+    win.r=winin.r/(astropy.constants.au.value/1e3)
+    win.lat=winin.lat
+    win.lon=winin.lon
+     
+    [win.x, win.y, win.z]=sphere2cart(win.r,win.lat,win.lon)
+    win.lon=np.rad2deg(win.lon)   
+    win.lat=np.rad2deg(win.lat)
+
+    #**remove spikes in v
+    #https://datascience.stackexchange.com/questions/27031/how-to-get-spike-values-from-a-value-sequence
+    del(winin)
+    print( 'convert Wind done.')
+      
+    #pickle.dump(win, open(datacat_path+ "win_test.p", "wb" ) )
+   
+     
+    
+
+    print( 'read STEREO-A')
+    stain= pickle.load( open(datacat_path+ "STA_2007to2015_SCEQ.p", "rb" ) )
+    stain_time=parse_time(stain.time,format='utime').datetime
+    stain=stain.astype([('time', 'object'), ('bt', 'float'),\
+                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
+                    ('vt', 'float'), ('vx', 'float'), ('vy', 'float'), \
+                    ('vz', 'float'), ('tp', 'float'), ('np', 'float'), \
+                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])     
+    sta=np.zeros(np.size(stain),[('time', 'object'), ('bt', 'float64'),\
+                    ('bx', 'float64'), ('by', 'float64'), ('bz', 'float64'), \
+                    ('vt', 'float64'), ('vx', 'float64'), ('vy', 'float64'), \
+                    ('vz', 'float64'), ('tp', 'float64'), ('np', 'float64'),\
+                    ('x', 'float64'),('y', 'float64'), ('z', 'float64'),\
+                    ('r', 'float64'),('lat', 'float64'), ('lon', 'float64')])      
+    sta = sta.view(np.recarray)                                                       
+    
+    sta.time=stain_time
+    sta.bx=stain.bx
+    sta.by=stain.by
+    sta.bz=stain.bz
+    sta.bt=stain.bt
+
+    sta.vt=stain.vt
+    sta.vx=stain.vx
+    sta.vy=stain.vy
+    sta.vz=stain.vz
+
+    sta.np=stain.np
+    sta.tp=stain.tp
+ 
+    sta.r=stain.r/(astropy.constants.au.value/1e3)
+    sta.lat=stain.lat
+    sta.lon=stain.lon
+     
+    [sta.x, sta.y, sta.z]=sphere2cart(sta.r,sta.lat,sta.lon)
+    sta.lon=np.rad2deg(sta.lon)   
+    sta.lat=np.rad2deg(sta.lat)
+
+    #**remove spikes in v
+    #https://datascience.stackexchange.com/questions/27031/how-to-get-spike-values-from-a-value-sequence
+    del(stain)
+    
+    print( 'read STA done.')
+    
+    
+    
+    print( 'read STEREO-B')
+    stbin= pickle.load( open(datacat_path+ "STB_2007to2014_SCEQ.p", "rb" ) )
+    stbin_time=parse_time(stbin.time,format='utime').datetime
+    stbin=stbin.astype([('time', 'object'), ('bt', 'float'),\
+                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
+                    ('vt', 'float'), ('vx', 'float'), ('vy', 'float'), \
+                    ('vz', 'float'), ('tp', 'float'), ('np', 'float'), \
+                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])     
+    stb=np.zeros(np.size(stbin),[('time', 'object'), ('bt', 'float64'),\
+                    ('bx', 'float64'), ('by', 'float64'), ('bz', 'float64'), \
+                    ('vt', 'float64'), ('vx', 'float64'), ('vy', 'float64'), \
+                    ('vz', 'float64'), ('tp', 'float64'), ('np', 'float64'),\
+                    ('x', 'float64'),('y', 'float64'), ('z', 'float64'),\
+                    ('r', 'float64'),('lat', 'float64'), ('lon', 'float64')])      
+    stb = stb.view(np.recarray)                                                       
+    
+    stb.time=stbin_time
+    stb.bx=stbin.bx
+    stb.by=stbin.by
+    stb.bz=stbin.bz
+    stb.bt=stbin.bt
+
+    stb.vt=stbin.vt
+    stb.vx=stbin.vx
+    stb.vy=stbin.vy
+    stb.vz=stbin.vz
+
+    stb.np=stbin.np
+    stb.tp=stbin.tp
+ 
+    stb.r=stbin.r/(astropy.constants.au.value/1e3)
+    stb.lat=stbin.lat
+    stb.lon=stbin.lon
+     
+    [stb.x, stb.y, stb.z]=sphere2cart(stb.r,stb.lat,stb.lon)
+    stb.lon=np.rad2deg(stb.lon)   
+    stb.lat=np.rad2deg(stb.lat)
+
+    #**remove spikes in v
+    #https://datascience.stbckexchange.com/questions/27031/how-to-get-spike-values-from-a-value-sequence
+    del(stbin)
+    
+    print( 'read STB done.')
+    
+     
+      
 
     print( 'read MESSENGER')
     #get insitu data from helcats, converted from IDL .sav to pickle
-    mes= pickle.load( open( datacat_path+"MES_2007to2015_SCEQ_removed.p", "rb" ) )
+    if removed == True:   
+       mesin= pickle.load( open( datacat_path+"MES_2007to2015_SCEQ_removed.p", "rb" ) )
+    #non removed dataset
+    if removed == False:  
+       mesin= pickle.load( open( datacat_path+"MES_2007to2015_SCEQ_non_removed.p", "rb" ) )
     #time conversion
-    mes_time=parse_time(mes.time,format='utime').datetime
+    mesin_time=parse_time(mesin.time,format='utime').datetime
     #replace mes.time with datetime object
     #new variable names                  
-    mes=mes.astype([('time', 'object'), ('bt', 'float'),\
-                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
-                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])                        
-   
+  
+    mes=np.zeros(np.size(mesin),[('time', 'object'), ('bt', 'float64'),\
+                    ('bx', 'float64'), ('by', 'float64'), ('bz', 'float64'), \
+                    ('x', 'float64'),('y', 'float64'), ('z', 'float64'),\
+                    ('r', 'float64'),('lat', 'float64'), ('lon', 'float64'),\
+                    ('xo', 'float64'),('yo', 'float64'), ('zo', 'float64'),\
+                    ('ro', 'float64'),('lato', 'float64'), ('lono', 'float64')])
+                    
+    #convert to recarray
+    mes = mes.view(np.recarray)  
+    #set time new  
+    mes.time=mesin_time
+    mes.bx=mesin.bx
+    mes.by=mesin.by
+    mes.bz=mesin.bz
+    mes.bt=mesin.btot
+    
+    
     #convert distance from Sun from km to AU, astropy constant is given in m
-    mes.r=mes.r/(astropy.constants.au.value/1e3)
-    #convert radians to degrees
-    mes.lon=np.rad2deg(mes.lon)   
-    mes.lat=np.rad2deg(mes.lat)
-    mes.time=mes_time
+    mes.r=mesin.mes_radius_in_km_heeq/(astropy.constants.au.value/1e3)
+    [mes.x, mes.y, mes.z]=sphere2cart(mes.r,\
+                                      mesin.mes_latitude_in_radians_heeq.astype('float64'),\
+                                      mesin.mes_longitude_in_radians_heeq.astype('float64'))
+    #convert to degree
+    mes.lon=np.rad2deg(mesin.mes_longitude_in_radians_heeq.astype('float64'))   
+    mes.lat=np.rad2deg(mesin.mes_latitude_in_radians_heeq.astype('float64'))
+
     
-    #add orbit position after orbit insertion
+    #add orbit position after orbit insertion March 18, 2011, 01:00
     #https://naif.jpl.nasa.gov/pub/naif/pds/data/mess-e_v_h-spice-6-v1.0/messsp_1000/aareadme.htm
-    #or from MES_2007to2015_RTN.sav
+    #or from MES_2007to2015_RTN.sav       
+    mes2in=pickle.load( open( datacat_path+"MES_2007to2015_RTN.p", "rb" ) )
+    orbit_insertion=mdates.date2num(datetime.datetime(2011,3,18,1,0,0))
+    before_orbit=np.where(mdates.date2num(mes.time) < orbit_insertion)
+    
+    mes2in.x.astype('float64')[before_orbit]=np.nan
+    mes2in.y.astype('float64')[before_orbit]=np.nan
+    mes2in.z.astype('float64')[before_orbit]=np.nan #for some reason this was saved as int
+    
+    mes.xo=mes2in.x
+    mes.yo=mes2in.y
+    mes.zo=mes2in.z
+    
+    [mes.ro, mes.lato, mes.lono]=cart2sphere(mes.xo,mes.yo,mes.zo)
+    mes.lono=np.rad2deg(mes.lono)   
+    mes.lato=np.rad2deg(mes.lato)
+    del(mesin)
+    del(mes2in)
+    
+    print('convert MESSENGER done.')    
+    
+    #pickle.dump(mes, open(datacat_path+ "mes_test.p", "wb" ) )
     
     
-    mes2= pickle.load( open( datacat_path+"MES_2007to2015_RTN.p", "rb" ) )
-    
-    print( 'convert MESSENGER done.')    
 
 
     print ('read VEX')
-    vex= pickle.load( open(datacat_path+ "VEX_2007to2014_SCEQ_removed.p", "rb" ) )
-    vex_time=parse_time(vex.time,format='utime').datetime
-    vex=vex.astype([('time', 'object'), ('bt', 'float'),\
-                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
-                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])                                          
-    vex.r=vex.r/(astropy.constants.au.value/1e3)
-    vex.lon=np.rad2deg(vex.lon)   
-    vex.lat=np.rad2deg(vex.lat)
-    vex.time=vex_time
-   
-    #add orbit position after orbit insertion
+    if removed == True:   
+         vexin= pickle.load( open(datacat_path+ "VEX_2007to2014_SCEQ_removed.p", "rb" ) )
+    if removed == False:  
+         vexin= pickle.load( open(datacat_path+ "VEX_2007to2014_SCEQ.p", "rb" ) )
+    #time conversion
+    vexin_time=parse_time(vexin.time,format='utime').datetime
+    vex=np.zeros(np.size(vexin),[('time', 'object'), ('bt', 'float64'),\
+                    ('bx', 'float64'), ('by', 'float64'), ('bz', 'float64'), \
+                    ('x', 'float64'),('y', 'float64'), ('z', 'float64'),\
+                    ('r', 'float64'),('lat', 'float64'), ('lon', 'float64'),\
+                    ('xo', 'float64'),('yo', 'float64'), ('zo', 'float64'),\
+                    ('ro', 'float64'),('lato', 'float64'), ('lono', 'float64')])      
+    vex = vex.view(np.recarray)                                  
+ 
+    vex.r=vexin.vex_radius_in_km_heeq/(astropy.constants.au.value/1e3)
+    [vex.x, vex.y, vex.z]=sphere2cart(vex.r,\
+                                      vexin.vex_latitude_in_radians_heeq.astype('float64'),\
+                                      vexin.vex_longitude_in_radians_heeq.astype('float64'))
+    #convert to degree
+    vex.lon=np.rad2deg(vexin.vex_longitude_in_radians_heeq)   
+    vex.lat=np.rad2deg(vexin.vex_latitude_in_radians_heeq)
+
+    vex.time=vexin_time
+    vex.bx=vexin.bx
+    vex.by=vexin.by
+    vex.bz=vexin.bz
+    vex.bt=vexin.btot
+
+       
+    #add orbit position 
     #https://www.cosmos.esa.int/web/spice/spice-for-vex
     #or from VEX_2007to2014_VSO.p
+    vex2in=pickle.load( open( datacat_path+"VEX_2007to2014_VSO.p", "rb" ) )
+  
+    vex.xo=vex2in.x
+    vex.yo=vex2in.y
+    vex.zo=vex2in.z
+    
+    [vex.ro, vex.lato, vex.lono]=cart2sphere(vex.xo,vex.yo,vex.zo)
+    vex.lono=np.rad2deg(vex.lono)   
+    vex.lato=np.rad2deg(vex.lato)
+    
+    del(vexin)
+    del(vex2in)
+
    
     print( 'convert VEX done.')
-
-    #**remove spikes in v
-    print( 'read Wind')
-    win= pickle.load( open(datacat_path+ "WIND_2007to2018_HEEQ.p", "rb" ) )
-    win_time=parse_time(win.time,format='utime').datetime
-    win=win.astype([('time', 'object'), ('bt', 'float'),\
-                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
-                    ('vt', 'float'), ('vx', 'float'), ('vy', 'float'), \
-                    ('vz', 'float'), ('tp', 'float'), ('np', 'float'), \
-                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])     
-    win.r=win.r/(astropy.constants.au.value/1e3)
-    win.lon=np.rad2deg(win.lon)   
-    win.lat=np.rad2deg(win.lat)
-    win.time=win_time
-    print( 'convert Wind done.')
-
-
-    print( 'read STEREO-A')
-    sta= pickle.load( open(datacat_path+ "STA_2007to2015_SCEQ.p", "rb" ) )
-    sta_time=parse_time(sta.time,format='utime').datetime
-    sta=sta.astype([('time', 'object'), ('bt', 'float'),\
-                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
-                    ('vt', 'float'), ('vx', 'float'), ('vy', 'float'), \
-                    ('vz', 'float'), ('tp', 'float'), ('np', 'float'), \
-                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])     
-    sta.r=sta.r/(astropy.constants.au.value/1e3)
-    sta.lon=np.rad2deg(sta.lon)   
-    sta.lat=np.rad2deg(sta.lat)
-    sta.time=sta_time
-    print( 'read STA done.')
-
-
-    print( 'read STEREO-B')
-    stb= pickle.load( open(datacat_path+ "STB_2007to2014_SCEQ.p", "rb" ) )
-    stb_time=parse_time(stb.time,format='utime').datetime
-    stb=stb.astype([('time', 'object'), ('bt', 'float'),\
-                    ('bx', 'float'), ('by', 'float'), ('bz', 'float'), \
-                    ('vt', 'float'), ('vx', 'float'), ('vy', 'float'), \
-                    ('vz', 'float'), ('tp', 'float'), ('np', 'float'), \
-                    ('r', 'float'),('lat', 'float'), ('lon', 'float')])     
-    stb.r=stb.r/(astropy.constants.au.value/1e3)
-    stb.lon=np.rad2deg(stb.lon)   
-    stb.lat=np.rad2deg(stb.lat) 
-    stb.time=stb_time
-    print( 'read STB done.')
+    #pickle.dump(mes, open(datacat_path+ "vex_test.p", "wb" ) )
     
+   
+ 
+
     
     #the Ulysses file has been generated by selecting the merged Ulysses data in CDAWEB
     #and then saved as one cdf 2.7 file
     print('read Ulysses from CDAWEB cdf')    
-    save_ulysses_data()
+    #save_ulysses_data()
     fileuly=datacat_path+'ulysses_merged_1990_2009_CDAWEB.p'
     uly=pickle.load(open(fileuly, 'rb' ) )
   
 
-    pickle.dump([vex,win,mes,sta,stb,uly], open(datacat_path+ "helcats_all_data.p", "wb" ) )
-    print('saved as ' +datacat_path+ 'helcats_all_data.p')
+    if removed==True: 
+        pickle.dump([vex,win,mes,sta,stb,uly], open(datacat_path+ "helcats_all_data_removed.p", "wb" ) )
+        print('saved as ' +datacat_path+ 'helcats_all_non_removed.p')
+
+    if removed==False: 
+        pickle.dump([vex,win,mes,sta,stb,uly], open(datacat_path+ "helcats_all_data_non_removed.p", "wb" ) )
+        print('saved as ' +datacat_path+ 'helcats_all_data_non_removed.p')
+
+
 
 
   
@@ -820,6 +1017,14 @@ def cart2sphere(x,y,z):
     return (r, theta, phi)
     
 
+
+@njit
+def sphere2cart(r,theta,phi):
+    x = r * np.sin( theta ) * np.cos( phi )
+    y = r * np.sin( theta ) * np.sin( phi )
+    z = r * np.cos( theta )
+    return (x, y,z)
+    
 
 
 

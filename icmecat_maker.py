@@ -55,11 +55,10 @@ importlib.reload(hd) #reload again while debugging
 
 to do:
 
-- smooth MAVEN data (like before in IDL with median) 
-- add VEX and MESSENGER position in orbit from older files before Alexey converted them
+- smooth MAVEN data (like before in IDL with median) set xo yo to nan before orbit, check step
+- despike sta stb wind
 - new B and V for STA, Wind and PSP converted to SCEQ components, plasma correct for new PSP, wind, sta
 - set data gaps to NaN so linear interpolation does not show wrong data at PSP
-- save helios and Cassini in similar format
 - go through all ICMEs and extract data
 
 
@@ -71,7 +70,13 @@ to do:
 ######################################## MAIN PROGRAM ####################################
 ##########################################################################################
 
+#hd.save_helcats_datacat(removed=True)
+#hd.save_helcats_datacat(removed=False)
+sys.exit()
 
+
+
+'''
 file='data/helios.p'
 hd.save_helios_data(file)
 sys.exit()
@@ -79,6 +84,7 @@ sys.exit()
 filecas='data/cassini_1999_2000.p'
 hd.save_cassini_data(filecas)
 sys.exit()
+'''
 
 ##################################### (1) load new data with HelioSat and heliocats.data
 
