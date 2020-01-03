@@ -17,6 +17,7 @@ import scipy.io
 import pickle
 import sys
 import cdflib
+import matplotlib.pyplot as plt
 import heliosat
 from numba import njit
 from sunpy.time import parse_time
@@ -255,8 +256,9 @@ def save_psp_data(path, file):
     print('start PSP')
      
     psp_sat = heliosat.PSP()
-    t_start = datetime.datetime(2018, 10, 15)
-    t_end = datetime.datetime(2019, 5, 31)
+    t_start = datetime.datetime(2018, 10, 14,14,14, 30)
+    #t_end = datetime.datetime(2018, 12, 12,23,59,30)
+    t_end = datetime.datetime(2019, 5, 31,23,59,30)
     
     #create an array with 1 minute resolution between t start and end
     time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
@@ -288,24 +290,63 @@ def save_psp_data(path, file):
     print('position end')
     
 
-    #linear interpolation to time_mat times    
+    #linear interpolation to time_mat times 
+    
+    #which values are not in original data?
+    isin=np.isin(time_mat,tm_mat)      
+    setnan=np.where(isin==False)
+  
+    #linear interpolation to time_mat times now with new array at full minutes
+    t_start = datetime.datetime(2018, 10, 14,14,15, 0)
+    t_end = datetime.datetime(2019, 5, 31,23,59,0)
+    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
+    time_mat=mdates.date2num(time) 
+   
     bx = np.interp(time_mat, tm_mat, mag[:,0] )
     by = np.interp(time_mat, tm_mat, mag[:,1] )
     bz = np.interp(time_mat, tm_mat, mag[:,2] )
+
+    bx[setnan]=np.nan
+    by[setnan]=np.nan
+    bz[setnan]=np.nan
+
     bt = np.sqrt(bx**2+by**2+bz**2)
+     
+     
+    print('plasma')
+
+    #for plasma round first each original time to full minutes
+    tround=copy.deepcopy(tp)
+    format_str = '%Y-%m-%d %H:%M'  
+    for k in np.arange(np.size(tp)):
+         tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(tp[k], format_str), format_str) 
+    tround_mat=mdates.date2num(tround) 
+
+    #same as above for magnetic field
+    isin=np.isin(time_mat,tround_mat)      
+    setnan=np.where(isin==False)
+
         
-    p0 = np.interp(time_mat, tp_mat, pro[:,0])
-    p1 = np.interp(time_mat, tp_mat, pro[:,1])
-    v = np.interp(time_mat, tp_mat, pro[:,2])
-    p3 = np.interp(time_mat, tp_mat, pro[:,3])
-    p4 = np.interp(time_mat, tp_mat, pro[:,4])
+    den = np.interp(time_mat, tp_mat, pro[:,0])
+    tp = np.interp(time_mat, tp_mat, pro[:,1])
+    vx = np.interp(time_mat, tp_mat, pro[:,2])
+    vy = np.interp(time_mat, tp_mat, pro[:,3])
+    vz = np.interp(time_mat, tp_mat, pro[:,4])
+    
+    den[setnan]=np.nan
+    tp[setnan]=np.nan
+    vx[setnan]=np.nan
+    vy[setnan]=np.nan
+    vz[setnan]=np.nan
+  
+    vt=np.sqrt(vx**2+vy**2+vz**2)
 
     
     #make array
-    psp=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('p0', float),('p1', float),('v', float),\
-                ('p3', float),('p4', float),('x', float),('y', float),('z', float),\
-                ('r', float),('lat', float),('lon', float)])   
+    psp=np.zeros(np.size(bx),dtype=[('time',object),('bt', float),('bx', float),\
+                ('by', float),('bz', float),('vt', float),('vx', float),('vy', float),\
+                ('vz', float),('np', float),('tp', float),('x', float),('y', float),\
+                ('z', float),('r', float),('lat', float),('lon', float)])   
        
     #convert to recarray
     psp = psp.view(np.recarray)  
@@ -315,35 +356,65 @@ def save_psp_data(path, file):
     psp.bx=bx
     psp.by=by
     psp.bz=bz 
-    psp.bz=bt
+    psp.bt=bt
     
     psp.x=psptra.x
-    psp.y=psptra.x
-    psp.z=psptra.x
+    psp.y=psptra.y
+    psp.z=psptra.z
     
     psp.r=r
     psp.lat=lat
     psp.lon=lon
-
-    #set missing data to nan!!
+  
+    psp.vt=vt
+    psp.vx=vx    
+    psp.vy=vy  
+    psp.vz=vz
+    psp.np=den
+    #https://en.wikipedia.org/wiki/Thermal_velocity convert from km/s to K
+    from astropy.constants import m_p,k_B
+    psp.tp=np.pi*m_p*((tp*1e3)**2)/(8*k_B) 
+    
+    #remove spikes
+    psp.tp[np.where(psp.tp > 1e10)]=np.nan
     
     
-    psp.p0=p0
-    psp.p1=p1    
-    psp.v=v    
-    psp.p3=p3
-    psp.p4=p4
+    header='PSP magnetic field (FIELDS instrument) and plasma data (SWEAP), ' + \
+    'obtained from https://spdf.gsfc.nasa.gov/pub/data/psp/  '+ \
+    'Timerange: '+psp.time[0].strftime("%Y-%b-%d %H:%M")+' to '+psp.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(psp.time)).seconds)+' seconds. '+\
+    'The data are put in a numpy recarray, fields can be accessed by psp.time, psp.bx, psp.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(psp.size)+'. '+\
+    'Units are btxyz [nT, RTN], vtxyz [km/s, RTN], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats (uses https://github.com/ajefweiss/HelioSat '+\
+    'and https://github.com/heliopython/heliopy). '+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
     
-       
-
-    #pickle.dump([tm,mag, tp,pro], open(file, "wb"))
-    #[tm,mag, tp,pro]=pickle.load(open( "data/psp_oct2018_may2019.p", "rb" ) )  
-    pickle.dump(psp, open(path+file, "wb"))
+    pickle.dump([psp,header], open(path+file, "wb"))
 
     print('done psp')
     print()
 
-  
+    ########## for debugging
+    '''
+    plt.figure(1)
+    plt.plot_date(tm_mat,mag[:,0],'r-')
+    plt.plot_date(time_mat,bx,'g-')
+
+    plt.figure(2)
+    plt.plot_date(tp_mat,pro[:,2],'r-')
+    plt.plot_date(time_mat,vx,'g-')
+
+    plt.figure(3)
+    plt.plot_date(time_mat,bx,'r-')
+    plt.plot_date(time_mat,vx,'g-')
+
+    plt.show()
+    sys.exit()
+    '''
+
+
 
 
 
@@ -1015,9 +1086,9 @@ def load_helcats_datacat(file):
 
 @njit
 def cart2sphere(x,y,z):
-    r = np.sqrt(x**2+ y**2 + z**2)            # r
-    theta = np.arctan2(z,np.sqrt(x**2+ y**2))     # theta
-    phi = np.arctan2(y,x)                        # phi
+    r = np.sqrt(x**2+ y**2 + z**2)           
+    theta = np.arctan2(z,np.sqrt(x**2+ y**2))
+    phi = np.arctan2(y,x)                    
     return (r, theta, phi)
     
 

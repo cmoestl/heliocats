@@ -78,20 +78,25 @@ data_path='/nas/helio/data/insitu_python/'
 
 
 
+
+
+
+
+
+
+
 filewin2="wind_2018_2019.p" 
 filesta2="stereoa_2018_2019.p"
 filepsp="psp_2018_2019.p"
 
 
 hd.save_psp_data(data_path, filepsp)
+[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
 
+sys.exit()
 
 hd.save_wind_data(data_path,filewin2)
 hd.save_stereoa_data(data_path, filesta2)
-
-
-
-
 
 
 #hd.convert_MAVEN_mat_to_pickle(data_path) 
@@ -146,7 +151,7 @@ if load_data >0:
     print('load new Wind, STEREO-A, MAVEN, and ParkerProbe data')
     win2=pickle.load(open(filewin2, "rb" ) )  
     sta2=pickle.load(open(filesta2, "rb" ) )  
-    psp=pickle.load(open(filepsp, "rb" ) )  
+    [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
     mav=pickle.load(open(filemav, 'rb' ) )
     # ADD BepiColombo  
     # ADD Solar Orbiter
