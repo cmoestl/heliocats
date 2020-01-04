@@ -49,19 +49,16 @@ from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
 
-#plt.ion() 
+plt.ion() 
 
 '''
 
 to do:
 
-- check header
-- set data gaps to NaN so linear interpolation does not show wrong data at PSP
 - smooth MAVEN data (like before in IDL with median) check pos
 - ask Cyril for non removed data
-- despike sta stb wind
+- despike sta stb wind all
 - go through all ICMEs and extract data
-
 
 - (new B and V for STA, Wind and PSP converted to SCEQ components, plasma correct for new PSP, wind, sta)
 
@@ -78,18 +75,42 @@ data_path='/nas/helio/data/insitu_python/'
 
 
 
-
-
-
-
-
-
-
 filewin2="wind_2018_2019.p" 
+#hd.save_wind_data(data_path,filewin2)
+[wi2,hwi2]=pickle.load(open(data_path+filewin2, "rb" ) )  
+
+
+#filesta2="stereoa_2018_2019.p"
+#hd.save_stereoa_science_data(data_path, filesta2)
+#[ssd,header]=pickle.load(open(data_path+filesta2, "rb" ) ) 
+
+
+#filepsp="psp_2018_2019.p"
+#hd.save_psp_data(data_path, filepsp)
+#sys.exit()
+
+
+filesta2b="stereoa_2018_2019_beacon.p"
+#hd.save_stereoa_beacon_data(data_path, filesta2b)
+[st2,hst2]=pickle.load(open(data_path+filesta2b, "rb" ) ) 
+
+sys.exit()
+
 filesta2="stereoa_2018_2019.p"
+hd.save_stereoa_science_data(data_path, filesta2)
+
+
+[ssd,header]=pickle.load(open(data_path+filesta2, "rb" ) ) 
+
+sys.exit()
+
+
+
+
+
+
+
 filepsp="psp_2018_2019.p"
-
-
 hd.save_psp_data(data_path, filepsp)
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
 
