@@ -25,7 +25,6 @@ import matplotlib.dates as mdates
 from matplotlib.dates import  DateFormatter
 import numpy as np
 import astropy.constants as const
-from sunpy.time import parse_time
 import time
 import pickle
 import seaborn as sns
@@ -55,11 +54,9 @@ plt.ion()
 
 to do:
 
-- smooth MAVEN data (like before in IDL with median) check pos
-- ask Cyril for non removed data
+- smooth MAVEN data (like before in IDL with median) 
 - despike sta stb wind all
 - go through all ICMEs and extract data
-
 - (new B and V for STA, Wind and PSP converted to SCEQ components, plasma correct for new PSP, wind, sta)
 
 '''
@@ -76,13 +73,28 @@ data_path='/nas/helio/data/insitu_python/'
 
 
 filewin2="wind_2018_2019.p" 
-#hd.save_wind_data(data_path,filewin2)
+hd.save_wind_data(data_path,filewin2)
 [wi2,hwi2]=pickle.load(open(data_path+filewin2, "rb" ) )  
 
 
-#filesta2="stereoa_2018_2019.p"
-#hd.save_stereoa_science_data(data_path, filesta2)
-#[ssd,header]=pickle.load(open(data_path+filesta2, "rb" ) ) 
+
+sys.exit()
+
+filesta2b="stereoa_2018_2019_beacon.p"
+hd.save_stereoa_beacon_data(data_path, filesta2b)
+[st2,hst2]=pickle.load(open(data_path+filesta2b, "rb" ) ) 
+
+
+sys.exit()
+
+
+
+filesta2="stereoa_2018_2019.p"
+hd.save_stereoa_science_data(data_path, filesta2)
+[sta2,header]=pickle.load(open(data_path+filesta2, "rb" ) ) 
+
+
+
 
 
 #filepsp="psp_2018_2019.p"
@@ -90,17 +102,7 @@ filewin2="wind_2018_2019.p"
 #sys.exit()
 
 
-filesta2b="stereoa_2018_2019_beacon.p"
-#hd.save_stereoa_beacon_data(data_path, filesta2b)
-[st2,hst2]=pickle.load(open(data_path+filesta2b, "rb" ) ) 
-
 sys.exit()
-
-filesta2="stereoa_2018_2019.p"
-hd.save_stereoa_science_data(data_path, filesta2)
-
-
-[ssd,header]=pickle.load(open(data_path+filesta2, "rb" ) ) 
 
 sys.exit()
 
@@ -109,9 +111,11 @@ sys.exit()
 
 
 
+
+hd.save_psp_data(data_path, filepsp)
 
 filepsp="psp_2018_2019.p"
-hd.save_psp_data(data_path, filepsp)
+data_path='/nas/helio/data/insitu_python/'
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
 
 sys.exit()
@@ -120,7 +124,7 @@ hd.save_wind_data(data_path,filewin2)
 hd.save_stereoa_data(data_path, filesta2)
 
 
-#hd.convert_MAVEN_mat_to_pickle(data_path) 
+
 #filemav=data_path+'maven_2014_2018_removed.p'
 #[mav,hmav]=pickle.load(open(filemav, 'rb' ) )
 
@@ -150,7 +154,23 @@ load_data=0
 
 if load_data >0:
 
+
+    #hd.convert_MAVEN_mat_removed_to_pickle(data_path) 
+    filemav=data_path+'maven_2014_2018_removed.p'
+    [mav,hmav]=pickle.load(open(filemav, 'rb' ) )
+
+
+    #hd.convert_MAVEN_mat_original_to_pickle(data_path) 
+    filemav=data_path+'maven_2014_2018.p'
+    [mav,hmav]=pickle.load(open(filemav, 'rb' ) )
+
+
+
     filewin2="data/wind_jan2018_nov2019_GSE_HEEQ.p" #*******GSE?
+    
+    
+    
+    
     filesta2="data/sta_jan2018_may2019_RTN_HEEQ.p"
     filepsp="data/psp_oct2018_may2019_RTN_HEEQ.p"
     filemav='data/MAVEN_2014to2018_removed_wedlund.p'

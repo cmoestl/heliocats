@@ -6,13 +6,13 @@ import numpy as np
 import pandas as pd
 import scipy
 import copy
-import sunpy
 import matplotlib.dates as mdates
 import datetime
 import urllib
 import json
 import os
 import pdb
+from sunpy.time import parse_time
 import scipy.io
 import pickle
 import sys
@@ -20,7 +20,7 @@ import cdflib
 import matplotlib.pyplot as plt
 import heliosat
 from numba import njit
-from sunpy.time import parse_time
+from astropy.time import Time
 import heliopy.data.cassini as cassinidata
 import heliopy.data.helios as heliosdata
 import heliopy.data.spice as spicedata
@@ -43,7 +43,9 @@ def save_wind_data(path,file):
     print('start wind')
     wind_sat = heliosat.WIND()
     t_start = datetime.datetime(2018, 1, 1)
-    t_end = datetime.datetime(2019, 12, 31)
+    #t_end = datetime.datetime(2019, 12, 31)
+    t_end = datetime.datetime(2018, 1, 31)
+
     
     #create an array with 1 minute resolution between t start and end
     time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
@@ -55,6 +57,9 @@ def save_wind_data(path,file):
     
     tm=parse_time(tm,format='unix').datetime 
     tp=parse_time(tp,format='unix').datetime 
+    
+    print(pro)
+    sys.exit()
     
     #convert to matplotlib time for linear interpolation
     tm_mat=mdates.date2num(tm) 
@@ -81,7 +86,7 @@ def save_wind_data(path,file):
     den = np.interp(time_mat, tp_mat, pro[:,0])
     vt = np.interp(time_mat, tp_mat, pro[:,1])
     tp = np.interp(time_mat, tp_mat, pro[:,2])
-    #p3 = np.interp(time_mat, tp_mat, pro[:,3])
+    p3 = np.interp(time_mat, tp_mat, pro[:,3])
     #p4 = np.interp(time_mat, tp_mat, pro[:,4])
 
     
@@ -146,7 +151,9 @@ def save_stereoa_beacon_data(path,file):
     print('start STA')
     sta_sat = heliosat.STA()
     t_start = datetime.datetime(2018, 1, 1)
-    t_end = datetime.datetime(2019, 12,31)
+    t_end = datetime.datetime(2018, 1,31)
+
+    #t_end = datetime.datetime(2019, 12,31)
      
     #create an array with 1 minute resolution between t start and end
     time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
@@ -155,9 +162,11 @@ def save_stereoa_beacon_data(path,file):
     #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_l1")
     #tp, pro = sta_sat.get_data_raw(t_start, t_end, "sta_plastic_l2")
 
-    tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_beacon")
-    tp, pro = sta_sat.get_data_raw(t_start, t_end, "sta_plastic_beacon")
+    #tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag")
+    tp, pro = sta_sat.get_data_raw(t_start, t_end, "proton")
+    print(pro)
 
+    sys.exit()
     print('download complete')
    
     tm=parse_time(tm,format='unix').datetime 
@@ -544,7 +553,121 @@ def save_psp_data(path, file):
 
 
 
-def convert_MAVEN_mat_to_pickle(data_path):
+
+def convert_MAVEN_mat_original_to_pickle(data_path):
+
+    print('load MAVEN from MAT')
+    
+    file=data_path+'input/MAVEN_2014to2018_cyril.mat'
+    mavraw = scipy.io.loadmat(file)
+    
+    #make array 
+    mav=np.zeros(np.size(mavraw['BT']),dtype=[('time',object),('bt', float),('bx', float),\
+                ('by', float),('bz', float),('vt', float),('vx', float),('vy', float),\
+                ('vz', float),('tp', float),('np', float),('r', float),('lat', float),\
+                ('lon', float),('x', float),('y', float),('z', float),\
+                ('ro', float), ('lato', float), ('lono', float),\
+                ('xo', float), ('yo', float), ('zo', float)])   
+    #convert to recarray
+    mav = mav.view(np.recarray)  
+    #convert time from matlab to python
+    t=mavraw['timeD'][:,0]
+    for p in np.arange(np.size(t)):
+        mav.time[p]= datetime.datetime.fromordinal(t[p].astype(int) ) + \
+        datetime.timedelta(days=t[p]%1) - datetime.timedelta(days = 366) 
+        
+
+    mav.bx=mavraw['Bx'][:,0]       
+    mav.by=mavraw['By'][:,0] 
+    mav.bz=mavraw['Bz'][:,0]      
+    mav.bt=mavraw['BT'][:,0]      
+
+    mav.vx=mavraw['Vx'][:,0]      
+    mav.vy=mavraw['Vy'][:,0]      
+    mav.vz=mavraw['Vz'][:,0]      
+    mav.vt=mavraw['VT'][:,0] 
+
+    #mav.tp=mavraw['Tp'][:,0]*(1.602176634*(1e−19)/k_B) ##, with q the elementary charge in J and k_B Boltzmann
+      
+    mav.np=mavraw['np'][:,0]      
+    
+    #add position with respect to Mars center in km in MSO
+ 
+    print('orbit position start')
+    
+    insertion=datetime.datetime(2014,9,22,2,24,0)
+    #these are the indices of the times for the cruise phase     
+    tc=np.where(mdates.date2num(mav.time) < mdates.date2num(insertion))       
+
+    mars_radius=3389.5
+    mav.xo=mavraw['Xsc'][:,0]*mars_radius
+    mav.yo=mavraw['Ysc'][:,0]*mars_radius
+    mav.zo=mavraw['Zsc'][:,0]*mars_radius  
+    
+    #set to nan for cruise phase
+    mav.xo[tc]=np.nan
+    mav.yo[tc]=np.nan
+    mav.zo[tc]=np.nan
+    
+    [mav.ro,mav.lato,mav.lono]=cart2sphere(mav.xo,mav.yo,mav.zo)
+    mav.lono=np.rad2deg(mav.lono)   
+    mav.lato=np.rad2deg(mav.lato)
+
+
+
+    print('HEEQ position start')
+    frame='HEEQ'
+    
+    #add position in HEEQ for cruise phase and orbit
+    
+    #cruise phase
+    #use heliopy to load own bsp spice file from MAVEN 
+    #obtained through https://naif.jpl.nasa.gov/pub/naif/pds/pds4/maven/maven_spice/spice_kernels/spk/
+    spice.furnish(data_path+'input/maven_cru_rec_131118_140923_v1.bsp') 
+    cruise=spice.Trajectory('MAVEN') #or NAIF CODE -202 
+    cruise.generate_positions(mav.time[tc],'Sun',frame)     
+    cruise.change_units(astropy.units.AU)  
+    mav.x[tc]=cruise.x
+    mav.y[tc]=cruise.y
+    mav.z[tc]=cruise.z
+    [mav.r[tc], mav.lat[tc], mav.lon[tc]]=cart2sphere(mav.x[tc],mav.y[tc],mav.z[tc])
+
+    #times in orbit
+    to=np.where(mdates.date2num(mav.time) > mdates.date2num(insertion))       
+
+    planet_kernel=spicedata.get_kernel('planet_trajectories')
+    mars=spice.Trajectory('MARS BARYCENTER')
+    mars.generate_positions(mav.time[to],'Sun',frame)
+    mars.change_units(astropy.units.AU)  
+    mav.x[to]=mars.x
+    mav.y[to]=mars.y
+    mav.z[to]=mars.z
+    [mav.r[to], mav.lat[to], mav.lon[to]]=cart2sphere(mav.x[to],mav.y[to],mav.z[to])
+
+    #convert to degree
+    mav.lon=np.rad2deg(mav.lon)   
+    mav.lat=np.rad2deg(mav.lat)
+    print('position end ')
+
+        
+    print('save MAVEN as pickle')
+
+    header='MAVEN merged magnetic field and plasma data, obtained from Toulouse and C. Simon Wedlund. '+ \
+    'Timerange: '+mav.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+mav.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
+    'Units are btxyz [nT, MSO], vtxyz [km/s, MSO], np [#/cm-3], tp[K], orbital position: '+ \
+    'xo/yo/zo/ro/lono/lato [km, degree, MSO], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+     
+    pickle.dump([mav,header], open(data_path+'maven_2014_2018.p', "wb"))
+
+   
+    
+
+
+
+
+
+
+def convert_MAVEN_mat_removed_to_pickle(data_path):
 
     print('load MAVEN from MAT')
     
@@ -577,7 +700,8 @@ def convert_MAVEN_mat_to_pickle(data_path):
     mav.vz=mavraw['Vz'][:,0]      
     mav.vt=mavraw['VT'][:,0] 
 
-    mav.tp=mavraw['Tp'][:,0]      
+    #mav.tp=mavraw['Tp'][:,0]*(1.602176634*1e−19/k_B) ##, with q the elementary charge in J and k_B Boltzmann
+        
     mav.np=mavraw['np'][:,0]      
     
     
@@ -655,7 +779,7 @@ def convert_MAVEN_mat_to_pickle(data_path):
          header='MAVEN merged magnetic field and plasma data, obtained from Toulouse. '+ \
          'Timerange: '+mav.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+mav.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
          '. The magnetosphere is removed with the Gruesbeck et al. 3D model (C.S. Wedlund). '+ \
-         'Units are btxyz [nT, MSO], vtxyz [km/s, MSO], np [#/cm-3], tp[?], orbital position: '+ \
+         'Units are btxyz [nT, MSO], vtxyz [km/s, MSO], np [#/cm-3], tp[K], orbital position: '+ \
          'xo/yo/zo/ro/lono/lato [km, degree, MSO], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
          
          pickle.dump([mav,header], open(data_path+'maven_2014_2018_removed.p', "wb"))
@@ -664,7 +788,7 @@ def convert_MAVEN_mat_to_pickle(data_path):
          header='MAVEN merged magnetic field and plasma data, obtained from Toulouse. '+ \
          'Timerange: '+mav.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+mav.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
          '. The magnetosphere is removed with the Gruesbeck et al. 3D model (C.S. Wedlund). '+ \
-         'Units are btxyz [nT], vtxyz [km/s], np [#/cm-3], tp[?], orbital position: '+ \
+         'Units are btxyz [nT], vtxyz [km/s], np [#/cm-3], tp[K], orbital position: '+ \
          'xo/yo/zo/ro/lono/lato [km, MSO], heliospheric position x/y/z/r/lon/lat [AU, HEEQ]'
                 
          pickle.dump([mav,header], open(data_path+'maven_2014_2018_removed_smoothed.p', "wb"))
