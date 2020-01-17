@@ -1,19 +1,30 @@
-# icmecat_maker.py
-#
-# makes the ICMECATv2.0
+'''
+ icmecat_maker.py
 
-# Author: C. Moestl, IWF Graz, Austria
-# twitter @chrisoutofspace, https://github.com/cmoestl/heliocats
-# last update December 2019
+ makes the ICMECATv2.0
 
-# python > 3.7 
+ Author: C. Moestl, IWF Graz, Austria
+ twitter @chrisoutofspace, https://github.com/cmoestl/heliocats
+ last update December 2019
 
-# needs file /heliocats/data.py
-# saves under /data and /results and /icmecat
+ python > 3.7 
 
-# current status:
-# work in progress
+ needs file /heliocats/data.py
+ saves under /data and /results and /icmecat
 
+ current status:
+ work in progress
+ 
+ 
+
+to do:
+
+- smooth MAVEN data (like before in IDL with median) 
+- despike sta stb wind all
+- go through all ICMEs and extract data
+- (new B and V for STA, Wind and PSP converted to SCEQ components, plasma correct for new PSP, wind, sta)
+
+'''
 
 from scipy import stats
 import scipy.io
@@ -47,19 +58,6 @@ from numba import njit
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
-
-plt.ion() 
-
-'''
-
-to do:
-
-- smooth MAVEN data (like before in IDL with median) 
-- despike sta stb wind all
-- go through all ICMEs and extract data
-- (new B and V for STA, Wind and PSP converted to SCEQ components, plasma correct for new PSP, wind, sta)
-
-'''
 
 
 #where the final data are located

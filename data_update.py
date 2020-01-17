@@ -54,8 +54,9 @@ def save_wind_data_update(path,file):
     
     print('start wind update')
     wind_sat = heliosat.WIND()
+    #t_start = datetime.datetime(2019, 2, 1)
+    #t_end = datetime.datetime(2019, 2, 5)
     t_start = datetime.datetime(2018, 1, 1)
-    #t_end = datetime.datetime(2018, 2, 1)
     t_end = datetime.datetime.utcnow()   
 
     
@@ -70,6 +71,7 @@ def save_wind_data_update(path,file):
     tm=parse_time(tm,format='unix').datetime 
     tp=parse_time(tp,format='unix').datetime 
     
+    print(pro)
     
     #convert to matplotlib time for linear interpolation
     tm_mat=mdates.date2num(tm) 
@@ -161,9 +163,9 @@ def save_stereoa_beacon_data_update(path,file):
     print('start STA')
     sta_sat = heliosat.STA()
     t_start = datetime.datetime(2018, 1, 1)
-    t_end = datetime.datetime(2018, 2, 1)
+    #t_end = datetime.datetime(2018, 2, 1)
 
-    #t_end = datetime.datetime.utcnow()  
+    t_end = datetime.datetime.utcnow()  
 
     #t_end = datetime.datetime(2019, 12,31)
      
@@ -176,6 +178,7 @@ def save_stereoa_beacon_data_update(path,file):
 
     tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag_beacon")
     tp, pro = sta_sat.get_data_raw(t_start, t_end, "proton_beacon")
+    
 
     print('download complete')
    
@@ -207,10 +210,11 @@ def save_stereoa_beacon_data_update(path,file):
       
       
       
-    #add speed!!!!!!!!!!!!!!!!    
+
     den = np.interp(time_mat, tp_mat, pro[:,0])
-    tp = np.interp(time_mat, tp_mat, pro[:,1])
-    #p2 = np.interp(time_mat, tp_mat, pro[:,2])
+    vt = np.interp(time_mat, tp_mat, pro[:,1])
+    tp = np.interp(time_mat, tp_mat, pro[:,2])
+
     #p3 = np.interp(time_mat, tp_mat, pro[:,3])
     #p4 = np.interp(time_mat, tp_mat, pro[:,4])
 
@@ -242,10 +246,10 @@ def save_stereoa_beacon_data_update(path,file):
     sta.lon=np.rad2deg(lon)
     
 
-    
+
     sta.np=den
     sta.tp=tp    
-    #sta.p2=p2
+    sta.vt=vt
     #sta.p3=p3
     #sta.p4=p4
     
@@ -279,13 +283,20 @@ def save_stereoa_beacon_data_update(path,file):
 data_path='/nas/helio/data/insitu_python/'
 
 
-#filesta="sta_2018_now.p" 
 
-#save_stereoa_beacon_data_update(data_path,filesta)
 
+#despiken!
+
+#wind
 filewin="wind_2018_now.p" 
-
 save_wind_data_update(data_path,filewin)
+#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+
+#STEREO-A
+filesta="sta_2018_now.p" 
+save_stereoa_beacon_data_update(data_path,filesta)
+#[sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
+
 
 
 
