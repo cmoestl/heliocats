@@ -44,15 +44,19 @@ go to a directory of your choice
 
 ## Programs
 
- 	  python icmecat_maker.py
+Activate the environment (*conda activate helio*) and run with *python program_name.py*:
+
+- icmecat_maker.py
 processes data into a normalized format and creates the ICMECAT catalog.
 
-    python	sc_positions_insitu.py
+
+- sc_positions_insitu.py
 makes movies of spacecraft positions and in situ data.
 
-    python	data_update.py
+
+- data_update.py
 makes real time downloads of various data sources.
 
 
-    python	cme_stats.py
+- cme_stats.py
 makes CME statistics.
