@@ -29,12 +29,33 @@ import astropy
 
 
 
+@njit
+def cart2sphere(x,y,z):
+    r = np.sqrt(x**2+ y**2 + z**2)           
+    theta = np.arctan2(z,np.sqrt(x**2+ y**2))
+    phi = np.arctan2(y,x)                    
+    return (r, theta, phi)
+    
+
+
+@njit
+def sphere2cart(r,theta,phi):
+    x = r * np.sin( theta ) * np.cos( phi )
+    y = r * np.sin( theta ) * np.sin( phi )
+    z = r * np.cos( theta )
+    return (x, y,z)
+    
+
+
+
+
+
 def save_wind_data_update(path,file):
     
     print('start wind update')
     wind_sat = heliosat.WIND()
     t_start = datetime.datetime(2018, 1, 1)
-    #t_end = datetime.datetime(2019, 12, 31)
+    #t_end = datetime.datetime(2018, 2, 1)
     t_end = datetime.datetime.utcnow()   
 
     
@@ -75,7 +96,7 @@ def save_wind_data_update(path,file):
     den = np.interp(time_mat, tp_mat, pro[:,0])
     vt = np.interp(time_mat, tp_mat, pro[:,1])
     tp = np.interp(time_mat, tp_mat, pro[:,2])
-    p3 = np.interp(time_mat, tp_mat, pro[:,3])
+    #p3 = np.interp(time_mat, tp_mat, pro[:,3])
     #p4 = np.interp(time_mat, tp_mat, pro[:,4])
 
     
@@ -140,7 +161,9 @@ def save_stereoa_beacon_data_update(path,file):
     print('start STA')
     sta_sat = heliosat.STA()
     t_start = datetime.datetime(2018, 1, 1)
-    t_end = datetime.datetime.utcnow()  
+    t_end = datetime.datetime(2018, 2, 1)
+
+    #t_end = datetime.datetime.utcnow()  
 
     #t_end = datetime.datetime(2019, 12,31)
      
@@ -151,8 +174,8 @@ def save_stereoa_beacon_data_update(path,file):
     #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_l1")
     #tp, pro = sta_sat.get_data_raw(t_start, t_end, "sta_plastic_l2")
 
-    #tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag")
-    tp, pro = sta_sat.get_data_raw(t_start, t_end, "proton")
+    tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag_beacon")
+    tp, pro = sta_sat.get_data_raw(t_start, t_end, "proton_beacon")
 
     print('download complete')
    
@@ -255,14 +278,16 @@ def save_stereoa_beacon_data_update(path,file):
 
 data_path='/nas/helio/data/insitu_python/'
 
+
+#filesta="sta_2018_now.p" 
+
+#save_stereoa_beacon_data_update(data_path,filesta)
+
 filewin="wind_2018_now.p" 
 
 save_wind_data_update(data_path,filewin)
 
 
-filesta="sta_2018_now.p" 
-
-save_stereoa_beacon_data_update(data_path,filesta)
 
 
 

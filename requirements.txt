@@ -1,0 +1,7 @@
+pillow==6.2.1 
+cdflib==0.3.17
+heliosat==0.3.1
+pysftp==0.2.8
+sunpy==1.1.0
+heliopy==0.9.0
+aacgmv2==2.6.0
