@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="heliocats",
-    version="0.1",
+    version="0.0.1",
     author="Christian Moestl",
     author_email="christian.moestl@oeaw.ac.at",
     keywords=["geophysics", "heliophysics", "space weather"],

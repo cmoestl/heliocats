@@ -5,9 +5,11 @@
 
  Author: C. Moestl, IWF Graz, Austria
  twitter @chrisoutofspace, https://github.com/cmoestl/heliocats
- last update December 2019
+ last update January 2020
 
  python > 3.7 
+ 
+ install a conda environment to run this code: https://github.com/cmoestl/heliocats
 
  needs file /heliocats/data.py
  saves under /data and /results and /icmecat
@@ -19,12 +21,31 @@
 
 to do:
 
-- smooth MAVEN data (like before in IDL with median) 
 - despike sta stb wind all
 - go through all ICMEs and extract data
 - (new B and V for STA, Wind and PSP converted to SCEQ components, plasma correct for new PSP, wind, sta)
 
+
+
+MIT LICENSE
+Copyright 2020, Christian Moestl 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this 
+software and associated documentation files (the "Software"), to deal in the Software
+without restriction, including without limitation the rights to use, copy, modify, 
+merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so, subject to the following 
+conditions:
+The above copyright notice and this permission notice shall be included in all copies 
+or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
+
+
 
 from scipy import stats
 import scipy.io
@@ -59,90 +80,15 @@ from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
 
-
 #where the final data are located
 data_path='/nas/helio/data/insitu_python/'
+
+
+
     
 ##########################################################################################
 ######################################## MAIN PROGRAM ####################################
 ##########################################################################################
-
-
-
-
-filewin2="wind_2018_2019.p" 
-hd.save_wind_data(data_path,filewin2)
-[wi2,hwi2]=pickle.load(open(data_path+filewin2, "rb" ) )  
-
-
-
-sys.exit()
-
-filesta2b="stereoa_2018_2019_beacon.p"
-hd.save_stereoa_beacon_data(data_path, filesta2b)
-[st2,hst2]=pickle.load(open(data_path+filesta2b, "rb" ) ) 
-
-
-sys.exit()
-
-
-
-filesta2="stereoa_2018_2019.p"
-hd.save_stereoa_science_data(data_path, filesta2)
-[sta2,header]=pickle.load(open(data_path+filesta2, "rb" ) ) 
-
-
-
-
-
-#filepsp="psp_2018_2019.p"
-#hd.save_psp_data(data_path, filepsp)
-#sys.exit()
-
-
-sys.exit()
-
-sys.exit()
-
-
-
-
-
-
-
-hd.save_psp_data(data_path, filepsp)
-
-filepsp="psp_2018_2019.p"
-data_path='/nas/helio/data/insitu_python/'
-[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
-
-sys.exit()
-
-hd.save_wind_data(data_path,filewin2)
-hd.save_stereoa_data(data_path, filesta2)
-
-
-
-#filemav=data_path+'maven_2014_2018_removed.p'
-#[mav,hmav]=pickle.load(open(filemav, 'rb' ) )
-
-sys.exit()
-
-
-hd.save_helcats_datacat(data_path,removed=True)
-hd.save_helcats_datacat(data_path,removed=False)
-
-
-
-'''
-file='data/helios.p'
-hd.save_helios_data(file)
-sys.exit()
-
-filecas='data/cassini_1999_2000.p'
-hd.save_cassini_data(filecas)
-sys.exit()
-'''
 
 ##################################### (1) load new data with HelioSat and heliocats.data
 
@@ -152,46 +98,30 @@ load_data=0
 
 if load_data >0:
 
-
-    #hd.convert_MAVEN_mat_removed_to_pickle(data_path) 
-    filemav=data_path+'maven_2014_2018_removed.p'
-    [mav,hmav]=pickle.load(open(filemav, 'rb' ) )
-
-
-    #hd.convert_MAVEN_mat_original_to_pickle(data_path) 
-    filemav=data_path+'maven_2014_2018.p'
-    [mav,hmav]=pickle.load(open(filemav, 'rb' ) )
-
-
-
-    filewin2="data/wind_jan2018_nov2019_GSE_HEEQ.p" #*******GSE?
-    
-    
-    
-    
-    filesta2="data/sta_jan2018_may2019_RTN_HEEQ.p"
-    filepsp="data/psp_oct2018_may2019_RTN_HEEQ.p"
-    filemav='data/MAVEN_2014to2018_removed_wedlund.p'
-    # ADD BepiColombo  
-    # ADD Solar Orbiter
-
-
-    # save files from raw data if necessary for updates
-    #hd.save_psp_data(filepsp)
-    #hd.save_wind_data(filewin2)
-    #hd.save_stereoa_data(filesta2)
-    #hd.convert_MAVEN_mat_to_pickle() data from C. S. Wedlund
-    # ADD BepiColombo  
-    # ADD Solar Orbiter
-    #sys.exit()
-
-
-    #load new data
     print('load new Wind, STEREO-A, MAVEN, and ParkerProbe data')
-    win2=pickle.load(open(filewin2, "rb" ) )  
+
+    #filemav='maven_2014_2018.p'
+    #[mav,hmav]=pickle.load(open(filemav, 'rb' ) )
+
+    #filemav='maven_2014_2018_removed.p'
+    #[mav,hmav]=pickle.load(open(filemav, 'rb' ) )
+    
+    filemav='maven_2014_2018_removed_smoothed.p'
+    [mav,hmav]=pickle.load(open(filemav, 'rb' ) )
+
+
+    #filewin2="data/wind_jan2018_nov2019_GSE_HEEQ.p"
+    #win2=pickle.load(open(filewin2, "rb" ) )  
+    
+    
+    filesta2="data/sta_2018_now_beacon.p'
     sta2=pickle.load(open(filesta2, "rb" ) )  
+
+
+    filepsp="data/psp_2018_2019.p"
     [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
-    mav=pickle.load(open(filemav, 'rb' ) )
+
+
     # ADD BepiColombo  
     # ADD Solar Orbiter
 
@@ -199,12 +129,9 @@ if load_data >0:
 
     ##################################### (2) load HELCATS DATACAT
 
-    #make a single helcats data file if necessary
-    #hd.save_helcats_datacat()
-
     #download if you need this file and change the path, url for this file is: ###########********* TO DO
     #add mes vex orbit position
-    [vex,win,mes,sta,stb,uly]=hd.load_helcats_datacat('/nas/helio/data/DATACAT/helcats_all_data.p') 
+    [vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly]=hd.load_helcats_datacat(data_path+'/helcats_all_data_removed.p') 
 
 
 
@@ -316,42 +243,7 @@ sys.exit()
 
 
 
-
-
-
-
-
 '''
-psp_sat = heliosat.PSP()
-file="data/psp_orbits_1_2.p"
-[r1, lat1, lon1, r2, lat2, lon2, t1,m1,t2,m2, t_swe1,swe1, t_swe2, swe2]=pickle.load( open( file, 'rb' ) )
-#cme
-t1=t1[40000:48000]
-m1=m1[40000:48000,:]
-#t_swe1=t_swe1[40000:48000]
-#swe1=swe1[40000:48000,:]
-r1=r1[40000:48000]
-lon1=lon1[40000:48000]
-
-bx1=m1[:,0]  
-by1=m1[:,1]  
-bz1=m1[:,2]  
-bt1=np.sqrt(bx1**2+by1**2+bz1**2)
-
-bx2=m2[:,0]  
-by2=m2[:,1]  
-bz2=m2[:,2]  
-bt2=np.sqrt(bx2**2+by2**2+bz2**2)
-
-
-v1=swe1[:,2] 
-v2=swe2[:,2] 
-
-
-plt.close('all')
-
-
-
 sns.set_style('darkgrid')
 fig1=plt.figure(figsize=[25, 12],dpi=100)
  
