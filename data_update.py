@@ -41,11 +41,34 @@ importlib.reload(hp) #reload again while debugging
 data_path='/nas/helio/data/insitu_python/'
 
 
-#real time image of the solar system in data_update
 
 
+'''
+filesta2="stereoa_2007_2009_beacon.p"
+start=datetime.datetime(2007, 3, 20)
+end=datetime.datetime(2009, 12, 31)
+hd.save_stereoa_beacon_data(data_path, filesta2,start, end)
+#[sta,hsta]=pickle.load(open(data_path+filesta2, "rb" ) ) 
 
-##################### standard data update
+sys.exit()
+
+
+filesta2="stereoa_2007_2009_beacon.p"
+start=datetime.datetime(2007, 3, 20)
+end=datetime.datetime(2009, 12, 31)
+hd.save_stereoa_beacon_data(data_path, filesta2,start, end)
+#[sta,hsta]=pickle.load(open(data_path+filesta2, "rb" ) ) 
+
+sys.exit()
+'''
+
+#add real time image of the solar system in data_update
+
+
+##################### standard data update each day
+
+
+# all ok!
 
 #STEREO-A
 filesta="sta_2018_now_beacon.p" 
@@ -54,21 +77,44 @@ end=datetime.datetime.utcnow()
 hd.save_stereoa_beacon_data(data_path,filesta,start,end)
 [sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
 
+#OMNI2
+fileomni="omni_1963_now.p"
+overwrite=1
+hd.save_omni_data(data_path,fileomni,overwrite)
+[o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
 
-#add omni
 
-
-'''
-#wind - not correct MAG
+#Wind
 filewin="wind_2018_now.p" 
-
 start=datetime.datetime(2018, 1, 1)
 end=datetime.datetime.utcnow()
 hd.save_wind_data(data_path,filewin,start,end)
 [win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
 
 
-'''
+
+#################### write header file for daily updates
+text = open('/nas/helio/data/insitu_python/data_update_headers.txt', 'w')
+text.write('Contains headers for the data files which are updated in real time.'+'\n \n')
+text.write('File creation date:  '+str(datetime.datetime.utcnow())+' \n \n')
+
+text.write('STEREO-A beacon: '+filesta+'\n \n'+ hsta+' \n \n')
+text.write('load with: >> [sta,hsta]=pickle.load(open("'+data_path+filesta+'", "rb"))') 
+text.write(' \n \n \n \n')
+
+text.write('OMNI2: '+fileomni+'\n \n'+ ho+' \n \n')
+text.write('load with: >> [o,ho]=pickle.load(open("'+data_path+fileomni+'", "rb" ))') 
+text.write(' \n \n \n \n')
+
+text.write('Wind: '+filewin+'\n \n'+ hwin+' \n \n')
+text.write('load with: >> [win,hwin]=pickle.load(open("'+data_path+filewin+'", "rb" ))') 
+text.write(' \n \n \n \n')
+text.close()
+
+
+
+
+
 ###########################################
 
 
@@ -77,9 +123,37 @@ hd.save_wind_data(data_path,filewin,start,end)
 
 data_path='/nas/helio/data/insitu_python/'
 
+'''
+#################### PSP -> ok!
+filepsp="psp_2018_2019_merged.p"
+hd.save_psp_data(data_path, filepsp)
+[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
+
+filepsp="psp_2018_2019_non_merged.p"
+hd.save_psp_data_non_merged(data_path, filepsp)
+[psp_orbit,psp_mag,psp_plasma,header_psp]=pickle.load(open(data_path+filepsp, "rb" ) )  
+
+#####################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 '''
 
+
+'''
 filestb="stereob_2007_2014_beacon.p"
 start=datetime.datetime(2007, 3, 20)
 end=datetime.datetime(2014, 9, 27)

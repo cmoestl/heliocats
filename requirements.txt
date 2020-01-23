@@ -5,3 +5,6 @@ pysftp==0.2.8
 sunpy==1.1.0
 heliopy==0.9.0
 aacgmv2==2.6.0
+openpyxl==3.0.3
+xlrd==1.2.0
+

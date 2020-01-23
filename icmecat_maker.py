@@ -70,6 +70,7 @@ import astropy
 import pandas as pd
 import openpyxl
 import heliosat
+from sunpy.time import parse_time
 import datetime
 import seaborn as sns
 import copy
@@ -82,6 +83,37 @@ importlib.reload(hd) #reload again while debugging
 
 #where the final data are located
 data_path='/nas/helio/data/insitu_python/'
+
+
+
+###################################### ICMECAT operations ################################
+
+
+def load_helcats_icmecat_master_from_excel(file):
+
+    print('load HELCATS ICMECAT from file:', file)
+    ic=pd.read_excel(file)
+
+    #convert times to datetime objects
+    for i in np.arange(0,ic.shape[0]):    
+    
+        a=str(ic.icme_start_time[i]).strip() #remove leading and ending blank spaces if any
+        ic.icme_start_time.loc[i]=parse_time(a).datetime
+
+        a=str(ic.mo_start_time[i]).strip() #remove leading and ending blank spaces if any
+        ic.mo_start_time.loc[i]=parse_time(a).datetime 
+
+        a=str(ic.mo_end_time[i]).strip() #remove leading and ending blank spaces if any
+        ic.mo_end_time.loc[i]=parse_time(a).datetime 
+
+        
+        a=str(ic.icme_end_time[i]).strip() #remove leading and ending blank spaces if any
+        if a!= '9999-99-99T99:99Z':
+            ic.icme_end_time.loc[i]=parse_time(a).datetime 
+        else: ic.icme_end_time.loc[i]=np.nan
+
+    return ic
+
 
 
 
@@ -107,18 +139,17 @@ if load_data >0:
     #[mav,hmav]=pickle.load(open(filemav, 'rb' ) )
     
     filemav='maven_2014_2018_removed_smoothed.p'
-    [mav,hmav]=pickle.load(open(filemav, 'rb' ) )
+    [mav,hmav]=pickle.load(open(data_path+filemav, 'rb' ) )
 
 
     #filewin2="data/wind_jan2018_nov2019_GSE_HEEQ.p"
     #win2=pickle.load(open(filewin2, "rb" ) )  
     
-    
-    filesta2="data/sta_2018_now_beacon.p'
-    sta2=pickle.load(open(filesta2, "rb" ) )  
+    filesta2='sta_2018_now_beacon.p'
+    sta2=pickle.load(open(data_path+filesta2, "rb" ) )  
 
 
-    filepsp="data/psp_2018_2019.p"
+    filepsp='psp_2018_2019.p'
     [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
 
 
@@ -131,7 +162,7 @@ if load_data >0:
 
     #download if you need this file and change the path, url for this file is: ###########********* TO DO
     #add mes vex orbit position
-    [vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly]=hd.load_helcats_datacat(data_path+'/helcats_all_data_removed.p') 
+    [vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly]=hd.load_helcats_datacat(data_path+'helcats_all_data_removed.p') 
 
 
 
@@ -140,7 +171,7 @@ if load_data >0:
 
 
 
-ic=hd.load_helcats_icmecat_master_from_excel('icmecat/HELCATS_ICMECAT_v20_master.xlsx')
+ic=load_helcats_icmecat_master_from_excel('icmecat/HELCATS_ICMECAT_v20_master.xlsx')
 
 #get indices for all spacecraft
 wini=np.where(ic.sc_insitu == 'Wind')[:][0] 
