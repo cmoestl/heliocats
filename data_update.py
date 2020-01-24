@@ -29,6 +29,7 @@ import sys
 import numpy as np
 import datetime
 import scipy.signal
+import urllib
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
@@ -65,6 +66,30 @@ sys.exit()
 #add real time image of the solar system in data_update
 
 
+########################################### NOAA real time
+
+
+#    url_plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
+#    url_mag='http://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json'
+
+
+
+#if not os.path.exists('data/omni2_all_years.dat'):
+#see http://omniweb.gsfc.nasa.gov/html/ow_data.html
+print('download NOAA real time solar wind')
+datestr=str(datetime.datetime.utcnow().strftime("%Y_%b_%d_%H_%M"))
+print(datestr+' UTC')
+plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
+mag='http://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json'
+try: urllib.request.urlretrieve(plasma, '/nas/helio/data/noaa_rtsw/plasma-7-day_'+datestr+'.json')
+except urllib.error.URLError as e:
+  print(' ', plasma,' ',e.reason)
+
+try: urllib.request.urlretrieve(mag, '/nas/helio/data/noaa_rtsw/mag-7-day_'+datestr+'.json')
+except urllib.error.URLError as e:
+  print(' ', plasma,' ',e.reason)
+
+sys.exit()
 ##################### standard data update each day
 
 
@@ -115,8 +140,13 @@ text.close()
 
 
 
-###########################################
 
+
+
+
+
+
+####################################
 
 ## long jobs
 
