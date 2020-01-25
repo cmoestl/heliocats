@@ -1,6 +1,8 @@
 '''
-for updating data every day for Wind and STEREO-A
-https://github.com/cmoestl/heliocats
+https://github.com/cmoestl/heliocats  data_update.py
+
+for updating data every day 
+
 
 
 MIT LICENSE
@@ -68,19 +70,13 @@ sys.exit()
 
 ########################################### NOAA real time
 
-
-#    url_plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
-#    url_mag='http://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json'
-
-
-
-#if not os.path.exists('data/omni2_all_years.dat'):
-#see http://omniweb.gsfc.nasa.gov/html/ow_data.html
-print('download NOAA real time solar wind')
+print('download NOAA real time solar wind plasma and mag')
 datestr=str(datetime.datetime.utcnow().strftime("%Y_%b_%d_%H_%M"))
 print(datestr+' UTC')
+
 plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
 mag='http://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json'
+
 try: urllib.request.urlretrieve(plasma, '/nas/helio/data/noaa_rtsw/plasma-7-day_'+datestr+'.json')
 except urllib.error.URLError as e:
   print(' ', plasma,' ',e.reason)
@@ -88,23 +84,20 @@ except urllib.error.URLError as e:
 try: urllib.request.urlretrieve(mag, '/nas/helio/data/noaa_rtsw/mag-7-day_'+datestr+'.json')
 except urllib.error.URLError as e:
   print(' ', plasma,' ',e.reason)
+  
+print()
+print()
+  
 
-sys.exit()
 ##################### standard data update each day
 
 
 # all ok!
 
-#STEREO-A
-filesta="sta_2018_now_beacon.p" 
-start=datetime.datetime(2018, 1, 1)
-end=datetime.datetime.utcnow()
-hd.save_stereoa_beacon_data(data_path,filesta,start,end)
-[sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
 
 #OMNI2
 fileomni="omni_1963_now.p"
-overwrite=1
+overwrite=0
 hd.save_omni_data(data_path,fileomni,overwrite)
 [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
 
@@ -117,11 +110,18 @@ hd.save_wind_data(data_path,filewin,start,end)
 [win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
 
 
+#STEREO-A
+filesta="sta_2018_now_beacon.p" 
+start=datetime.datetime(2018, 1, 1)
+end=datetime.datetime.utcnow()
+hd.save_stereoa_beacon_data(data_path,filesta,start,end)
+[sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
+
 
 #################### write header file for daily updates
 text = open('/nas/helio/data/insitu_python/data_update_headers.txt', 'w')
 text.write('Contains headers for the data files which are updated in real time.'+'\n \n')
-text.write('File creation date:  '+str(datetime.datetime.utcnow())+' \n \n')
+text.write('File creation date:  '+datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M") +' \n \n')
 
 text.write('STEREO-A beacon: '+filesta+'\n \n'+ hsta+' \n \n')
 text.write('load with: >> [sta,hsta]=pickle.load(open("'+data_path+filesta+'", "rb"))') 

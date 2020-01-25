@@ -3,7 +3,7 @@ Spacecraft and planet trajectories in numpy incl. Bepi Colombo, PSP, Solar Orbit
 
 Author: C. Moestl, IWF Graz, Austria
 twitter @chrisoutofspace, https://github.com/cmoestl
-December 2018 - March 2019
+last update: January 2020
 
 needs python 3.7 with sunpy, heliopy, numba 
 
@@ -57,8 +57,7 @@ import multiprocessing
 import warnings
 warnings.filterwarnings('ignore')
 
-
-
+#for server
 matplotlib.use('Agg')
 
 
@@ -85,46 +84,38 @@ plot_orbit=True
 plot_parker=True
 #plot_parker=False
 
+#where the final data are located
+data_path='/nas/helio/data/insitu_python/'
 
-outputdirectory='results/sc_insitu_plots_orbit2_final'
 
-animdirectory='results/sc_insitu_anim_orbit2_final'
-
-if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
-if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
 
 
 high_res_mode=False
 
-start_time_str='2018-Oct-15 00:00:00'
+#outputdirectory='results/sc_insitu_plots_psp_wind_sta'
+#animdirectory='results/anim_psp_wind_sta'
+#start_time_str='2018-Oct-15 00:00:00'
 
 
-#start_time_str='2019-Mar-10 00:00:00'
+#output
+outputdirectory='results/sc_insitu_plots_psp_wind_sta_2'
+animdirectory='results/anim_psp_wind_sta_2'
+start_time_str='2019-Mar-10 00:00:00'
 
 
 #Time resolution
 res_in_days=1/24.
-
-
 kend=1200
-
-
 days_window=3
 
 
 
+
+if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
+if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
 ##########################################################################################
 ######################################### CODE START #####################################
 ##########################################################################################
-
-
-
-
-
-
-
-
-
 
 
 
@@ -419,8 +410,8 @@ def make_frame(k):
   
   
       plt.figtext(0.95,0.75,'Parker Probe', color='black', ha='center',fontsize=fsize+3)
-      plt.figtext(0.95,0.4,'Wind', color='mediumseagreen', ha='center',fontsize=fsize+3)
-      plt.figtext(0.95,0.16,'STEREO-A', color='red', ha='center',fontsize=fsize+3)
+      plt.figtext(0.95,0.5,'Wind', color='mediumseagreen', ha='center',fontsize=fsize+3)
+      plt.figtext(0.95,0.25,'STEREO-A', color='red', ha='center',fontsize=fsize+3)
       '''
       plt.figtext(0.9,0.9,'Mercury', color='dimgrey', ha='center',fontsize=fsize+5)
       plt.figtext(0.9	,0.8,'Venus', color='orange', ha='center',fontsize=fsize+5)
@@ -511,7 +502,7 @@ def make_frame(k):
  
      #set axes
 
-     ax.set_theta_zero_location('S')
+     ax.set_theta_zero_location('E')
      plt.thetagrids(range(0,360,45),(u'0\u00b0 '+frame+' longitude',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',fontsize=fsize+2,color=backcolor, alpha=0.9)
  
      #plt.rgrids((0.10,0.39,0.72,1.00,1.52),('0.10','0.39','0.72','1.0','1.52 AU'),angle=125, fontsize=fsize,alpha=0.9, color=backcolor)
@@ -534,7 +525,7 @@ def make_frame(k):
  
      #### PSP
 
-     ax2 = plt.subplot2grid((5,2), (0, 1))
+     ax2 = plt.subplot2grid((6,2), (0, 1))
      '''
      plt.plot_date(p_tm,pbx,'-r',label='BR',linewidth=0.5)
      plt.plot_date(p_tm,pby,'-g',label='BT',linewidth=0.5)
@@ -556,9 +547,9 @@ def make_frame(k):
      ax2.set_xticklabels([])
 
 
-     ax3 = plt.subplot2grid((5,2), (1, 1))
+     ax3 = plt.subplot2grid((6,2), (1, 1))
      #plt.plot_date(p_tp,pv,'-k',label='V',linewidth=0.5)
-     plt.plot_date(p.time,p.v,'-k',label='V',linewidth=0.5)
+     plt.plot_date(p.time,p.vt,'-k',label='V',linewidth=0.7)
 
      ax3.set_xlim(time_now-days_window,time_now+days_window)
      ax3.plot_date([time_now,time_now], [0,800],'-k', lw=0.5, alpha=0.8)
@@ -570,7 +561,7 @@ def make_frame(k):
 
      ########## Wind
 
-     ax4 = plt.subplot2grid((5,2), (2, 1))
+     ax4 = plt.subplot2grid((6,2), (2, 1))
      #plt.plot_date(w_tm,wbx,'-r',label='BR',linewidth=0.5)
      #plt.plot_date(w_tm,wby,'-g',label='BT',linewidth=0.5)
      #plt.plot_date(w_tm,wbz,'-b',label='BN',linewidth=0.5)
@@ -590,8 +581,8 @@ def make_frame(k):
 
 
 
-     ax5 = plt.subplot2grid((5,2), (3, 1))
-     plt.plot_date(w.time,w.v,'-k',label='V',linewidth=0.5)
+     ax5 = plt.subplot2grid((6,2), (3, 1))
+     plt.plot_date(w.time,w.vt,'-k',label='V',linewidth=0.7)
      #plt.plot_date(w_tp,wv,'-k',label='V',linewidth=0.5)
 
      ax5.plot_date([time_now,time_now], [0,800],'-k', lw=0.5, alpha=0.8)
@@ -606,7 +597,7 @@ def make_frame(k):
 
  
 
-     ax6 = plt.subplot2grid((5,2), (4, 1))
+     ax6 = plt.subplot2grid((6,2), (4, 1))
      #plt.plot_date(s_tm,sbx,'-r',label='BR',linewidth=0.5)
      #plt.plot_date(s_tm,sby,'-g',label='BT',linewidth=0.5)
      #plt.plot_date(s_tm,sbz,'-b',label='BN',linewidth=0.5)
@@ -614,25 +605,26 @@ def make_frame(k):
      plt.plot_date(s.time,s.bx,'-r',label='BR',linewidth=0.5)
      plt.plot_date(s.time,s.by,'-g',label='BT',linewidth=0.5)
      plt.plot_date(s.time,s.bz,'-b',label='BN',linewidth=0.5)
-     plt.plot_date(s.time,s.bt,'-k',label='Btotal')
+     plt.plot_date(s.time,s.bt,'-k',label='Btotal',linewidth=0.5)
  
      ax6.set_ylabel('B [nT]')
  
      ax6.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
-     ax6.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
+     #ax6.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
      ax6.set_xlim(time_now-days_window,time_now+days_window)
+     ax6.set_xticklabels([])
+
      plt.tick_params( axis='x', labelbottom='off')
      plt.ylim((-18, 18))
 
-     '''
-     ax7 = plt.subplot2grid((5,2), (5, 1))
-     plt.plot_date(t_swe1,swe1[:,2],'-k',label='V',linewidth=0.5)
-     ax7.set_xlim(time_now-3,time_now+3)
+     ax7 = plt.subplot2grid((6,2), (5, 1))
+     plt.plot_date(s.time,s.vt,'-k',label='V',linewidth=0.7)
+     ax7.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
+     ax7.set_xlim(time_now-days_window,time_now+days_window)
      ax7.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
      plt.ylabel('V [km/s]')
      plt.tick_params(axis='x', labelbottom='off') 
      plt.ylim((250, 700))
-     '''
 
      ###############################
  
@@ -696,15 +688,17 @@ start=time.time()
 ########## MAKE TRAJECTORIES ############
 #make_positions()
 
-file="data/psp_oct2018_may2019.p"
-p=pickle.load(open(file, "rb" ) )  
 
 
-file="data/wind_jan2018_nov2019.p"
-w=pickle.load(open(file, "rb" ) )  
 
-file="data/sta_jan2018_may2019.p"
-s=pickle.load(open(file, "rb" ) )  
+file=data_path+'psp_2018_2019_merged.p'
+[p,ph]=pickle.load(open(file, "rb" ) )  
+
+file=data_path+'wind_2018_now.p'
+[w,wh]=pickle.load(open(file, "rb" ) )  
+
+file=data_path+'sta_2018_now_beacon.p'
+[s,sh]=pickle.load(open(file, "rb" ) )  
 
 
 
@@ -770,10 +764,8 @@ AUkm=149597870.7
 #for parker spiral   
 theta=np.arange(0,np.deg2rad(180),0.01)
 
-  
-sys.exit()
 
-nr_of_processes_used=20
+nr_of_processes_used=40
 #run multiprocessing pool to make all movie frames, depending only on frame number
 pool = multiprocessing.Pool(processes=nr_of_processes_used)
 print('Using multiprocessing, nr of cores',multiprocessing.cpu_count(), 'with nr of processes used: ',nr_of_processes_used)
@@ -789,7 +781,7 @@ print('time in min: ',np.round((time.time()-start)/60))
  
 print('plots done')
  
-os.system('ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k -r 25 '+str(animdirectory)+'/pos_anim2.mp4 -y -loglevel quiet')
+os.system('ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k -r 25 '+str(animdirectory)+'/pos_anim.mp4 -y -loglevel quiet')
 
 
 

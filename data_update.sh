@@ -3,8 +3,13 @@ conda activate helio
 echo
 echo 'using the helio conda environment'
 which python
+echo 'cd to directory:'
+cd /home/cmoestl/pycode/heliocats/
+pwd
 echo '--------------------------------------------'
 echo
 
 ~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/data_update.py
+~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit1.py
+~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit2.py
 
