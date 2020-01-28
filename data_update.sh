@@ -10,6 +10,4 @@ echo '--------------------------------------------'
 echo
 
 ~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/data_update.py
-~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit1.py
-~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit2.py
 

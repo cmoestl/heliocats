@@ -53,6 +53,92 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ####################################### get new data ####################################
 
 
+def get_noaa_realtime_data(magfile, plasmafile):
+    """
+    Downloads and returns noaa real time solar wind data 
+    data from http://services.swpc.noaa.gov/products/solar-wind/
+    if needed replace with ACE
+    http://legacy-www.swpc.noaa.gov/ftpdir/lists/ace/
+    get 3 or 7 day data
+    url_plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-3-day.json'
+    url_mag='http://services.swpc.noaa.gov/products/solar-wind/mag-3-day.json'
+    
+    Author: R. Bailey, modified for heliocats by C. Moestl
+    
+    Parameters
+    ==========
+    None
+    Returns: recarray with interpolated data
+    =======
+    """
+    
+    # Read plasma data:
+    dp = json.loads (plasmafile.read())
+    dpn = [[np.nan if x == None else x for x in d] for d in dp]     # Replace None w NaN
+    dtype=[(x, 'float') for x in dp[0]]
+    datesp = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S.%f")  for x in dpn[1:]]
+    #convert datetime to matplotlib times
+    mdatesp=mdates.date2num(datesp)
+    dp_ = [tuple([d]+[float(y) for y in x[1:]]) for d, x in zip(mdatesp, dpn[1:])] 
+    DSCOVR_P = np.array(dp_, dtype=dtype)
+
+    
+    # Read magnetic field data:
+    dm = json.loads(magfile.read())
+    dmn = [[np.nan if x == None else x for x in d] for d in dm]     # Replace None w NaN
+    dtype=[(x, 'float') for x in dmn[0]]
+    datesm = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S.%f")  for x in dmn[1:]]
+    mdatesm=mdates.date2num(datesm)
+    dm_ = [tuple([d]+[float(y) for y in x[1:]]) for d, x in zip(mdatesm, dm[1:])] 
+    DSCOVR_M = np.array(dm_, dtype=dtype)
+    
+    
+
+    #first_timestep = np.max([mdatesp[-1], mdatesm[-1]])
+    #last_timestep = np.min([mdatesp[-1], mdatesm[-1]])
+    #nminutes = int((num2date(last_timestep)-num2date(first_timestep)).total_seconds()/60.)
+    #itime = np.asarray([date2num(num2date(first_timestep) + timedelta(minutes=i)) for i in range(nminutes)], dtype=np.float64)
+    
+    #use mag for times
+    t_start=datesm[0]
+    t_end=datesm[-1]
+
+    #1 minute res
+    itime = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
+    
+    itimeint=mdates.date2num(itime)
+    
+    rbtot_m = np.interp(itimeint, DSCOVR_M['time_tag'], DSCOVR_M['bt'])
+    rbxgsm_m = np.interp(itimeint, DSCOVR_M['time_tag'], DSCOVR_M['bx_gsm'])
+    rbygsm_m = np.interp(itimeint, DSCOVR_M['time_tag'], DSCOVR_M['by_gsm'])
+    rbzgsm_m = np.interp(itimeint, DSCOVR_M['time_tag'], DSCOVR_M['bz_gsm'])
+    rpv_m = np.interp(itimeint, DSCOVR_P['time_tag'], DSCOVR_P['speed'])
+    rpn_m = np.interp(itimeint, DSCOVR_P['time_tag'], DSCOVR_P['density'])
+    rpt_m = np.interp(itimeint, DSCOVR_P['time_tag'], DSCOVR_P['temperature'])
+
+    #make array
+    dscovr_data=np.zeros(np.size(rbtot_m),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float)])          
+    #convert to recarray
+    dscovr_data = dscovr_data.view(np.recarray)                             
+
+    dscovr_data.time=itime
+    dscovr_data.bt=rbtot_m
+    dscovr_data.bx=rbxgsm_m
+    dscovr_data.by=rbygsm_m
+    dscovr_data.bz=rbzgsm_m
+
+    dscovr_data.vt=rpv_m
+    dscovr_data.np=rpn_m
+    dscovr_data.tp=rpt_m
+    
+    print('get_dscovr_data_real: DSCOVR data read completed.')
+    
+    return dscovr_data
+
+
+
+
 
 def save_stereob_beacon_data(path,file,start_time,end_time):
 

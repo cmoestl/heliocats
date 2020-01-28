@@ -32,6 +32,10 @@ import numpy as np
 import datetime
 import scipy.signal
 import urllib
+import json
+import os   
+
+#import 
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
@@ -42,8 +46,14 @@ importlib.reload(hp) #reload again while debugging
 
 
 data_path='/nas/helio/data/insitu_python/'
+noaa_path='/nas/helio/data/noaa_rtsw/'
 
 
+
+
+
+#~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit1.py
+#~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit2.py
 
 
 '''
@@ -137,9 +147,66 @@ text.write(' \n \n \n \n')
 text.close()
 
 
+sys.exit()
 
 
 
+#----
+
+print('convert NOAA real time solar wind archive to pickle file')
+
+all_files=os.listdir(noaa_path)  
+
+
+a=sorted(all_files) #sort so that mag and plasma and dates are separated
+nr_of_files=int(np.size(a)/2)
+mag=a[0:nr_of_files]  
+pla=a[nr_of_files:-1]  
+
+
+#make array for 10 years
+noaa=np.zeros(5000000,dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float)])          
+
+
+k=0
+for i in np.arange(nr_of_files)-1:
+
+    #read in data of corresponding files
+    m1=open(noaa_path+mag[i],'r')
+    p1=open(noaa_path+pla[i],'r')
+    d1=hd.get_noaa_realtime_data(m1, p1)
+    
+    #save in large array
+    noaa[k:k+np.size(d1)]=d1
+    
+    k=k+np.size(d1) 
+    
+header=' '
+
+#cut zeros and sort and convert to recarray
+noaa_cut=noaa[0:k]
+noaa_cut.sort()
+nf = noaa_cut.view(np.recarray)
+
+#************ TO DO: now sorted; remove all entries until the next one appears
+#for i in np.arange(np.size(noaa_sort))-1:
+#   a=0  
+
+plt.plot(mdates.date2num(nf.time)) 
+
+filenoaa='noaa_rtsw_2020.p'
+
+pickle.dump([noaa_rec,header], open(data_path+filenoaa, "wb"))
+
+[n,hn]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+
+
+
+
+    
+print('NOAA done')        
+sys.exit()
 
 
 
