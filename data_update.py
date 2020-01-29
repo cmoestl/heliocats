@@ -27,6 +27,8 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import pickle
 import importlib
 import matplotlib.pyplot as plt
+import matplotlib
+import matplotlib.dates as mdates
 import sys
 import numpy as np
 import datetime
@@ -44,10 +46,12 @@ from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
 
+#for server
+matplotlib.use('Agg')
+#matplotlib.use('qt5agg')    
 
 data_path='/nas/helio/data/insitu_python/'
 noaa_path='/nas/helio/data/noaa_rtsw/'
-
 
 
 
@@ -87,37 +91,31 @@ print(datestr+' UTC')
 plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
 mag='http://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json'
 
-try: urllib.request.urlretrieve(plasma, '/nas/helio/data/noaa_rtsw/plasma-7-day_'+datestr+'.json')
+try: urllib.request.urlretrieve(plasma, noaa_path+'plasma-7-day_'+datestr+'.json')
 except urllib.error.URLError as e:
   print(' ', plasma,' ',e.reason)
 
-try: urllib.request.urlretrieve(mag, '/nas/helio/data/noaa_rtsw/mag-7-day_'+datestr+'.json')
+try: urllib.request.urlretrieve(mag, noaa_path+'mag-7-day_'+datestr+'.json')
 except urllib.error.URLError as e:
   print(' ', plasma,' ',e.reason)
   
 print()
 print()
-  
+
+
+
 
 ##################### standard data update each day
 
 
-# all ok!
+#NOAA
+filenoaa='noaa_rtsw_jan_2020_now.p'
+hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
+[n,hn]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
 
+plt.plot_date(n.time,n.bt,'-k') 
+plt.savefig(data_path+'plots/noaa_rtsw.jpg')
 
-#OMNI2
-fileomni="omni_1963_now.p"
-overwrite=0
-hd.save_omni_data(data_path,fileomni,overwrite)
-[o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
-
-
-#Wind
-filewin="wind_2018_now.p" 
-start=datetime.datetime(2018, 1, 1)
-end=datetime.datetime.utcnow()
-hd.save_wind_data(data_path,filewin,start,end)
-[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
 
 
 #STEREO-A
@@ -128,17 +126,34 @@ hd.save_stereoa_beacon_data(data_path,filesta,start,end)
 [sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
 
 
+#Wind
+filewin="wind_2018_now.p" 
+start=datetime.datetime(2018, 1, 1)
+end=datetime.datetime.utcnow()
+hd.save_wind_data(data_path,filewin,start,end)
+[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+
+
+
+#OMNI2
+fileomni="omni_1963_now.p"
+overwrite=0
+hd.save_omni_data(data_path,fileomni,overwrite)
+[o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
+
+
 #################### write header file for daily updates
 text = open('/nas/helio/data/insitu_python/data_update_headers.txt', 'w')
 text.write('Contains headers for the data files which are updated in real time.'+'\n \n')
 text.write('File creation date:  '+datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M") +' \n \n')
 
-text.write('STEREO-A beacon: '+filesta+'\n \n'+ hsta+' \n \n')
-text.write('load with: >> [sta,hsta]=pickle.load(open("'+data_path+filesta+'", "rb"))') 
+
+text.write('NOAA real time solar wind: '+filenoaa+'\n \n'+ hn+' \n \n')
+text.write('load with: >> [n,hn]=pickle.load(open("'+data_path+filenoaa+'", "rb"))') 
 text.write(' \n \n \n \n')
 
-text.write('OMNI2: '+fileomni+'\n \n'+ ho+' \n \n')
-text.write('load with: >> [o,ho]=pickle.load(open("'+data_path+fileomni+'", "rb" ))') 
+text.write('STEREO-A beacon: '+filesta+'\n \n'+ hsta+' \n \n')
+text.write('load with: >> [sta,hsta]=pickle.load(open("'+data_path+filesta+'", "rb"))') 
 text.write(' \n \n \n \n')
 
 text.write('Wind: '+filewin+'\n \n'+ hwin+' \n \n')
@@ -146,67 +161,16 @@ text.write('load with: >> [win,hwin]=pickle.load(open("'+data_path+filewin+'", "
 text.write(' \n \n \n \n')
 text.close()
 
+text.write('OMNI2: '+fileomni+'\n \n'+ ho+' \n \n')
+text.write('load with: >> [o,ho]=pickle.load(open("'+data_path+fileomni+'", "rb" ))') 
+text.write(' \n \n \n \n')
+
+
 
 sys.exit()
 
 
 
-#----
-
-print('convert NOAA real time solar wind archive to pickle file')
-
-all_files=os.listdir(noaa_path)  
-
-
-a=sorted(all_files) #sort so that mag and plasma and dates are separated
-nr_of_files=int(np.size(a)/2)
-mag=a[0:nr_of_files]  
-pla=a[nr_of_files:-1]  
-
-
-#make array for 10 years
-noaa=np.zeros(5000000,dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float)])          
-
-
-k=0
-for i in np.arange(nr_of_files)-1:
-
-    #read in data of corresponding files
-    m1=open(noaa_path+mag[i],'r')
-    p1=open(noaa_path+pla[i],'r')
-    d1=hd.get_noaa_realtime_data(m1, p1)
-    
-    #save in large array
-    noaa[k:k+np.size(d1)]=d1
-    
-    k=k+np.size(d1) 
-    
-header=' '
-
-#cut zeros and sort and convert to recarray
-noaa_cut=noaa[0:k]
-noaa_cut.sort()
-nf = noaa_cut.view(np.recarray)
-
-#************ TO DO: now sorted; remove all entries until the next one appears
-#for i in np.arange(np.size(noaa_sort))-1:
-#   a=0  
-
-plt.plot(mdates.date2num(nf.time)) 
-
-filenoaa='noaa_rtsw_2020.p'
-
-pickle.dump([noaa_rec,header], open(data_path+filenoaa, "wb"))
-
-[n,hn]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
-
-
-
-
-    
-print('NOAA done')        
-sys.exit()
 
 
 

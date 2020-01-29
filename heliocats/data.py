@@ -53,6 +53,71 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ####################################### get new data ####################################
 
 
+
+ 
+def save_noaa_rtsw_data(data_path,noaa_path,filenoaa):
+
+
+    print(' ')
+    print('convert NOAA real time solar wind archive to pickle file')
+    all_files=os.listdir(noaa_path)  
+    print(' ')
+
+    a=sorted(all_files) #sort so that mag and plasma and dates are separated
+    print(a)
+    nr_of_files=int(np.size(a)/2)
+    mag=a[0:nr_of_files]  
+    pla=a[nr_of_files:-1]  
+
+    #make array for 10 years
+    noaa=np.zeros(5000000,dtype=[('time',object),('bx', float),('by', float),\
+                    ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                    ('x', float),('y', float),('z', float),\
+                    ('r', float),('lat', float),('lon', float)])   
+
+    k=0
+    for i in np.arange(nr_of_files)-1:
+
+        #read in data of corresponding files
+        m1=open(noaa_path+mag[i],'r')
+        p1=open(noaa_path+pla[i],'r')
+        d1=get_noaa_realtime_data(m1, p1)
+    
+        #save in large array
+        noaa[k:k+np.size(d1)]=d1
+        k=k+np.size(d1) 
+
+    #cut zeros, sort, convert to recarray, and find unique times and data
+    noaa_cut=noaa[0:k]
+    noaa_cut.sort()
+    nu=noaa_cut.view(np.recarray)
+    [dum,ind]=np.unique(nu.time,return_index=True)  
+    nf=nu[ind]
+
+    header='Real time solar wind magnetic field and plasma data from NOAA, ' + \
+        'obtained daily from https://services.swpc.noaa.gov/products/solar-wind/  '+ \
+        'Timerange: '+nf.time[0].strftime("%Y-%b-%d %H:%M")+' to '+nf.time[-1].strftime("%Y-%b-%d %H:%M")+\
+        ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(nf.time)).seconds)+' seconds. '+\
+        'The data are available in a numpy recarray, fields can be accessed by nf.time, nf.bx, nf.vt etc. '+\
+        'Total number of data points: '+str(nf.size)+'. '+\
+        'Units are btxyz [nT, RTN], vt  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+        'Made with https://github.com/cmoestl/heliocats save_noaa_rtsw_data  '+\
+        'By C. Moestl (twitter @chrisoutofspace) and R. Bailey. File creation date: '+\
+        datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+
+    pickle.dump([nf,header], open(data_path+filenoaa, "wb"))
+    
+    #to read file
+    #import pickle
+    #filenoaa='noaa_rtsw_2020.p'
+    #data_path='/nas/helio/data/insitu_python/'
+    #[n,hn]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+    
+    print('NOAA done')        
+
+
+
 def get_noaa_realtime_data(magfile, plasmafile):
     """
     Downloads and returns noaa real time solar wind data 
@@ -118,7 +183,10 @@ def get_noaa_realtime_data(magfile, plasmafile):
 
     #make array
     dscovr_data=np.zeros(np.size(rbtot_m),dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float)])          
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+                        
     #convert to recarray
     dscovr_data = dscovr_data.view(np.recarray)                             
 
@@ -132,7 +200,37 @@ def get_noaa_realtime_data(magfile, plasmafile):
     dscovr_data.np=rpn_m
     dscovr_data.tp=rpt_m
     
-    print('get_dscovr_data_real: DSCOVR data read completed.')
+    
+    
+    #print('position start')
+    frame='HEEQ'
+    planet_kernel=spicedata.get_kernel('planet_trajectories')
+    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
+    earth.generate_positions(itime,'Sun',frame)
+    #from km to AU
+    earth.change_units(astropy.units.AU)
+    #add gse position to Earth position
+    x=earth.x-1.5*1e6*astropy.units.km
+    y=earth.y
+    z=earth.z
+    [r, lat, lon]=cart2sphere(x,y,z)
+    #*****with astropy lagrange points exact value? L1 position with 0.01 AU 
+    #[r, lat, lon]=cart2sphere(earth.x-0.01*astropy.units.AU,earth.y,earth.z)
+    #print('position end ')
+       
+    
+    
+    dscovr_data.x=x
+    dscovr_data.y=y
+    dscovr_data.z=z
+    
+    dscovr_data.r=r
+    dscovr_data.lat=np.rad2deg(lat)
+    dscovr_data.lon=np.rad2deg(lon)
+       
+    
+    
+    print('NOAA data read completed for file with end time: ',itime[-1])
     
     return dscovr_data
 
@@ -273,9 +371,6 @@ def save_stereob_beacon_data(path,file,start_time,end_time):
     
     print('done stb')
     print()
-
-
-
 
 
 
