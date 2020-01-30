@@ -51,6 +51,7 @@ matplotlib.use('Agg')
 #matplotlib.use('qt5agg')    
 
 data_path='/nas/helio/data/insitu_python/'
+plot_path='/nas/helio/data/insitu_python/plots/'
 noaa_path='/nas/helio/data/noaa_rtsw/'
 
 
@@ -113,8 +114,9 @@ filenoaa='noaa_rtsw_jan_2020_now.p'
 hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
 [n,hn]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
 
-plt.plot_date(n.time,n.bt,'-k') 
-plt.savefig(data_path+'plots/noaa_rtsw.jpg')
+start=n.time[-1]-datetime.timedelta(days=14)
+end=n.time[-1]     
+hp.plot_insitu(n, start, end,'NOAA_RTSW',plot_path)
 
 
 
@@ -124,6 +126,10 @@ start=datetime.datetime(2018, 1, 1)
 end=datetime.datetime.utcnow()
 hd.save_stereoa_beacon_data(data_path,filesta,start,end)
 [sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
+
+start=n.time[-1]-datetime.timedelta(days=14)
+end=n.time[-1]     
+hp.plot_insitu(sta, start, end,'STEREO-A beacon',plot_path)
 
 
 #Wind
@@ -159,13 +165,13 @@ text.write(' \n \n \n \n')
 text.write('Wind: '+filewin+'\n \n'+ hwin+' \n \n')
 text.write('load with: >> [win,hwin]=pickle.load(open("'+data_path+filewin+'", "rb" ))') 
 text.write(' \n \n \n \n')
-text.close()
+
 
 text.write('OMNI2: '+fileomni+'\n \n'+ ho+' \n \n')
 text.write('load with: >> [o,ho]=pickle.load(open("'+data_path+fileomni+'", "rb" ))') 
 text.write(' \n \n \n \n')
 
-
+text.close()
 
 sys.exit()
 
