@@ -56,6 +56,8 @@ noaa_path='/nas/helio/data/noaa_rtsw/'
 
 
 
+#for easier debugging - do not download and process data but do everything else
+get_new_data=True
 
 #~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit1.py
 #~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit2.py
@@ -98,7 +100,7 @@ except urllib.error.URLError as e:
 
 try: urllib.request.urlretrieve(mag, noaa_path+'mag-7-day_'+datestr+'.json')
 except urllib.error.URLError as e:
-  print(' ', plasma,' ',e.reason)
+  print(' ', mag,' ',e.reason)
   
 print()
 print()
@@ -111,41 +113,53 @@ print()
 
 #NOAA
 filenoaa='noaa_rtsw_jan_2020_now.p'
-hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
-[n,hn]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+if get_new_data: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
+[noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
 
-start=n.time[-1]-datetime.timedelta(days=14)
-end=n.time[-1]     
-hp.plot_insitu(n, start, end,'NOAA_RTSW',plot_path)
+start=noaa.time[-1]-datetime.timedelta(days=14)
+end=noaa.time[-1]     
+hp.plot_insitu(noaa, start, end,'NOAA_RTSW',plot_path,now=True)
 
-
+start=noaa.time[-1]-datetime.timedelta(days=32)
+end=noaa.time[-1]     
+hp.plot_insitu(noaa, start, end,'NOAA_RTSW',plot_path,now2=True)
 
 #STEREO-A
 filesta="sta_2018_now_beacon.p" 
 start=datetime.datetime(2018, 1, 1)
 end=datetime.datetime.utcnow()
-hd.save_stereoa_beacon_data(data_path,filesta,start,end)
+if get_new_data: hd.save_stereoa_beacon_data(data_path,filesta,start,end)
 [sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
 
-start=n.time[-1]-datetime.timedelta(days=14)
-end=n.time[-1]     
-hp.plot_insitu(sta, start, end,'STEREO-A beacon',plot_path)
+start=sta.time[-1]-datetime.timedelta(days=14)
+end=sta.time[-1]     
+hp.plot_insitu(sta, start, end,'STEREO-A_beacon',plot_path,now=True)
 
 
 #Wind
 filewin="wind_2018_now.p" 
 start=datetime.datetime(2018, 1, 1)
 end=datetime.datetime.utcnow()
-hd.save_wind_data(data_path,filewin,start,end)
+if get_new_data: hd.save_wind_data(data_path,filewin,start,end)
 [win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+
+start=win.time[-1]-datetime.timedelta(days=100)
+end=win.time[-1]     
+hp.plot_insitu(win, start, end,'Wind',plot_path,now=True)
 
 
 
 #OMNI2
 fileomni="omni_1963_now.p"
 overwrite=0
-hd.save_omni_data(data_path,fileomni,overwrite)
+if get_new_data: hd.save_omni_data(data_path,fileomni,overwrite)
 [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
+
+start=o.time[-1]-datetime.timedelta(days=26*7)
+end=o.time[-1]     
+hp.plot_insitu(o, start, end,'OMNI2',plot_path,now=True)
+
+
 
 
 #################### write header file for daily updates
@@ -154,8 +168,8 @@ text.write('Contains headers for the data files which are updated in real time.'
 text.write('File creation date:  '+datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M") +' \n \n')
 
 
-text.write('NOAA real time solar wind: '+filenoaa+'\n \n'+ hn+' \n \n')
-text.write('load with: >> [n,hn]=pickle.load(open("'+data_path+filenoaa+'", "rb"))') 
+text.write('NOAA real time solar wind: '+filenoaa+'\n \n'+ hnoaa+' \n \n')
+text.write('load with: >> [noaa,hnoaa]=pickle.load(open("'+data_path+filenoaa+'", "rb"))') 
 text.write(' \n \n \n \n')
 
 text.write('STEREO-A beacon: '+filesta+'\n \n'+ hsta+' \n \n')

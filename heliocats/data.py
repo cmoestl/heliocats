@@ -64,7 +64,7 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa):
     print(' ')
 
     a=sorted(all_files) #sort so that mag and plasma and dates are separated
-    print(a)
+    #print(a)
     nr_of_files=int(np.size(a)/2)
     mag=a[0:nr_of_files]  
     pla=a[nr_of_files:-1]  

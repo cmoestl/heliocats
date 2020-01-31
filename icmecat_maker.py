@@ -1,30 +1,23 @@
 '''
- icmecat_maker.py
+icmecat_maker.py
 
- makes the ICMECATv2.0
+makes the ICMECATv2.0
 
- Author: C. Moestl, IWF Graz, Austria
- twitter @chrisoutofspace, https://github.com/cmoestl/heliocats
- last update January 2020
+Author: C. Moestl, IWF Graz, Austria
+twitter @chrisoutofspace, https://github.com/cmoestl/heliocats
+last update February 2020
 
- python > 3.7 
- 
- install a conda environment to run this code: https://github.com/cmoestl/heliocats
+python > 3.7, install a conda environment to run this code, see https://github.com/cmoestl/heliocats
 
- needs file /heliocats/data.py
- saves under /data and /results and /icmecat
+current status:
+work in progress
 
- current status:
- work in progress
- 
- 
 
 to do:
 
 - despike sta stb wind all
 - go through all ICMEs and extract data
 - (new B and V for STA, Wind and PSP converted to SCEQ components, plasma correct for new PSP, wind, sta)
-
 
 
 MIT LICENSE
@@ -81,9 +74,11 @@ from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
 
+from heliocats import plot as hp
+importlib.reload(hp) #reload again while debugging
+
 #where the final data are located
 data_path='/nas/helio/data/insitu_python/'
-
 
 
 ###################################### ICMECAT operations ################################
@@ -115,6 +110,142 @@ def load_helcats_icmecat_master_from_excel(file):
     return ic
 
 
+def dynamic_pressure(density, speed):
+   '''
+   make dynamic pressure from density and speed
+   assume pdyn is only due to protons
+   pdyn=np.zeros(len([density])) #in nano Pascals
+   '''
+   proton_mass=1.6726219*1e-27  #kg
+   pdyn=np.multiply(np.square(speed*1e3),density)*1e6*proton_mass*1e9  #in nanoPascal
+   return pdyn
+
+
+
+def get_cat_parameters(sc, sci, ic,name):
+    '''
+    get parameters
+    sc - spacecraft data recarray
+    sci - indices for this spacecraft in icmecat
+    ic - icmecat pandas dataframe
+    '''
+    
+    
+    # ********numba
+    #extract indices of ICMEs in the respective data (time consuming!)
+    
+    fileind='icmecat/ICMECAT_indices_'+name+'.p'
+    
+    
+    make_indices=1
+
+    if make_indices > 0:
+        #### get all ICMECAT times for this spacecraft as datenum
+        sc_icme_start=mdates.date2num(ic.icme_start_time[sci])   
+        sc_mo_start=mdates.date2num(ic.mo_start_time[sci])
+        sc_mo_end=mdates.date2num(ic.mo_end_time[sci])
+        if name=='Wind': sc_icme_end=mdates.date2num(ic.icme_end_time[sci])
+
+        ### arrays containing the indices of where the ICMEs are in the data
+        icme_start_ind=np.zeros(len(sci),dtype=int) 
+        mo_start_ind=np.zeros(len(sci),dtype=int)
+        mo_end_ind=np.zeros(len(sci),dtype=int)
+        if name=='Wind': icme_end_ind=np.zeros(len(sci),dtype=int)
+
+        #this takes some time 
+        sctime_num=mdates.date2num(sc.time)   
+        
+        #get indices in data for each ICMECAT
+        for i in np.arange(len(sci)):
+         
+            icme_start_ind[i]=np.where(sctime_num >sc_icme_start[i])[0][0]-1 
+            print(icme_start_ind[i])        
+            mo_start_ind[i]=np.where(sctime_num >sc_mo_start[i])[0][0]-1   
+            mo_end_ind[i]=np.where(sctime_num >sc_mo_end[i])[0][0]-1 
+            if name=='Wind': icme_end_ind[i]=np.where(sctime_num >sc_icme_end[i])[0][0]-1 
+
+        if name=='Wind': 
+            pickle.dump([icme_start_ind, mo_start_ind,mo_end_ind,icme_end_ind], open(fileind, 'wb'))     
+        else:
+            pickle.dump([icme_start_ind, mo_start_ind,mo_end_ind], open(fileind, 'wb'))     
+              
+
+    if name=='Wind': 
+       [icme_start_ind, mo_start_ind,mo_end_ind,icme_end_ind]=pickle.load(open(fileind, 'rb'))           
+    else: 
+       [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))           
+
+    ###### get parameters
+
+    #ICME B_max
+    for i in np.arange(len(sci))-1:
+        if name=='Wind': 
+            ic.icme_bmax.loc[sci[i]]=np.round(np.nanmax(sc.bt[icme_start_ind[i]:icme_end_ind[i]]),1)
+        else:
+            ic.icme_bmax.loc[sci[i]]=np.round(np.nanmax(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
+
+    #ICME B_mean
+    for i in np.arange(len(sci))-1:
+        if name=='Wind': 
+            ic.icme_bmean.loc[sci[i]]=np.round(np.nanmean(sc.bt[icme_start_ind[i]:icme_end_ind[i]]),1)
+        else:
+            ic.icme_bmean.loc[sci[i]]=np.round(np.nanmean(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
+
+    #MO B_max
+    for i in np.arange(len(sci))-1:
+        ic.mo_bmax.loc[sci[i]]=np.round(np.nanmax(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+    #MO B_mean
+    for i in np.arange(len(sci))-1:
+        ic.mo_bmean.loc[sci[i]]=np.round(np.nanmean(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+    #MO B_std
+    for i in np.arange(len(sci))-1:
+        ic.mo_bstd.loc[sci[i]]=np.round(np.nanstd(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+
+    #MO Bz_mean
+    for i in np.arange(len(sci))-1:
+        ic.mo_bzmean.loc[sci[i]]=np.round(np.nanmean(sc.bz[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+    #MO Bz_min
+    for i in np.arange(len(sci))-1:
+        ic.mo_bzmin.loc[sci[i]]=np.round(np.nanmin(sc.bz[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+    #MO heliodistance
+    for i in np.arange(len(sci))-1:
+        ic.mo_sc_heliodistance.loc[sci[i]]=np.round(np.nanmean(sc.r[mo_start_ind[i]:mo_end_ind[i]]),4)
+
+    #MO longitude
+    for i in np.arange(len(sci))-1:
+        ic.sc_long_heeq.loc[sci[i]]=np.round(np.nanmean(sc.lon[mo_start_ind[i]:mo_end_ind[i]]),2)
+
+    #MO latitude
+    for i in np.arange(len(sci))-1:
+        ic.sc_lat_heeq.loc[sci[i]]=np.round(np.nanmean(sc.lat[mo_start_ind[i]:mo_end_ind[i]]),2)
+
+
+    # ICME duration
+    sci_istart=mdates.date2num(ic.icme_start_time[sci])   
+    if name=='Wind': 
+        sci_iend=mdates.date2num(ic.icme_end_time[sci])   
+    else:
+        sci_iend=mdates.date2num(ic.mo_end_time[sci])   
+    ic.icme_duration.loc[sci]=np.round((sci_iend-sci_istart)*24,2)
+
+    # sheath duration
+    #sci_istart=mdates.date2num(ic.icme_start_time[sci])   
+    #sci_iend=mdates.date2num(ic.mo_start_time[sci])   
+    #ic.icme_duration.loc[sci]=np.round((sci_iend-sci_istart)*24,2)
+
+
+    # MO duration
+    sci_istart=mdates.date2num(ic.mo_start_time[sci])   
+    sci_iend=mdates.date2num(ic.mo_end_time[sci])   
+    ic.mo_duration.loc[sci]=np.round((sci_iend-sci_istart)*24,2)
+
+    
+    return ic
 
 
     
@@ -125,8 +256,8 @@ def load_helcats_icmecat_master_from_excel(file):
 ##################################### (1) load new data with HelioSat and heliocats.data
 
 
-load_data=0
-
+    
+load_data=1
 
 if load_data >0:
 
@@ -170,6 +301,11 @@ if load_data >0:
 ################################ (3) make ICMECAT 
 
 
+#filewin='wind_2007_2018_helcats.p'
+#[win,winh]=pickle.load(open(data_path+filewin, "rb" ) )  
+
+print('data loaded')
+
 
 ic=load_helcats_icmecat_master_from_excel('icmecat/HELCATS_ICMECAT_v20_master.xlsx')
 
@@ -180,28 +316,25 @@ mesi=np.where(ic.sc_insitu == 'MESSENGER')[:][0]
 stai=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
 stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
 mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
-pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
+ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]    
+
+#pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
 
 
-
-#get parameters
-
-win_istart=mdates.date2num(ic.icme_start_time[wini])   
-win_iend=mdates.date2num(ic.icme_end_time[wini])   
-ic.icme_duration.loc[wini]=np.round((win_iend-win_istart)*24,2)
-
-
-
-sta_mstart=mdates.date2num(ic.mo_start_time[stai])   
-sta_mend=mdates.date2num(ic.mo_end_time[stai])   
-ic.mo_duration.loc[stai]=np.round((sta_mend-sta_mstart)*24,2)
+#get parameters for all spacecraft one after another
+ic=get_cat_parameters(win,wini,ic,'Wind')
+ic=get_cat_parameters(sta,stai,ic,'STEREO-A')
+ic=get_cat_parameters(stb,stbi,ic,'STEREO_B')
+ic=get_cat_parameters(mes,mesi,ic,'MESSENGER')
+ic=get_cat_parameters(vex,vexi,ic,'VEX')
+ic=get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 
 
 
 
 ################################ (4) save ICMECAT #################################
 
-ic_date=copy.deepcopy(ic)  
+ic3=copy.deepcopy(ic)  
 
 #pickle, excel, json, csv, txt (cdf? votable?)
 
@@ -213,23 +346,23 @@ pickle.dump(ic, open(file, 'wb'))
 
 #use date and time format from master table
 ic2=pd.read_excel('icmecat/HELCATS_ICMECAT_v20_master.xlsx')
-ic.icme_start_time=ic2.icme_start_time
-ic.mo_start_time=ic2.mo_start_time
-ic.mo_end_time=ic2.mo_end_time
-ic.icme_end_time=ic2.icme_end_time
+ic3.icme_start_time=ic2.icme_start_time
+ic3.mo_start_time=ic2.mo_start_time
+ic3.mo_end_time=ic2.mo_end_time
+ic3.icme_end_time=ic2.icme_end_time
 del(ic2)
 
 #save as Excel
 file='icmecat/HELCATS_ICMECAT_v20.xlsx'
-ic.to_excel(file,sheet_name='ICMECATv2.0')
+ic3.to_excel(file,sheet_name='ICMECATv2.0')
 
 #save as json
 file='icmecat/HELCATS_ICMECAT_v20.json'
-ic.to_json(file)
+ic3.to_json(file)
 
 #save as csv
 file='icmecat/HELCATS_ICMECAT_v20.csv'
-ic.to_csv(file)
+ic3.to_csv(file)
 
 
 #save as hdf needs pip install tables
@@ -245,9 +378,13 @@ ic.to_csv(file)
 
 #save as txt
 file='icmecat/HELCATS_ICMECAT_v20.txt'
-np.savetxt(file, ic.values.astype(str), fmt='%s' )
+np.savetxt(file, ic3.values.astype(str), fmt='%s' )
+
+print('ICMECAT saved as '+file)
 
 
+
+sys.exit()
 
 
 #icl=pickle.load(open(file, 'rb' ) )
@@ -257,7 +394,6 @@ np.savetxt(file, ic.values.astype(str), fmt='%s' )
 ######################################################################################
 
 
-sys.exit()
 
 
 
@@ -267,9 +403,148 @@ sys.exit()
 
 
 
+'''
+sci=wini[0:5]
+sc=win
+name='Wind'
+
+fileind='icmecat/ICMECAT_indices_'+name+'.p'
+
+make_indices2=1   
+
+if make_indices2 > 0:
+
+    #extract indices of ICMEs in the respective data (time consuming!)
+
+    #### get all ICMECAT times for this spacecraft as datenum
+    sc_icme_start=mdates.date2num(ic.icme_start_time[sci])   
+    sc_mo_start=mdates.date2num(ic.mo_start_time[sci])
+    sc_mo_end=mdates.date2num(ic.mo_end_time[sci])
+    sc_icme_end=mdates.date2num(ic.icme_end_time[sci])
+
+    ### arrays containing the indices of where the ICMEs are in the data
+    icme_start_ind=np.zeros(len(sci),dtype=int) 
+    mo_start_ind=np.zeros(len(sci),dtype=int)
+    mo_end_ind=np.zeros(len(sci),dtype=int)
+    icme_end_ind=np.zeros(len(sci),dtype=int)
+
+    sctime_num=mdates.date2num(sc.time)   
+    #this takes some time      
+    for i in np.arange(len(sci)):
+         
+        icme_start_ind[i]=np.where(sctime_num >sc_icme_start[i])[0][0]-1 
+        print(icme_start_ind[i])        
+        mo_start_ind[i]=np.where(sctime_num >sc_mo_start[i])[0][0]-1   
+        mo_end_ind[i]=np.where(sctime_num >sc_mo_end[i])[0][0]-1 
+        icme_end_ind[i]=np.where(sctime_num >sc_icme_end[i])[0][0]-1 
+
+    pickle.dump([icme_start_ind, mo_start_ind,mo_end_ind,icme_end_ind], open(fileind, 'wb'))     
+    
+[icme_start_ind, mo_start_ind,mo_end_ind,icme_end_ind]=pickle.load(open(fileind, 'rb'))           
+
+###### get parameters
+
+#ICME B_max
+for i in np.arange(len(sci)):
+    if name=='Wind': 
+        ic.icme_bmax.loc[sci[i]]=np.round(np.nanmax(sc.bt[icme_start_ind[i]:icme_end_ind[i]]),1)
+    else:
+        ic.icme_bmax.loc[sci[i]]=np.round(np.nanmax(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
+
+#ICME B_mean
+for i in np.arange(len(sci)):
+    if name=='Wind': 
+        ic.icme_bmean.loc[sci[i]]=np.round(np.nanmean(sc.bt[icme_start_ind[i]:icme_end_ind[i]]),1)
+    else:
+        ic.icme_bmean.loc[sci[i]]=np.round(np.nanmean(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
+
+#MO B_max
+for i in np.arange(len(sci)):
+    ic.mo_bmax.loc[sci[i]]=np.round(np.nanmax(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+#MO B_mean
+for i in np.arange(len(sci)):
+    ic.mo_bmean.loc[sci[i]]=np.round(np.nanmean(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+#MO B_std
+for i in np.arange(len(sci)):
+    ic.mo_bstd.loc[sci[i]]=np.round(np.nanstd(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+
+#MO Bz_mean
+for i in np.arange(len(sci)):
+    ic.mo_bzmean.loc[sci[i]]=np.round(np.nanmean(sc.bz[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+#MO Bz_min
+for i in np.arange(len(sci)):
+    ic.mo_bzmin.loc[sci[i]]=np.round(np.nanmin(sc.bz[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+#MO heliodistance
+for i in np.arange(len(sci)):
+    ic.mo_sc_heliodistance.loc[sci[i]]=np.round(np.nanmean(sc.r[mo_start_ind[i]:mo_end_ind[i]]),4)
+
+#MO longitude
+for i in np.arange(len(sci)):
+    ic.sc_long_heeq.loc[sci[i]]=np.round(np.nanmean(sc.lon[mo_start_ind[i]:mo_end_ind[i]]),2)
+
+#MO latitude
+for i in np.arange(len(sci)):
+    ic.sc_lat_heeq.loc[sci[i]]=np.round(np.nanmean(sc.lat[mo_start_ind[i]:mo_end_ind[i]]),2)
+
+
+# ICME duration
+sci_istart=mdates.date2num(ic.icme_start_time[sci])   
+if name=='Wind': 
+    sci_iend=mdates.date2num(ic.icme_end_time[sci])   
+else:
+    sci_iend=mdates.date2num(ic.mo_end_time[sci])   
+ic.icme_duration.loc[sci]=np.round((sci_iend-sci_istart)*24,2)
+
+# sheath duration
+#sci_istart=mdates.date2num(ic.icme_start_time[sci])   
+#sci_iend=mdates.date2num(ic.mo_start_time[sci])   
+#ic.icme_duration.loc[sci]=np.round((sci_iend-sci_istart)*24,2)
+
+
+# MO duration
+sci_istart=mdates.date2num(ic.mo_start_time[sci])   
+sci_iend=mdates.date2num(ic.mo_end_time[sci])   
+ic.mo_duration.loc[sci]=np.round((sci_iend-sci_istart)*24,2)
+'''
 
 
 
+
+'''slow
+make_indices=0
+
+if make_indices >0:
+
+    #extract indices of ICMEs in the respective data (time consuming!)
+
+    #### get all ICMECAT times for this spacecraft as datetime object
+    sc_icme_start=ic.icme_start_time.values[0:ic.shape[0]][sci]
+    sc_mo_start=ic.mo_start_time.values[0:ic.shape[0]][sci]
+    sc_mo_end=ic.mo_end_time.values[0:ic.shape[0]][sci]
+    sc_icme_end=ic.icme_end_time.values[0:ic.shape[0]][sci]
+
+    ### arrays containing the indices of where the ICMEs are in the data
+    icme_start_ind=np.zeros(len(sci),dtype=int) 
+    mo_start_ind=np.zeros(len(sci),dtype=int)
+    mo_end_ind=np.zeros(len(sci),dtype=int)
+    icme_end_ind=np.zeros(len(sci),dtype=int)
+  
+    #this takes some time      
+    for i in np.arange(len(sci)):
+        icme_start_ind[i]=np.where(sc.time==sc_icme_start[i])[0][0]
+        print(icme_start_ind[i])        
+        mo_start_ind[i]=np.where(sc.time==sc_mo_start[i])[0][0]    
+        mo_end_ind[i]=np.where(sc.time==sc_mo_end[i])[0][0] 
+        icme_end_ind[i]=np.where(sc.time==sc_icme_end[i])[0][0]
+
+    pickle.dump([icme_start_ind, mo_start_ind,mo_end_ind,icme_end_ind], open(fileind, 'wb'))  
+    
+''' 
 
 
 

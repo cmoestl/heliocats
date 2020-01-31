@@ -33,7 +33,7 @@ import json
 
 
 
-
+'''
 import cme_stats_module
 from cme_stats_module import dynamic_pressure
 from cme_stats_module import getcat
@@ -42,7 +42,7 @@ from cme_stats_module import time_to_num_cat
 from cme_stats_module import gaussian
 from cme_stats_module import get_omni2_data
 from cme_stats_module import load_url_current_directory
-
+'''
 
 #ignore warnings
 #import warnings
@@ -87,9 +87,35 @@ from cme_stats_module import load_url_current_directory
 
 plt.close('all')
 print()
-print('Start cme_stats.py main program.')
+print('cme_stats.py main program.')
 print('ICME parameters at all 4 terrestrial planets.')
-print('Christian Moestl, IWF Graz, Austria, last update: November 2018.')
+print('Christian Moestl, IWF Graz, Austria')
+
+
+#save as pickle with datetime
+file='icmecat/HELCATS_ICMECAT_v20.p'
+print('loaded ', file)
+ic=pickle.load(open(file, "rb" ) )  
+
+wini=np.where(ic.sc_insitu == 'Wind')[:][0] 
+vexi=np.where(ic.sc_insitu == 'VEX')[:][0]  
+mesi=np.where(ic.sc_insitu == 'MESSENGER')[:][0]   
+stai=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
+stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
+mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
+pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
+
+
+
+
+sys.exit()
+
+
+
+
+
+
+
 
 ######################## get cats
 

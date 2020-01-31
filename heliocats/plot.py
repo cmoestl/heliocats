@@ -35,18 +35,17 @@ data_path='/nas/helio/data/insitu_python/'
 
 
 
-def plot_insitu(sc, start, end, sc_label, path):
+def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      '''
      sc = data
     
      '''
-     sns.set_style("darkgrid")
+     sns.set_style('darkgrid')
      sns.set_context('paper')
 
-     fig=plt.figure(1, figsize=(9,6), dpi=150)
+     fig=plt.figure(figsize=(9,6), dpi=150)
      
-     #plt.title(sc_label+' data, start time '+start.strftime("%Y-%b-%d %H:%M"))
-
+     #sharex means that zooming in works with all subplots
      ax1 = plt.subplot(411) 
 
      ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
@@ -55,52 +54,67 @@ def plot_insitu(sc, start, end, sc_label, path):
      ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
      
      plt.ylabel('B [nT]')
-     plt.legend(loc=3)
+     plt.legend(loc=3,ncol=4,fontsize=8)
      ax1.set_xlim(start,end)
      ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
      plt.ylim((-20, 20))
-     ax1.set_xticklabels([])
+     #ax1.set_xticklabels([]) does not work with sharex
+     #plt.setp(ax1.get_xticklabels(), fontsize=6)
+     plt.setp(ax1.get_xticklabels(), visible=False)
 
-     plt.title(sc_label+' data, start time '+start.strftime("%Y-%b-%d %H:%M"))
+     plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
 
 
-     ax2 = plt.subplot(412) 
-
+     ax2 = plt.subplot(412,sharex=ax1) 
      ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
 
      plt.ylabel('V [km/s]')
      ax2.set_xlim(start,end)
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
      plt.ylim((250, 800))
-     ax2.set_xticklabels([])
+     #ax2.set_xticklabels([])
+     plt.setp(ax2.get_xticklabels(), visible=False)
 
 
-     ax3 = plt.subplot(413) 
 
+     ax3 = plt.subplot(413,sharex=ax1) 
      ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
 
      plt.ylabel('N [ccm-3]')
      ax3.set_xlim(start,end)
      ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
      plt.ylim((0, 50))
-     ax3.set_xticklabels([])
+     #ax3.set_xticklabels([])
+     plt.setp(ax3.get_xticklabels(), visible=False)
 
-     ax4 = plt.subplot(414) 
 
+     ax4 = plt.subplot(414,sharex=ax1) 
      ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
 
      plt.ylabel('T [MK]')
      ax4.set_xlim(start,end)
      ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
      plt.ylim((0, 0.5))
- 
+     
      plt.tight_layout()
      #plt.show()
 
      plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
      plt.savefig(plotfile)
      print('saved as ',plotfile)
-         
+   
+
+     #if now exists as keyword, save as the file with just now in filename:     
+     if 'now' in kwargs:
+        plotfile=path+sc_label+'_now.png'
+        plt.savefig(plotfile)
+        print('saved as ',plotfile)
+
+     #if now2 exists as keyword, save as the file with just now in filename:     
+     if 'now2' in kwargs:
+        plotfile=path+sc_label+'_now2.png'
+        plt.savefig(plotfile)
+        print('saved as ',plotfile)
      
      
      

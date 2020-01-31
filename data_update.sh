@@ -10,4 +10,6 @@ echo '--------------------------------------------'
 echo
 
 ~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/data_update.py
+~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/web_update.py
+~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/icmecat_maker.py
 
