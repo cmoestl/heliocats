@@ -28,6 +28,9 @@ sftp.put(path+'OMNI2_now.png')
 sftp.put(path+'NOAA_RTSW_now.png')
 sftp.put(path+'NOAA_RTSW_now2.png')
 
+sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20.txt')
+sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20_header.txt')
+sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20.xlsx')
 
 
 

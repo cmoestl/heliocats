@@ -122,22 +122,24 @@ def dynamic_pressure(density, speed):
 
 
 
-def get_cat_parameters(sc, sci, ic,name):
+def get_cat_parameters(sc, sci, ic,name,sctime_num):
     '''
     get parameters
     sc - spacecraft data recarray
     sci - indices for this spacecraft in icmecat
     ic - icmecat pandas dataframe
+    
     '''
+  
     
-    
-    # ********numba
-    #extract indices of ICMEs in the respective data (time consuming!)
     
     fileind='icmecat/ICMECAT_indices_'+name+'.p'
+
+
+    #extract indices of ICMEs in the respective data (time consuming)
+  
     
-    
-    make_indices=1
+    make_indices=0
 
     if make_indices > 0:
         #### get all ICMECAT times for this spacecraft as datenum
@@ -153,10 +155,10 @@ def get_cat_parameters(sc, sci, ic,name):
         if name=='Wind': icme_end_ind=np.zeros(len(sci),dtype=int)
 
         #this takes some time 
-        sctime_num=mdates.date2num(sc.time)   
+        #sctime_num=mdates.date2num(sc.time)   
         
         #get indices in data for each ICMECAT
-        for i in np.arange(len(sci)):
+        for i in np.arange(len(sci))-1:
          
             icme_start_ind[i]=np.where(sctime_num >sc_icme_start[i])[0][0]-1 
             print(icme_start_ind[i])        
@@ -168,7 +170,8 @@ def get_cat_parameters(sc, sci, ic,name):
             pickle.dump([icme_start_ind, mo_start_ind,mo_end_ind,icme_end_ind], open(fileind, 'wb'))     
         else:
             pickle.dump([icme_start_ind, mo_start_ind,mo_end_ind], open(fileind, 'wb'))     
-              
+             
+
 
     if name=='Wind': 
        [icme_start_ind, mo_start_ind,mo_end_ind,icme_end_ind]=pickle.load(open(fileind, 'rb'))           
@@ -318,17 +321,40 @@ stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]
 mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
 ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]    
 
+
+
+
+filetimes='icmecat/ICMECAT_numtimes.p'
+'''
+#save times as mdates
+wintime_num=mdates.date2num(win.time) 
+statime_num=mdates.date2num(sta.time) 
+stbtime_num=mdates.date2num(stb.time) 
+mestime_num=mdates.date2num(mes.time) 
+vextime_num=mdates.date2num(vex.time) 
+ulytime_num=mdates.date2num(uly.time) 
+mavtime_num=mdates.date2num(mav.time) 
+pickle.dump([wintime_num,statime_num,stbtime_num,mestime_num,vextime_num,ulytime_num,mavtime_num], open(filetimes, 'wb'))     
+print('times as num saved')
+'''
+
+
+[wintime_num,statime_num,stbtime_num,mestime_num,vextime_num,ulytime_num,mavtime_num]=pickle.load(open(filetimes,'rb')) 
+
+
+
+
 #pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
 
 
 #get parameters for all spacecraft one after another
-ic=get_cat_parameters(win,wini,ic,'Wind')
-ic=get_cat_parameters(sta,stai,ic,'STEREO-A')
-ic=get_cat_parameters(stb,stbi,ic,'STEREO_B')
-ic=get_cat_parameters(mes,mesi,ic,'MESSENGER')
-ic=get_cat_parameters(vex,vexi,ic,'VEX')
-ic=get_cat_parameters(uly,ulyi,ic,'ULYSSES')
-
+ic=get_cat_parameters(win,wini,ic,'Wind',wintime_num)
+ic=get_cat_parameters(sta,stai,ic,'STEREO-A',statime_num)
+ic=get_cat_parameters(stb,stbi,ic,'STEREO_B',stbtime_num)
+ic=get_cat_parameters(mes,mesi,ic,'MESSENGER',mestime_num)
+ic=get_cat_parameters(vex,vexi,ic,'VEX',vextime_num)
+ic=get_cat_parameters(uly,ulyi,ic,'ULYSSES',ulytime_num)
+ic=get_cat_parameters(mav,mavi,ic,'MAVEN',mavtime_num)
 
 
 

@@ -60,12 +60,16 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa):
 
     print(' ')
     print('convert NOAA real time solar wind archive to pickle file')
-    all_files=os.listdir(noaa_path)  
-    print(' ')
+    items=os.listdir(noaa_path)  
+    newlist = [] 
+    for names in items: 
+       if names.endswith(".json"):
+            newlist.append(names)
+    #print(newlist)
 
-    a=sorted(all_files) #sort so that mag and plasma and dates are separated
+    a=sorted(newlist) #sort so that mag and plasma and dates are separated
     #print(a)
-    nr_of_files=int(np.size(a)/2)
+    nr_of_files=int(np.size(a)/2)#******************
     mag=a[0:nr_of_files]  
     pla=a[nr_of_files:-1]  
 
@@ -76,9 +80,11 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa):
                     ('r', float),('lat', float),('lon', float)])   
 
     k=0
+    
     for i in np.arange(nr_of_files)-1:
 
         #read in data of corresponding files
+        #print(noaa_path+mag[i])
         m1=open(noaa_path+mag[i],'r')
         p1=open(noaa_path+pla[i],'r')
         d1=get_noaa_realtime_data(m1, p1)
@@ -87,9 +93,12 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa):
         noaa[k:k+np.size(d1)]=d1
         k=k+np.size(d1) 
 
+
     #cut zeros, sort, convert to recarray, and find unique times and data
+
     noaa_cut=noaa[0:k]
     noaa_cut.sort()
+         
     nu=noaa_cut.view(np.recarray)
     [dum,ind]=np.unique(nu.time,return_index=True)  
     nf=nu[ind]
@@ -169,8 +178,9 @@ def get_noaa_realtime_data(magfile, plasmafile):
     t_end=datesm[-1]
 
     #1 minute res
-    itime = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
-    
+    itime = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int (((t_end - t_start).days+1)*60*24))]   #*******BUG everywhere with this line for last day
+
+        
     itimeint=mdates.date2num(itime)
     
     rbtot_m = np.interp(itimeint, DSCOVR_M['time_tag'], DSCOVR_M['bt'])

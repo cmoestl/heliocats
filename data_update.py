@@ -116,8 +116,9 @@ filenoaa='noaa_rtsw_jan_2020_now.p'
 if get_new_data: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
 [noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
 
+
 start=noaa.time[-1]-datetime.timedelta(days=14)
-end=noaa.time[-1]     
+end=datetime.datetime.utcnow() #noaa.time[-1]     
 hp.plot_insitu(noaa, start, end,'NOAA_RTSW',plot_path,now=True)
 
 start=noaa.time[-1]-datetime.timedelta(days=32)
@@ -150,15 +151,18 @@ hp.plot_insitu(win, start, end,'Wind',plot_path,now=True)
 
 
 #OMNI2
+'''
 fileomni="omni_1963_now.p"
 overwrite=0
 if get_new_data: hd.save_omni_data(data_path,fileomni,overwrite)
+'''
 [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
 
+'''
 start=o.time[-1]-datetime.timedelta(days=26*7)
 end=o.time[-1]     
 hp.plot_insitu(o, start, end,'OMNI2',plot_path,now=True)
-
+'''
 
 
 

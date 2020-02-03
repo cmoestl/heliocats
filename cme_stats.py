@@ -103,16 +103,66 @@ mesi=np.where(ic.sc_insitu == 'MESSENGER')[:][0]
 stai=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
 stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
 mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
-pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
+ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]    
+
+#pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
 
 
+#get parameters
+ic.keys()  
 
+########################### get all parameters from ICMECAT for easier handling
+# id for each event
+iid=ic.icmecat_id.to_numpy()
+
+# observing spacecraft
+isc=ic.sc_insitu.to_numpy()  
+#parameters
+mo_bmax=ic.mo_bmax.to_numpy()
+sc_heliodistance=ic.mo_sc_heliodistance.to_numpy()
+
+plt.plot(ic.mo_sc_heliodistance[stbi], ic.mo_bmax.loc[stbi],'ko')      
 
 sys.exit()
 
 
+# all times need to be converted from the IDL format to matplotlib format, 
+# also make strings for each date
+icme_start_time=i.icmecat['ICME_START_TIME']
+[icme_start_time_num,icme_start_time_str]=time_to_num_cat(icme_start_time)
 
+mo_start_time=i.icmecat['MO_START_TIME']
+[mo_start_time_num,mo_start_time_str]=time_to_num_cat(mo_start_time)
 
+mo_end_time=i.icmecat['MO_END_TIME']
+[mo_end_time_num,mo_end_time_str]=time_to_num_cat(mo_end_time)
+
+# this time exists only for Wind
+icme_end_time=i.icmecat['ICME_END_TIME']
+[icme_end_time_num,icme_end_time_str]=time_to_num_cat(icme_end_time)
+
+# get variables from ICMECAT
+sc_heliodistance=i.icmecat['SC_HELIODISTANCE']
+sc_long_heeq=i.icmecat['SC_LONG_HEEQ']
+sc_lat_heeq=i.icmecat['SC_LAT_HEEQ']
+mo_bmax=i.icmecat['MO_BMAX']
+mo_bmean=i.icmecat['MO_BMEAN']
+mo_bstd=i.icmecat['MO_BSTD']
+mo_bzmean=i.icmecat['MO_BZMEAN']
+mo_bzmin=i.icmecat['MO_BZMIN']
+mo_duration=i.icmecat['MO_DURATION']
+mo_mva_axis_long=i.icmecat['MO_MVA_AXIS_LONG']
+mo_mva_axis_lat=i.icmecat['MO_MVA_AXIS_LAT']
+mo_mva_ratio=i.icmecat['MO_MVA_RATIO']
+sheath_speed=i.icmecat['SHEATH_SPEED']
+sheath_speed_std=i.icmecat['SHEATH_SPEED_STD']
+mo_speed=i.icmecat['MO_SPEED']
+mo_speed_st=i.icmecat['MO_SPEED_STD']
+sheath_density=i.icmecat['SHEATH_DENSITY']
+sheath_density_std=i.icmecat['SHEATH_DENSITY_STD']
+mo_density=i.icmecat['MO_DENSITY']
+mo_density_std=i.icmecat['MO_DENSITY_STD']
+sheath_temperature=i.icmecat['SHEATH_TEMPERATURE']
 
 
 
@@ -136,8 +186,8 @@ i=getcat(filename_icmecat)
 
 #get spacecraft and planet positions
 
-pos=getcat('cats/positions_2007_2023_HEEQ_6hours.sav')
-pos_time_num=time_to_num_cat(pos.time)[0]
+#pos=getcat('cats/positions_2007_2023_HEEQ_6hours.sav')
+#pos_time_num=time_to_num_cat(pos.time)[0]
 
 
 
