@@ -1,14 +1,12 @@
 # cme_stats.py
 # https://github.com/cmoestl/heliocats
-# analyses HELCATS ICMECAT data for paper on CME statistics Moestl et al. 2019 
+# analyses ICMECAT data for paper on CME statistics Moestl et al. 2020
 
 #Author: C. Moestl, IWF Graz, Austria
 #twitter @chrisoutofspace, https://github.com/cmoestl
-#last update November 2018
+#last update February 2020
 
-#python 3.5.5 with sunpy, seaborn ipython 4.2.0
-
-#needs file cme_stats_module.py
+#python > 3.7 with conda environment installation instructions as given in README.md
 
 #current status:
 #work in progress
@@ -32,7 +30,6 @@ import urllib
 import json
 
 
-
 '''
 import cme_stats_module
 from cme_stats_module import dynamic_pressure
@@ -47,9 +44,6 @@ from cme_stats_module import load_url_current_directory
 #ignore warnings
 #import warnings
 #warnings.filterwarnings('ignore')
-
-#use one time to control plots
-#plt.show(block=True)
 
 
 #CHECK for MAVEN program  for MARS EVENTS at MAVEN -> HI / MSL LIST FOR VERIFICATION
@@ -172,23 +166,6 @@ sheath_temperature=i.icmecat['SHEATH_TEMPERATURE']
 
 #solar radius
 Rs_in_AU=float(const.R_sun/const.au)
-
-
-filename_icmecat='cats/HELCATS_ICMECAT_v20_SCEQ.sav'
-i=getcat(filename_icmecat)
-
-#now this is a scipy recarray  
-#access each element of the array see http://docs.scipy.org/doc/numpy/user/basics.rec.html
-#access variables
-#i.icmecat['id']
-#look at contained variables
-#print(i.icmecat.dtype)
-
-#get spacecraft and planet positions
-
-#pos=getcat('cats/positions_2007_2023_HEEQ_6hours.sav')
-#pos_time_num=time_to_num_cat(pos.time)[0]
-
 
 
 

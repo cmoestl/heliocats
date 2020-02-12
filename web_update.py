@@ -18,7 +18,7 @@ print()
 
 sftp=pysftp.Connection(server, username=user, private_key=key,port=port)
 
-sftp.chdir('www-helioforecast/helioforecast/public/sync/data_plots/')  #change dir
+sftp.chdir('www-helioforecast/helioforecast/public/sync/')  #change dir
 print(sftp.pwd)
 
 #print('copy predstorm_real.png/txt to ',sftp.pwd) #show current dir
