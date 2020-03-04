@@ -81,6 +81,8 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa):
 
     k=0
     
+    
+
     for i in np.arange(nr_of_files)-1:
 
         #read in data of corresponding files
