@@ -5,13 +5,11 @@ This package contains codes used for the creation of catalogs of interplanetary 
 
 by [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/)
 
-Current status (January 2020): **Work in progress!** 
+Current status (February 2020): **Work in progress!** 
 
 This is a continuation of work done in the EU HELCATS project (2014-2017): https://www.helcats-fp7.eu, in particular concerning ICMECAT (working package 4).
 
 If you want to use parts of this code for generating results for peer-reviewed scientific publications, please contact me per email (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace .
-
-
 
 
 
@@ -44,7 +42,17 @@ go to a directory of your choice
 
 ## Programs
 
-Activate the environment (*conda activate helio*) and run with *python program_name.py*:
+For running the jupyter notebook (files with .ipynb), first activate the helio environment:
+
+    conda activate helio
+    
+and then use either (depending on your preference):
+
+    jupyter lab cme_statistics.ipynb
+    jupyter notebook cme_statistics.ipynb
+
+
+For the python scripts, activate the environment (*conda activate helio*) and run with *python program_name.py*
 
 - *icmecat_maker.py*        
 processes data into a normalized format and creates the ICMECAT catalog.
