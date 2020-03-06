@@ -28,11 +28,13 @@ sftp.put(path+'OMNI2_now.png')
 sftp.put(path+'NOAA_RTSW_now.png')
 sftp.put(path+'NOAA_RTSW_now2.png')
 
+
+sftp.put(data_path_sun+'latest_1024_0193.jpg')
+sftp.put(data_path_sun+'latest_1024_0193pfss.jpg')
+
 sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20.txt')
 sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20_header.txt')
 sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20.xlsx')
-
-
 
 
 #sftp.get('remote_file')         # get a remote file

@@ -30,6 +30,9 @@ import astropy
 
 data_path='/nas/helio/data/insitu_python/'
 
+
+data_path_sun='/nas/helio/data/SDO_realtime/'
+
 '''
 MIT LICENSE
 Copyright 2020, Christian Moestl 
@@ -53,6 +56,36 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ####################################### get new data ####################################
 
 
+
+def get_sdo_realtime_image():
+    """Downloads latest SDO image."""
+
+
+    sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193.jpg'
+    #PFSS
+    #sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193pfss.jpg'
+    try: urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_0193.jpg')
+    except urllib.error.URLError as e:
+        print('Failed downloading ', sdo_latest,' ',e)
+    
+    
+    sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193pfss.jpg'        
+    try: urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_0193pfss.jpg')
+    except urllib.error.URLError as e:
+        print('Failed downloading ', sdo_latest,' ',e)
+        
+    '''    
+    #convert to png
+    #check if ffmpeg is available locally in the folder or systemwide
+    if os.path.isfile('ffmpeg'):
+        os.system('./ffmpeg -i latest_1024_0193.jpg latest_1024_0193.png -loglevel quiet -y')
+        ffmpeg_avail=True
+        logger.info('downloaded SDO latest_1024_0193.jpg converted to png')
+        os.system('rm latest_1024_0193.jpg')
+    else:
+        os.system('ffmpeg -i latest_1024_0193.jpg latest_1024_0193.png -loglevel quiet -y')
+        os.system('rm latest_1024_0193.jpg')
+    '''    
 
  
 def save_noaa_rtsw_data(data_path,noaa_path,filenoaa):
@@ -89,12 +122,15 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa):
         #print(noaa_path+mag[i])
         m1=open(noaa_path+mag[i],'r')
         p1=open(noaa_path+pla[i],'r')
-        d1=get_noaa_realtime_data(m1, p1)
-    
-        #save in large array
-        noaa[k:k+np.size(d1)]=d1
-        k=k+np.size(d1) 
+        try: 
+            d1=get_noaa_realtime_data(m1, p1)
+            #save in large array
+            noaa[k:k+np.size(d1)]=d1
+            k=k+np.size(d1) 
+        except: 
+            print(mag[i], ' ', pla[i], ' json not working')
 
+    
 
     #cut zeros, sort, convert to recarray, and find unique times and data
 
@@ -149,7 +185,7 @@ def get_noaa_realtime_data(magfile, plasmafile):
     """
     
     # Read plasma data:
-    dp = json.loads (plasmafile.read())
+    dp = json.loads(plasmafile.read())
     dpn = [[np.nan if x == None else x for x in d] for d in dp]     # Replace None w NaN
     dtype=[(x, 'float') for x in dp[0]]
     datesp = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S.%f")  for x in dpn[1:]]

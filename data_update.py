@@ -56,6 +56,11 @@ noaa_path='/nas/helio/data/noaa_rtsw/'
 
 
 
+
+#########################################################################################
+
+
+
 #for easier debugging - do not download and process data but do everything else
 get_new_data=True
 
@@ -107,6 +112,17 @@ print()
 
 
 
+#SDO image now
+hd.get_sdo_realtime_image()
+
+
+
+
+
+# spacecraft positions image
+
+
+
 
 ##################### standard data update each day
 
@@ -121,9 +137,10 @@ start=noaa.time[-1]-datetime.timedelta(days=14)
 end=datetime.datetime.utcnow() #noaa.time[-1]     
 hp.plot_insitu(noaa, start, end,'NOAA_RTSW',plot_path,now=True)
 
-start=noaa.time[-1]-datetime.timedelta(days=32)
+start=noaa.time[-1]-datetime.timedelta(days=28)
 end=noaa.time[-1]     
 hp.plot_insitu(noaa, start, end,'NOAA_RTSW',plot_path,now2=True)
+
 
 #STEREO-A
 filesta="sta_2018_now_beacon.p" 
@@ -136,7 +153,6 @@ start=sta.time[-1]-datetime.timedelta(days=14)
 end=sta.time[-1]     
 hp.plot_insitu(sta, start, end,'STEREO-A_beacon',plot_path,now=True)
 
-
 #Wind
 filewin="wind_2018_now.p" 
 start=datetime.datetime(2018, 1, 1)
@@ -147,7 +163,6 @@ if get_new_data: hd.save_wind_data(data_path,filewin,start,end)
 start=win.time[-1]-datetime.timedelta(days=100)
 end=win.time[-1]     
 hp.plot_insitu(win, start, end,'Wind',plot_path,now=True)
-
 
 
 #OMNI2
@@ -192,8 +207,6 @@ text.write(' \n \n \n \n')
 text.close()
 
 sys.exit()
-
-
 
 
 
