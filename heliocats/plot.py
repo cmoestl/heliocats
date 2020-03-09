@@ -36,6 +36,101 @@ data_path='/nas/helio/data/insitu_python/'
 
 
 
+def plot_insitu_update(sc, start, end, sc_label, path, **kwargs):
+     '''
+     sc = data
+    
+     '''
+     sns.set_style('darkgrid')
+     sns.set_context('paper')
+     
+     fsize=10
+
+     fig=plt.figure(figsize=(9,6), dpi=150)
+     
+     #sharex means that zooming in works with all subplots
+     ax1 = plt.subplot(411) 
+
+     ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
+     ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
+     ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
+     ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
+     
+     plt.ylabel('B [nT]',fontsize=fsize)
+     plt.legend(loc=3,ncol=4,fontsize=fsize-2)
+     ax1.set_xlim(start,end)
+     ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
+     plt.ylim((-20, 20))
+     #ax1.set_xticklabels([]) does not work with sharex
+     #plt.setp(ax1.get_xticklabels(), fontsize=6)
+     plt.setp(ax1.get_xticklabels(), visible=False)
+
+     plt.title(sc_label+' data       start: '+start.strftime("%Y-%b-%d %H:%M")+'       end: '+end.strftime("%Y-%b-%d %H:%M"),fontsize=fsize)
+
+
+     ax2 = plt.subplot(412,sharex=ax1) 
+     ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
+
+     plt.ylabel('V [km/s]',fontsize=fsize)
+     ax2.set_xlim(start,end)
+     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+     plt.ylim((250, 800))
+     #ax2.set_xticklabels([])
+     plt.setp(ax2.get_xticklabels(), visible=False)
+
+
+
+     ax3 = plt.subplot(413,sharex=ax1) 
+     ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
+
+     plt.ylabel('N [ccm-3]',fontsize=fsize)
+     ax3.set_xlim(start,end)
+     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+     plt.ylim((0, 50))
+     #ax3.set_xticklabels([])
+     plt.setp(ax3.get_xticklabels(), visible=False)
+
+
+     ax4 = plt.subplot(414,sharex=ax1) 
+     ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
+
+     plt.ylabel('T [MK]',fontsize=fsize)
+     ax4.set_xlim(start,end)
+     ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
+     plt.ylim((0, 0.5))
+     
+     plt.figtext(0.99,0.01,'Möstl, Bailey / Helio4Cast', color='black', ha='right',fontsize=fsize-3)
+
+     
+     plt.tight_layout()
+     #plt.show()
+
+     plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
+     plt.savefig(plotfile)
+     print('saved as ',plotfile)
+   
+
+     #if now exists as keyword, save as the file with just now in filename:     
+     if 'now' in kwargs:
+        plotfile=path+sc_label+'_now.png'
+        plt.savefig(plotfile)
+        print('saved as ',plotfile)
+
+     #if now2 exists as keyword, save as the file with just now in filename:     
+     if 'now2' in kwargs:
+        plotfile=path+sc_label+'_now2.png'
+        plt.savefig(plotfile)
+        print('saved as ',plotfile)
+   
+   
+   
+   
+   
+   
+   
+   
+     
+
 
 def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      '''
@@ -151,10 +246,10 @@ def plot_positions(time_date1, path,frame, **kwargs):
     
     plot_orbit=True
     plot_parker=True
-    fadeind=60
-    fsize=13 
-    symsize_planet=110
-    symsize_spacecraft=80
+    fadeind=int(100/res_in_days)
+    fsize=17 
+    symsize_planet=140
+    symsize_spacecraft=100
     
     #find index for psp
     dct=time1-psp.time
@@ -185,8 +280,21 @@ def plot_positions(time_date1, path,frame, **kwargs):
     ax.scatter(sta.lon[earth_timeind], sta.r[earth_timeind]*np.cos(sta.lat[earth_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
     ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
 
+    plt.text(psp.lon[psp_timeind]-0.15,psp.r[psp_timeind],'Parker Solar Probe', color='black', ha='center',fontsize=fsize-4,verticalalignment='top')
+    plt.text(sta.lon[earth_timeind]-0.15,sta.r[earth_timeind],'STEREO-A', color='red', ha='center',fontsize=fsize-4,verticalalignment='top')
+    plt.text(bepi.lon[bepi_timeind]-0.15,bepi.r[bepi_timeind],'Bepi Colombo', color='blue', ha='center',fontsize=fsize-4,verticalalignment='top')
+    plt.text(solo.lon[solo_timeind]-0.15,solo.r[solo_timeind],'Solar Orbiter', color='green', ha='center',fontsize=fsize-4,verticalalignment='top')
+
+    plt.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
+    plt.text(0,earth.r[earth_timeind]+0.12,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
+    
+    plt.figtext(0.99,0.01,'C. Möstl / Helio4Cast', color='black', ha='right',fontsize=fsize-8)
+
+    plt.figtext(0.85,0.1,'――― 100 days future trajectory', color='black', ha='center',fontsize=fsize-3)
+
+    
     '''
-    plt.figtext(0.95,0.75,'Parker Probe', color='black', ha='center',fontsize=fsize+3)
+
     plt.figtext(0.95,0.5,'Wind', color='mediumseagreen', ha='center',fontsize=fsize+3)
     plt.figtext(0.95,0.25,'STEREO-A', color='red', ha='center',fontsize=fsize+3)
     plt.figtext(0.9,0.9,'Mercury', color='dimgrey', ha='center',fontsize=fsize+5)
@@ -209,37 +317,50 @@ def plot_positions(time_date1, path,frame, **kwargs):
         ax.scatter(psp.lon[psp_timeind], psp.r[psp_timeind]*np.cos(psp.lat[psp_timeind]), s=symsize_spacecraft, c=psp_color, marker='s', alpha=1,lw=0,zorder=3)
         #plot position as text
         psp_text='PSP:   '+str(f'{psp.r[psp_timeind]:6.2f}')+str(f'{np.rad2deg(psp.lon[psp_timeind]):8.1f}')+str(f'{np.rad2deg(psp.lat[psp_timeind]):8.1f}')
-        f5=plt.figtext(0.01,0.78,psp_text, fontsize=fsize, ha='left',color=backcolor)
-        if plot_orbit: ax.plot(psp.lon[psp_timeind-fadeind:psp_timeind+fadeind], psp.r[psp_timeind-fadeind:psp_timeind+fadeind]*np.cos(psp.lat[psp_timeind-fadeind:psp_timeind+fadeind]), c=psp_color, alpha=0.6,lw=1,zorder=3)
+        f5=plt.figtext(0.01,0.78,psp_text, fontsize=fsize, ha='left',color=psp_color)
+        if plot_orbit: 
+            ax.plot(psp.lon[psp_timeind:psp_timeind+fadeind], psp.r[psp_timeind:psp_timeind+fadeind]*np.cos(psp.lat[psp_timeind:psp_timeind+fadeind]), c=psp_color, alpha=0.6,lw=1,zorder=3)
 
 
     if bepi_timeind > 0:
         ax.scatter(bepi.lon[bepi_timeind], bepi.r[bepi_timeind]*np.cos(bepi.lat[bepi_timeind]), s=symsize_spacecraft, c=bepi_color, marker='s', alpha=1,lw=0,zorder=3)
         bepi_text='Bepi:   '+str(f'{bepi.r[bepi_timeind]:6.2f}')+str(f'{np.rad2deg(bepi.lon[bepi_timeind]):8.1f}')+str(f'{np.rad2deg(bepi.lat[bepi_timeind]):8.1f}')
-        f6=plt.figtext(0.01,0.74,bepi_text, fontsize=fsize, ha='left',color=backcolor)
-        if plot_orbit: ax.plot(bepi.lon[bepi_timeind-fadeind:bepi_timeind+fadeind], bepi.r[bepi_timeind-fadeind:bepi_timeind+fadeind]*np.cos(bepi.lat[bepi_timeind-fadeind:bepi_timeind+fadeind]), c=bepi_color, alpha=0.6,lw=1,zorder=3)
+        f6=plt.figtext(0.01,0.74,bepi_text, fontsize=fsize, ha='left',color=bepi_color)
+        if plot_orbit: 
+            ax.plot(bepi.lon[bepi_timeind:bepi_timeind+fadeind], bepi.r[bepi_timeind:bepi_timeind+fadeind]*np.cos(bepi.lat[bepi_timeind:bepi_timeind+fadeind]), c=bepi_color, alpha=0.6,lw=1,zorder=3)
 
 
 
     if solo_timeind > 0:
         ax.scatter(solo.lon[solo_timeind], solo.r[solo_timeind]*np.cos(solo.lat[solo_timeind]), s=symsize_spacecraft, c=solo_color, marker='s', alpha=1,lw=0,zorder=3)
         solo_text='SolO:  '+str(f'{solo.r[solo_timeind]:6.2f}')+str(f'{np.rad2deg(solo.lon[solo_timeind]):8.1f}')+str(f'{np.rad2deg(solo.lat[solo_timeind]):8.1f}')
-        f7=plt.figtext(0.01,0.7,solo_text, fontsize=fsize, ha='left',color=backcolor)
-        if plot_orbit: ax.plot(solo.lon[solo_timeind-fadeind:solo_timeind+fadeind], solo.r[solo_timeind-fadeind:solo_timeind+fadeind]*np.cos(solo.lat[solo_timeind-fadeind:solo_timeind+fadeind]), c=solo_color, alpha=0.6,lw=1,zorder=3)
+        f7=plt.figtext(0.01,0.7,solo_text, fontsize=fsize, ha='left',color=solo_color)
+        if plot_orbit: 
+            ax.plot(solo.lon[solo_timeind:solo_timeind+fadeind], solo.r[solo_timeind:solo_timeind+fadeind]*np.cos(solo.lat[solo_timeind:solo_timeind+fadeind]), c=solo_color, alpha=0.6,lw=1,zorder=3)
+
+    if plot_orbit: 
+        ax.plot(sta.lon[earth_timeind:earth_timeind+fadeind], sta.r[earth_timeind:earth_timeind+fadeind]*np.cos(sta.lat[earth_timeind:earth_timeind+fadeind]), c='red', alpha=0.6,lw=1,zorder=3)
+
+
 
 
     if frame=='HEEQ': earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{0.0:8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
     else: earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(earth.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
 
     mars_text='Mars:  '+str(f'{mars.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(mars.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(mars.lat[earth_timeind]):8.1f}')
-    sta_text='STEREO-A:   '+str(f'{sta.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(sta.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(sta.lat[earth_timeind]):8.1f}')
+    sta_text='STA:   '+str(f'{sta.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(sta.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(sta.lat[earth_timeind]):8.1f}')
 
+    #Sun
+    ax.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)
 
 
  
     f10=plt.figtext(0.01,0.9,earth_text, fontsize=fsize, ha='left',color='mediumseagreen')
     f9=plt.figtext(0.01,0.86,mars_text, fontsize=fsize, ha='left',c='orangered')
     f8=plt.figtext(0.01,0.82,sta_text, fontsize=fsize, ha='left',c='red')
+    
+    #time
+    plt.figtext(0.69,0.9,time_date1.strftime("%Y %B %d  %H:%M"),fontsize=fsize+10, ha='left',c='black')
 
     #parker spiral
     if plot_parker:
@@ -256,21 +377,19 @@ def plot_positions(time_date1, path,frame, **kwargs):
     #set axes
 
     ax.set_theta_zero_location('E')
-    plt.thetagrids(range(0,360,45),(u'0\u00b0 '+frame+' longitude',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',fontsize=fsize+2,color=backcolor, alpha=0.9)
-
+ 
     #plt.rgrids((0.10,0.39,0.72,1.00,1.52),('0.10','0.39','0.72','1.0','1.52 AU'),angle=125, fontsize=fsize,alpha=0.9, color=backcolor)
-    plt.rgrids((0.1,0.3,0.5,0.7,1.0,1.3,1.6),('0.10','0.3','0.5','0.7','1.0','1.3','1.6 AU'),angle=125, fontsize=fsize-3,alpha=0.5, color=backcolor)
+    plt.rgrids((0.1,0.3,0.5,0.7,1.0,1.3,1.6),('0.1','0.3','0.5','0.7','1.0','1.3','1.6 AU'),angle=125, fontsize=fsize-2,alpha=0.4, color=backcolor)
 
     #ax.set_ylim(0, 1.75) with Mars
-    ax.set_ylim(0, 1.75) 
+    ax.set_ylim(0, 1.25) 
 
-    #Sun
-    ax.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)
+    plt.thetagrids(range(0,360,45),(u'0\u00b0 '+frame+' longitude',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='left',fontsize=fsize,color=backcolor, zorder=5, alpha=0.9)
+
+    plt.tight_layout()
 
     #plotfile=path+%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
     plotfile=path+'positions_'+time_date1.strftime("%Y_%b_%d")+'.png'
-
-    plt.tight_layout()
 
     plt.savefig(plotfile)
     print('saved as ',plotfile)

@@ -28,6 +28,8 @@ sftp.put(path+'OMNI2_now.png')
 sftp.put(path+'NOAA_RTSW_now.png')
 sftp.put(path+'NOAA_RTSW_now2.png')
 
+sftp.put(path_position+'positions_now.png')
+
 
 sftp.put(data_path_sun+'latest_1024_0193.jpg')
 sftp.put(data_path_sun+'latest_1024_0193pfss.jpg')

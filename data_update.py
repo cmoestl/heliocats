@@ -49,7 +49,7 @@ importlib.reload(hp) #reload again while debugging
 
 #for server
 matplotlib.use('Agg')
-#matplotlib.use('qt5agg')    
+#matplotlib.use('qt5agg')
 
 data_path='/nas/helio/data/insitu_python/'
 plot_path='/nas/helio/data/insitu_python/plots/'
@@ -58,13 +58,6 @@ position_path='/nas/helio/data/insitu_python/plots_positions/'
 
 
 ##########################################################
-
-
-#plot positions
-hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
-
-
-sys.exit()
 
 #########################################################################################
 
@@ -96,7 +89,14 @@ hd.save_stereoa_beacon_data(data_path, filesta2,start, end)
 sys.exit()
 '''
 
-#add real time image of the solar system in data_update
+
+
+
+
+
+######################################### spacecraft positions image
+hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
+
 
 
 ########################################### NOAA real time
@@ -121,14 +121,10 @@ print()
 
 
 
-#SDO image now
+########################################### #SDO images now
 hd.get_sdo_realtime_image()
 
 
-
-
-
-# spacecraft positions image
 
 
 
@@ -136,31 +132,38 @@ hd.get_sdo_realtime_image()
 ##################### standard data update each day
 
 
-#NOAA
-filenoaa='noaa_rtsw_jan_2020_now.p'
-if get_new_data: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
-[noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
-
-
-start=noaa.time[-1]-datetime.timedelta(days=14)
-end=datetime.datetime.utcnow() #noaa.time[-1]     
-hp.plot_insitu(noaa, start, end,'NOAA_RTSW',plot_path,now=True)
-
-start=noaa.time[-1]-datetime.timedelta(days=28)
-end=noaa.time[-1]     
-hp.plot_insitu(noaa, start, end,'NOAA_RTSW',plot_path,now2=True)
-
 
 #STEREO-A
-filesta="sta_2018_now_beacon.p" 
-start=datetime.datetime(2018, 1, 1)
+filesta="sta_2020_now_beacon.p" 
+start=datetime.datetime(2020, 1, 1)
 end=datetime.datetime.utcnow()
 if get_new_data: hd.save_stereoa_beacon_data(data_path,filesta,start,end)
 [sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
 
 start=sta.time[-1]-datetime.timedelta(days=14)
-end=sta.time[-1]     
-hp.plot_insitu(sta, start, end,'STEREO-A_beacon',plot_path,now=True)
+end=datetime.datetime.utcnow()     
+hp.plot_insitu_update(sta, start, end,'STEREO-A_beacon',plot_path,now=True)
+
+
+
+
+#NOAA
+filenoaa='noaa_rtsw_jan_2020_now.p'
+if get_new_data: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
+[noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+
+start=noaa.time[-1]-datetime.timedelta(days=14)
+end=datetime.datetime.utcnow() #noaa.time[-1]     
+hp.plot_insitu_update(noaa, start, end,'NOAA_RTSW',plot_path,now=True)
+
+start=noaa.time[-1]-datetime.timedelta(days=55)
+end=datetime.datetime.utcnow() #noaa.time[-1]     
+hp.plot_insitu_update(noaa, start, end,'NOAA_RTSW',plot_path,now2=True)
+
+
+
+
+
 
 #Wind
 filewin="wind_2018_now.p" 
@@ -170,23 +173,24 @@ if get_new_data: hd.save_wind_data(data_path,filewin,start,end)
 [win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
 
 start=win.time[-1]-datetime.timedelta(days=100)
-end=win.time[-1]     
+end=datetime.datetime.utcnow()         
 hp.plot_insitu(win, start, end,'Wind',plot_path,now=True)
 
 
 #OMNI2
-'''
+
+
 fileomni="omni_1963_now.p"
-overwrite=0
+overwrite=1
 if get_new_data: hd.save_omni_data(data_path,fileomni,overwrite)
-'''
 [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
 
-'''
-start=o.time[-1]-datetime.timedelta(days=26*7)
-end=o.time[-1]     
-hp.plot_insitu(o, start, end,'OMNI2',plot_path,now=True)
-'''
+start=datetime.datetime.utcnow() -datetime.timedelta(days=365)
+end=datetime.datetime.utcnow() 
+hp.plot_insitu_update(o, start, end,'OMNI2',plot_path,now=True)
+
+
+
 
 
 
