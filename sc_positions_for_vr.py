@@ -60,8 +60,10 @@ warnings.filterwarnings('ignore')
 
 
 #Coordinate System
-frame='HCI'
+#frame='HCI'
 #frame='HEEQ'
+frame='HEEQ'
+
 print(frame)
 
 
@@ -213,6 +215,7 @@ while starttime < endtime:
     starttime += timedelta(hours=res_hours)
 earth_time_num=parse_time(earth_time).iso  
 
+
 earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
 earth.generate_positions(earth_time,'Sun',frame)
 earth.change_units(astropy.units.AU)  
@@ -221,6 +224,7 @@ print('Earth')
 
 ################ mercury
 mercury_time_num=earth_time_num
+
 mercury=spice.Trajectory('1')  #barycenter
 mercury.generate_positions(earth_time,'Sun',frame)  
 mercury.change_units(astropy.units.AU)  
@@ -289,7 +293,43 @@ sta.change_units(astropy.units.AU)
 [sta_r, sta_lat, sta_lon]=cart2sphere(sta.x,sta.y,sta.z)
 print('STEREO-A') 
 
-#save positions 
+
+
+
+
+
+
+
+
+#save positions with date as datetime
+
+
+psp_time= mdates.date2num(psp_time)   
+bepi_time= mdates.date2num(bepi_time)   
+solo_time= mdates.date2num(solo_time)   
+earth_time= mdates.date2num(earth_time)   
+
+
+psp=np.rec.array([psp_time,psp_r,psp_lon,psp_lat, psp.x, psp.y,psp.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+bepi=np.rec.array([bepi_time,bepi_r,bepi_lon,bepi_lat,bepi.x, bepi.y,bepi.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+solo=np.rec.array([solo_time,solo_r,solo_lon,solo_lat,solo.x, solo.y,solo.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+sta=np.rec.array([earth_time,sta_r,sta_lon,sta_lat,sta.x, sta.y,sta.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+earth=np.rec.array([earth_time,earth_r,earth_lon,earth_lat, earth.x, earth.y,earth.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+venus=np.rec.array([earth_time,venus_r,venus_lon,venus_lat, venus.x, venus.y,venus.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+mars=np.rec.array([earth_time,mars_r,mars_lon,mars_lat, mars.x, mars.y,mars.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+mercury=np.rec.array([earth_time,mercury_r,mercury_lon,mercury_lat,mercury.x, mercury.y,mercury.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+
+jupiter=np.rec.array([earth_time,jupiter_r,jupiter_lon,jupiter_lat,jupiter.x, jupiter.y,jupiter.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+saturn=np.rec.array([earth_time,saturn_r,saturn_lon,saturn_lat,saturn.x, saturn.y,saturn.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+uranus=np.rec.array([earth_time,uranus_r,uranus_lon,uranus_lat,uranus.x, uranus.y,uranus.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+neptune=np.rec.array([earth_time,neptune_r,neptune_lon,neptune_lat,neptune.x, neptune.y,neptune.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+
+
+pickle.dump([psp, bepi, solo, sta, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame], open( 'results/positions_'+frame+'_1hr.p', "wb" ) )
+sys.exit()
+
+
+#save positions with date as char
 psp=np.rec.array([psp_time_num,psp_r,psp_lon,psp_lat, psp.x, psp.y,psp.z],dtype=[('time','U16'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
 bepi=np.rec.array([bepi_time_num,bepi_r,bepi_lon,bepi_lat,bepi.x, bepi.y,bepi.z],dtype=[('time','U16'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
 solo=np.rec.array([solo_time_num,solo_r,solo_lon,solo_lat,solo.x, solo.y,solo.z],dtype=[('time','U16'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
@@ -344,7 +384,7 @@ print( 'generate position took time in seconds:', round((end-start),1) )
 
 #make_positions()
 
-#[psp, bepi, solo, sta, earth, venus, mars, mercury,frame]=pickle.load( open( 'results/positions_vr_HEEQ.p', "rb" ) )
+#[psp, bepi, solo, sta, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions_vr_HEEQ.p', "rb" ) )
 
 
 

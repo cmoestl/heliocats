@@ -37,6 +37,7 @@ import urllib
 import json
 import os   
 
+
 #import 
 
 from heliocats import data as hd
@@ -53,9 +54,17 @@ matplotlib.use('Agg')
 data_path='/nas/helio/data/insitu_python/'
 plot_path='/nas/helio/data/insitu_python/plots/'
 noaa_path='/nas/helio/data/noaa_rtsw/'
+position_path='/nas/helio/data/insitu_python/plots_positions/'
 
 
+##########################################################
 
+
+#plot positions
+hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
+
+
+sys.exit()
 
 #########################################################################################
 

@@ -55,7 +55,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ####################################### get new data ####################################
 
-
+    
 
 def get_sdo_realtime_image():
     """Downloads latest SDO image."""

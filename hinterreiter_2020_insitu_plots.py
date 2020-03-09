@@ -46,9 +46,9 @@ from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
 
-#for server
+#for server use this so no plotting window pops up:
 matplotlib.use('Agg')
-#matplotlib.use('qt5agg')    
+ 
 
 data_path='/nas/helio/data/insitu_python/'
 plot_path='/nas/helio/data/insitu_python/hinterreiter2020/'
@@ -57,6 +57,23 @@ noaa_path='/nas/helio/data/noaa_rtsw/'
 
 file="wind_2007_2018_helcats.p" 
 [win,hwin]=pickle.load(open(data_path+file, "rb" ) ) 
+
+
+#final mine
+mine=[
+'2010-02-07 18:04',
+'2010-03-23 22:29',
+'2010-04-05 07:55',
+'2010-04-11 12:20',
+'2010-05-28 01:52',
+'2010-10-30 09:15',
+'2011-02-04 01:50',
+'2011-02-18 00:48',
+'2011-09-09 11:46',
+'2012-01-24 14:36',
+'2012-06-16 19:34',
+'2012-07-14 17:38']
+
 
 
 #helcats and moestl 2014 for 2 events
@@ -74,19 +91,6 @@ hm=[
 '2012-06-16 09:07',
 '2012-07-14 17:59']
 
-mine=[
-'2010-02-07 18:04',
-'2010-03-23 22:33',
-'2010-04-05 07:55',
-'2010-04-11 12:28',
-'2010-05-28 01:52',
-'2010-10-30 10:15',
-'2011-02-04 01:55',
-'2011-02-18 00:48',
-'2011-09-09 11:46',
-'2012-01-24 14:36',
-'2012-06-16 19:34',
-'2012-07-14 17:38']
 
 
 
@@ -123,9 +127,18 @@ rc=parse_time(rc).datetime
 wind=parse_time(wind).datetime     
 
 
+'''
+
 from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
+#for measuring specific events
+window=48
+i=5
+start=mine[i]-datetime.timedelta(hours=window)
+end=mine[i]+datetime.timedelta(hours=window)
+hp.plot_insitu_hint20(win, start, end,'Wind',plot_path,mine,rc,wind,lowres=True)
+'''
 
 
 for i in np.arange(len(mine)):
