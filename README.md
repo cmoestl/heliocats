@@ -8,7 +8,8 @@ by [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/)
 Current status (March 2020): **Work in progress!** 
 
 This is a continuation of work done in the EU HELCATS project (2014-2017): 
-[https://www.helcats-fp7.eu](https://www.helcats-fp7.eu), in particular concerning ICMECAT (working package 4).
+[https://www.helcats-fp7.eu](https://www.helcats-fp7.eu), in particular concerning 
+the Interplanetary Coronal Mass ejection CATalog ICMECAT (working package 4).
 
 If you want to use parts of this code for generating results for peer-reviewed scientific publications, please contact me per email (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace .
 
@@ -61,7 +62,8 @@ processes data into a normalized format and creates the ICMECAT catalog.
 
     python cme_statistics.py
     
-makes CME statistics to get the results and plots for the paper Möstl et al. (2020, in preparation).
+makes CME statistics to get the results and plots for the paper Möstl et al. (2020, in preparation). 
+Currently this is being moved to the *cme_statistics.ipynb* notebook.
 
     python sc_positions_insitu.py
 
@@ -74,5 +76,5 @@ makes real time downloads of various data sources.
 
 
 Folder *data/* contains all data files needed and produced during the analysis. 
-All outputs can be found in the folder *results/*
+All outputs can be found in the folder *results/*.
 

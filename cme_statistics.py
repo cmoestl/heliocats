@@ -214,18 +214,11 @@ print()
 ##################### (2) ICME DURATION VS DISTANCE and linear fit  #####################
 ##########################################################################################
 
-sns.set_context("talk")                
-#sns.set_style("darkgrid")  
-sns.set_style("ticks",{'grid.linestyle': '--'})
 
 print('-------------------------------------------------')
 print('2a ICME DURATION VS DISTANCE')
 print()
 
-fig=plt.figure(1,figsize=(12,11	))
-fsize=15
-ax1 = plt.subplot2grid((2,1), (0, 0))
-#x axis
 xfit=np.linspace(0,2,1000)
 
 #force through origin, fit with y=kx
@@ -246,6 +239,16 @@ ydurfitall_f=durfit_f*xfit
 ydurfitmin_f=durfitmin_f*xfit
 ydurfitrise_f=durfitrise_f*xfit
 ydurfitmax_f=durfitmax_f*xfit
+
+
+sns.set_context("talk")                
+#sns.set_style("darkgrid")  
+sns.set_style("ticks",{'grid.linestyle': '--'})
+
+fig=plt.figure(1,figsize=(12,11	))
+fsize=15
+ax1 = plt.subplot2grid((2,1), (0, 0))
+#x axis
 
 plt.plot(ic.mo_sc_heliodistance,ic.icme_duration,'o',color='blue',markersize=4, alpha=0.4)
 #for plotting min/rise/max differently
@@ -469,12 +472,6 @@ print('3 MO FIELD VS DISTANCE and time, 3 figure panels')
 print()
 
 
-sns.set_context("talk")     
-sns.set_style("ticks",{'grid.linestyle': '--'})
-fig=plt.figure(2,figsize=(12,12	))
-fsize=15
-ax1 = plt.subplot2grid((2,2), (0, 0))
-
 # xfit starts here at 1 Rs  because there should not be a 0 in xfit ** bmaxfit[0] later	
 xfit=np.linspace(Rs_in_AU,2,1000)
 
@@ -506,6 +503,12 @@ bmeanfitfun_max=(10**bmeanfit_max[1])*(xfit**bmeanfit_max[0])
 print('bmean_max:  ', round(10**bmeanfit_max[1],2),' x ^',round(bmeanfit_max[0],2))
 
 
+
+sns.set_context("talk")     
+sns.set_style("ticks",{'grid.linestyle': '--'})
+fig=plt.figure(2,figsize=(12,12	))
+fsize=15
+ax1 = plt.subplot2grid((2,2), (0, 0))
 
 
 ################# plots 3a
