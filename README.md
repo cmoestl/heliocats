@@ -5,9 +5,10 @@ This package contains codes used for the creation of catalogs of interplanetary 
 
 by [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/)
 
-Current status (February 2020): **Work in progress!** 
+Current status (March 2020): **Work in progress!** 
 
-This is a continuation of work done in the EU HELCATS project (2014-2017): https://www.helcats-fp7.eu, in particular concerning ICMECAT (working package 4).
+This is a continuation of work done in the EU HELCATS project (2014-2017): 
+[https://www.helcats-fp7.eu](https://www.helcats-fp7.eu), in particular concerning ICMECAT (working package 4).
 
 If you want to use parts of this code for generating results for peer-reviewed scientific publications, please contact me per email (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace .
 
@@ -40,28 +41,38 @@ go to a directory of your choice
 	  git clone https://github.com/cmoestl/heliocats
 
 
-## Programs
+## Usage
 
 For running the jupyter notebook (files with .ipynb), first activate the helio environment:
 
     conda activate helio
     
-and then use either (depending on your preference):
+and then use either (depending on your preference for lab or notebook):
 
     jupyter lab cme_statistics.ipynb
     jupyter notebook cme_statistics.ipynb
 
 
-For the python scripts, activate the environment (*conda activate helio*) and run with *python program_name.py*
+For the python scripts, activate the environment (*conda activate helio*) and run:
 
-- *icmecat_maker.py*        
+    python icmecat_maker.py
+
 processes data into a normalized format and creates the ICMECAT catalog.
 
-- *sc_positions_insitu.py*  
+    python cme_statistics.py
+    
+makes CME statistics to get the results and plots for the paper Möstl et al. (2020, in preparation).
+
+    python sc_positions_insitu.py
+
 makes movies of spacecraft positions and in situ data.
 
-- *data_update.py*          
+    python data_update.py
+    
 makes real time downloads of various data sources.
 
-- *cme_stats.py*            
-makes CME statistics.
+
+
+Folder *data/* contains all data files needed and produced during the analysis. 
+All outputs can be found in the folder *results/*
+
