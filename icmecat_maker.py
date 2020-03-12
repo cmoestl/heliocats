@@ -70,13 +70,19 @@ import copy
 from numba import njit
 
 
-
 from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
+from heliocats import data as hd
+importlib.reload(hd) #reload again while debugging
+
 #where the final data are located
+
+
+#server
 #data_path='/nas/helio/data/insitu_python/'
 
+#local
 data_path='data/'
 
 
@@ -132,6 +138,8 @@ def get_cat_parameters(sc, sci, ic,name,sctime_num):
 
     #extract indices of ICMEs in the respective data (time consuming)
     
+    
+    #check whether file is there*****************************
     make_indices=0
 
     if make_indices > 0:
@@ -255,13 +263,13 @@ def get_cat_parameters(sc, sci, ic,name,sctime_num):
 ######################################## MAIN PROGRAM ####################################
 ##########################################################################################
 
-##################################### (1) load new data with HelioSat and heliocats.data
+#################### (1) load new data with HelioSat and heliocats.data
 
 
     
 load_data=1
 
-if load_data >0:
+if load_data > 0:
 
     print('load new Wind, STEREO-A, MAVEN, and ParkerProbe data')
 
@@ -303,10 +311,12 @@ if load_data >0:
     
     
     # ADD Solar Orbiter
+    
+    
+    # Ulysses is currently taken from the full helcats data below, but a file is available
 
 
-
-    ##################################### (2) load HELCATS DATACAT
+    ##################################### (1b) load HELCATS DATACAT
 
     [vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly]=hd.load_helcats_datacat(data_path+'helcats_all_data_removed.p') 
 
@@ -330,8 +340,11 @@ ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]
 
 
 
+
 filetimes='icmecat/ICMECAT_numtimes.p'
-'''
+
+'''****************************
+#if ****************** file does not exist - make this file
 #save times as mdates
 wintime_num=mdates.date2num(win.time) 
 statime_num=mdates.date2num(sta.time) 
@@ -414,9 +427,6 @@ np.savetxt(file, ic3.values.astype(str), fmt='%s' )
 
 print('ICMECAT saved as '+file)
 
-
-
-sys.exit()
 
 
 #icl=pickle.load(open(file, 'rb' ) )
