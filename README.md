@@ -46,7 +46,7 @@ go to a directory of your choice
 Before running the scripts, you need to download 6 data files (in total 4.1 GB) from this 
 figshare repository:
 
-    [https://doi.org/10.6084/m9.figshare.11973693.v1](https://doi.org/10.6084/m9.figshare.11973693.v1)
+[https://doi.org/10.6084/m9.figshare.11973693.v1](https://doi.org/10.6084/m9.figshare.11973693.v1)
 
 and place them in the data/ folder.
 
