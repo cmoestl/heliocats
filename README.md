@@ -40,7 +40,24 @@ Create a conda environment:
 go to a directory of your choice
 
 	  git clone https://github.com/cmoestl/heliocats
+	  
 
+
+Before running the scripts, you need to download 6 data files (in total 4.1 GB) from this 
+figshare repository:
+
+    [https://doi.org/10.6084/m9.figshare.11973693.v1](https://doi.org/10.6084/m9.figshare.11973693.v1)
+
+and place them in the data/ folder.
+
+    data/helcats_all_data_removed.p
+    data/maven_2014_2018_removed_smoothed.p
+    data/psp_2018_2019.p
+    data/wind_2018_2020.p
+    data/sta_2018_2019_beacon.p
+    data/ulysses_1990_2009_helcats.p
+    
+    	  
 
 ## Usage
 
@@ -54,7 +71,10 @@ and then use either (depending on your preference for lab or notebook):
     jupyter notebook cme_statistics.ipynb
 
 
-For the python scripts, activate the environment (*conda activate helio*) and run:
+For the python scripts, activate the environment 
+    conda activate helio
+
+and run:
 
     python icmecat_maker.py
 
@@ -72,7 +92,6 @@ makes movies of spacecraft positions and in situ data.
     python data_update.py
     
 makes real time downloads of various data sources.
-
 
 
 Folder *data/* contains all data files needed and produced during the analysis. 
