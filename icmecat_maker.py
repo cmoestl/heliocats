@@ -81,8 +81,12 @@ if os.path.isdir(datadir) == False: os.mkdir(datadir)
 indexdir='data/indices_icmecat' 
 if os.path.isdir(indexdir) == False: os.mkdir(indexdir) 
 
+
 catdir='icmecat'
-if os.path.isdir(datadir) == False: os.mkdir(catdir)
+if os.path.isdir(catdir) == False: os.mkdir(catdir)
+
+icplotsdir='results/plots_icmecat/' 
+if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir) 
 
     
 ##########################################################################################
@@ -96,7 +100,7 @@ load_data=1
 
 if load_data > 0:
 
-    print('load HELCATS data until 2018 and new Wind, STEREO-A, MAVEN, Parker Solar Probe data')
+    print('load new Wind, STEREO-A, MAVEN, Parker Solar Probe data')
 
     # MAVEN
     #filemav='maven_2014_2018.p'
@@ -122,7 +126,7 @@ if load_data > 0:
     #end=datetime.datetime(2019, 12, 31)
     #hd.save_stereoa_beacon_data(data_path,filesta,start,end)
    
-    sta2=pickle.load(open(data_path+filesta2, "rb" ) )  
+    [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
 
     # Parker Solar Probe
     filepsp='psp_2018_2019.p'
@@ -147,7 +151,12 @@ if load_data > 0:
 ################################ (2) measure new events ##################################
 
 
+#for measuring new events use this function from heliocats.plot
+#hp.plot_insitu_measure(psp, '2018-Nov-10','2018-Nov-15', 'PSP', 'results/plots_icmecat/')
 
+
+#for plotting single events
+#hp.plot_insitu(psp, ic.icme,'2018-Nov-15', 'PSP', icplotsdir)
 
 
 
@@ -159,14 +168,15 @@ print('data loaded')
 ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELCATS_ICMECAT_v20_master.xlsx')
 
 ####### 3a get indices for all spacecraft
+
 wini=np.where(ic.sc_insitu == 'Wind')[:][0] 
-vexi=np.where(ic.sc_insitu == 'VEX')[:][0]  
-mesi=np.where(ic.sc_insitu == 'MESSENGER')[:][0]   
 stai=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
 stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
-mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
+vexi=np.where(ic.sc_insitu == 'VEX')[:][0]  
+mesi=np.where(ic.sc_insitu == 'MESSENGER')[:][0]   
 ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]    
-#pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
+mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
+pspi=np.where(ic.sc_insitu == 'PSP')[:][0]    
 
 
 
@@ -175,10 +185,26 @@ ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]
 ic=hc.get_cat_parameters(win,wini,ic,'Wind')
 ic=hc.get_cat_parameters(sta,stai,ic,'STEREO-A')
 ic=hc.get_cat_parameters(stb,stbi,ic,'STEREO_B')
-ic=hc.get_cat_parameters(mes,mesi,ic,'MESSENGER')
 ic=hc.get_cat_parameters(vex,vexi,ic,'VEX')
+ic=hc.get_cat_parameters(mes,mesi,ic,'MESSENGER')
 ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 ic=hc.get_cat_parameters(mav,mavi,ic,'MAVEN')
+ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
+
+
+####### 3c make all plots if wanted
+
+'''
+matplotlib.use('Agg')
+hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
+hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
+hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
+hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
+hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
+hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
+'''
 
 
 ################################ (4) save ICMECAT #################################

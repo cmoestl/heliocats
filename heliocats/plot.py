@@ -7,6 +7,7 @@ import pandas as pd
 import scipy
 import copy
 import matplotlib.dates as mdates
+from sunpy.time import parse_time
 import matplotlib
 import seaborn as sns
 import datetime
@@ -129,7 +130,31 @@ def plot_insitu_update(sc, start, end, sc_label, path, **kwargs):
    
    
    
-   
+  
+
+def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
+
+  
+    fileind='data/indices_icmecat/ICMECAT_indices_'+name+'.p'
+
+    if name=='Wind': 
+        [icme_start_ind, mo_start_ind,mo_end_ind,icme_end_ind]=pickle.load(open(fileind, 'rb'))           
+    else: 
+        [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+    
+    
+    
+    #for all with plasma:
+    for i in np.arange(np.size(sci)):    
+        print(i)
+        plot_insitu(sc[icme_start_ind[i]-90*24:mo_end_ind[i]+90*24], ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir)
+
+    #for all with plasma:
+    #for i in np.arange(np.size(sci)):    
+     #   print(i)
+      #  plot_insitu(sc[icme_start_ind[i]-90*24:mo_end_ind[i]+90*24], ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir)
+
+
    
    
      
@@ -140,6 +165,12 @@ def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      sc = data
     
      '''
+     
+     start=parse_time(start).datetime
+     end=parse_time(end).datetime
+     #print(start)
+     #print(end)
+     
      sns.set_style('darkgrid')
      sns.set_context('paper')
 
@@ -156,13 +187,14 @@ def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('B [nT]')
      plt.legend(loc=3,ncol=4,fontsize=8)
      ax1.set_xlim(start,end)
-     ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
-     plt.ylim((-20, 20))
+     ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
+     #plt.ylim((-20, 20))
      #ax1.set_xticklabels([]) does not work with sharex
      #plt.setp(ax1.get_xticklabels(), fontsize=6)
      plt.setp(ax1.get_xticklabels(), visible=False)
 
      plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
+     
 
 
      ax2 = plt.subplot(412,sharex=ax1) 
@@ -171,10 +203,9 @@ def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('V [km/s]')
      ax2.set_xlim(start,end)
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     plt.ylim((250, 800))
+     #plt.ylim((250, 800))
      #ax2.set_xticklabels([])
      plt.setp(ax2.get_xticklabels(), visible=False)
-
 
 
      ax3 = plt.subplot(413,sharex=ax1) 
@@ -183,7 +214,7 @@ def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('N [ccm-3]')
      ax3.set_xlim(start,end)
      ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     plt.ylim((0, 50))
+     #plt.ylim((0, 50))
      #ax3.set_xticklabels([])
      plt.setp(ax3.get_xticklabels(), visible=False)
 
@@ -194,7 +225,7 @@ def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('T [MK]')
      ax4.set_xlim(start,end)
      ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     plt.ylim((0, 0.5))
+     #plt.ylim((0, 0.5))
      
      plt.tight_layout()
      #plt.show()
@@ -203,19 +234,119 @@ def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      plt.savefig(plotfile)
      print('saved as ',plotfile)
    
-
-     #if now exists as keyword, save as the file with just now in filename:     
-     if 'now' in kwargs:
-        plotfile=path+sc_label+'_now.png'
-        plt.savefig(plotfile)
-        print('saved as ',plotfile)
-
-     #if now2 exists as keyword, save as the file with just now in filename:     
-     if 'now2' in kwargs:
-        plotfile=path+sc_label+'_now2.png'
-        plt.savefig(plotfile)
-        print('saved as ',plotfile)
      
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+
+def plot_insitu_measure(sc, start, end, sc_label, path, **kwargs):
+     '''
+     sc = data
+    
+     '''
+     
+     start=parse_time(start).datetime
+     end=parse_time(end).datetime
+     #print(start)
+     #print(end)
+     
+     sns.set_style('darkgrid')
+     sns.set_context('paper')
+
+     fig=plt.figure(figsize=(9,6), dpi=150)
+     
+     #sharex means that zooming in works with all subplots
+     ax1 = plt.subplot(411) 
+
+     ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
+     ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
+     ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
+     ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
+     
+     plt.ylabel('B [nT]')
+     plt.legend(loc=3,ncol=4,fontsize=8)
+     ax1.set_xlim(start,end)
+     ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
+     #plt.ylim((-20, 20))
+     #ax1.set_xticklabels([]) does not work with sharex
+     #plt.setp(ax1.get_xticklabels(), fontsize=6)
+     plt.setp(ax1.get_xticklabels(), visible=False)
+
+     plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
+     
+
+
+     ax2 = plt.subplot(412,sharex=ax1) 
+     ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
+
+     plt.ylabel('V [km/s]')
+     ax2.set_xlim(start,end)
+     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+     #plt.ylim((250, 800))
+     #ax2.set_xticklabels([])
+     plt.setp(ax2.get_xticklabels(), visible=False)
+
+
+     ax3 = plt.subplot(413,sharex=ax1) 
+     ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
+
+     plt.ylabel('N [ccm-3]')
+     ax3.set_xlim(start,end)
+     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+     #plt.ylim((0, 50))
+     #ax3.set_xticklabels([])
+     plt.setp(ax3.get_xticklabels(), visible=False)
+
+
+     ax4 = plt.subplot(414,sharex=ax1) 
+     ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
+
+     plt.ylabel('T [MK]')
+     ax4.set_xlim(start,end)
+     ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+     #plt.ylim((0, 0.5))
+     
+     plt.tight_layout()
+     #plt.show()
+     
+  
+     def onclick(event):
+
+        #global stepout
+        #print('button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
+           #   (event.button, event.x, event.y, event.xdata, event.ydata))
+        #print('time',str(mdates.num2date(event.xdata)))
+        nearestm1=np.argmin(abs(parse_time(sc.time).plot_date-event.xdata))
+        seltime=str(parse_time(sc.time[nearestm1]).iso)
+        print(seltime[0:10]+'T'+seltime[11:16]+'Z',event.ydata )  
+        #if event.button == 3: stepout=True
+
+
+  
+     cid = fig.canvas.mpl_connect('button_press_event', onclick)
+
+
+
+     #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
+     #plt.savefig(plotfile)
+     #print('saved as ',plotfile)
+   
+    
+       
      
      
      
@@ -499,17 +630,6 @@ def make_positions(time1,frame):
      
      
      
- 
- 
-
-def onclick(event):
-    print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
-          ('double' if event.dblclick else 'single', event.button,
-           event.x, event.y, event.xdata, event.ydata))
- 
- 
-
-
 def plot_insitu_hint20(sc, start, end, sc_label, path, e1,e2,e3,**kwargs):
      '''
      '''
