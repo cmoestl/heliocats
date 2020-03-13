@@ -27,7 +27,7 @@ import astropy
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 
-data_path='/nas/helio/data/insitu_python/'
+from input import *
 
 
 ####################################### 

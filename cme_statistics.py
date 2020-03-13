@@ -50,12 +50,10 @@ import importlib
 
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
+#warnings.filterwarnings('ignore') # some numpy mean-of-empty-slice runtime warnings
 
 #matplotlib.use('TkAgg')
 #matplotlib.use('Agg')
-
-warnings.filterwarnings('ignore') # some numpy mean-of-empty-slice runtime warnings
-
 
 from heliocats import stats as hs
 importlib.reload(hs) #reload again while debugging
@@ -442,7 +440,7 @@ plt.legend(loc=1,fontsize=fsize-1)
 plt.figtext(0.01,0.98,'a',color='black', fontsize=fsize, ha='left',fontweight='bold')
 plt.figtext(0.01,0.485,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
 
-plt.show()
+
 plt.savefig('results/plots_stats/icme_duration_distance_time_paper.pdf', dpi=300)
 plt.savefig('results/plots_stats/icme_duration_distance_time_paper.png', dpi=300)
 
@@ -1392,7 +1390,6 @@ plt.ylim((0,25))
 
 plt.tight_layout()
 
-plt.show()
 plt.savefig('results/plots_stats/time_inside_CMEs_paper.pdf', dpi=300)
 plt.savefig('results/plots_stats/time_inside_CMEs_paper.png', dpi=300)
 
@@ -1657,7 +1654,7 @@ plt.xticks(fontsize=fsize)
 plt.tight_layout()
 
 #sns.despine()
-plt.show()
+
 plt.savefig('results/plots_stats/ICME_frequency_paper.pdf', dpi=300)
 plt.savefig('results/plots_stats/ICME_frequency_paper.png', dpi=300)
 

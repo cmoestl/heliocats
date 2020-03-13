@@ -1,18 +1,23 @@
-#plot.py
-#plot stuff for heliocats
+#stats.py
+#statistics stuff for heliocats
 #https://github.com/cmoestl/heliocats
 
 import numpy as np
 import pandas as pd
-import scipy
+import scipy.io
+import urllib
+import os
+from input import *
+
+
+'''
 import copy
 import matplotlib.dates as mdates
 import matplotlib
 import seaborn as sns
 import datetime
-import urllib
+
 import json
-import os
 import pdb
 import scipy.io
 import pickle
@@ -26,10 +31,7 @@ import astropy
 
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
-
-data_path='/nas/helio/data/insitu_python/'
-
-
+'''
 
 
 ####################################### 
@@ -42,12 +44,14 @@ def gaussian(x, amp, mu, sig):
 
 
 def dynamic_pressure(density, speed):
-   # make dynamic pressure from density and speed
-   #assume pdyn is only due to protons
-   #pdyn=np.zeros(len([density])) #in nano Pascals
-   protonmass=1.6726219*1e-27  #kg
-   pdyn=np.multiply(np.square(speed*1e3),density)*1e6*protonmass*1e9  #in nanoPascal
-   return pdyn
+    '''
+    make dynamic pressure from density and speed
+    assume pdyn is only due to protons
+    '''
+    protonmass=1.6726219*1e-27  #kg
+    pdyn=np.multiply(np.square(speed*1e3),density)*1e6*protonmass*1e9  #in nanoPascal
+    
+    return pdyn
   
 
 
@@ -59,21 +63,18 @@ def load_url_current_directory(filename,url):
     '''
     
     if not os.path.exists(filename):
-     print('download file ', filename, ' from')
-     print(url)
-     try: 
-       urllib.request.urlretrieve(url, filename)
-       print('done')
-     except urllib.error.URLError as e:
-       print(' ', data_url,' ',e.reason)
-
-
+        print('download file ', filename, ' from')
+        print(url)
+        try: 
+            urllib.request.urlretrieve(url, filename)
+            print('done')
+        except urllib.error.URLError as e:
+            print(' ', data_url,' ',e.reason)
 
 
 def getcat(filename):
     cat = scipy.io.readsav(filename, verbose=False)
     return cat
-    
 
 
 def decode_array(bytearrin):
@@ -86,6 +87,7 @@ def decode_array(bytearrin):
         bytearrout[i] = bytearrin[i].decode()
     # has to be np array so to be used with numpy "where"
     bytearrout = np.array(bytearrout)
+    
     return bytearrout
 
     
