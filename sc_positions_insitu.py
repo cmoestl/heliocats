@@ -34,7 +34,8 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ffmpeg_path=''
 #where the in situ data are located
-data_path='data/'
+data_path='/nas/helio/data/insitu_python/'
+#data_path='data/'
 
 
 #import scipy.io
@@ -54,6 +55,7 @@ import sys
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 import astropy
+import importlib    
 import time
 import numba
 from numba import jit
@@ -66,6 +68,11 @@ warnings.filterwarnings('ignore')
 #for server
 matplotlib.use('Agg')
 
+
+#import 
+
+from heliocats import data as hd
+importlib.reload(hd) #reload again while debugging
 
 
 ##########################################################################################
@@ -106,21 +113,20 @@ high_res_mode=False
 
 
 #orbit 1
-outputdirectory='results/sc_insitu_plots_psp_wind_sta'
-animdirectory='results/anim_psp_wind_sta'
+#outputdirectory='results/anim_plots_sc_insitu_final_orbit1'
+#animdirectory='results/anim_movie_sc_insitu_final_orbit1'
 #t_start ='2018-Oct-15'
 #t_end   ='2018-Dec-06'
 
-t_start ='2018-Dec-03'
-t_end   ='2018-Dec-06'
+#t_start ='2018-Dec-03'
+#t_end   ='2018-Dec-06'
 
 
 #orbit 2
-#output
-#outputdirectory='results/sc_insitu_plots_psp_wind_sta_final'
-#animdirectory='results/anim_psp_wind_sta_final'
-#start_time_str='2019-Mar-10 00:00:00'
-
+outputdirectory='results/anim_plots_sc_insitu_final_orbit2'
+animdirectory='results/anim_movie_sc_insitu_final_orbit2'
+t_start ='2019-Mar-10'
+t_end   ='2019-Apr-22'
 
 
 
@@ -363,7 +369,8 @@ def make_frame(k):
     '''
     loop each frame in multiprocessing
     '''
-
+    
+    
     if not black: 
         fig=plt.figure(1, figsize=(20,10), dpi=100)
         ax = plt.subplot2grid((5,2), (0, 0), rowspan=5, projection='polar')
@@ -381,6 +388,7 @@ def make_frame(k):
         bepi_color='skyblue'
         solo_color='springgreen'
         sta_color='salmon'
+
 
     frame_time_str=str(mdates.num2date(frame_time_num+k*res_in_days))
     print( 'current frame_time_num', frame_time_str, '     ',k)
@@ -460,7 +468,7 @@ def make_frame(k):
         psp_text='PSP:   '+str(f'{psp.r[psp_timeind]:6.2f}')+str(f'{np.rad2deg(psp.lon[psp_timeind]):8.1f}')+str(f'{np.rad2deg(psp.lat[psp_timeind]):8.1f}')
         f5=plt.figtext(0.01,0.78,psp_text, fontsize=fsize, ha='left',color=backcolor)
         if plot_orbit: 
-            fadestart=bepi_timeind-fadeind
+            fadestart=psp_timeind-fadeind
             if  fadestart < 0: fadestart=0
             ax.plot(psp.lon[fadestart:psp_timeind+fadeind], psp.r[fadestart:psp_timeind+fadeind]*np.cos(psp.lat[fadestart:psp_timeind+fadeind]), c=psp_color, alpha=0.6,lw=1,zorder=3)
 
@@ -478,7 +486,7 @@ def make_frame(k):
         solo_text='SolO:  '+str(f'{solo.r[solo_timeind]:6.2f}')+str(f'{np.rad2deg(solo.lon[solo_timeind]):8.1f}')+str(f'{np.rad2deg(solo.lat[solo_timeind]):8.1f}')
         f7=plt.figtext(0.01,0.7,solo_text, fontsize=fsize, ha='left',color=backcolor)
         if plot_orbit: 
-            fadestart=bepi_timeind-fadeind
+            fadestart=solo_timeind-fadeind
             if  fadestart < 0: fadestart=0            
             ax.plot(solo.lon[fadestart:solo_timeind+fadeind], solo.r[fadestart:solo_timeind+fadeind]*np.cos(solo.lat[fadestart:solo_timeind+fadeind]), c=solo_color, alpha=0.6,lw=1,zorder=3)
 
@@ -501,7 +509,9 @@ def make_frame(k):
 
     #set axes and grid
     ax.set_theta_zero_location('E')
-    plt.thetagrids(range(0,360,45),(u'0\u00b0 '+frame+' longitude',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',fontsize=fsize+2,color=backcolor, alpha=0.9)
+    #plt.thetagrids(range(0,360,45),(u'0\u00b0 '+frame+' longitude',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), ha='right', fmt='%d',fontsize=fsize-1,color=backcolor, alpha=0.9)
+    plt.thetagrids(range(0,360,45),(u'0\u00b0',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), ha='center', fmt='%d',fontsize=fsize-1,color=backcolor, alpha=0.9,zorder=4)
+
 
     #plt.rgrids((0.10,0.39,0.72,1.00,1.52),('0.10','0.39','0.72','1.0','1.52 AU'),angle=125, fontsize=fsize,alpha=0.9, color=backcolor)
     plt.rgrids((0.1,0.3,0.5,0.7,1.0),('0.10','0.3','0.5','0.7','1.0 AU'),angle=125, fontsize=fsize-3,alpha=0.5, color=backcolor)
@@ -629,7 +639,7 @@ def make_frame(k):
     plt.figtext(0.02, 0.02,'Spacecraft trajectories '+frame+' 2D projection', fontsize=fsize+2, ha='left',color=backcolor)	
 
     #signature
-    plt.figtext(0.97,0.01/2,r'$C. M\ddot{o}stl$', fontsize=fsize+1, ha='center',color=backcolor) 
+    plt.figtext(0.99,0.01/2,r'$C. M\ddot{o}stl / Helio4Cast$', fontsize=fsize-1, ha='right',color=backcolor) 
 
 
     #save figure
@@ -637,6 +647,7 @@ def make_frame(k):
     filename=outputdirectory+'/pos_anim_'+framestr+'.jpg'  
     plt.savefig(filename,dpi=100,facecolor=fig.get_facecolor(), edgecolor='none')
     plt.clf()
+    #plt.close('all')
 
 
     ########################################### loop end
@@ -673,11 +684,31 @@ start_time=time.time()
 
 
 ########## get data
-file=data_path+'psp_2018_2019_merged.p'
+
+
+
+file=data_path+'psp_2018_2019.p'
 [p,ph]=pickle.load(open(file, "rb" ) )  
 
-file=data_path+'wind_2018_2020.p'
+'''
+#make datafile new
+#Wind
+filewin="wind_2018_2019.p" 
+start=datetime(2018, 1, 1)
+end=datetime(2019, 12, 31)
+hd.save_wind_data(data_path,filewin,start,end)
+'''
+
+file=data_path+'wind_2018_2019.p'
 [w,wh]=pickle.load(open(file, "rb" ) )  
+
+'''
+#make datafile new
+filesta="sta_2018_2019_beacon.p" 
+start=datetime(2018, 1, 1)
+end=datetime(2019, 12, 31)
+hd.save_stereoa_beacon_data(data_path,filesta,start,end)
+'''
 
 file=data_path+'sta_2018_2019_beacon.p'
 [s,sh]=pickle.load(open(file, "rb" ) )  
@@ -714,6 +745,7 @@ symsize_spacecraft=80
 #for parker spiral   
 theta=np.arange(0,np.deg2rad(180),0.01)
 
+'''
 nr_of_processes_used=10
 #run multiprocessing pool to make all movie frames, depending only on frame number
 pool = multiprocessing.Pool(processes=nr_of_processes_used)
@@ -725,6 +757,11 @@ input=[i for i in range(k_all)]
 pool.map(make_frame, input)
 pool.close()
 pool.join()
+'''
+
+
+for i in range(k_all):
+    make_frame(i)
 
 
 print('time in min: ',np.round((time.time()-start_time)/60))

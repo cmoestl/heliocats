@@ -575,12 +575,27 @@ def save_wind_data(path,file,start_date,end_date):
 
     print('download complete')
     
+    #for plasma and field round first each original time to full minutes
+    tround=copy.deepcopy(tm)
+    format_str = '%Y-%m-%d %H:%M'  
+    for k in np.arange(np.size(tm)):
+         tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(tm[k], format_str), format_str) 
+    tm_mat=mdates.date2num(tround) 
+
+    tround=copy.deepcopy(tp)
+    format_str = '%Y-%m-%d %H:%M'  
+    for k in np.arange(np.size(tp)):
+         tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(tp[k], format_str), format_str) 
+    tp_mat=mdates.date2num(tround) 
+
+    
+    
     #tm=parse_time(tm,format='unix').datetime 
     #tp=parse_time(tp,format='unix').datetime 
     
     #convert to matplotlib time for linear interpolation
-    tm_mat=mdates.date2num(tm) 
-    tp_mat=mdates.date2num(tp) 
+    #tm_mat=mdates.date2num(tm) 
+    #tp_mat=mdates.date2num(tp) 
     print('time convert done')
     
      
@@ -601,9 +616,6 @@ def save_wind_data(path,file,start_date,end_date):
     z_gse = np.interp(time_mat, tm_mat, mag[:,5])*6378.1/149597870.7*astropy.units.AU
     
     
-    
-    #set nan over linear interpolated
-    #..........    
         
     print('position start')
     
@@ -621,8 +633,6 @@ def save_wind_data(path,file,start_date,end_date):
     z=earth.z+z_gse
     [r, lat, lon]=cart2sphere(x,y,z)
     
-    #*****with astropy lagrange points exact value? L1 position with 0.01 AU 
-    #[r, lat, lon]=cart2sphere(earth.x-0.01*astropy.units.AU,earth.y,earth.z)
     print('position end ')
        
     
@@ -659,6 +669,11 @@ def save_wind_data(path,file,start_date,end_date):
         
     #win.p3=p3
     #win.p4=p4
+    
+    
+    
+        
+    
     
     
     
@@ -708,15 +723,48 @@ def save_wind_data(path,file,start_date,end_date):
         
         
     #manual spike removal for magnetic field
-    remove_start=datetime.datetime(2018, 7, 19, 18, 25)
-    remove_end=datetime.datetime(2018, 7, 19, 19, 30)
-    remove_start_ind=np.where(remove_start==win.time)[0][0]
-    remove_end_ind=np.where(remove_end==win.time)[0][0] 
+    if t_start < datetime.datetime(2018, 7, 19, 18, 25):    
+        remove_start=datetime.datetime(2018, 7, 19, 18, 25)
+        remove_end=datetime.datetime(2018, 7, 19, 19, 30)
+        remove_start_ind=np.where(remove_start==win.time)[0][0]
+        remove_end_ind=np.where(remove_end==win.time)[0][0] 
 
-    win.bt[remove_start_ind:remove_end_ind]=np.nan
-    win.bx[remove_start_ind:remove_end_ind]=np.nan
-    win.by[remove_start_ind:remove_end_ind]=np.nan
-    win.bz[remove_start_ind:remove_end_ind]=np.nan
+        win.bt[remove_start_ind:remove_end_ind]=np.nan
+        win.bx[remove_start_ind:remove_end_ind]=np.nan
+        win.by[remove_start_ind:remove_end_ind]=np.nan
+        win.bz[remove_start_ind:remove_end_ind]=np.nan
+    
+    if t_start < datetime.datetime(2018, 8, 29, 21, 00):    
+        remove_start=datetime.datetime(2018, 8, 29, 21, 00)
+        remove_end=datetime.datetime(2018,8, 30, 5, 00)
+        remove_start_ind=np.where(remove_start==win.time)[0][0]
+        remove_end_ind=np.where(remove_end==win.time)[0][0] 
+
+        win.bt[remove_start_ind:remove_end_ind]=np.nan
+        win.bx[remove_start_ind:remove_end_ind]=np.nan
+        win.by[remove_start_ind:remove_end_ind]=np.nan
+        win.bz[remove_start_ind:remove_end_ind]=np.nan
+    
+    
+    
+    
+    #set nan over linear interpolated
+    #which values are not in original data? set those to nan so now
+    #gaps are not filled linearly
+    isin=np.isin(time_mat,tm_mat)      
+    setnan=np.where(isin==False)
+
+    win.bx[setnan]=np.nan
+    win.by[setnan]=np.nan
+    win.bz[setnan]=np.nan
+    win.bt[setnan]=np.nan
+
+    isin=np.isin(time_mat,tp_mat)      
+    setnan=np.where(isin==False)
+    
+    win.np[setnan]=np.nan
+    win.vt[setnan]=np.nan
+    win.tp[setnan]=np.nan
     
 
         
