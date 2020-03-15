@@ -164,7 +164,7 @@ hp.plot_insitu_update(noaa, start, end,'NOAA_RTSW',plot_path,now2=True)
 
 
 
-
+'''
 #Wind
 filewin="wind_2018_now.p" 
 start=datetime.datetime(2018, 1, 1)
@@ -175,7 +175,7 @@ if get_new_data: hd.save_wind_data(data_path,filewin,start,end)
 start=win.time[-1]-datetime.timedelta(days=100)
 end=datetime.datetime.utcnow()         
 hp.plot_insitu(win, start, end,'Wind',plot_path,now=True)
-
+'''
 
 #OMNI2
 
