@@ -414,11 +414,8 @@ def plot_positions(time_date1, path,frame, **kwargs):
     ax.scatter(sta.lon[earth_timeind], sta.r[earth_timeind]*np.cos(sta.lat[earth_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
     ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
 
-    plt.text(psp.lon[psp_timeind]-0.15,psp.r[psp_timeind],'Parker Solar Probe', color='black', ha='center',fontsize=fsize-4,verticalalignment='top')
     plt.text(sta.lon[earth_timeind]-0.15,sta.r[earth_timeind],'STEREO-A', color='red', ha='center',fontsize=fsize-4,verticalalignment='top')
-    plt.text(bepi.lon[bepi_timeind]-0.15,bepi.r[bepi_timeind],'Bepi Colombo', color='blue', ha='center',fontsize=fsize-4,verticalalignment='top')
-    plt.text(solo.lon[solo_timeind]-0.15,solo.r[solo_timeind],'Solar Orbiter', color='green', ha='center',fontsize=fsize-4,verticalalignment='top')
-
+  
     plt.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
     plt.text(0,earth.r[earth_timeind]+0.12,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
     
@@ -452,6 +449,8 @@ def plot_positions(time_date1, path,frame, **kwargs):
         #plot position as text
         psp_text='PSP:   '+str(f'{psp.r[psp_timeind]:6.2f}')+str(f'{np.rad2deg(psp.lon[psp_timeind]):8.1f}')+str(f'{np.rad2deg(psp.lat[psp_timeind]):8.1f}')
         f5=plt.figtext(0.01,0.78,psp_text, fontsize=fsize, ha='left',color=psp_color)
+        plt.text(psp.lon[psp_timeind]-0.15,psp.r[psp_timeind],'Parker Solar Probe', color='black', ha='center',fontsize=fsize-4,verticalalignment='top')
+
         if plot_orbit: 
             ax.plot(psp.lon[psp_timeind:psp_timeind+fadeind], psp.r[psp_timeind:psp_timeind+fadeind]*np.cos(psp.lat[psp_timeind:psp_timeind+fadeind]), c=psp_color, alpha=0.6,lw=1,zorder=3)
 
@@ -460,6 +459,8 @@ def plot_positions(time_date1, path,frame, **kwargs):
         ax.scatter(bepi.lon[bepi_timeind], bepi.r[bepi_timeind]*np.cos(bepi.lat[bepi_timeind]), s=symsize_spacecraft, c=bepi_color, marker='s', alpha=1,lw=0,zorder=3)
         bepi_text='Bepi:   '+str(f'{bepi.r[bepi_timeind]:6.2f}')+str(f'{np.rad2deg(bepi.lon[bepi_timeind]):8.1f}')+str(f'{np.rad2deg(bepi.lat[bepi_timeind]):8.1f}')
         f6=plt.figtext(0.01,0.74,bepi_text, fontsize=fsize, ha='left',color=bepi_color)
+        plt.text(bepi.lon[bepi_timeind]-0.15,bepi.r[bepi_timeind],'Bepi Colombo', color='blue', ha='center',fontsize=fsize-4,verticalalignment='top')
+  
         if plot_orbit: 
             ax.plot(bepi.lon[bepi_timeind:bepi_timeind+fadeind], bepi.r[bepi_timeind:bepi_timeind+fadeind]*np.cos(bepi.lat[bepi_timeind:bepi_timeind+fadeind]), c=bepi_color, alpha=0.6,lw=1,zorder=3)
 
@@ -469,6 +470,8 @@ def plot_positions(time_date1, path,frame, **kwargs):
         ax.scatter(solo.lon[solo_timeind], solo.r[solo_timeind]*np.cos(solo.lat[solo_timeind]), s=symsize_spacecraft, c=solo_color, marker='s', alpha=1,lw=0,zorder=3)
         solo_text='SolO:  '+str(f'{solo.r[solo_timeind]:6.2f}')+str(f'{np.rad2deg(solo.lon[solo_timeind]):8.1f}')+str(f'{np.rad2deg(solo.lat[solo_timeind]):8.1f}')
         f7=plt.figtext(0.01,0.7,solo_text, fontsize=fsize, ha='left',color=solo_color)
+        plt.text(solo.lon[solo_timeind]-0.15,solo.r[solo_timeind],'Solar Orbiter', color='green', ha='center',fontsize=fsize-4,verticalalignment='top')
+
         if plot_orbit: 
             ax.plot(solo.lon[solo_timeind:solo_timeind+fadeind], solo.r[solo_timeind:solo_timeind+fadeind]*np.cos(solo.lat[solo_timeind:solo_timeind+fadeind]), c=solo_color, alpha=0.6,lw=1,zorder=3)
 
@@ -494,7 +497,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
     f8=plt.figtext(0.01,0.82,sta_text, fontsize=fsize, ha='left',c='red')
     
     #time
-    plt.figtext(0.69,0.9,time_date1.strftime("%Y %B %d  %H:%M"),fontsize=fsize+10, ha='left',c='black')
+    plt.figtext(0.65,0.9,time_date1.strftime("%Y %B %d  %H:%M"),fontsize=fsize+6, ha='left',c='black')
 
     #parker spiral
     if plot_parker:
@@ -533,6 +536,11 @@ def plot_positions(time_date1, path,frame, **kwargs):
     #if now exists as keyword, save as the file with just now in filename:     
     if 'now' in kwargs:
         plotfile=path+'positions_now.png'
+        plt.savefig(plotfile)
+        print('saved as ',plotfile)
+
+    if 'eps' in kwargs:
+        plotfile=path+'positions_'+time_date1.strftime("%Y_%b_%d")+'.eps'
         plt.savefig(plotfile)
         print('saved as ',plotfile)
 

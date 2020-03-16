@@ -50,7 +50,7 @@ importlib.reload(hp) #reload again while debugging
 #for server use this so no plotting window pops up:
 #matplotlib.use('Agg')
  
- 
+position_path='/nas/helio/data/insitu_python/plots_positions/'
  
  
 
@@ -183,6 +183,10 @@ end=parse_time('2018-11-12 12:00').datetime
 plot_path='results/'
 
 plot_insitu(psp, start, end,'Parker Solar Probe',plot_path,[s1,s2,s3])
+
+
+plt.close('all')
+hp.plot_positions(start,position_path, 'HEEQ',eps=True)
 
 
 
