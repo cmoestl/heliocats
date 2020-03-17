@@ -65,7 +65,7 @@ For running the jupyter notebook (files with .ipynb) or the python scripts (.py)
     conda activate helio
     
 
-# ICME statistics
+### ICME statistics
 
 use either (depending on your preference for lab or notebook):
 
@@ -79,7 +79,7 @@ These codes make CME statistics to get the results and plots for the paper Möst
 Currently this is being moved from the script cme_statistics.py to the *cme_statistics.ipynb* notebook.
 
 
-# ICME catalog 
+### ICME catalog 
 
 
 *work in progress, don't use yet!*
@@ -118,13 +118,13 @@ converted into many formats by:
     parse_time(ic.icme_start_time).iso
     ...
 
-# Spacecraft positions and data
+### Spacecraft positions and data
 
     python sc_positions_insitu.py
 
 makes movies of spacecraft positions and in situ data.
 
-# Real time data update
+### Real-time data update
 
     python data_update.py
     
