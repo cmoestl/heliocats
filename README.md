@@ -60,9 +60,12 @@ and place them in the data/ folder.
 
 ## Usage
 
-For running the jupyter notebook (files with .ipynb) or the python scripts (.py), first activate the helio environment:
+For running the jupyter notebooks (files with .ipynb) or the python scripts (.py), first activate the helio environment:
 
     conda activate helio
+
+Folder *data/* contains all data files needed and produced during the analysis. 
+All outputs can be found in the folder *results/*.
     
 
 ### ICME statistics
@@ -110,7 +113,7 @@ and the data can be accessed by
 which works particularly well in ipython or a jupyter notebook.
 
 All times (ic.icme_start_time, ic.mo_start_time, ic.mo_end_time) are python datetime objects. 
-They can be used directly plotting with matplotlib, but canb also easily 
+They can be used directly plotting with matplotlib, but can also easily 
 converted into many formats by:
 
     from sunpy.time import parse_time
@@ -131,6 +134,5 @@ makes movies of spacecraft positions and in situ data.
 makes real time downloads of various data sources.
 
 
-Folder *data/* contains all data files needed and produced during the analysis. 
-All outputs can be found in the folder *results/*.
+
 
