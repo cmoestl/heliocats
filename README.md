@@ -65,7 +65,7 @@ For running the jupyter notebooks (files with .ipynb) or the python scripts (.py
     conda activate helio
 
 Folder *data/* contains all data files needed and produced during the analysis. 
-All outputs can be found in the folder *results/*.
+All outputs can be found in the folder *results/* or subfolders.
     
 
 ### ICME statistics
