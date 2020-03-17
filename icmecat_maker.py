@@ -277,6 +277,8 @@ np.savetxt(file, ic_copy.values.astype(str), fmt='%s' )
 
 print('ICMECAT saved as '+file)
 
+ic2=load_icmecat()
+
 sys.exit()
 
 ############ save as html file

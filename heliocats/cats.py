@@ -83,7 +83,14 @@ def dynamic_pressure(density, speed):
     pdyn=np.multiply(np.square(speed*1e3),density)*1e6*proton_mass*1e9  #in nanoPascal
 
     return pdyn
+    
+    
+def load_icmecat():    
 
+    file='icmecat/HELCATS_ICMECAT_v20.p'
+    ic=pickle.load( open(file, 'rb'))    
+    
+    return ic
 
 
 def get_cat_parameters(sc, sci, ic, name):
