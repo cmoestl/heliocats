@@ -113,7 +113,7 @@ if load_data > 0:
     [mav,hmav]=pickle.load(open(data_path+filemav, 'rb' ) )
 
     # Wind
-    filewin="wind_2018_2020.p" 
+    filewin="wind_2018_2019.p" 
     #for updating data
     #start=datetime.datetime(2018, 1, 1)
     #end=datetime.datetime.utcnow()
@@ -239,6 +239,13 @@ file='icmecat/HELCATS_ICMECAT_v20.csv'
 ic3.to_csv(file)
 
 
+
+#save as html
+file='icmecat/HELCATS_ICMECAT_v20_simple_html.html'
+ic3.to_html(file)
+
+
+
 #save as hdf needs pip install tables
 #file='icmecat/HELCATS_ICMECAT_v20.hdf'
 #ic.to_hdf(file,key='icmecat')
@@ -258,7 +265,49 @@ print('ICMECAT saved as '+file)
 
 
 
-#icl=pickle.load(open(file, 'rb' ) )
+############ save as html file
+
+file='icmecat/HELCATS_ICMECAT_v20.p'
+ic=pickle.load( open(file, 'rb'))
+
+#save as html
+file='icmecat/HELCATS_ICMECAT_v20.html'
+#ic.to_html(file,justify='center')
+
+#ichtml = '<link rel="stylesheet" type="text/css" media="screen" href="css-table.css" />' + '\n'
+
+
+#make header 
+##***********
+
+
+ichtml='{% extends "_base.html" %} \n \n {% block content %} \n \n \n <p> ICMECAT version 2.0 </p>'
+ichtml += ic.to_html()
+ichtml +='\n \n {% endblock %}'
+
+
+
+
+'''
+{% extends "_base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-12 col-md-12 col-xl-12">
+        <p> </br>
+        Recent real-time solar and solar wind data from SDO in Earth orbit, 
+        from the DSCOVR or ACE spacecraft at the Sun-Earth L1 point provided by NOAA and from STEREO-A.
+        Updated twice daily at 05:00 and 17:00 UTC.</br></br>
+        </p>
+    </div>
+</div>
+'''
+
+
+
+with open(file,'w') as f:
+    f.write(ichtml)
+    f.close()
+
 
 ######################################################################################
 ################################### END MAIN #########################################

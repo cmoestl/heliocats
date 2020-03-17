@@ -60,33 +60,71 @@ and place them in the data/ folder.
 
 ## Usage
 
-For running the jupyter notebook (files with .ipynb), first activate the helio environment:
+For running the jupyter notebook (files with .ipynb) or the python scripts (.py), first activate the helio environment:
 
     conda activate helio
     
-and then use either (depending on your preference for lab or notebook):
+
+# ICME statistics
+
+use either (depending on your preference for lab or notebook):
 
     jupyter lab cme_statistics.ipynb
+  
     jupyter notebook cme_statistics.ipynb
-
-
-For the python scripts, activate the environment 
-    conda activate helio
-
-and run:
-
-    python icmecat_maker.py
-
-processes data into a normalized format and creates the ICMECAT catalog.
 
     python cme_statistics.py
     
-makes CME statistics to get the results and plots for the paper Möstl et al. (2020, in preparation). 
-Currently this is being moved to the *cme_statistics.ipynb* notebook.
+These codes make CME statistics to get the results and plots for the paper Möstl et al. (2020, in preparation). 
+Currently this is being moved from the script cme_statistics.py to the *cme_statistics.ipynb* notebook.
+
+
+# ICME catalog 
+
+
+*work in progress, don't use yet!*
+This creates the ICMECAT catalog
+
+    python icmecat_maker.py
+
+The catalog is available in all of these formats: .p, .xlsx, .json, .csv, .html, .txt   
+
+Load this catalog with 
+
+    import pickle
+    file='icmecat/HELCATS_ICMECAT_v20.p'
+    ic=pickle.load( open(file, 'rb'))
+    
+"ic" is a pandas dataframe, the names of all parameters can be seen with 
+
+    ic.keys()
+
+and the data can be accessed by
+    
+    ic.icmecat_id
+    ic.icme_start_time
+    ic.mo_bmax
+    ic.mo_sc_heliodistance
+    ...
+
+which works particularly well in ipython or a jupyter notebook.
+
+All times (ic.icme_start_time, ic.mo_start_time, ic.mo_end_time) are python datetime objects. 
+They can be used directly plotting with matplotlib, but canb also easily 
+converted into many formats by:
+
+    from sunpy.time import parse_time
+    parse_time(ic.icme_start_time).plot_date
+    parse_time(ic.icme_start_time).iso
+    ...
+
+# Spacecraft positions and data
 
     python sc_positions_insitu.py
 
 makes movies of spacecraft positions and in situ data.
+
+# Real time data update
 
     python data_update.py
     
