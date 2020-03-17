@@ -209,47 +209,61 @@ hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 
 ################################ (4) save ICMECAT #################################
 
-ic3=copy.deepcopy(ic)  
 
-#pickle, excel, json, csv, txt (cdf? votable?)
+#make header
+header=hc.make_icmecat_header(ic)
+file='icmecat/HELCATS_ICMECAT_v20_header.txt'
+with open(file, "w") as text_file:
+    text_file.write(header)
+print(header)
 
-#save as pickle with datetime
+
+##### save ICMECAT as pickle with times as datetime objects
 file='icmecat/HELCATS_ICMECAT_v20.p'
 pickle.dump(ic, open(file, 'wb'))
 
 
-#use date and time format from master table
-ic2=pd.read_excel('icmecat/HELCATS_ICMECAT_v20_master.xlsx')
-ic3.icme_start_time=ic2.icme_start_time
-ic3.mo_start_time=ic2.mo_start_time
-ic3.mo_end_time=ic2.mo_end_time
-ic3.icme_end_time=ic2.icme_end_time
-del(ic2)
+################ save to different formats
+
+#copy pandas dataframe first to change time format
+
+ic_copy=copy.deepcopy(ic)  
+ic_copy.icme_start_time=parse_time(ic.icme_start_time).iso
+ic_copy.mo_start_time=parse_time(ic.mo_start_time).iso
+ic_copy.mo_end_time=parse_time(ic.mo_end_time).iso
+
+#change time format
+for i in np.arange(len(ic)):
+
+    dum=ic_copy.icme_start_time[i] 
+    ic_copy.at[i,'icme_start_time']=dum[0:16]
+     
+    dum=ic_copy.mo_start_time[i] 
+    ic_copy.at[i,'mo_start_time']=dum[0:16]
+     
+    dum=ic_copy.mo_end_time[i] 
+    ic_copy.at[i,'mo_end_time']=dum[0:16]
+
 
 #save as Excel
 file='icmecat/HELCATS_ICMECAT_v20.xlsx'
-ic3.to_excel(file,sheet_name='ICMECATv2.0')
+ic_copy.to_excel(file,sheet_name='ICMECATv2.0')
 
 #save as json
 file='icmecat/HELCATS_ICMECAT_v20.json'
-ic3.to_json(file)
+ic_copy.to_json(file)
 
 #save as csv
 file='icmecat/HELCATS_ICMECAT_v20.csv'
-ic3.to_csv(file)
-
-
+ic_copy.to_csv(file)
 
 #save as html
-file='icmecat/HELCATS_ICMECAT_v20_simple_html.html'
-ic3.to_html(file)
-
-
+file='icmecat/HELCATS_ICMECAT_v20_simple.html'
+ic_copy.to_html(file)
 
 #save as hdf needs pip install tables
 #file='icmecat/HELCATS_ICMECAT_v20.hdf'
 #ic.to_hdf(file,key='icmecat')
-
 
 #save as .mat does not work yet
 #ile='icmecat/HELCATS_ICMECAT_v20.mat'
@@ -259,11 +273,11 @@ ic3.to_html(file)
 
 #save as txt
 file='icmecat/HELCATS_ICMECAT_v20.txt'
-np.savetxt(file, ic3.values.astype(str), fmt='%s' )
+np.savetxt(file, ic_copy.values.astype(str), fmt='%s' )
 
 print('ICMECAT saved as '+file)
 
-
+sys.exit()
 
 ############ save as html file
 
@@ -274,19 +288,9 @@ ic=pickle.load( open(file, 'rb'))
 file='icmecat/HELCATS_ICMECAT_v20.html'
 #ic.to_html(file,justify='center')
 
-#ichtml = '<link rel="stylesheet" type="text/css" media="screen" href="css-table.css" />' + '\n'
-
-
-#make header 
-##***********
-
-
 ichtml='{% extends "_base.html" %} \n \n {% block content %} \n \n \n <p> ICMECAT version 2.0 </p>'
 ichtml += ic.to_html()
 ichtml +='\n \n {% endblock %}'
-
-
-
 
 '''
 {% extends "_base.html" %}
@@ -312,6 +316,3 @@ with open(file,'w') as f:
 ######################################################################################
 ################################### END MAIN #########################################
 ######################################################################################
-
-
-
