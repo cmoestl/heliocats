@@ -184,7 +184,7 @@ pspi=np.where(ic.sc_insitu == 'PSP')[:][0]
 
 ic=hc.get_cat_parameters(win,wini,ic,'Wind')
 ic=hc.get_cat_parameters(sta,stai,ic,'STEREO-A')
-ic=hc.get_cat_parameters(stb,stbi,ic,'STEREO_B')
+ic=hc.get_cat_parameters(stb,stbi,ic,'STEREO-B')
 ic=hc.get_cat_parameters(vex,vexi,ic,'VEX')
 ic=hc.get_cat_parameters(mes,mesi,ic,'MESSENGER')
 ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
@@ -228,9 +228,9 @@ pickle.dump(ic, open(file, 'wb'))
 #copy pandas dataframe first to change time format
 
 ic_copy=copy.deepcopy(ic)  
-ic_copy.icme_start_time=parse_time(ic.icme_start_time).iso
-ic_copy.mo_start_time=parse_time(ic.mo_start_time).iso
-ic_copy.mo_end_time=parse_time(ic.mo_end_time).iso
+ic_copy.icme_start_time=parse_time(ic.icme_start_time).isot
+ic_copy.mo_start_time=parse_time(ic.mo_start_time).isot
+ic_copy.mo_end_time=parse_time(ic.mo_end_time).isot
 
 #change time format
 for i in np.arange(len(ic)):
@@ -270,14 +270,13 @@ ic_copy.to_html(file)
 #icdict=ic.to_dict()
 #scipy.io.savemat(file,ic.values)
 
-
 #save as txt
 file='icmecat/HELCATS_ICMECAT_v20.txt'
 np.savetxt(file, ic_copy.values.astype(str), fmt='%s' )
 
 print('ICMECAT saved as '+file)
 
-ic2=load_icmecat()
+ic2=hc.load_icmecat()
 
 sys.exit()
 

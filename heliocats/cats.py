@@ -132,62 +132,124 @@ def get_cat_parameters(sc, sci, ic, name):
     ############################################            
                 
     [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))           
+    
+    
+    #plasma available?
+    if name=='Wind': plasma=True
+    if name=='STEREO-A': plasma=True
+    if name=='STEREO-B': plasma=True
+    if name=='ULYSSES': plasma=True
+    if name=='MAVEN': plasma=True
+    if name=='PSP': plasma=True
+    if name=='VEX': plasma=False
+    if name=='MESSENGER': plasma=False
 
-    ###### get parameters
-    #ICME B_max
-    for i in np.arange(len(sci))-1:
-        ic.at[sci[i],'icme_bmax']=np.round(np.nanmax(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
+    print('Get parameters for ',name)
+    
 
-    #ICME B_mean
-    for i in np.arange(len(sci))-1:
-        ic.at[sci[i],'icme_bmean']=np.round(np.nanmean(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
-
-    #MO B_max
-    for i in np.arange(len(sci))-1:
-        ic.at[sci[i],'mo_bmax']=np.round(np.nanmax(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
-
-    #MO B_mean
-    for i in np.arange(len(sci))-1:
-        ic.at[sci[i],'mo_bmean']=np.round(np.nanmean(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
-
-    #MO B_std
-    for i in np.arange(len(sci))-1:
-        ic.at[sci[i],'mo_bstd']=np.round(np.nanstd(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
-
-    #MO Bz_mean
-    for i in np.arange(len(sci))-1:
-        ic.at[sci[i],'mo_bzmean']=np.round(np.nanmean(sc.bz[mo_start_ind[i]:mo_end_ind[i]]),1)
-
-    #MO Bz_min
-    for i in np.arange(len(sci))-1:
-        ic.at[sci[i],'mo_bzmin']=np.round(np.nanmin(sc.bz[mo_start_ind[i]:mo_end_ind[i]]),1)
+    ####### position
 
     #MO heliodistance
     for i in np.arange(len(sci))-1:
         ic.at[sci[i],'mo_sc_heliodistance']=np.round(np.nanmean(sc.r[mo_start_ind[i]:mo_end_ind[i]]),4)
 
-    #MO longitude
-    for i in np.arange(len(sci))-1:
-        ic.at[sci[i],'sc_long_heeq']=np.round(np.nanmean(sc.lon[mo_start_ind[i]:mo_end_ind[i]]),2)
+        #MO longitude
+        #*** problem for longitude - mean not correct because of -180 180 switch
+        longitude=sc.lon[mo_start_ind[i]:mo_end_ind[i]] 
+        ic.at[sci[i],'mo_sc_long_heeq']=np.round(np.nanmean(longitude),2)
 
-    #MO latitude
-    for i in np.arange(len(sci))-1:
-        ic.at[sci[i],'sc_lat_heeq']=np.round(np.nanmean(sc.lat[mo_start_ind[i]:mo_end_ind[i]]),2)
+        #MO latitude
+        ic.at[sci[i],'mo_sc_lat_heeq']=np.round(np.nanmean(sc.lat[mo_start_ind[i]:mo_end_ind[i]]),2)
 
+
+    ############ ICME    
     # ICME duration
     sci_istart=mdates.date2num(ic.icme_start_time[sci])   
     sci_iend=mdates.date2num(ic.mo_end_time[sci])   
     ic.at[sci,'icme_duration']=np.round((sci_iend-sci_istart)*24,2)
 
-    # sheath duration
-    #sci_istart=mdates.date2num(ic.icme_start_time[sci])   
-    #sci_iend=mdates.date2num(ic.mo_start_time[sci])   
-    #ic.icme_duration.loc[sci]=np.round((sci_iend-sci_istart)*24,2)
+    for i in np.arange(len(sci))-1:
 
+        #ICME B_max
+        ic.at[sci[i],'icme_bmax']=np.round(np.nanmax(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
+
+        #ICME B_mean
+        ic.at[sci[i],'icme_bmean']=np.round(np.nanmean(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
+
+        #icme_bstd
+        ic.at[sci[i],'icme_bstd']=np.round(np.nanstd(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
+        
+    if plasma==True:        
+        #ICME speed_mean and std
+        for i in np.arange(len(sci))-1:
+            ic.at[sci[i],'icme_speed_mean']=np.round(np.nanmean(sc.vt[icme_start_ind[i]:mo_end_ind[i]]),1)
+            ic.at[sci[i],'icme_speed_std']=np.round(np.nanstd(sc.vt[icme_start_ind[i]:mo_end_ind[i]]),1)
+    else: #set nan    
+        for i in np.arange(len(sci))-1:
+            ic.at[sci[i],'icme_speed_mean']=np.nan
+            ic.at[sci[i],'icme_speed_std']=np.nan
+
+        
+    ########### MO
     # MO duration
     sci_istart=mdates.date2num(ic.mo_start_time[sci])   
     sci_iend=mdates.date2num(ic.mo_end_time[sci])   
-    ic.at[sci,'mo_duration']=np.round((sci_iend-sci_istart)*24,2)
+    ic.at[sci,'mo_duration']=np.round((sci_iend-sci_istart)*24,2)        
+
+    for i in np.arange(len(sci))-1:
+    
+        #MO B_max
+        ic.at[sci[i],'mo_bmax']=np.round(np.nanmax(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
+    
+        #MO B_mean
+        ic.at[sci[i],'mo_bmean']=np.round(np.nanmean(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
+    
+        #MO B_std
+        ic.at[sci[i],'mo_bstd']=np.round(np.nanstd(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+        #MO Bz_mean
+        ic.at[sci[i],'mo_bzmean']=np.round(np.nanmean(sc.bz[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+        #MO Bz_min
+        ic.at[sci[i],'mo_bzmin']=np.round(np.nanmin(sc.bz[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+         #MO Bz_std
+        ic.at[sci[i],'mo_bzstd']=np.round(np.nanstd(sc.bz[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+        #MO By_mean
+        ic.at[sci[i],'mo_bymean']=np.round(np.nanmean(sc.by[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+        #MO By_std
+        ic.at[sci[i],'mo_bystd']=np.round(np.nanstd(sc.by[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+    
+    if plasma==True:   
+         
+        for i in np.arange(len(sci))-1:
+        
+            #mo speed_mean and std
+            ic.at[sci[i],'mo_speed_mean']=np.round(np.nanmean(sc.vt[mo_start_ind[i]:mo_end_ind[i]]),1)
+            ic.at[sci[i],'mo_speed_std']=np.round(np.nanstd(sc.vt[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+            ic.at[sci[i],'mo_density_mean']=np.round(np.nanmean(sc.np[mo_start_ind[i]:mo_end_ind[i]]),1)
+            ic.at[sci[i],'mo_density_std']=np.round(np.nanstd(sc.np[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+            ic.at[sci[i],'mo_temperature_mean']=np.round(np.nanmean(sc.tp[mo_start_ind[i]:mo_end_ind[i]]),1)
+            ic.at[sci[i],'mo_temperature_std']=np.round(np.nanstd(sc.tp[mo_start_ind[i]:mo_end_ind[i]]),1)
+            
+            
+    else: #set nan    
+    
+        for i in np.arange(len(sci))-1:
+            ic.at[sci[i],'mo_speed_mean']=np.nan
+            ic.at[sci[i],'mo_speed_std']=np.nan
+    
+            ic.at[sci[i],'mo_density_mean']=np.nan
+            ic.at[sci[i],'mo_density_std']=np.nan
+    
+            ic.at[sci[i],'mo_temperature_mean']=np.nan
+            ic.at[sci[i],'mo_temperature_std']=np.nan
+    
 
     
     return ic
