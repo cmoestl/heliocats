@@ -193,9 +193,9 @@ ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
 
 
 ####### 3c make all plots if wanted
-
 '''
 matplotlib.use('Agg')
+hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
 hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
 hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
@@ -203,7 +203,6 @@ hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
 hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
 hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
-hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 '''
 
 
@@ -278,9 +277,9 @@ print('ICMECAT saved as '+file)
 
 ic2=hc.load_icmecat()
 
-sys.exit()
 
-############ save as html file
+
+############ save as html file for helioforecast.space
 
 file='icmecat/HELCATS_ICMECAT_v20.p'
 ic=pickle.load( open(file, 'rb'))

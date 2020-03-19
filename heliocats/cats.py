@@ -73,9 +73,9 @@ def make_icmecat_header(ic):
 
 
 
-def dynamic_pressure(density, speed):
+def pdyn(density, speed):
     '''
-    make dynamic pressure from density and speed
+    make dynamic pressure from density []# ccm-3] and speed [km/s]
     assume pdyn is only due to protons
     pdyn=np.zeros(len([density])) #in nano Pascals
     '''
@@ -151,15 +151,13 @@ def get_cat_parameters(sc, sci, ic, name):
 
     #MO heliodistance
     for i in np.arange(len(sci))-1:
-        ic.at[sci[i],'mo_sc_heliodistance']=np.round(np.nanmean(sc.r[mo_start_ind[i]:mo_end_ind[i]]),4)
+        ic.at[sci[i],'mo_sc_heliodistance']=np.round(sc.r[mo_start_ind[i]],4)
 
         #MO longitude
-        #*** problem for longitude - mean not correct because of -180 180 switch
-        longitude=sc.lon[mo_start_ind[i]:mo_end_ind[i]] 
-        ic.at[sci[i],'mo_sc_long_heeq']=np.round(np.nanmean(longitude),2)
+        ic.at[sci[i],'mo_sc_long_heeq']=np.round(sc.lon[mo_start_ind[i]],2)
 
         #MO latitude
-        ic.at[sci[i],'mo_sc_lat_heeq']=np.round(np.nanmean(sc.lat[mo_start_ind[i]:mo_end_ind[i]]),2)
+        ic.at[sci[i],'mo_sc_lat_heeq']=np.round(sc.lat[mo_start_ind[i]],2)
 
 
     ############ ICME    
@@ -231,11 +229,24 @@ def get_cat_parameters(sc, sci, ic, name):
             ic.at[sci[i],'mo_speed_mean']=np.round(np.nanmean(sc.vt[mo_start_ind[i]:mo_end_ind[i]]),1)
             ic.at[sci[i],'mo_speed_std']=np.round(np.nanstd(sc.vt[mo_start_ind[i]:mo_end_ind[i]]),1)
 
+            ic.at[sci[i],'mo_expansion_speed']=np.round( (sc.vt[mo_start_ind[i]]-sc.vt[mo_end_ind[i]])/2 ,1 )
+
             ic.at[sci[i],'mo_density_mean']=np.round(np.nanmean(sc.np[mo_start_ind[i]:mo_end_ind[i]]),1)
             ic.at[sci[i],'mo_density_std']=np.round(np.nanstd(sc.np[mo_start_ind[i]:mo_end_ind[i]]),1)
 
             ic.at[sci[i],'mo_temperature_mean']=np.round(np.nanmean(sc.tp[mo_start_ind[i]:mo_end_ind[i]]),1)
             ic.at[sci[i],'mo_temperature_std']=np.round(np.nanstd(sc.tp[mo_start_ind[i]:mo_end_ind[i]]),1)
+
+            pdyn_i=pdyn(sc.np[mo_start_ind[i]:mo_end_ind[i]],sc.vt[mo_start_ind[i]:mo_end_ind[i]])
+            
+            ic.at[sci[i],'mo_pdyn_mean']=np.round(np.nanmean(pdyn_i),1)
+            ic.at[sci[i],'mo_pdyn_std']=np.round(np.nanstd(pdyn_i),1)
+
+            pdyn_i=pdyn(sc.np[icme_start_ind[i]:mo_start_ind[i]],sc.vt[icme_start_ind[i]:mo_start_ind[i]])
+
+            ic.at[sci[i],'sheath_pdyn_mean']=np.round(np.nanmean(pdyn_i),1)
+            ic.at[sci[i],'sheath_pdyn_std']=np.round(np.nanstd(pdyn_i),1)
+
             
             
     else: #set nan    
@@ -243,12 +254,21 @@ def get_cat_parameters(sc, sci, ic, name):
         for i in np.arange(len(sci))-1:
             ic.at[sci[i],'mo_speed_mean']=np.nan
             ic.at[sci[i],'mo_speed_std']=np.nan
+            
+            ic.at[sci[i],'mo_expansion_speed']=np.nan
     
             ic.at[sci[i],'mo_density_mean']=np.nan
             ic.at[sci[i],'mo_density_std']=np.nan
     
             ic.at[sci[i],'mo_temperature_mean']=np.nan
             ic.at[sci[i],'mo_temperature_std']=np.nan
+            
+            ic.at[sci[i],'mo_pdyn_mean']=np.nan
+            ic.at[sci[i],'mo_pdyn_std']=np.nan
+
+            ic.at[sci[i],'sheath_pdyn_mean']=np.nan
+            ic.at[sci[i],'sheath_pdyn_std']=np.nan
+
     
 
     
