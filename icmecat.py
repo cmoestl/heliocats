@@ -38,7 +38,7 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # '''
 
-# In[4]:
+# In[140]:
 
 
 import numpy as np
@@ -74,7 +74,7 @@ importlib.reload(hc) #reload again while debugging
 
 #where the 6 in situ data files are located is read from input.py
 #as data_path=....
-from input import *
+from input import data_path
 
 
 ########### make directories first time if not there
@@ -98,7 +98,7 @@ if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir)
 
 # ### (1) load new data with HelioSat and heliocats.data
 
-# In[10]:
+# In[141]:
 
 
 
@@ -155,7 +155,7 @@ if load_data > 0:
 
 # ### (2) measure new events 
 
-# In[11]:
+# In[142]:
 
 
 #for measuring new events use this function from heliocats.plot
@@ -168,7 +168,7 @@ if load_data > 0:
 
 # ### (3) make ICMECAT 
 
-# In[12]:
+# In[143]:
 
 
 print('data loaded')
@@ -215,21 +215,48 @@ hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 
 # ### (4) save ICMECAT 
 
-# In[17]:
+# In[144]:
 
 
-#make header
-header=hc.make_icmecat_header(ic)
-file='icmecat/HELCATS_ICMECAT_v20_header.txt'
-with open(file, "w") as text_file:
-    text_file.write(header)
+header='ICME CATALOGUE v2.0 \n\nThis is the HELCATS interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetometer and plasma observations in the heliosphere. \n\nThis is version 2.0, released in March 2020 with major update to the original version 1.0, originally a product of EU HELCATS project (2014-2017). \n\nReleased 2020-??-??. DOI: 10.6084/m9.figshare.4588315.v2 \n\nNumber of events in ICMECAT: '+str(len(ic))+' \n\nICME observatories: Wind, Parker Solar Probe, STEREO-A, STEREO-B, Venus Express, MESSENGER, MAVEN, ULYSSES \n\nTime range: January 2007 - December 2018. \n \nAuthors: Christian Moestl, Andreas Weiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria,\nContributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, Reka Winslow, Brian Anderson, Lydia Philpott,\nVratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla.  \n\nThe catalog has been made by getting 3 times of the ICME (shock or disturbance begin, magnetic obstacle start and end) from these individual catalogs and then calculating all parameters again consistently from all data: \n\nWind: Nieves-Chinchilla et al. 2018: \nSTEREO-A, STEREO-B Lan Jian ....\nVEX:  Good et al. 2018 \nMESSENGER:  Good et al. 2018 Winslow et al. 2018 \nMAVEN: Guo et al. (note that this is a mixture of methods MSL RAD, MAVEN and STEREO HI, Möstl et al. 2020)\nAdditionally we have added individual events at Ulysses,STEREO-B, STEREO-A, Parker Solar Probe, Wind and MAVEN.'
+
+
+parameters=''
+
+
+header_html='<p> ICME CATALOGUE v2.0 <br /> <br /> This is the HELCATS interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetometer and plasma observations in the heliosphere.<br /> <br /> Version 2.0, released in March 2020 with major update to the original version 1.0, originally a product of EU HELCATS project (2014-2017). <br /><br />  Number of events in ICMECAT: '+str(len(ic))+' <br /> <br /> ICME observatories: Wind, Parker Solar Probe, STEREO-A, STEREO-B, Venus Express, MESSENGER, MAVEN, ULYSSES <br /> Authors: Christian Moestl, Andreas Weiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria,<br /> Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, Reka Winslow, Brian Anderson, Lydia Philpott,<br /> Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla. <br /> <br /> Time range: January 2007 - December 2018. <br /> <br /> This is version: 2.0 of the catalogue, released 2020-??-??. DOI: 10.6084/m9.figshare.4588315.v2 <p>'
+
+
+parameters_html=''
+
+
+
 print(header)
 
 
-# In[15]:
+# In[ ]:
 
 
-##### save ICMECAT as pickle with times as datetime objects
+
+
+
+# In[145]:
+
+
+from heliocats import cats as hc
+importlib.reload(hc) #reload again while debugging
+
+#make header
+#header=hc.make_icmecat_header(ic)
+file='icmecat/HELCATS_ICMECAT_v20_header.txt'
+with open(file, "w") as text_file:
+    text_file.write(header)
+
+
+# In[146]:
+
+
+### save ICMECAT as pickle with times as datetime objects
 file='icmecat/HELCATS_ICMECAT_v20.p'
 pickle.dump(ic, open(file, 'wb'))
 
@@ -300,7 +327,8 @@ ic=pickle.load( open(file, 'rb'))
 file='icmecat/HELCATS_ICMECAT_v20.html'
 #ic.to_html(file,justify='center')
 
-ichtml='{% extends "_base.html" %} \n \n {% block content %} \n \n \n <p> ICMECAT version 2.0 </p>'
+ichtml='{% extends "_base.html" %} \n \n {% block content %} \n \n \n '
+ichtml  += header_html
 ichtml += ic.to_html()
 ichtml +='\n \n {% endblock %}'
 
