@@ -52,20 +52,9 @@ def load_helcats_icmecat_master_from_excel(file):
 
 
 def make_icmecat_header(ic):
-    ''' convert excel master file to pandas dataframe and convert times
-        to datetime objects
+    ''' todo
     '''
-    
-    '''
-    ICME CATALOGUE
-    This is the HELCATS interplanetary coronal mass ejection catalog, based on magnetometer and plasma observations in the heliosphere. It is a product of working package 4 of the EU HELCATS project (2014-2017).
-    AUTHORS: Christian Moestl, Peter Boakes, University of Graz, Austria and SRI, Austrian Academy of Sciences, Graz, Austria. Alexey Isavnin, Emilia Kilpua, University of Helsinki, Finland. Reka Winslow, UNH, USA; Brian Anderson, APL, USA; Lydia Philpott, UBC, Canada. Vratislav Krupar, Jonathan Eastwood: Imperial College, London, UK. We sincerely thank the providers of the individual ICME lists: Simon Good, Reka Winslow, Lan Jian and Teresa Nieves-Chinchilla. 
-    Number of events in ICMECAT: 668 
-    ICME observatories: Wind, STEREO-A, STEREO-B, VEX, MESSENGER, ULYSSES 
-    Time range: January 2007 - December 2015.
-
-    This is version: 01 of the catalogue, released 2017-02-28. DOI: 10.6084/m9.figshare.4588315.v1. )    
-    '''
+  
     
     header='header'
    
