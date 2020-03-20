@@ -65,7 +65,9 @@ For running the jupyter notebooks (files with .ipynb) or the python scripts (.py
     conda activate helio
 
 Folder *data/* contains all data files needed and produced during the analysis. 
-All outputs can be found in the folder *results/* or subfolders.
+All outputs can be found in the folder *results/* or subfolders. Jupyter notebooks can be converted to scripts by:
+
+    jupyter nbconvert --to script icmecat.ipynb
     
 
 ### ICME statistics
@@ -88,7 +90,7 @@ Currently this is being moved from the script cme_statistics.py to the *cme_stat
 *work in progress, don't use yet!*
 This creates the ICMECAT catalog
 
-    python icmecat_maker.py
+    python icmecat.py
 
 The catalog is available in all of these formats: .p, .xlsx, .json, .csv, .html, .txt   
 
