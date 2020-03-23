@@ -14,23 +14,6 @@ the Interplanetary Coronal Mass ejection CATalog ICMECAT (working package 4).
 If you want to use parts of this code for generating results for peer-reviewed scientific publications, please contact me per email (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace .
 
 
-
-
-Before running the scripts, you need to download 6 data files (in total 4.1 GB) from this 
-figshare repository: [https://doi.org/10.6084/m9.figshare.11973693.v1](https://doi.org/10.6084/m9.figshare.11973693.v1)
-
-
-and place them in the data/ folder.
-
-    data/helcats_all_data_removed.p
-    data/maven_2014_2018_removed_smoothed.p
-    data/psp_2018_2019.p
-    data/wind_2018_2020.p
-    data/sta_2018_2019_beacon.p
-    data/ulysses_1990_2009_helcats.p
-    
-    	  
-
 ---
 ## Usage
 
@@ -44,13 +27,25 @@ All outputs can be found in the folder *results/* or subfolders. Jupyter noteboo
     jupyter nbconvert --to script icmecat.ipynb
     
 
----
 ### ICME catalog 
 
 
 **work in progress, don't use yet!**
 
-This creates the ICMECAT catalog
+Before running the icmecat scripts, you need to download 6 data files (in total 4.1 GB) from this 
+figshare repository: [https://doi.org/10.6084/m9.figshare.11973693.v1](https://doi.org/10.6084/m9.figshare.11973693.v1)
+
+and place them in the data/ folder.
+
+    data/helcats_all_data_removed.p
+    data/maven_2014_2018_removed_smoothed.p
+    data/psp_2018_2019.p
+    data/wind_2018_2020.p
+    data/sta_2018_2019_beacon.p
+    data/ulysses_1990_2009_helcats.p
+
+
+This creates the ICMECAT catalog:
 
     python icmecat.py
 
