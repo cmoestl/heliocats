@@ -16,29 +16,8 @@
 # to do:
 # - despike sta stb wind all, new B and V for STA, Wind and PSP converted to SCEQ components, plasma correct for new PSP, wind, sta ...
 # 
-# to convert to .py
-# 
-#     jupyter nbconvert --to script plot_cases.ipynb
 
-# MIT LICENSE
-# Copyright 2020, Christian Moestl 
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this 
-# software and associated documentation files (the "Software"), to deal in the Software
-# without restriction, including without limitation the rights to use, copy, modify, 
-# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-# permit persons to whom the Software is furnished to do so, subject to the following 
-# conditions:
-# The above copyright notice and this permission notice shall be included in all copies 
-# or substantial portions of the Software.
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
-# OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-# '''
-
-# In[140]:
+# In[1]:
 
 
 import numpy as np
@@ -98,7 +77,7 @@ if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir)
 
 # ### (1) load new data with HelioSat and heliocats.data
 
-# In[141]:
+# In[2]:
 
 
 
@@ -151,16 +130,23 @@ if load_data > 0:
 
  # get data file from helcats with headers
  [vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly]=hd.load_helcats_datacat(data_path+'helcats_all_data_removed.p') 
+ print('done')
 
 
-# ### (2) measure new events 
+# ## (2) measure new events 
 
-# In[142]:
+# In[12]:
 
 
-#for measuring new events use this function from heliocats.plot
+#for measuring new events use this function from heliocats.plot 
+plt.close('all')
+#works in jupyter notebooks
+#%matplotlib 
+#works in scripts
+#matplotlib.use('qt5agg')  
+#plt.ion()
 #hp.plot_insitu_measure(psp, '2018-Nov-10','2018-Nov-15', 'PSP', 'results/plots_icmecat/')
-
+#plt.show()
 
 #for plotting single events
 #hp.plot_insitu(psp, ic.icme,'2018-Nov-15', 'PSP', icplotsdir)
@@ -168,7 +154,7 @@ if load_data > 0:
 
 # ### (3) make ICMECAT 
 
-# In[143]:
+# In[17]:
 
 
 print('data loaded')
@@ -215,7 +201,7 @@ hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 
 # ### (4) save ICMECAT 
 
-# In[144]:
+# In[18]:
 
 
 header='ICME CATALOGUE v2.0 \n\nThis is the HELCATS interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetometer and plasma observations in the heliosphere. \n\nThis is version 2.0, released in March 2020 with major update to the original version 1.0, originally a product of EU HELCATS project (2014-2017). \n\nReleased 2020-??-??. DOI: 10.6084/m9.figshare.4588315.v2 \n\nNumber of events in ICMECAT: '+str(len(ic))+' \n\nICME observatories: Wind, Parker Solar Probe, STEREO-A, STEREO-B, Venus Express, MESSENGER, MAVEN, ULYSSES \n\nTime range: January 2007 - December 2018. \n \nAuthors: Christian Moestl, Andreas Weiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria,\nContributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, Reka Winslow, Brian Anderson, Lydia Philpott,\nVratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla.  \n\nThe catalog has been made by getting 3 times of the ICME (shock or disturbance begin, magnetic obstacle start and end) from these individual catalogs and then calculating all parameters again consistently from all data: \n\nWind: Nieves-Chinchilla et al. 2018: \nSTEREO-A, STEREO-B Lan Jian ....\nVEX:  Good et al. 2018 \nMESSENGER:  Good et al. 2018 Winslow et al. 2018 \nMAVEN: Guo et al. (note that this is a mixture of methods MSL RAD, MAVEN and STEREO HI, Möstl et al. 2020)\nAdditionally we have added individual events at Ulysses,STEREO-B, STEREO-A, Parker Solar Probe, Wind and MAVEN.'
@@ -234,13 +220,7 @@ parameters_html=''
 print(header)
 
 
-# In[ ]:
-
-
-
-
-
-# In[145]:
+# In[19]:
 
 
 from heliocats import cats as hc
@@ -253,7 +233,7 @@ with open(file, "w") as text_file:
     text_file.write(header)
 
 
-# In[146]:
+# In[20]:
 
 
 ### save ICMECAT as pickle with times as datetime objects
@@ -351,6 +331,12 @@ ichtml +='\n \n {% endblock %}'
 with open(file,'w') as f:
     f.write(ichtml)
     f.close()
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:

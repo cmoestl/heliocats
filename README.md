@@ -15,33 +15,6 @@ If you want to use parts of this code for generating results for peer-reviewed s
 
 
 
-## Installation 
-
-Install python 3.7.6 with miniconda:
-
-on Linux:
-
-	  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-	  bash Miniconda3-latest-Linux-x86.sh
-
-on MacOS:
-
-	  curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-	  bash Miniconda3-latest-MacOSX-x86_64.sh
-
-Create a conda environment:
-
-	  conda env create -f environment.yml
-
-	  conda activate helio
-
-	  pip install -r requirements.txt
-	  
-go to a directory of your choice
-
-	  git clone https://github.com/cmoestl/heliocats
-	  
-
 
 Before running the scripts, you need to download 6 data files (in total 4.1 GB) from this 
 figshare repository: [https://doi.org/10.6084/m9.figshare.11973693.v1](https://doi.org/10.6084/m9.figshare.11973693.v1)
@@ -58,6 +31,7 @@ and place them in the data/ folder.
     
     	  
 
+---
 ## Usage
 
 For running the jupyter notebooks (files with .ipynb) or the python scripts (.py), first activate the helio environment:
@@ -65,34 +39,22 @@ For running the jupyter notebooks (files with .ipynb) or the python scripts (.py
     conda activate helio
 
 Folder *data/* contains all data files needed and produced during the analysis. 
-All outputs can be found in the folder *results/* or subfolders. Jupyter notebooks can be converted to scripts by:
+All outputs can be found in the folder *results/* or subfolders. Jupyter notebooks can be converted to scripts by e.g. for icmecat.ipynb to icmecat.py:
 
     jupyter nbconvert --to script icmecat.ipynb
     
 
-### ICME statistics
-
-use either (depending on your preference for lab or notebook):
-
-    jupyter lab cme_statistics.ipynb
-  
-    jupyter notebook cme_statistics.ipynb
-
-    python cme_statistics.py
-    
-These codes make CME statistics to get the results and plots for the paper Möstl et al. (2020, in preparation). 
-Currently this is being moved from the script cme_statistics.py to the *cme_statistics.ipynb* notebook.
-
-
+---
 ### ICME catalog 
 
 
-*work in progress, don't use yet!*
+**work in progress, don't use yet!**
+
 This creates the ICMECAT catalog
 
     python icmecat.py
 
-The catalog is available in all of these formats: .p, .xlsx, .json, .csv, .html, .txt   
+The catalog is available in these formats: .p, .xlsx, .json, .csv, .html, .txt   
 
 Load this catalog with 
 
@@ -123,18 +85,64 @@ converted into many formats by:
     parse_time(ic.icme_start_time).iso
     ...
 
+
+
+### ICME statistics
+
+use either (depending on your preference for jupyter lab, notebook or a script):
+
+    jupyter lab cme_statistics.ipynb
+  
+    jupyter notebook cme_statistics.ipynb
+
+    python cme_statistics.py
+    
+These codes make CME statistics to get the results and plots for the paper Möstl et al. (2020, in preparation). 
+
+
 ### Spacecraft positions and data
 
     python sc_positions_insitu.py
 
 makes movies of spacecraft positions and in situ data.
 
+
 ### Real-time data update
 
     python data_update.py
     
-makes real time downloads of various data sources.
+makes real time downloads and plots of various data sources.
 
 
 
+
+
+---
+
+## Installation 
+
+Install python 3.7.6 with miniconda:
+
+on Linux:
+
+	  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+	  bash Miniconda3-latest-Linux-x86.sh
+
+on MacOS:
+
+	  curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+	  bash Miniconda3-latest-MacOSX-x86_64.sh
+
+Create a conda environment:
+
+	  conda env create -f environment.yml
+
+	  conda activate helio
+
+	  pip install -r requirements.txt
+	  
+go to a directory of your choice
+
+	  git clone https://github.com/cmoestl/heliocats
+	  
 

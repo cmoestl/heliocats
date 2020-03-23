@@ -37,8 +37,14 @@ import heliopy.spice as spice
 ####################################### 
 
 
-  
-def gaussian(x, amp, mu, sig):
+def expon(x, a, k, b):
+    return a*np.exp(k*x) + b
+
+
+def gaussian(x, a, x0, sigma):
+    return a*np.exp(-(x-x0)**2/(2*sigma**2))
+
+def hathaway(x, amp, mu, sig):
    return amp * exp(-(x-cen)**2 /wid)
 
 

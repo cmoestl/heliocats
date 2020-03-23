@@ -1,31 +1,41 @@
-'''
-cme_statistics.py
-https://github.com/cmoestl/heliocats
-analyses ICMECAT data for paper on CME statistics Moestl et al. 2020
+#!/usr/bin/env python
+# coding: utf-8
 
-Author: C. Moestl, IWF Graz, Austria
-twitter @chrisoutofspace, https://github.com/cmoestl
-last update March 2020
+# # CME statistics
+# 
+# cme_statistics.py
+# https://github.com/cmoestl/heliocats
+# analyses ICMECAT data for paper on CME statistics Moestl et al. 2020
+# 
+# Author: C. Moestl, IWF Graz, Austria
+# twitter @chrisoutofspace, https://github.com/cmoestl
+# last update March 2020
+# 
+# for installation of a conda environment to run this code, see instructions in README.md
+# conda dependencies are listed under environment.yml, and pip in requirements.txt
+# 
+# structure of this code:
+# 
+# 1. settings
+# 
+# 2. ICME duration vs heliocentric distance
+# 
+# 3. magnetic field 
+# 
+# 4. time inside CMEs at each planet 
+# 
+# 5. CME arrival frequencies
+# 
+# plots are saved in results/plots_stats/ as png and pdf
+# 
+# analysis results files are written to data/
+# 
+# convert to script with 
+# 
+#     jupyter nbconvert --to script cme_statistics.ipynb
+# 
 
-for installation of a conda environment to run this code, see instructions in README.md
-conda dependencies are listed under environment.yml, and pip in requirements.txt
-
-structure of this code:
-
-1. settings
-
-2. ICME duration vs heliocentric distance
-
-3. Bfield 
-
-4. time inside CMEs at each planet 
-
-5. CME arrival frequencies
-
-plots are saved in results/plots_stats/ as png and pdf
-analysis results files are written to data/
-
-'''
+# In[45]:
 
 
 from scipy import stats
@@ -50,21 +60,24 @@ import importlib
 
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
+
+#%matplotlib inline
+#matplotlib.use('Qt5Agg')
+#matplotlib.use('Agg')
+
 #warnings.filterwarnings('ignore') # some numpy mean-of-empty-slice runtime warnings
 
-#matplotlib.use('TkAgg')
-#matplotlib.use('Agg')
 
 from heliocats import stats as hs
 importlib.reload(hs) #reload again while debugging
 
 
-#########################################################################################
-################################ 1. SETTINGS ############################################
-#########################################################################################
+# ## 1. Settings
+# 
+# 
 
-print('-------------------------------------------------')
-print('1 SETTINGS')
+# In[46]:
+
 
 ### constants
 #solar radius
@@ -91,13 +104,10 @@ if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
 
 
 ############ get basic data for times and btotal available at each mission
-hs.load_url_current_directory('data/insitu_data_time_btot_moestl_2019_paper.p', \
-                  'https://oeawcloud.oeaw.ac.at/index.php/s/z7nZVbH8qBjaTf5/download')
+hs.load_url_current_directory('data/insitu_data_time_btot_moestl_2019_paper.p',                   'https://oeawcloud.oeaw.ac.at/index.php/s/z7nZVbH8qBjaTf5/download')
                   
 #open this file
-[win_time,win_btot,sta_time,sta_btot,stb_time,stb_btot, \
-mav_time, mav_btot, vex_time, vex_btot, mes_time, mes_btot]= \
-pickle.load(open( "data/insitu_data_time_btot_moestl_2019_paper.p", "rb" ) )
+[win_time,win_btot,sta_time,sta_btot,stb_time,stb_btot, mav_time, mav_btot, vex_time, vex_btot, mes_time, mes_btot]= pickle.load(open( "data/insitu_data_time_btot_moestl_2019_paper.p", "rb" ) )
 print('loaded time/Btotal data for STEREO-A/B, Wind, VEX, MESSENGER, MAVEN')
 
 
@@ -192,30 +202,19 @@ merci_rise=iall_rise[np.where(np.logical_and(ic.sc_insitu[iall_rise] =='MESSENGE
 merci_max=iall_max[np.where(np.logical_and(ic.sc_insitu[iall_max] =='MESSENGER',ic.icme_start_time[iall_max] > parse_time('2011-03-18').datetime))]
 
 
-
-print()
-print('Analysis')
-print()
+# In[47]:
 
 
+ic
 
 
+# ## 2. Duration vs distance
+# 
+# 
+# 
 
+# In[42]:
 
-
-
-
-
-
-
-##########################################################################################
-##################### (2) ICME DURATION VS DISTANCE and linear fit  #####################
-##########################################################################################
-
-
-print('-------------------------------------------------')
-print('2a ICME DURATION VS DISTANCE')
-print()
 
 xfit=np.linspace(0,2,1000)
 
@@ -237,6 +236,9 @@ ydurfitall_f=durfit_f*xfit
 ydurfitmin_f=durfitmin_f*xfit
 ydurfitrise_f=durfitrise_f*xfit
 ydurfitmax_f=durfitmax_f*xfit
+
+
+# In[48]:
 
 
 sns.set_context("talk")                
@@ -385,14 +387,10 @@ markers=6
 linew=0
 
 #plot durations for all planets
-ax2.plot_date(ic.icme_start_time[mesi],ic.icme_duration[mesi], \
-    'o',color='darkgrey',markersize=markers,linestyle='-',linewidth=linew,label='MESSENGER')
-ax2.plot_date(ic.icme_start_time[vexi],ic.icme_duration[vexi], \
-    'o',color='orange',markersize=markers,linestyle='-',linewidth=linew, label='Venus')
-ax2.plot_date(ic.icme_start_time[wini],ic.icme_duration[wini], \
-    'o',color='mediumseagreen',markersize=markers, linestyle='-', linewidth=linew, label='Earth')
-ax2.plot_date(ic.icme_start_time[mavi],ic.icme_duration[mavi], \
-    'o',color='steelblue',markersize=markers,linestyle='-',linewidth=linew, label='Mars')
+ax2.plot_date(ic.icme_start_time[mesi],ic.icme_duration[mesi],     'o',color='darkgrey',markersize=markers,linestyle='-',linewidth=linew,label='MESSENGER')
+ax2.plot_date(ic.icme_start_time[vexi],ic.icme_duration[vexi],     'o',color='orange',markersize=markers,linestyle='-',linewidth=linew, label='Venus')
+ax2.plot_date(ic.icme_start_time[wini],ic.icme_duration[wini],     'o',color='mediumseagreen',markersize=markers, linestyle='-', linewidth=linew, label='Earth')
+ax2.plot_date(ic.icme_start_time[mavi],ic.icme_duration[mavi],     'o',color='steelblue',markersize=markers,linestyle='-',linewidth=linew, label='Mars')
 
 
 #limits solar min/rise/maxax2.set_ylim(0,80)
@@ -440,34 +438,14 @@ plt.legend(loc=1,fontsize=fsize-1)
 plt.figtext(0.01,0.98,'a',color='black', fontsize=fsize, ha='left',fontweight='bold')
 plt.figtext(0.01,0.485,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
 
-
 plt.savefig('results/plots_stats/icme_duration_distance_time_paper.pdf', dpi=300)
 plt.savefig('results/plots_stats/icme_duration_distance_time_paper.png', dpi=300)
 
 
+# ## 3. Bfield vs distance
 
+# In[49]:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##########################################################################################
-################################## (3) Bfield vs distance  ###############################
-##########################################################################################
-
-print('-------------------------------------------------')
-print('3 MO FIELD VS DISTANCE and time, 3 figure panels')
-print()
 
 
 # xfit starts here at 1 Rs  because there should not be a 0 in xfit ** bmaxfit[0] later	
@@ -499,6 +477,9 @@ print('bmean_rise: ', round(10**bmeanfit_rise[1],2),' x ^', round(bmeanfit_rise[
 bmeanfit_max=np.polyfit(np.log10(ic.mo_sc_heliodistance[iall_max]),np.log10(ic.mo_bmean[iall_max]),1)
 bmeanfitfun_max=(10**bmeanfit_max[1])*(xfit**bmeanfit_max[0])
 print('bmean_max:  ', round(10**bmeanfit_max[1],2),' x ^',round(bmeanfit_max[0],2))
+
+
+# In[50]:
 
 
 
@@ -606,8 +587,8 @@ plt.figtext(0.515,0.96,'b',color='black', fontsize=fsize, ha='left',fontweight='
 plt.figtext(0.03,0.49,'c',color='black', fontsize=fsize, ha='left',fontweight='bold')
 
 
-plt.text(1.1,60,r'<B> [nT]= {:.2f} R[AU]^{:.2f}'.format(10**bmeanfit[1],bmeanfit[0]), fontsize=10)
-plt.text(1.1,100,r'Bmax [nT]= {:.2f} R[AU]^{:.2f}'.format(10**bmaxfit[1],bmaxfit[0]), fontsize=10,color='dodgerblue')
+#plt.text(1.1,60,r'<B> [nT]= {:.2f} R[AU]^{:.2f}'.format(10**bmeanfit[1],bmeanfit[0]), fontsize=10)
+#plt.text(1.1,100,r'Bmax [nT]= {:.2f} R[AU]^{:.2f}'.format(10**bmaxfit[1],bmaxfit[0]), fontsize=10,color='dodgerblue')
 
 
 
@@ -677,26 +658,17 @@ plt.annotate('<',xy=(mdates.date2num(maxstart)+10,vlevel),ha='left')
 plt.annotate('>',xy=(mdates.date2num(maxend),vlevel),ha='right')
 
 
-plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[wini_min]), \
-               np.mean(ic.mo_bmean[wini_min])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[vexi_min]), \
-               np.mean(ic.mo_bmean[vexi_min])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[mesi_min]), \
-               np.mean(ic.mo_bmean[mesi_min])], color='darkgrey', linestyle='-', markersize=0) 
+plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[wini_min]),                np.mean(ic.mo_bmean[wini_min])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[vexi_min]),                np.mean(ic.mo_bmean[vexi_min])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[mesi_min]),                np.mean(ic.mo_bmean[mesi_min])], color='darkgrey', linestyle='-', markersize=0) 
 
-plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[wini_rise]), \
-               np.mean(ic.mo_bmean[wini_rise])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[vexi_rise]), \
-               np.mean(ic.mo_bmean[vexi_rise])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[mesi_rise]), \
-               np.mean(ic.mo_bmean[mesi_rise])], color='darkgrey', linestyle='-', markersize=0) 
+plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[wini_rise]),                np.mean(ic.mo_bmean[wini_rise])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[vexi_rise]),                np.mean(ic.mo_bmean[vexi_rise])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[mesi_rise]),                np.mean(ic.mo_bmean[mesi_rise])], color='darkgrey', linestyle='-', markersize=0) 
 
-plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[wini_max]), \
-               np.mean(ic.mo_bmean[wini_max])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[vexi_max]), \
-               np.mean(ic.mo_bmean[vexi_max])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[mesi_max]), \
-               np.mean(ic.mo_bmean[mesi_max])], color='darkgrey', linestyle='-', markersize=0) 
+plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[wini_max]),                np.mean(ic.mo_bmean[wini_max])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[vexi_max]),                np.mean(ic.mo_bmean[vexi_max])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[mesi_max]),                np.mean(ic.mo_bmean[mesi_max])], color='darkgrey', linestyle='-', markersize=0) 
 
 plt.ylabel('Magnetic field in MO [nT]', fontsize=fsize)
 plt.xlabel('Year', fontsize=fsize)
@@ -715,6 +687,7 @@ plt.savefig('results/plots_stats/icme_total_field_distance_time_paper.pdf', dpi=
 plt.savefig('results/plots_stats/icme_total_field_distance_time_paper.png', dpi=300)
 
 
+# In[51]:
 
 
 ########################### RESULTS Bfield
@@ -753,29 +726,10 @@ print('-------------------------------------------------')
 
 
 
+# ## 4. Time spent by planet inside CMEs
 
+# In[52]:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-##########################################################################################
-############### (4) TIME SPENT INSIDE CMEs in %, as function of solar cycle ##############
-###########################################################################################
-
-print()
-print('---------------------------------------------------------')
-print('4 Time spent inside CMEs for each planet, 3 figure panels')
-print()
 
 #make bin for each year for yearly histograms
 #define dates of January 1 from 2007 to 2017
@@ -791,7 +745,7 @@ years_dec_31_str=[str(i)+'-12-31' for i in np.arange(2007,2018) ]
 yearly_end_times=parse_time(years_dec_31_str).plot_date
 
 
-########### 2a Determine SOLAR WIND ONLY MISSIONS STA, STB, Wind
+########### 2a Determine for SOLAR WIND ONLY MISSIONS STA, STB, Wind
 ########### all are available in 1 minute time resolution 
 
 #define arrays and fill with nan
@@ -895,18 +849,10 @@ print('MAV')
 print(np.round(total_data_days_yearly_mav,1))
 
 
+# ### 4a get time inside ICME percentage for full time range
 
+# In[53]:
 
-
-
-
-
-
-
-
-
-
-############################### 4a get time inside ICME percentage for full time range
 
 ###### check for each spacecraft and all data points if it is inside an ICME
 # save results as pickle because it takes a minute to calculate
@@ -918,52 +864,44 @@ if not os.path.exists('data/data_icme_indices_moestl_2019_paper.p'):
     win_icme_ind=np.int32(0) #needs to be integer because these will be array indices
     #Wind: go through each icme
     for i in np.arange(np.size(ic.icme_start_time[wini])): 
-        this_icme_ind=np.where(np.logical_and( (win_time[win_data_ind] > mdates.date2num(ic.icme_start_time[wini])[i]),\
-                                                win_time[win_data_ind] < mdates.date2num(ic.icme_end_time[wini])[i]))[0]
+        this_icme_ind=np.where(np.logical_and( (win_time[win_data_ind] > mdates.date2num(ic.icme_start_time[wini])[i]),                                                win_time[win_data_ind] < mdates.date2num(ic.mo_end_time[wini])[i]))[0]
         win_icme_ind=np.append(win_icme_ind,this_icme_ind)	
 
     sta_data_ind=np.where(np.isnan(sta_btot)==False)
     sta_icme_ind=np.int32(0)
     for i in np.arange(np.size(ic.icme_start_time[stai])): 
-        this_icme_ind=np.where(np.logical_and( (sta_time[sta_data_ind] > mdates.date2num(ic.icme_start_time[stai])[i]),\
-                                                sta_time[sta_data_ind] < mdates.date2num(ic.mo_end_time[stai])[i]))[0]
+        this_icme_ind=np.where(np.logical_and( (sta_time[sta_data_ind] > mdates.date2num(ic.icme_start_time[stai])[i]),                                                sta_time[sta_data_ind] < mdates.date2num(ic.mo_end_time[stai])[i]))[0]
         sta_icme_ind=np.append(sta_icme_ind,this_icme_ind)	
 
     stb_data_ind=np.where(np.isnan(stb_btot)==False)
     stb_icme_ind=np.int32(0)
     for i in np.arange(np.size(ic.icme_start_time[stbi])): 
-        this_icme_ind=np.where(np.logical_and( (stb_time[stb_data_ind] > mdates.date2num(ic.icme_start_time[stbi])[i]),\
-                                                stb_time[stb_data_ind] < mdates.date2num(ic.mo_end_time[stbi])[i] ))[0]
+        this_icme_ind=np.where(np.logical_and( (stb_time[stb_data_ind] > mdates.date2num(ic.icme_start_time[stbi])[i]),                                                stb_time[stb_data_ind] < mdates.date2num(ic.mo_end_time[stbi])[i] ))[0]
         stb_icme_ind=np.append(stb_icme_ind,this_icme_ind)	
 
     vex_data_ind=np.where(np.isnan(vex_btot)==False)
     vex_icme_ind=np.int32(0)
     for i in np.arange(np.size(ic.icme_start_time[vexi])): 
-        this_icme_ind=np.where(np.logical_and( (vex_time[vex_data_ind] > mdates.date2num(ic.icme_start_time[vexi])[i]),\
-                                                vex_time[vex_data_ind] < mdates.date2num(ic.mo_end_time[vexi])[i]) )[0]
+        this_icme_ind=np.where(np.logical_and( (vex_time[vex_data_ind] > mdates.date2num(ic.icme_start_time[vexi])[i]),                                                vex_time[vex_data_ind] < mdates.date2num(ic.mo_end_time[vexi])[i]) )[0]
         vex_icme_ind=np.append(vex_icme_ind,this_icme_ind)	
 
     mes_data_ind=np.where(np.isnan(mes_btot)==False)
     mes_icme_ind=np.int32(0)
     for i in np.arange(np.size(ic.icme_start_time[mesi])): 
-        this_icme_ind=np.where(np.logical_and( (mes_time[mes_data_ind] > mdates.date2num(ic.icme_start_time[mesi])[i]),\
-                                                mes_time[mes_data_ind] < mdates.date2num(ic.mo_end_time[mesi])[i]) )[0]
+        this_icme_ind=np.where(np.logical_and( (mes_time[mes_data_ind] > mdates.date2num(ic.icme_start_time[mesi])[i]),                                                mes_time[mes_data_ind] < mdates.date2num(ic.mo_end_time[mesi])[i]) )[0]
         mes_icme_ind=np.append(mes_icme_ind,this_icme_ind)	
 
     mav_data_ind=np.where(np.isnan(mav_btot)==False)
     mav_icme_ind=np.int32(0)
     for i in np.arange(np.size(ic.icme_start_time[mavi])): 
-        this_icme_ind=np.where(np.logical_and( (mav_time[mav_data_ind] > mdates.date2num(ic.icme_start_time[mavi])[i]),\
-                                                mav_time[mav_data_ind] < mdates.date2num(ic.mo_end_time[mavi])[i]) )[0]
+        this_icme_ind=np.where(np.logical_and( (mav_time[mav_data_ind] > mdates.date2num(ic.icme_start_time[mavi])[i]),                                                mav_time[mav_data_ind] < mdates.date2num(ic.mo_end_time[mavi])[i]) )[0]
         mav_icme_ind=np.append(mav_icme_ind,this_icme_ind)	
 
 
-    merc_data_ind=np.where(np.logical_and(np.isnan(mes_btot)==False,mes_time > \
-                       mdates.date2num(parse_time('2011-03-18').datetime)))
+    merc_data_ind=np.where(np.logical_and(np.isnan(mes_btot)==False,mes_time >                        mdates.date2num(parse_time('2011-03-18').datetime)))
     merc_icme_ind=np.int32(0)
     for i in np.arange(np.size(ic.icme_start_time[merci])): 
-        this_icme_ind=np.where(np.logical_and( (mes_time[merc_data_ind] > mdates.date2num(ic.icme_start_time[merci])[i]),\
-                                                mes_time[merc_data_ind] < mdates.date2num(ic.mo_end_time[merci])[i] ))[0]
+        this_icme_ind=np.where(np.logical_and( (mes_time[merc_data_ind] > mdates.date2num(ic.icme_start_time[merci])[i]),                                                mes_time[merc_data_ind] < mdates.date2num(ic.mo_end_time[merci])[i] ))[0]
         merc_icme_ind=np.append(merc_icme_ind,this_icme_ind)	
 
     pickle.dump([win_icme_ind,win_data_ind, sta_icme_ind,sta_data_ind, stb_icme_ind,stb_data_ind,  vex_icme_ind,vex_data_ind, mes_icme_ind,mes_data_ind,
@@ -972,8 +910,7 @@ if not os.path.exists('data/data_icme_indices_moestl_2019_paper.p'):
 
 
 
-[win_icme_ind,win_data_ind, sta_icme_ind,sta_data_ind, stb_icme_ind,stb_data_ind,  vex_icme_ind,vex_data_ind, mes_icme_ind,mes_data_ind,\
- merc_icme_ind,merc_data_ind,mav_icme_ind, mav_data_ind]= pickle.load(open( "data/data_icme_indices_moestl_2019_paper.p", "rb" ) )
+[win_icme_ind,win_data_ind, sta_icme_ind,sta_data_ind, stb_icme_ind,stb_data_ind,  vex_icme_ind,vex_data_ind, mes_icme_ind,mes_data_ind, merc_icme_ind,merc_data_ind,mav_icme_ind, mav_data_ind]= pickle.load(open( "data/data_icme_indices_moestl_2019_paper.p", "rb" ) )
 
 print()
 print()
@@ -987,11 +924,6 @@ print()
 print('MESSENGER:         ',np.round((np.size(mes_icme_ind)/np.size(mes_data_ind)*100),1))
 print('STB:               ',np.round((np.size(stb_icme_ind)/np.size(stb_data_ind)*100),1))
 print('STA:               ',np.round((np.size(sta_icme_ind)/np.size(sta_data_ind)*100),1))
-
-
-
-
-
 
 
 
@@ -1153,8 +1085,7 @@ print('STB:               ',inside_stb_cycle)
 print('STA:               ',inside_sta_cycle)
 
 
-
-
+# In[54]:
 
 
 ##################################### PLOT RESULTS ON TIME INSIDE
@@ -1475,37 +1406,9 @@ print('The ICME average duration is, in hours')
 print(np.mean(ic.icme_duration[mavi]))
 
 
+# ## 5. arrival frequencies in ICMECAT 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##########################################################################################
-##################### (5) arrival frequencies in ICMECAT  ################################
-##########################################################################################
-
-
-
-print()
-print('-------------------------------------------------')
-print('5 ARRIVAL FREQUENCY ICMECAT PLOT, 2 panels')
-print()
+# In[22]:
 
 
 #define dates of January 1 from 2007 to 2017
@@ -1590,8 +1493,7 @@ histstb=histstb/total_data_days_yearly_stb*365
 histmav=histmav/total_data_days_yearly_mav*365
 
 binedges=bin_edgeswin
-pickle.dump([binedges,histwin,histvex,histmes,histsta,histstb,histmav], \
-             open( "data/icme_frequency.p", "wb" ), protocol=2 )
+pickle.dump([binedges,histwin,histvex,histmes,histsta,histstb,histmav],              open( "data/icme_frequency.p", "wb" ), protocol=2 )
 #[binedges,histwin,histvex,histmes,histsta,histstb,histmav]=pickle.load( open( "plots_stats/stats/icme_frequency.p", "rb" ) )
 
 #binweite=45
@@ -1693,18 +1595,7 @@ print('done')
 ############################################
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+# In[ ]:
 
 
 

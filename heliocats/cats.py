@@ -22,7 +22,7 @@ import cdflib
 import matplotlib.pyplot as plt
 import heliosat
 
-from input import *
+from input import data_path
 
 
 
