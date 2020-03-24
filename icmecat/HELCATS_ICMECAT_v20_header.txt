@@ -6,7 +6,7 @@ This is version 2.0, released in March 2020 with major update to the original ve
 
 Released 2020-??-??. DOI: 10.6084/m9.figshare.4588315.v2 
 
-Number of events in ICMECAT: 661 
+Number of events in ICMECAT: 678 
 
 ICME observatories: Wind, Parker Solar Probe, STEREO-A, STEREO-B, Venus Express, MESSENGER, MAVEN, ULYSSES 
 
@@ -25,3 +25,32 @@ MESSENGER:  Good et al. 2018 Winslow et al. 2018
 MAVEN: Guo et al. (note that this is a mixture of methods MSL RAD, MAVEN and STEREO HI, Möstl et al. 2020)
 Additionally we have added individual events at Ulysses,STEREO-B, STEREO-A, Parker Solar Probe, Wind and MAVEN.
 
+1: ICMECAT_ID: The unique identifier for the observed ICME. unit: string. 
+3: ICME_START_TIME: The shock arrival or density enhancement time, can be similar to MO_START_TIME. unit: UTC. 
+4: MO_START_TIME: The start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. 
+5: MO_END_TIME: The end time of the magnetic obstacle. unit: UTC. 
+2: MO_SC_HELIODISTANCE: Average heliocentric distance of the spacecraft during the MO. unit: AU.
+3: MO_LONG_HEEQ: Average heliospheric longitude of the spacecraft during the MO, range [-180,180]. unit: degree (HEEQ).
+4: MO_LAT_HEEQ: Average heliospheric latitude of the spacecraft during the MO, range [-90,90]. unit: degree (HEEQ).
+2: SC_INSITU: The name of the in situ observatory. unit: string. 
+7: MO_BMAX: The maximum total magnetic field in the magnetic obstacle. unit: nT.
+8: MO_BMEAN: The mean total magnetic field of the magnetic obstacle. unit: nT.
+9: MO_BSTD: The standard deviation of the total magnetic field of the magnetic obstacle. unit: nT.
+10: MO_BZMEAN: The mean magnetic field Bz component in the magnetic obstacle. unit: nT.
+11: MO_BZMIN: The minimum magnetic field Bz component of the magnetic obstacle. unit: nT.
+12: MO_DURATION: Duration of interval between MO_START_TIME and MO_END_TIME. unit: hours.
+19: SHEATH_SPEED: For STEREO-A/B, Wind, MAVEN: average proton speed from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: km/s.
+20: SHEATH_SPEED_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of proton speed from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: km/s.
+21: MO_SPEED: For STEREO-A/B, Wind, MAVEN: average proton speed from MO_START_TIME to MO_END_TIME. unit: km/s.
+22: MO_SPEED_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of proton speed from MO_START_TIME to MO_END_TIME. unit: km/s.
+23: SHEATH_DENSITY: For STEREO-A/B, Wind, MAVEN: average proton density from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: ccm^-3.
+24: SHEATH_DENSITY_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of proton density from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: cm^-3.
+25: MO_DENSITY: For STEREO-A/B, Wind, MAVEN: average proton density from MO_START_TIME to MO_END_TIME. unit: cm^-3.
+26: MO_DENSITY_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of proton density from MO_START_TIME to MO_END_TIME. unit: cm^-3.
+27: SHEATH_TEMPERATURE: For STEREO-A/B, Wind, MAVEN:average proton temperature from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: K.
+28: SHEATH_TEMPERATURE_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of proton temperature from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: K.
+29: MO_TEMPERATURE: For STEREO-A/B, Wind, MAVEN: average proton temperature from MO_START_TIME to MO_END_TIME. unit: K.
+30: SHEATH_PDYN_MEAN: For STEREO-A/B, Wind, MAVEN: mean of dynamic pressure assuming only protons contribute, from ICME_START_TIME to MO_START_TIME. unit: nPa.
+31: SHEATH_PDYN_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of dynamic pressure assuming only protons contribute, from ICME_START_TIME to MO_START_TIME. unit: nPa.
+32: MO_PDYN_MEAN: For STEREO-A/B, Wind, MAVEN: mean of dynamic pressure assuming only protons contribute, from MO_START_TIME to MO_END_TIME. unit: nPa.
+33: MO_PDYN_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of dynamic pressure assuming only protons contribute, from MO_START_TIME to MO_END_TIME. unit: nPa.
