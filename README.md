@@ -45,7 +45,7 @@ and place them in the data/ folder.
     data/ulysses_1990_2009_helcats.p
 
 
-This creates the ICMECAT catalog:
+This creates the ICMECAT catalog (also a jupyter notebook is available):
 
     python icmecat.py
 

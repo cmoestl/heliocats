@@ -6,7 +6,7 @@ This is version 2.0, released in March 2020 with major update to the original ve
 
 Released 2020-??-??. DOI: 10.6084/m9.figshare.4588315.v2 
 
-Number of events in ICMECAT: 677 
+Number of events in ICMECAT: 661 
 
 ICME observatories: Wind, Parker Solar Probe, STEREO-A, STEREO-B, Venus Express, MESSENGER, MAVEN, ULYSSES 
 
@@ -24,3 +24,4 @@ VEX:  Good et al. 2018
 MESSENGER:  Good et al. 2018 Winslow et al. 2018 
 MAVEN: Guo et al. (note that this is a mixture of methods MSL RAD, MAVEN and STEREO HI, Möstl et al. 2020)
 Additionally we have added individual events at Ulysses,STEREO-B, STEREO-A, Parker Solar Probe, Wind and MAVEN.
+

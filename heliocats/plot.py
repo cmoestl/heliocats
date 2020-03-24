@@ -28,7 +28,7 @@ import astropy
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 
-from input import *
+from input import data_path
 
 
 ####################################### 
@@ -228,16 +228,24 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
     if name=='MESSENGER': plasma=False
     
     for i in np.arange(np.size(sci)):    
+    #for i in np.arange(1):     
         if plasma == True:
             print(i)
-            plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-90*24:mo_end_ind[i]+90*24],\
-                         ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
-                         ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic.icmecat_id[sci[i]])
+            
+            if name!='MAVEN':
+                plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-90*24:mo_end_ind[i]+90*24],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i])
+            if name == 'MAVEN':    
+                plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-12:mo_end_ind[i]+12],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i])
+                
             plt.close('all')
         else:
             plot_insitu_icmecat_mag(sc[icme_start_ind[i]-90*24:mo_end_ind[i]+90*24], \
                                     ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
-                                    ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic.icmecat_id[sci[i]])
+                                    ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i])
             plt.close('all')
     
    
@@ -247,9 +255,9 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
      
      
 
-def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, id, **kwargs):
+def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs):
      '''
-     sc = data
+     sc ... data
     
      '''
      
@@ -270,10 +278,19 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, id, **kwargs)
      ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
      ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
      ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
-     
+        
+     #plot vertical lines
+     ax1.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[-500,500],'-k',linewidth=1)            
+     ax1.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[-500,500],'-k',linewidth=1)            
+     ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-500,500],'-k',linewidth=1)            
+
+    
      plt.ylabel('B [nT]')
      plt.legend(loc=3,ncol=4,fontsize=8)
      ax1.set_xlim(start,end)
+     #if np.isnan(np.nanmin(sc.bt))==False:
+     ax1.set_ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)   
+        
      ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
      #plt.ylim((-20, 20))
      #ax1.set_xticklabels([]) does not work with sharex
@@ -285,9 +302,22 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, id, **kwargs)
 
      ax2 = plt.subplot(412,sharex=ax1) 
      ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
+    
+
+     #plot vertical lines
+     ax2.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,3000],'-k',linewidth=1)            
+     ax2.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,3000],'-k',linewidth=1)            
+     ax2.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,3000],'-k',linewidth=1)            
+
+
 
      plt.ylabel('V [km/s]')
      ax2.set_xlim(start,end)
+     #check plasma data exists
+     if np.isnan(np.nanmin(sc.vt))==False:
+         ax2.set_ylim(np.nanmin(sc.vt)-20,np.nanmax(sc.vt)+100)   
+
+
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
      #plt.ylim((250, 800))
      #ax2.set_xticklabels([])
@@ -296,9 +326,19 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, id, **kwargs)
 
      ax3 = plt.subplot(413,sharex=ax1) 
      ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
+     
+     #plot vertical lines
+     ax3.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,1000],'-k',linewidth=1)            
+     ax3.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,1000],'-k',linewidth=1)            
+     ax3.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,1000],'-k',linewidth=1)            
+
 
      plt.ylabel('N [ccm-3]')
      ax3.set_xlim(start,end)
+     if np.isnan(np.nanmin(sc.np))==False:
+         ax3.set_ylim(0,np.nanmax(sc.np)+10)   
+
+
      ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
      #plt.ylim((0, 50))
      #ax3.set_xticklabels([])
@@ -307,9 +347,19 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, id, **kwargs)
 
      ax4 = plt.subplot(414,sharex=ax1) 
      ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
+    
+     #plot vertical lines
+     ax4.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,10],'-k',linewidth=1)            
+     ax4.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,10],'-k',linewidth=1)            
+     ax4.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,10],'-k',linewidth=1)            
+
+
 
      plt.ylabel('T [MK]')
      ax4.set_xlim(start,end)
+     if np.isnan(np.nanmin(sc.tp))==False:
+         ax4.set_ylim(0,np.nanmax(sc.tp/1e6)+0.2)   
+
      ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
      #plt.ylim((0, 0.5))
      
@@ -318,7 +368,7 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, id, **kwargs)
 
      #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
 
-     plotfile=path+id+'.png'
+     plotfile=path+ic.icmecat_id[i]+'.png'
   
 
      plt.savefig(plotfile)
@@ -332,7 +382,7 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, id, **kwargs)
      
      
 
-def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, id, **kwargs):
+def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, **kwargs):
      '''
      sc = data
     
@@ -354,10 +404,18 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, id, **kwargs):
      ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
      ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
      ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
+    
+     #plot vertical lines
+     ax1.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[-500,500],'-k',linewidth=1)            
+     ax1.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[-500,500],'-k',linewidth=1)            
+     ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-500,500],'-k',linewidth=1)            
+
      
      plt.ylabel('B [nT]')
      plt.legend(loc=3,ncol=4,fontsize=8)
      ax1.set_xlim(start,end)
+     ax1.set_ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)   
+
      ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
 
      plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
@@ -368,7 +426,7 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, id, **kwargs):
      #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
      
      
-     plotfile=path+id+'.png'
+     plotfile=path+ic.icmecat_id[i]+'.png'
        
      plt.savefig(plotfile)
      print('saved as ',plotfile)
@@ -402,6 +460,19 @@ def plot_insitu_measure(sc, start, end, sc_label, path, **kwargs):
      #print(start)
      #print(end)
      
+     #cut out data from full array for faster plotting    
+     startind=np.where(sc.time > start)[0][0]   
+     endind=np.where(sc.time > end)[0][0]    
+        
+    
+     sc=sc[startind:endind]
+        
+    
+     #t1=parse_time('2010-10-30T09:16').datetime
+     #t2=parse_time('2010-10-30T16:00').datetime
+     #t3=parse_time('2010-10-30T20:33').datetime
+    
+    
      sns.set_style('darkgrid')
      sns.set_context('paper')
 
@@ -434,7 +505,7 @@ def plot_insitu_measure(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('V [km/s]')
      ax2.set_xlim(start,end)
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     #plt.ylim((250, 800))
+     plt.ylim((250, 800))
      #ax2.set_xticklabels([])
      plt.setp(ax2.get_xticklabels(), visible=False)
 
@@ -445,7 +516,7 @@ def plot_insitu_measure(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('N [ccm-3]')
      ax3.set_xlim(start,end)
      ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     #plt.ylim((0, 50))
+     plt.ylim((0, 50))
      #ax3.set_xticklabels([])
      plt.setp(ax3.get_xticklabels(), visible=False)
 
@@ -456,7 +527,7 @@ def plot_insitu_measure(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('T [MK]')
      ax4.set_xlim(start,end)
      ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     #plt.ylim((0, 0.5))
+     plt.ylim((0, 0.5))
      
      plt.tight_layout()
      #plt.show()
@@ -477,7 +548,8 @@ def plot_insitu_measure(sc, start, end, sc_label, path, **kwargs):
   
      cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
-
+    
+     
 
      #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
      #plt.savefig(plotfile)

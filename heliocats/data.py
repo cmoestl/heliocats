@@ -16,6 +16,7 @@ from sunpy.time import parse_time
 import scipy.io
 import scipy.signal
 import pickle
+import time
 import sys
 import cdflib
 import matplotlib.pyplot as plt
@@ -1817,8 +1818,10 @@ def save_ulysses_data(data_path):
     uly.z=upos.z
     
     uly.r=r
-    uly.lat=lat
-    uly.lon=lon
+    uly.lat=np.rad2deg(lat)
+    uly.lon=np.rad2deg(lon)
+
+
     
         
     badmag=np.where(uly.bt < -10000)
@@ -1877,6 +1880,22 @@ def save_ulysses_data(data_path):
 ############################# HELCATS DATA into single file ###############################
 
 
+
+#for reading .sav files
+def getcat(filename):
+
+    print('reading CAT '+filename)
+    cat=scipy.io.readsav(filename, verbose='true')  
+    print('done reading CAT')
+    return cat  
+  
+def convert_sav_to_p():
+    start=time.time()
+    wind=getcat('/nas/helio/data/DATACAT/WIND_2007to2016_HEEQ.sav')
+    end=time.time()
+    print('load wind end. time in minutes:', (end-start)/60)
+    #save time and components as pickle
+    pickle.dump(wind.wind, open( "/nas/helio/data/insitu_python/WIND_2007to2016_HEEQ.p", "wb" ) )
 
 
 
@@ -2219,7 +2238,7 @@ def save_helcats_datacat(data_path,removed):
 
     if removed==True: 
         pickle.dump([vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly], open(data_path+ "helcats_all_data_removed.p", "wb" ) )
-        print('saved as ' +data_path+ 'helcats_all_non_removed.p')
+        print('saved as ' +data_path+ 'helcats_all_data_removed.p')
 
     if removed==False: 
         pickle.dump([vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly], open(data_path+ "helcats_all_data_non_removed.p", "wb" ) )
