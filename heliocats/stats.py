@@ -240,4 +240,38 @@ for Mars: reconstruct likely parameters if sigma is quite similar for all fits, 
 plot reconstructed function for Mars
 bfitmax=40
 plt.plot_date(xfit2, Fwind,'o',color='steelblue',linestyle='--',markersize=0, label='Mars reconstr.')
+
+
+
+
+#old version of B fits
+# print('Fit results for B in Form: y=B0*x^k')
+# ####### power law fits for all events
+# bmaxfit=np.polyfit(np.log10(ic.mo_sc_heliodistance),np.log10(ic.mo_bmax),1)
+# b=10**bmaxfit[1]
+# bmaxfitfun=b*(xfit**bmaxfit[0])
+# print('bmax:       ',round(10**bmaxfit[1],2),' x ^', round(bmaxfit[0],2))
+
+# bmeanfit=np.polyfit(np.log10(ic.mo_sc_heliodistance),np.log10(ic.mo_bmean),1)
+# b=10**bmeanfit[1]
+# bmeanfitfun=b*(xfit**bmeanfit[0])
+# print('bmean:      ', round(10**bmeanfit[1],2),' x ^',round(bmeanfit[0],2))
+
+# ##fit with only minimum events
+# bmeanfit_min=np.polyfit(np.log10(ic.mo_sc_heliodistance[iall_min]),np.log10(ic.mo_bmean[iall_min]),1)
+# bmeanfitfun_min=(10**bmeanfit_min[1])*(xfit**bmeanfit_min[0])
+# print('bmean_min:  ', round(10**bmeanfit_min[1],2),' x ^', round(bmeanfit_min[0],2))
+
+# ##fit with only rising events
+# bmeanfit_rise=np.polyfit(np.log10(ic.mo_sc_heliodistance[iall_rise]),np.log10(ic.mo_bmean[iall_rise]),1)
+# bmeanfitfun_rise=(10**bmeanfit_rise[1])*(xfit**bmeanfit_rise[0])
+# print('bmean_rise: ', round(10**bmeanfit_rise[1],2),' x ^', round(bmeanfit_rise[0],2))
+
+# ##fit with only maximum events
+# bmeanfit_max=np.polyfit(np.log10(ic.mo_sc_heliodistance[iall_max]),np.log10(ic.mo_bmean[iall_max]),1)
+# bmeanfitfun_max=(10**bmeanfit_max[1])*(xfit**bmeanfit_max[0])
+# print('bmean_max:  ', round(10**bmeanfit_max[1],2),' x ^',round(bmeanfit_max[0],2))
+
+
+
 '''
