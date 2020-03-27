@@ -1,56 +1,92 @@
 ICME CATALOGUE v2.0 
 
-This is the HELCATS interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetometer and plasma observations in the heliosphere. 
+This is the HELCATS interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 
-This is version 2.0, released in March 2020 with major update to the original version 1.0, originally a product of EU HELCATS project (2014-2017). 
+This is version 2.0, released in April 2020 with a major update to the original version 1.0, originally a product of EU HELCATS project (2014-2017). 
 
-Released 2020-??-??. DOI: 10.6084/m9.figshare.4588315.v2 
+Released 2020-**-**. DOI: 10.6084/m9.figshare.4588315.v2 *** 
+The catalog is available as .p (python pickle), .xlsx, .csv, .html, .json at https://helioforecast.space/catalogs 
 
 Number of events in ICMECAT: 678 
-
-ICME observatories: Wind, Parker Solar Probe, STEREO-A, STEREO-B, Venus Express, MESSENGER, MAVEN, ULYSSES 
-
+ICME observatories: Wind, STEREO-A, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses, MAVEN, Parker Solar Probe (PSP).   
 Time range: January 2007 - December 2018. 
  
-Authors: Christian Moestl, Andreas Weiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria,
-Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, Reka Winslow, Brian Anderson, Lydia Philpott,
-Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla.  
+Authors: Christian Moestl, Andreas Weiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria.
+Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Jingnan Guo, Mateja Dumbovic, Benoit Lavraud.  
 
-The catalog has been made by getting 3 times of the ICME (shock or disturbance begin, magnetic obstacle start and end) from these individual catalogs and then calculating all parameters again consistently from all data: 
+This catalog has been made by getting the 3 times of each ICME (shock or disturbance begin, magnetic obstacle start and end) from the individual catalogs below, and then calculating all parameters again consistently from the data by us. 
+Each icmecat_id has a tag in it that indicates from which catalog the ICME times were taken. 
 
-Wind: Nieves-Chinchilla et al. 2018: 
-STEREO-A, STEREO-B Lan Jian ....
-VEX:  Good et al. 2018 
-MESSENGER:  Good et al. 2018 Winslow et al. 2018 
-MAVEN: Guo et al. (note that this is a mixture of methods MSL RAD, MAVEN and STEREO HI, Möstl et al. 2020)
-Additionally we have added individual events at Ulysses,STEREO-B, STEREO-A, Parker Solar Probe, Wind and MAVEN.
+Wind:       Nieves-Chinchilla et al. (2018), tag: NASA. 
+STEREO-A:   Jian et al. (2018), tag: JIAN. 
+STEREO-B:   Jian et al. (2018), tag: JIAN. 
+VEX:        Good et al. (2018), tag: SGOOD 
+MESSENGER:  Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW. 
+MAVEN:      Möstl et al. (2020, in prep.), tag: MOESTL.
+Ulysses:    Added by us, tag: MOESTL. 
+PSP:        Added by us, tag: MOESTL. 
+We have also added extra events at Ulysses, STEREO-A, PSP, MESSENGER, VEX, Wind and MAVEN (all tagged with MOESTL in icmecat_id).
 
-1: ICMECAT_ID: The unique identifier for the observed ICME. unit: string. 
-3: ICME_START_TIME: The shock arrival or density enhancement time, can be similar to MO_START_TIME. unit: UTC. 
-4: MO_START_TIME: The start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. 
-5: MO_END_TIME: The end time of the magnetic obstacle. unit: UTC. 
-2: MO_SC_HELIODISTANCE: Average heliocentric distance of the spacecraft during the MO. unit: AU.
-3: MO_LONG_HEEQ: Average heliospheric longitude of the spacecraft during the MO, range [-180,180]. unit: degree (HEEQ).
-4: MO_LAT_HEEQ: Average heliospheric latitude of the spacecraft during the MO, range [-90,90]. unit: degree (HEEQ).
-2: SC_INSITU: The name of the in situ observatory. unit: string. 
-7: MO_BMAX: The maximum total magnetic field in the magnetic obstacle. unit: nT.
-8: MO_BMEAN: The mean total magnetic field of the magnetic obstacle. unit: nT.
-9: MO_BSTD: The standard deviation of the total magnetic field of the magnetic obstacle. unit: nT.
-10: MO_BZMEAN: The mean magnetic field Bz component in the magnetic obstacle. unit: nT.
-11: MO_BZMIN: The minimum magnetic field Bz component of the magnetic obstacle. unit: nT.
-12: MO_DURATION: Duration of interval between MO_START_TIME and MO_END_TIME. unit: hours.
-19: SHEATH_SPEED: For STEREO-A/B, Wind, MAVEN: average proton speed from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: km/s.
-20: SHEATH_SPEED_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of proton speed from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: km/s.
-21: MO_SPEED: For STEREO-A/B, Wind, MAVEN: average proton speed from MO_START_TIME to MO_END_TIME. unit: km/s.
-22: MO_SPEED_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of proton speed from MO_START_TIME to MO_END_TIME. unit: km/s.
-23: SHEATH_DENSITY: For STEREO-A/B, Wind, MAVEN: average proton density from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: ccm^-3.
-24: SHEATH_DENSITY_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of proton density from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: cm^-3.
-25: MO_DENSITY: For STEREO-A/B, Wind, MAVEN: average proton density from MO_START_TIME to MO_END_TIME. unit: cm^-3.
-26: MO_DENSITY_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of proton density from MO_START_TIME to MO_END_TIME. unit: cm^-3.
-27: SHEATH_TEMPERATURE: For STEREO-A/B, Wind, MAVEN:average proton temperature from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: K.
-28: SHEATH_TEMPERATURE_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of proton temperature from ICME_START_TIME to MO_START_TIME, NaN if these times are similar. unit: K.
-29: MO_TEMPERATURE: For STEREO-A/B, Wind, MAVEN: average proton temperature from MO_START_TIME to MO_END_TIME. unit: K.
-30: SHEATH_PDYN_MEAN: For STEREO-A/B, Wind, MAVEN: mean of dynamic pressure assuming only protons contribute, from ICME_START_TIME to MO_START_TIME. unit: nPa.
-31: SHEATH_PDYN_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of dynamic pressure assuming only protons contribute, from ICME_START_TIME to MO_START_TIME. unit: nPa.
-32: MO_PDYN_MEAN: For STEREO-A/B, Wind, MAVEN: mean of dynamic pressure assuming only protons contribute, from MO_START_TIME to MO_END_TIME. unit: nPa.
-33: MO_PDYN_STD: For STEREO-A/B, Wind, MAVEN: standard deviation of dynamic pressure assuming only protons contribute, from MO_START_TIME to MO_END_TIME. unit: nPa.
+Comments: 
+- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. 
+- Coordinate system for all magnetic field components is SCEQ except Ulysses and Parker Solar Probe (RTN), MAVEN (MSO) and Wind (HEEQ). 
+        Definition of SpaceCraft Equatorial Coordinates (SCEQ): 
+        Z is the solar rotation axis. 
+        X points from the Sun to the spacecraft, projected in the solar equatorial plane. 
+        Y completes the right handed triad and points to solar west. 
+        This system is thus centered on the respective in situ spacecraft. 
+        The solar equatorial plane as the reference plane is similar for all spacecraft.
+- Venus Express and MESSENGER do not have plasma parameters available. 
+- The identification of ICMEs for MAVEN is a mixture of methods using data from MSL/RAD, MAVEN and STEREO HI (Möstl et al. 2020, in prep.). 
+
+The in situ data (4 GB) can be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693 
+The python code for producing this catalog is available as part of https://github.com/cmoestl 
+
+References: 
+Nieves-Chinchilla, T. et al. (2018), https://doi.org/10.1007/s11207-018-1247-z  https://wind.nasa.gov/fullcatalogue.php 
+Jian, L. et al. (2018), https://doi.org/10.3847/1538-4357/aab189 https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/ 
+Good, S. et al. (2018) https://doi.org/10.1007/s11207-015-0828-3 
+Winslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 
+Möstl, C. et al. (2020) in preparation 
+
+
+
+Parameters:
+
+01: icmecat_id: The unique identifier for the observed ICME. unit: string. 
+02: icme_start_time: Shock arrival or density enhancement time, can be similar to mo_start_time. unit: UTC. 
+03: mo_start_time: Start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. 
+04: mo_end_time: End time of the magnetic obstacle. unit: UTC. 
+05: mo_sc_heliodistance: Heliocentric distance of the spacecraft at mo_start_time. unit: AU.
+06: mo_sc_long_heeq: Heliospheric longitude of the spacecraft at mo_start_time, range [-180,180]. unit: degree (HEEQ).
+07: mo_sc_lat_heeq: Heliospheric latitude of the spacecraft at mo_start_time, range [-90,90]. unit: degree (HEEQ).
+08: icme_duration: Duration of the interval between icme_start_time and mo_endtime. unit: hours.
+09: icme_bmax: Maximum total magnetic field in the full icme interval (icme_start_time to mo_end_time). unit: nT.
+10: icme_bmean: Mean total magnetic field during the full icme interval (icme_start_time to mo_end_time). unit: nT.
+11: icme_bstd: Standard deviation of the total magnetic field from icme_start_time to mo_end_time. unit: nT.
+12: icme_speed_mean: Mean proton speed from icme_start_time to mo_end_time. unit: km/s.
+13: icme_speed_std: Standard deviation of proton speed from icme_start_time to mo_end_time. unit: km/s.
+14: mo_duration: Duration of the interval between mo_start_time and mo_endtime. unit: hours.
+15: mo_bmax: Maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.
+16: mo_bmean: Mean total magnetic field in the magnetic obstacle. unit: nT.
+17: mo_bstd: Standard deviation of the total magnetic field in the magnetic obstacle. unit: nT.
+18: mo_bzmean: Mean magnetic field Bz component in the magnetic obstacle. unit: nT.
+19: mo_bzmin: Minimum magnetic field Bz component in the magnetic obstacle. unit: nT.
+20: mo_bzstd: Standard deviation of the magnetic field Bz component in the magnetic obstacle. unit: nT.
+21: mo_bymean: Mean magnetic field By component in the magnetic obstacle. unit: nT.
+22: mo_bystd: Standard deviation of the magnetic field By component in the magnetic obstacle. unit: nT.
+23: mo_speed_mean: Mean proton speed from mo_start_time to mo_end_time. unit: km/s.
+24: mo_speed_std: Standard deviation of proton speed from mo_start_time to mo_end_time. unit: km/s.
+25: mo_expansion_speed: Difference between proton speed at mo_start_time to proton speed at mo_end_time. unit: km/s.
+26: mo_pdyn_mean: Mean proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.
+27: mo_pdyn_std: Standard deviation of proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.
+28: mo_density_mean: Mean proton density from mo_start_time to mo_start_time. unit: cm^-3.
+29: mo_density_std: Standard deviation of proton density from mo_start_time to mo_start_time. unit: cm^-3.
+30: mo_temperature_mean: Mean proton temperature from mo_start_time to mo_start_time. unit: K.
+31: mo_temperature_std: Standard deviation of proton temperature from mo_start_time to mo_end_time. unit: K.
+32: sheath_speed_mean: Mean proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.
+33: sheath_speed_std: Standard deviation of proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.
+34: sheath_density_mean: Mean proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.
+35: sheath_density_std: Standard deviation of proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.
+36: sheath_pdyn_mean: Mean proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.
+37: sheath_pdyn_std: Standard deviation of proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.
