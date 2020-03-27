@@ -12,7 +12,7 @@ ICME observatories: Wind, STEREO-A, STEREO-B, Venus Express (VEX), MESSENGER, Ul
 Time range: January 2007 - December 2018. 
  
 Authors: Christian Moestl, Andreas Weiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria.
-Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Jingnan Guo, Mateja Dumbovic, Benoit Lavraud.  
+Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, Mateja Dumbovic, Benoit Lavraud.  
 
 This catalog has been made by getting the 3 times of each ICME (shock or disturbance begin, magnetic obstacle start and end) from the individual catalogs below, and then calculating all parameters again consistently from the data by us. 
 Each icmecat_id has a tag in it that indicates from which catalog the ICME times were taken. 
@@ -27,18 +27,6 @@ Ulysses:    Added by us, tag: MOESTL.
 PSP:        Added by us, tag: MOESTL. 
 We have also added extra events at Ulysses, STEREO-A, PSP, MESSENGER, VEX, Wind and MAVEN (all tagged with MOESTL in icmecat_id).
 
-Comments: 
-- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. 
-- Coordinate system for all magnetic field components is SCEQ except Ulysses and Parker Solar Probe (RTN), MAVEN (MSO) and Wind (HEEQ). 
-        Definition of SpaceCraft Equatorial Coordinates (SCEQ): 
-        Z is the solar rotation axis. 
-        X points from the Sun to the spacecraft, projected in the solar equatorial plane. 
-        Y completes the right handed triad and points to solar west. 
-        This system is thus centered on the respective in situ spacecraft. 
-        The solar equatorial plane as the reference plane is similar for all spacecraft.
-- Venus Express and MESSENGER do not have plasma parameters available. 
-- The identification of ICMEs for MAVEN is a mixture of methods using data from MSL/RAD, MAVEN and STEREO HI (Möstl et al. 2020, in prep.). 
-
 The in situ data (4 GB) can be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693 
 The python code for producing this catalog is available as part of https://github.com/cmoestl 
 
@@ -50,9 +38,27 @@ Winslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200
 Möstl, C. et al. (2020) in preparation 
 
 
+Comments: 
+- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. 
+- Coordinate system for all magnetic field components is SCEQ except Ulysses and Parker Solar Probe (RTN), MAVEN (MSO) and Wind (HEEQ). 
+        Definition of SpaceCraft Equatorial Coordinates (SCEQ): 
+        Z is the solar rotation axis. 
+        X points from the Sun to the spacecraft, projected in the solar equatorial plane. 
+        Y completes the right handed triad and points to solar west. 
+        This system is thus centered on the respective in situ spacecraft. 
+        The solar equatorial plane as the reference plane is similar for all spacecraft.
+- Venus Express and MESSENGER do not have plasma parameters available. 
+- If there is no sheath region, so the ICME starts immediately with a magnetic obstacle, the icme_start_time is similar to mo_start_time.
+- At MESSENGER and VEX, for events cataloged by Simon Good, icme_start_time has been added by V. Krupar (Imperial College) and C. Möstl (IWF Graz). 
+- For the calculation of the parameters at MESSENGER during the orbit around Mercury, all data points inside the bowshock of Mercury have been removed, according to a list thankfully provided to us by by R. Winslow, UNH, B. Anderson, APL, and Lydia Philpott, UBC. 
+- Calculation of the magnetic obstacle parameters at VEX is done after approximate removal of the induced magnetosphere, with a modified equation 
+in Zhang et al. 2008 (doi: 10.1016/j.pss.2007.09.012), with a constant of 3.5 instead of 2.14/2.364,in order to account for a larger bowshock distance during solar maximum than studied in this paper. 
+- For MAVEN, all data inside the bow shock were removed with the model from ****************** (by C. Simon Wedlund). From the remaining data, the median for each orbit is taken as 1 data point, resulting in a solar wind dataset at Mars with 4.5 hour time resolution.
+- The identification of ICMEs for MAVEN is a mixture of methods using data from MSL/RAD, MAVEN and STEREO/HI (see Möstl et al. 2020, in prep.). 
+
+
 
 Parameters:
-
 01: icmecat_id: The unique identifier for the observed ICME. unit: string. 
 02: icme_start_time: Shock arrival or density enhancement time, can be similar to mo_start_time. unit: UTC. 
 03: mo_start_time: Start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. 
@@ -90,3 +96,5 @@ Parameters:
 35: sheath_density_std: Standard deviation of proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.
 36: sheath_pdyn_mean: Mean proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.
 37: sheath_pdyn_std: Standard deviation of proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.
+
+
