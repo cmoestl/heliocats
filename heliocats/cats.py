@@ -74,9 +74,8 @@ def pdyn(density, speed):
     return pdyn
     
     
-def load_icmecat():    
+def load_pickle(file):    
 
-    file='icmecat/HELCATS_ICMECAT_v20.p'
     ic=pickle.load( open(file, 'rb'))    
     
     return ic

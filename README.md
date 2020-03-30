@@ -54,7 +54,7 @@ The catalog is available in these formats: .p, .xlsx, .json, .csv, .html, .txt
 Load this catalog with 
 
     import pickle
-    file='icmecat/HELCATS_ICMECAT_v20.p'
+    file='icmecat/HELCATS_ICMECAT_v20_pandas.p'
     ic=pickle.load( open(file, 'rb'))
     
 "ic" is a pandas dataframe, the names of all parameters can be seen with 
@@ -71,9 +71,17 @@ and the data can be accessed by
 
 which works particularly well in ipython or a jupyter notebook.
 
-All times (ic.icme_start_time, ic.mo_start_time, ic.mo_end_time) are python datetime objects. 
-They can be used directly plotting with matplotlib, but can also easily 
-converted into many formats by:
+Alternatively, you can load the ICMECAT with 
+
+    import pickle
+    file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
+    ic=pickle.load( open(file, 'rb'))
+
+which returns a numpy array consisting of strings and floats.
+
+In the pandas dataframe, all times (ic.icme_start_time, ic.mo_start_time, ic.mo_end_time) are python datetime objects. 
+In the numpy arrays, these times are given in matplotlib format. Both formats can be used directly plotting with matplotlib, but can also easily 
+converted into many other formats by:
 
     from sunpy.time import parse_time
     parse_time(ic.icme_start_time).plot_date
