@@ -1898,12 +1898,93 @@ def convert_sav_to_p():
     pickle.dump(wind.wind, open( "/nas/helio/data/insitu_python/WIND_2007to2016_HEEQ.p", "wb" ) )
 
 
+def despike_helcats_speed_wind(vt,vx,vy,vz):
 
-  
-  
-  
+
+    #set all nan to 0 in the v gradient array
+    v1=copy.deepcopy( abs( np.gradient(vt)   ))
+    vnan_ind=np.where(np.isnan(v1)==True)[0]
+    v1[vnan_ind]=0
+ 
+    peaks, properties = scipy.signal.find_peaks(v1, prominence=40, width=(1, 10))
+    vt[np.where(v1>100)]=np.nan
+    vx[np.where(v1>100)]=np.nan
+    vy[np.where(v1>100)]=np.nan
+    vz[np.where(v1>100)]=np.nan
+
+
+    for i in np.arange(len(peaks)):
+         width=int(np.ceil(properties['widths'])[i])
+         #print(width)   
+         vt[peaks[i]-width:peaks[i]+width]=np.nan
+         vx[peaks[i]-width:peaks[i]+width]=np.nan
+         vy[peaks[i]-width:peaks[i]+width]=np.nan
+         vz[peaks[i]-width:peaks[i]+width]=np.nan
+
+
+    #print(properties['widths'])
+    #plt.plot(win.vt[0:80000],'-b')
+    #plt.plot(win.vt[0:80000],'-k',linewidth=1)
+    #plt.plot(v,'-r',linewidth=1)
+    #plt.plot(v1,'-b',linewidth=1)
+    return vt,vx,vy,vz
+ 
+def despike_helcats_density_wind(den):
+
+
+    #set all nan to 0 in the v gradient array
+    den1=copy.deepcopy( abs( np.gradient(den)   ))
+    den1nan_ind=np.where(np.isnan(den1)==True)[0]
+    den1[den1nan_ind]=0
+ 
+    peaks, properties = scipy.signal.find_peaks(den1, prominence=10, width=(1, 10))
+    den[np.where(den1>10)]=np.nan
+    den1[np.where(den1>10)]=np.nan
+
+    for i in np.arange(len(peaks)):
+         width=int(np.ceil(properties['widths'])[i])
+         #print(width)   
+         den[peaks[i]-width:peaks[i]+width]=np.nan
+            
+            
+    #print(properties['widths'])
+    #plt.plot(win.vt[0:80000],'-b')
+    #plt.plot(win.np[1200000:1500000]+50,'-g',linewidth=5)
+    #plt.plot(den+1,'-k',linewidth=1)
+    #plt.plot(den1,'-b',linewidth=1)
+
+    return den
+ 
+
+def despike_helcats_temperature_wind(den):
+
+    den=den/1e6    
+    #set all nan to 0 in the v gradient array
+    den1=copy.deepcopy( abs( np.gradient(den)   ))
+    den1nan_ind=np.where(np.isnan(den1)==True)[0]
+    den1[den1nan_ind]=0
+
+    peaks, properties = scipy.signal.find_peaks(den1, prominence=0.2, width=(1, 10))
+    #den[np.where(den>100)[0]]=np.nan
+    den[np.where(den1>0.2)]=np.nan
+    den1[np.where(den1>0.2)]=np.nan
+
+    for i in np.arange(len(peaks)):
+         width=int(np.ceil(properties['widths'])[i])
+         #print(width)   
+         den[peaks[i]-width:peaks[i]+width]=np.nan
+
+    return den*1e6
+
+
+
+    
+    
+    
 def save_helcats_datacat(data_path,removed):  
-    ''' to save all of helcats DATACAT into a single file'''
+    ''' to save all of helcats DATACAT into a single file
+    use: hd.save_helcats_datacat(data_path,removed=True)
+    '''
       
     print('save all helcats DATACAT into single file')
     datacat_path='/nas/helio/data/DATACAT/'
@@ -1945,6 +2026,16 @@ def save_helcats_datacat(data_path,removed):
     win.np=winin.np
     win.tp=winin.tp
  
+    [win.vt,win.vx,win.vy,win.vz]=despike_helcats_speed_wind(win.vt,win.vx,win.vy,win.vz)
+    win.np=despike_helcats_density_wind(win.np)
+    win.tp=despike_helcats_temperature_wind(win.tp)
+    
+
+
+
+
+
+
     win.r=winin.r/(astropy.constants.au.value/1e3)
     win.lat=winin.lat
     win.lon=winin.lon
@@ -1953,8 +2044,6 @@ def save_helcats_datacat(data_path,removed):
     win.lon=np.rad2deg(win.lon)   
     win.lat=np.rad2deg(win.lat)
 
-    #**remove spikes in v
-    #https://datascience.stackexchange.com/questions/27031/how-to-get-spike-values-from-a-value-sequence
     del(winin)
     
     hwin='Wind merged magnetic field and plasma data, obtained from HELCATS (A. Isavnin). '+ \
@@ -2007,8 +2096,6 @@ def save_helcats_datacat(data_path,removed):
     sta.lon=np.rad2deg(sta.lon)   
     sta.lat=np.rad2deg(sta.lat)
 
-    #**remove spikes in v
-    #https://datascience.stackexchange.com/questions/27031/how-to-get-spike-values-from-a-value-sequence
     del(stain)
   
     hsta='STEREO-A merged magnetic field and plasma data, obtained from HELCATS (A. Isavnin). '+ \
