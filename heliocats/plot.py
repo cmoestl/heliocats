@@ -28,7 +28,7 @@ import astropy
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 
-from input import data_path
+from config import data_path
 
 
 ####################################### 

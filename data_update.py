@@ -304,9 +304,31 @@ sys.exit()
 
 
 
-filesta2="stereoa_2018_2019.p"
-hd.save_stereoa_science_data(data_path, filesta2)
+#STEREO-B science data
+import importlib
+import heliocats.data as hd 
+importlib.reload(hd)
+from config import data_path
+filestb2="stereob_2013_2014.p"
+start=datetime.datetime(2013, 1, 1)
+end=datetime.datetime(2014, 9, 25)
+hd.save_stereob_science_data(data_path, filestb2, start, end)
+[stb2,header]=pickle.load(open(data_path+filestb2, "rb" ) ) 
+
+
+
+#STEREO-A science data
+import heliocats
+import importlib
+import heliocats.data as hd 
+importlib.reload(hd)
+from config import data_path
+filesta2="stereoa_2015_2019.p"
+start=datetime.datetime(2015, 7, 21)
+end=datetime.datetime(2019, 12, 31)
+hd.save_stereoa_science_data(data_path, filesta2, start, end)
 [sta2,header]=pickle.load(open(data_path+filesta2, "rb" ) ) 
+
 
 
 

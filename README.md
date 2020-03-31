@@ -1,7 +1,7 @@
 # heliocats
 
 
-This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections and high speed solar wind streams, and their analysis. 
+This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections and their analysis. 
 
 by [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/)
 
@@ -9,7 +9,7 @@ Current status (March 2020): **Work in progress!**
 
 This is a continuation of work done in the EU HELCATS project (2014-2017): 
 [https://www.helcats-fp7.eu](https://www.helcats-fp7.eu), in particular concerning 
-the Interplanetary Coronal Mass ejection CATalog ICMECAT (working package 4).
+the Interplanetary Coronal Mass ejection CATalog ICMECAT.
 
 If you want to use parts of this code for generating results for peer-reviewed scientific publications, please contact me per email (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace .
 
@@ -22,7 +22,7 @@ For running the jupyter notebooks (files with .ipynb) or the python scripts (.py
     conda activate helio
 
 Folder *data/* contains all data files needed and produced during the analysis. 
-All outputs can be found in the folder *results/* or subfolders. Jupyter notebooks can be converted to scripts by e.g. for icmecat.ipynb to icmecat.py:
+Outputs can be found in the folder *results/* or subfolders, the files created for the ICMECAT are in folder *icmecat/*. Jupyter notebooks can be converted to scripts by e.g. for icmecat.ipynb to icmecat.py:
 
     jupyter nbconvert --to script icmecat.ipynb
     
@@ -32,7 +32,7 @@ All outputs can be found in the folder *results/* or subfolders. Jupyter noteboo
 
 **work in progress, don't use yet!**
 
-Before running the icmecat scripts, you need to download 6 data files (in total 4.1 GB) from this 
+Before running the icmecat scripts, you need to download 5 data files (in total 4.1 GB) from this 
 figshare repository: [https://doi.org/10.6084/m9.figshare.11973693.v1](https://doi.org/10.6084/m9.figshare.11973693.v1)
 
 and place them in the data/ folder.
@@ -41,15 +41,14 @@ and place them in the data/ folder.
     data/maven_2014_2018_removed_smoothed.p
     data/psp_2018_2019.p
     data/wind_2018_2020.p
-    data/sta_2018_2019_beacon.p
-    data/ulysses_1990_2009_helcats.p
+    data/stereoa_2015_2019.p
+ 
 
-
-This creates the ICMECAT catalog (also a jupyter notebook is available):
+This creates the ICMECAT catalog (also a jupyter notebook *icmecat.ipynb* is available):
 
     python icmecat.py
 
-The catalog is available in these formats: .p, .xlsx, .json, .csv, .html, .txt   
+The catalog is available in these formats: .p (pandas dataframe or numpy array), .xlsx, .json, .csv, .html, .txt   
 
 Load this catalog with 
 

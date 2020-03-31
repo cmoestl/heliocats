@@ -22,8 +22,7 @@ import cdflib
 import matplotlib.pyplot as plt
 import heliosat
 
-from input import data_path
-
+from config import data_path
 
 
 ###################################### ICMECAT operations ################################

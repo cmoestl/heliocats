@@ -7,7 +7,7 @@ import pandas as pd
 import scipy.io
 import urllib
 import os
-from input import *
+from config import data_path
 
 
 '''
