@@ -670,12 +670,8 @@ def save_wind_data(path,file,start_date,end_date):
     from astropy.constants import m_p,k_B
     win.tp=np.pi*m_p*((tp*1e3)**2)/(8*k_B) 
         
-    #win.p3=p3
-    #win.p4=p4
     
     
-    
-        
     
     
     
@@ -770,6 +766,12 @@ def save_wind_data(path,file,start_date,end_date):
     win.tp[setnan]=np.nan
     
 
+    
+    #convert GSE to HEEQ*** 
+        
+    
+    
+    
         
     ###################### 
 
@@ -1104,7 +1106,37 @@ def save_stereob_science_data(path,file,start_time,end_time):
     print()
 
  
-  
+ 
+    
+    
+    
+    
+    
+#***********************************************************************
+def convert_GSE_to_HEEQ(sc):
+    '''
+    for Wind data
+    '''
+
+    return 0
+
+    
+    
+    
+       
+    
+    
+    
+    
+#***********************************************************************
+def convert_RTN_to_SCEQ(sc):
+    '''
+    for STEREO-A and Parker Solar Probe
+    '''
+
+    return sc
+
+
 
 
 def save_stereoa_science_data(path,file,t_start, t_end):
@@ -1183,10 +1215,7 @@ def save_stereoa_science_data(path,file,t_start, t_end):
     sta.tp=tp    
     
     
-    
-    
-    
-   
+       
      
     #remove spikes from plasma data
     #median filter
@@ -1217,6 +1246,12 @@ def save_stereoa_science_data(path,file,t_start, t_end):
     sta.by[remove_start_ind:remove_end_ind]=np.nan
     sta.bz[remove_start_ind:remove_end_ind]=np.nan
 
+    
+    
+    
+    #convert magnetic field components     ***************************
+    sta=convert_RTN_to_SCEQ(sta)
+    
     
     
     
@@ -1473,6 +1508,9 @@ def save_psp_data(path, file):
     
     #remove spikes
     psp.tp[np.where(psp.tp > 1e10)]=np.nan
+    
+    
+    #******** convert RTN to HEEQ
     
     
     header='PSP magnetic field (FIELDS instrument) and plasma data (SWEAP), ' + \
