@@ -87,7 +87,7 @@ def get_cat_parameters(sc, sci, ic, name):
     sci - indices for this spacecraft in icmecat
     ic - icmecat pandas dataframe
     '''
-    fileind='data/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
 
     #### extract indices of ICMEs in the respective data (time consuming, so do it once)
     

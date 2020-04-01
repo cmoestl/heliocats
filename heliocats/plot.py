@@ -212,7 +212,7 @@ def plot_insitu(sc, start, end, sc_label, path, **kwargs):
 def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
 
   
-    fileind='data/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
 
     #get indices of events for this spacecrat
     [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  

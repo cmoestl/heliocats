@@ -7,7 +7,7 @@ This is version 2.0, released in April 2020 with a major update to the original 
 Released 2020-**-**. DOI: 10.6084/m9.figshare.4588315.v2 *** 
 The catalog is available as .p (python pickle), .xlsx, .csv, .html, .json at https://helioforecast.space/catalogs 
 
-Number of events in ICMECAT: 678 
+Number of events in ICMECAT: 698 
 ICME observatories: Wind, STEREO-A, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses, MAVEN, Parker Solar Probe (PSP).   
 Time range: January 2007 - December 2018. 
  

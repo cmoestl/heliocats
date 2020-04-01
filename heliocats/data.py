@@ -2532,11 +2532,19 @@ def load_helcats_datacat(file):
     
     
     
+  
     
     
     
+def recarray_to_numpy_array(recarr):    
+
+    recarr.time=parse_time(recarr.time).plot_date
+    numarr = pd.DataFrame(recarr).to_numpy()
+    
+    return numarr    
     
     
+  
     
     
     
