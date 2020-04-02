@@ -1349,7 +1349,7 @@ def save_stereoa_science_data(path,file,t_start, t_end,sceq):
 
     #convert magnetic field to SCEQ
     if sceq==True:
-        psp=convert_RTN_to_SCEQ(psp)
+        sta=convert_RTN_to_SCEQ(sta)
     
     
     
