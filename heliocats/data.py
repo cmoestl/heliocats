@@ -56,6 +56,123 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 
+
+    
+    
+def convert_RTN_to_SCEQ(sc):
+    '''
+    for STEREO-A and Parker Solar Probe   
+    sc is the input recarray for the data, e.g. psp, sta
+    
+    '''
+    
+    sc_len=len(sc)
+   
+    #HEEQ - make to SCEQ for each timestep,   solar rotation axis at 0, 0, 1 in HEEQ
+    X_heeq=[1,0,0]
+    Y_heeq=[0,1,0]
+    Z_heeq=[0,0,1]
+        
+    # go through all data points    
+    for i in np.arange(0,100):
+        
+        
+        #rotation for HEEQ to SCEQ vectors, depending on current longitude
+        rotangle=np.radians(sc.lon[i])
+        c, s = np.cos(rotangle), np.sin(rotangle)
+        #rotation matrix around z axis
+        R = np.array(((c,-s, 0), (s, c, 0), (0, 0, 1)))
+        
+        #rotate X and Y
+        X_sceq=np.dot(R,X_heeq)
+        Y_sceq=np.dot(R,Y_heeq)
+         
+        #make normalized RTN vectors
+        Xrtn=[sc.x[i], sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i], sc.y[i],sc.z[i]])
+        Yrtn=np.cross(Z_heeq,Xrtn)/np.linalg.norm(np.cross(Z_heeq,Xrtn))
+        Zrtn=np.cross(Xrtn, Yrtn)/np.linalg.norm(np.cross(Xrtn, Yrtn))
+        
+        #project into new system
+        sc.bx[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),X_heeq)
+        sc.by[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Y_sceq)
+        sc.bz[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Z_heeq)
+
+    
+    return sc
+
+
+
+
+
+
+
+    
+    
+    
+#***********************************************************************
+def convert_GSE_to_HEEQ(sc):
+    '''
+    for Wind data
+    '''
+
+    return 0
+
+    
+
+
+#    #get modified Julian Date for conversion as in Hapgood 1992
+#     jd=np.zeros(len(ctime))
+#     mjd=np.zeros(len(ctime))
+    
+#     #then HEEQ to GSM
+#     #-------------- loop go through each date
+#     for i in np.arange(0,len(ctime)):
+#         jd[i]=astropy.time.Time(num2date(ctime[i]), format='datetime', scale='utc').jd
+#         mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
+#         #then lambda_sun
+#         T00=(mjd[i]-51544.5)/36525.0
+#         dobj=num2date(ctime[i])
+#         UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
+#         LAMBDA=280.460+36000.772*T00+0.04107*UT
+#         M=357.528+35999.050*T00+0.04107*UT
+#         #lt2 is lambdasun in Hapgood, equation 5, here in rad
+#         lt2=(LAMBDA+(1.915-0.0048*T00)*np.sin(M*np.pi/180)+0.020*np.sin(2*M*np.pi/180))*np.pi/180
+#         #note that some of these equations are repeated later for the GSE to GSM conversion
+#         S1=np.matrix([[np.cos(lt2+np.pi), np.sin(lt2+np.pi),  0], [-np.sin(lt2+np.pi) , np.cos(lt2+np.pi) , 0], [0,  0,  1]])
+#         #create S2 matrix with angles with reversed sign for transformation HEEQ to HAE
+#         omega_node=(73.6667+0.013958*((mjd[i]+3242)/365.25))*np.pi/180 #in rad
+#         S2_omega=np.matrix([[np.cos(-omega_node), np.sin(-omega_node),  0], [-np.sin(-omega_node) , np.cos(-omega_node) , 0], [0,  0,  1]])
+#         inclination_ecl=7.25*np.pi/180
+#         S2_incl=np.matrix([[1,0,0],[0,np.cos(-inclination_ecl), np.sin(-inclination_ecl)], [0, -np.sin(-inclination_ecl), np.cos(-inclination_ecl)]])
+#         #calculate theta
+#         theta_node=np.arctan(np.cos(inclination_ecl)*np.tan(lt2-omega_node)) 
+
+#         #quadrant of theta must be opposite lt2 - omega_node Hapgood 1992 end of section 5   
+#         #get lambda-omega angle in degree mod 360   
+#         lambda_omega_deg=np.mod(lt2-omega_node,2*np.pi)*180/np.pi
+#         #get theta_node in deg
+#         theta_node_deg=theta_node*180/np.pi
+#         #if in same quadrant, then theta_node = theta_node +pi   
+#         if abs(lambda_omega_deg-theta_node_deg) < 180: theta_node=theta_node+np.pi
+#         S2_theta=np.matrix([[np.cos(-theta_node), np.sin(-theta_node),  0], [-np.sin(-theta_node) , np.cos(-theta_node) , 0], [0,  0,  1]])
+
+#         #make S2 matrix
+#         S2=np.dot(np.dot(S2_omega,S2_incl),S2_theta)
+#         #this is the matrix S2^-1 x S1
+#         HEEQ_to_HEE_matrix=np.dot(S1, S2)
+#         #convert HEEQ components to HEE
+#         HEEQ=np.matrix([[heeq_bx[i]],[heeq_by[i]],[heeq_bz[i]]]) 
+#         HEE=np.dot(HEEQ_to_HEE_matrix,HEEQ)
+#         #change of sign HEE X / Y to GSE is needed
+#         bxgse[i]=-HEE.item(0)
+#         bygse[i]=-HEE.item(1)
+#         bzgse[i]=HEE.item(2)
+     
+#     #-------------- loop over
+
+
+
+
 ####################################### get new data ####################################
 
     
@@ -1111,35 +1228,13 @@ def save_stereob_science_data(path,file,start_time,end_time):
     
     
     
-    
-#***********************************************************************
-def convert_GSE_to_HEEQ(sc):
-    '''
-    for Wind data
-    '''
-
-    return 0
-
-    
-    
-    
        
     
     
-    
-    
-#***********************************************************************
-def convert_RTN_to_SCEQ(sc):
-    '''
-    for STEREO-A and Parker Solar Probe
-    '''
-
-    return sc
 
 
 
-
-def save_stereoa_science_data(path,file,t_start, t_end):
+def save_stereoa_science_data(path,file,t_start, t_end,sceq):
 
     print('start STA')
     sta_sat = heliosat.STA()
@@ -1149,7 +1244,9 @@ def save_stereoa_science_data(path,file,t_start, t_end):
     time_mat=mdates.date2num(time) 
     
     tp, pro = sta_sat.get_data_raw(t_start, t_end, "sta_plastic_l2")
-    tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_beacon")#**********sta_impact_l1
+    #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_beacon")#**********sta_impact_l1
+    tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_l1")
+
 
 
     print('download complete')
@@ -1249,8 +1346,11 @@ def save_stereoa_science_data(path,file,t_start, t_end):
     
     
     
-    #convert magnetic field components     ***************************
-    sta=convert_RTN_to_SCEQ(sta)
+
+    #convert magnetic field to SCEQ
+    if sceq==True:
+        psp=convert_RTN_to_SCEQ(psp)
+    
     
     
     
@@ -1373,7 +1473,7 @@ def save_psp_data_non_merged(path, file):
 
 
 
-def save_psp_data(path, file):
+def save_psp_data(path, file,sceq):
      
     print('start PSP')
      
@@ -1509,8 +1609,9 @@ def save_psp_data(path, file):
     #remove spikes
     psp.tp[np.where(psp.tp > 1e10)]=np.nan
     
-    
-    #******** convert RTN to HEEQ
+    #convert magnetic field to SCEQ
+    if sceq==True:
+        psp=convert_RTN_to_SCEQ(psp)
     
     
     header='PSP magnetic field (FIELDS instrument) and plasma data (SWEAP), ' + \
@@ -2574,12 +2675,17 @@ def load_helcats_datacat(file):
     
     
     
-def recarray_to_numpy_array(recarr):    
-
-    recarr.time=parse_time(recarr.time).plot_date
-    numarr = pd.DataFrame(recarr).to_numpy()
+def recarray_to_numpy_array(rec):    
     
-    return numarr    
+    '''convert data recarray to numpy structured array with matplotlib time '''
+
+    #recarr.time=parse_time(recarr.time).plot_date
+    #numarr = pd.DataFrame(recarr).to_numpy()
+    
+    num=copy.deepcopy(np.array(rec))
+    num['time']=parse_time(num['time']).plot_date
+    
+    return num
     
     
   
@@ -2611,483 +2717,4 @@ def sphere2cart(r,theta,phi):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##################### OLD CODE
-
-
-
-
-
-
-     
-
-
-'''
-#cme
-t1=t1[40000:48000]
-m1=m1[40000:48000,:]
-#t_swe1=t_swe1[40000:48000]
-#swe1=swe1[40000:48000,:]
-r1=r1[40000:48000]
-lon1=lon1[40000:48000]
-
-
-bx1=m1[:,0]  
-by1=m1[:,1]  
-bz1=m1[:,2]  
-bt1=np.sqrt(bx1**2+by1**2+bz1**2)
-
-bx2=m2[:,0]  
-by2=m2[:,1]  
-bz2=m2[:,2]  
-bt2=np.sqrt(bx2**2+by2**2+bz2**2)
-
-
-v1=swe1[:,2] 
-v2=swe2[:,2] 
-
-
-plt.close('all')
-
-
-
-def save_psp_data2(file):
-     
-    t_start = datetime.datetime(2018, 10, 14)
-    t_end = datetime.datetime(2018, 12, 20)
-    
-    #fields
-    psp_t1, psp_m1 = psp_sat.get_data_raw(t_start, t_end, "mag")
-    #t1p, p1 = psp_sat.get_data_raw(t_start, t_end, "proton")
-    psp_t1=parse_time(psp_t1,format='unix').datetime  
-    
-    #sweap
-    t_swe1, swe1 = psp_sat.get_data_raw(t_start, t_end, "spc_l3i")
-    t_swe1=parse_time(t_swe1,format='unix').datetime  
-    
-
-    #fields
-    t_start2 = datetime.datetime(2019, 3, 1)
-    t_end2 = datetime.datetime(2019, 5, 30)
-    psp_t2, psp_m2 = psp_sat.get_data_raw(t_start2, t_end2, "mag")
-    psp_t2=parse_time(psp_t2,format='unix').datetime  
-    
-    #sweap
-    t_swe2, swe2 = psp_sat.get_data_raw(t_start2, t_end2, "spc_l3i")
-    t_swe2=parse_time(t_swe2,format='unix').datetime  
-
-
-
-
-
-    pos1=psp_sat.trajectory(psp_t1, frame="HEEQ")
-    pos2=psp_sat.trajectory(psp_t2, frame="HEEQ")
-
-    starttime =datetime.datetime(2018, 8,13)
-    endtime = datetime.datetime(2019, 8, 31)
-    psp_time = []
-    while starttime < endtime:
-        psp_time.append(starttime)
-        starttime += datetime.timedelta(days=1/24.)
-    psp_time_num=mdates.date2num(psp_time)     
-
-    spice.furnish(spicedata.get_kernel('psp_pred'))
-    psp=spice.Trajectory('SPP')
-    psp.generate_positions(psp_time,'Sun','HEEQ')
-    print('PSP pos')
-
-    psp.change_units(astropy.units.AU)  
-    
-    [pos1_r, pos1_lat, pos1_lon]=cart2sphere(pos1[:,0],pos1[:,1],pos1[:,2])
-    [pos2_r, pos2_lat, pos2_lon]=cart2sphere(pos2[:,0],pos2[:,1],pos2[:,2])
-
-
-    pickle.dump([pos1_r, pos1_lat, pos1_lon, pos2_r, pos2_lat, pos2_lon,  psp_t1,psp_m1,psp_t2,psp_m2,t_swe1,swe1,t_swe2,swe2], open(file, "wb"))
-
-
-
-
-
-
-sns.set_style('darkgrid')
-fig1=plt.figure(figsize=[25, 12],dpi=100)
- 
-
-plt.suptitle('PSP first 2 orbits')
-
-ax1=plt.subplot(421)
-plt.plot_date(t1,bx1,'-r',label='BR',linewidth=0.5)
-plt.plot_date(t1,by1,'-g',label='BT',linewidth=0.5)
-plt.plot_date(t1,bz1,'-b',label='BN',linewidth=0.5)
-plt.plot_date(t1,bt1,'-k',label='Btotal')
-ax1.set_ylabel('B [nT]')
-plt.legend(loc=2)
-ax1.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d %H') )
-ax1.set_xlim(t1[0],t1[-1])
-
-ax2=plt.subplot(422)
-plt.plot_date(t2,bx2,'-r',label='BR', linewidth=0.5)
-plt.plot_date(t2,by2,'-g',label='BT', linewidth=0.5)
-plt.plot_date(t2,bz2,'-b',label='BN', linewidth=0.5)
-plt.plot_date(t2,bt2,'-k',label='Btotal')
-ax2.set_ylabel('B [nT]')
-plt.legend(loc=2)
-ax2.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d %H') )
-ax2.set_xlim(t2[0],t2[-1])
-
-
-
-ax3=plt.subplot(423, sharex=ax1)
-plt.plot_date(t_swe1,v1,'-k',label='V', linewidth=0.8)
-ax3.set_ylabel('V [km/s]')
-ax3.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d %H') )
-ax3.set_xlim(t1[0],t1[-1])
-
-
-
-ax4=plt.subplot(424,sharex=ax2)
-plt.plot_date(t_swe2,v2,'-k',label='V', linewidth=0.8)
-ax4.set_xlim(t2[0],t2[-1])
-ax4.set_ylabel('V [km/s]')
-ax4.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d %H') )
-
-
-ax5=plt.subplot(425,sharex=ax1)
-plt.plot_date(t1,r1,'-k')
-ax5.set_ylabel('R [AU]')
-ax5.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
-ax5.set_xlim(t1[0],t1[-1])
-
-
-ax6=plt.subplot(426,sharex=ax2)
-plt.plot_date(t2,r2,'-k')
-ax6.set_ylabel('R [AU]')
-ax6.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
-ax6.set_xlim(t2[0],t2[-1])
-
-
-ax7=plt.subplot(427,sharex=ax1)
-plt.plot_date(t1,np.rad2deg(lon1),'-r')
-ax7.set_xlim(t1[0],t1[-1])
-ax7.set_ylabel('HEEQ longitude [deg]')
-ax7.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
-
-
-ax8=plt.subplot(428,sharex=ax2)
-plt.plot_date(t2,np.rad2deg(lon2),'-r')
-ax8.set_xlim(t2[0],t2[-1])
-ax8.set_ylabel('HEEQ longitude [deg]')
-ax8.xaxis.set_major_formatter( DateFormatter('%Y-%b-%d') )
-
-
-plt.tight_layout()
-
-
-
-plt.show()
-
-
-
-plt.savefig('results/psp_orbit12.jpg')
-
-sys.exit()
-
-#hd.convert_MAVEN_mat_to_pickle()
-
-
-
-
-# use
-# import importlib
-# importlib.reload(cme_stats_module)
-# to update module while working in command line 
-
-#set breakpoints with pdb.set_trace
-
-
-
-# LIST OF FUNCTIONS
-
-# load_url_current_directory
-# getpositions
-# getcat
-# gaussian
-# dynamic_pressure
-# decode_array
-# time_to_num_cat
-# get_omni2_data
-
-
-def load_url_current_directory(filename,url):
-#loads a file from any url to the current directory
-#I use owncloud for the direct url links, 
-#also works for dropbox when changing the last 0 to 1 in the url-> gives a direct link to files
-
- if not os.path.exists(filename):
-  print('download file ', filename, ' from')
-  print(url)
-  try: 
-    urllib.request.urlretrieve(url, filename)
-    print('done')
-  except urllib.error.URLError as e:
-    print(' ', data_url,' ',e.reason)
-
-
-
-
-def getpositions(filename):  
-    pos=scipy.io.readsav(filename)  
-    print
-    print('positions file:', filename) 
-    return pos
-
-
-def getcat(filename):
-   cat=scipy.io.readsav(filename)#, verbose='true')  
-   return cat  
-  
-  
-def gaussian(x, amp, mu, sig):
-   return amp * exp(-(x-cen)**2 /wid)
-
-
-
-def dynamic_pressure(density, speed):
-   # make dynamic pressure from density and speed
-   #assume pdyn is only due to protons
-   #pdyn=np.zeros(len([density])) #in nano Pascals
-   protonmass=1.6726219*1e-27  #kg
-   pdyn=np.multiply(np.square(speed*1e3),density)*1e6*protonmass*1e9  #in nanoPascal
-   return pdyn
-  
-def decode_array(bytearrin):
-  #for decoding the strings from the IDL .sav file to a list of python strings, not bytes 
-  #make list of python lists with arbitrary length
-  bytearrout= ['' for x in range(len(bytearrin))]
-  for i in range(0,len(bytearrin)-1):
-    bytearrout[i]=bytearrin[i].decode()
-  #has to be np array so to be used with numpy "where"
-  bytearrout=np.array(bytearrout)
-  return bytearrout  
-  
-def time_to_num_cat(time_in):  
-
-  #for time conversion from catalogue .sav to numerical time
-  #this for 1-minute data or lower time resolution
-
-  #for all catalogues
-  #time_in is the time in format: 2007-11-17T07:20:00 or 2007-11-17T07:20Z
-  #for times help see: 
-  #http://docs.sunpy.org/en/latest/guide/time.html
-  #http://matplotlib.org/examples/pylab_examples/date_demo2.html
-  
-  j=0
-  #time_str=np.empty(np.size(time_in),dtype='S19')
-  time_str= ['' for x in range(len(time_in))]
-  #=np.chararray(np.size(time_in),itemsize=19)
-  time_num=np.zeros(np.size(time_in))
-  
-  for i in time_in:
-
-    #convert from bytes (output of scipy.readsav) to string
-    time_str[j]=time_in[j][0:16].decode()+':00'
-    year=int(time_str[j][0:4])
-    time_str[j]
-    #convert time to sunpy friendly time and to matplotlibdatetime
-    #only for valid times so 9999 in year is not converted
-    #pdb.set_trace()
-    if year < 2100:
-     	  time_num[j]=mdates.date2num(sunpy.time.parse_time(time_str[j]))
-    j=j+1  
-    #the date format in matplotlib is e.g. 735202.67569444
-    #this is time in days since 0001-01-01 UTC, plus 1.
-   
-    #return time_num which is already an array and convert the list of strings to an array
-  return time_num, np.array(time_str)
-
-
-
-def get_omni2_data():
-
-  #FORMAT(2I4,I3,I5,2I3,2I4,14F6.1,F9.0,F6.1,F6.0,2F6.1,F6.3,F6.2, F9.0,F6.1,F6.0,2F6.1,F6.3,2F7.2,F6.1,I3,I4,I6,I5,F10.2,5F9.2,I3,I4,2F6.1,2I6,F5.1)
- #1963   1  0 1771 99 99 999 999 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 9999999. 999.9 9999. 999.9 999.9 9.999 99.99 9999999. 999.9 9999. 999.9 999.9 9.999 999.99 999.99 999.9  7  23    -6  119 999999.99 99999.99 99999.99 99999.99 99999.99 99999.99  0   3 999.9 999.9 99999 99999 99.9
-
-#define variables from OMNI2 dataset
- #see http://omniweb.gsfc.nasa.gov/html/ow_data.html
-
- #omni2_url='ftp://nssdcftp.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2_all_years.dat'
- 
- #check how many rows exist in this file
- f=open('omni2_all_years.dat')
- dataset= len(f.readlines())
- #print(dataset)
- #global Variables
- spot=np.zeros(dataset) 
- btot=np.zeros(dataset) #floating points
- bx=np.zeros(dataset) #floating points
- by=np.zeros(dataset) #floating points
- bz=np.zeros(dataset) #floating points
- bzgsm=np.zeros(dataset) #floating points
- bygsm=np.zeros(dataset) #floating points
-
- speed=np.zeros(dataset) #floating points
- speedx=np.zeros(dataset) #floating points
- speed_phi=np.zeros(dataset) #floating points
- speed_theta=np.zeros(dataset) #floating points
-
- dst=np.zeros(dataset) #float
- kp=np.zeros(dataset) #float
-
- den=np.zeros(dataset) #float
- pdyn=np.zeros(dataset) #float
- year=np.zeros(dataset)
- day=np.zeros(dataset)
- hour=np.zeros(dataset)
- t=np.zeros(dataset) #index time
- 
- 
- j=0
- print('Read OMNI2 data ...')
- with open('omni2_all_years.dat') as f:
-  for line in f:
-   line = line.split() # to deal with blank 
-   #print line #41 is Dst index, in nT
-   dst[j]=line[40]
-   kp[j]=line[38]
-   
-   if dst[j] == 99999: dst[j]=np.NaN
-   #40 is sunspot number
-   spot[j]=line[39]
-   if spot[j] == 999: spot[j]=NaN
-
-   #25 is bulkspeed F6.0, in km/s
-   speed[j]=line[24]
-   if speed[j] == 9999: speed[j]=np.NaN
- 
-   #get speed angles F6.1
-   speed_phi[j]=line[25]
-   if speed_phi[j] == 999.9: speed_phi[j]=np.NaN
-
-   speed_theta[j]=line[26]
-   if speed_theta[j] == 999.9: speed_theta[j]=np.NaN
-   #convert speed to GSE x see OMNI website footnote
-   speedx[j] = - speed[j] * np.cos(np.radians(speed_theta[j])) * np.cos(np.radians(speed_phi[j]))
-
-
-
-   #9 is total B  F6.1 also fill ist 999.9, in nT
-   btot[j]=line[9]
-   if btot[j] == 999.9: btot[j]=np.NaN
-
-   #GSE components from 13 to 15, so 12 to 14 index, in nT
-   bx[j]=line[12]
-   if bx[j] == 999.9: bx[j]=np.NaN
-   by[j]=line[13]
-   if by[j] == 999.9: by[j]=np.NaN
-   bz[j]=line[14]
-   if bz[j] == 999.9: bz[j]=np.NaN
- 
-   #GSM
-   bygsm[j]=line[15]
-   if bygsm[j] == 999.9: bygsm[j]=np.NaN
- 
-   bzgsm[j]=line[16]
-   if bzgsm[j] == 999.9: bzgsm[j]=np.NaN 	
- 
- 
-   #24 in file, index 23 proton density /ccm
-   den[j]=line[23]
-   if den[j] == 999.9: den[j]=np.NaN
- 
-   #29 in file, index 28 Pdyn, F6.2, fill values sind 99.99, in nPa
-   pdyn[j]=line[28]
-   if pdyn[j] == 99.99: pdyn[j]=np.NaN 		
- 
-   year[j]=line[0]
-   day[j]=line[1]
-   hour[j]=line[2]
-   j=j+1     
-   
-
- #convert time to matplotlib format
- #http://docs.sunpy.org/en/latest/guide/time.html
- #http://matplotlib.org/examples/pylab_examples/date_demo2.html
-
- times1=np.zeros(len(year)) #datetime time
- print('convert time start')
- for index in range(0,len(year)):
-      #first to datetimeobject 
-      timedum=datetime.datetime(int(year[index]), 1, 1) + datetime.timedelta(day[index] - 1) +datetime.timedelta(hours=hour[index])
-      #then to matlibplot dateformat:
-      times1[index] = mdates.date2num(timedum)
- print('convert time done')   #for time conversion
-
- print('all done.')
- print(j, ' datapoints')   #for reading data from OMNI file
- 
- #make structured array of data
- omni_data=np.rec.array([times1,btot,bx,by,bz,bygsm,bzgsm,speed,speedx,den,pdyn,dst,kp,spot], \
- dtype=[('time','f8'),('btot','f8'),('bx','f8'),('by','f8'),('bz','f8'),\
- ('bygsm','f8'),('bzgsm','f8'),('speed','f8'),('speedx','f8'),('den','f8'),('pdyn','f8'),('dst','f8'),('kp','f8'), ('spot','f8')])
- 
- return omni_data
- 
- 
-
-
-
-import pickle
-import numpy as np
-import matplotlib.dates as mdates
-import matplotlib.pyplot as plt
-import sunpy.time
-
-
-
-
-def IDL_time_to_num(time_in):  
- #convert IDL time to matplotlib datetime
- time_num=np.zeros(np.size(time_in))
- for ii in np.arange(0,np.size(time_in)):
-   time_num[ii]=mdates.date2num(sunpy.time.parse_time(time_in[ii]))
-   
- return time_num 
-  
-
-print ('read VEX')
-#get insitu data
-vex= pickle.load( open( "../catpy/DATACAT/VEX_2007to2014_SCEQ_removed.p", "rb" ) )
-
-#time conversion
-vex_time=IDL_time_to_num(vex.time)
-print( 'read VEX done.')
-
-
-
-plt.figure(1)
-plt.plot_date(vex_time,vex.btot,'-k')
-plt.show()
-
-'''
+##########################################################################################################

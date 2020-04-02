@@ -90,6 +90,17 @@ sys.exit()
 '''
 
 
+#STEREO-A to SCEQ
+filesta2='stereoa_2015_2019_sceq.p'
+start=datetime.datetime(2015, 7, 21)
+end=datetime.datetime(2020, 1, 1)
+hd.save_stereoa_science_data(data_path,filesta2,start,end,sceq=True)   
+
+#PSP to SCEQ
+filepsp="psp_2018_2019_sceq.p"
+hd.save_psp_data(data_path, filepsp,sceq=True)
+
+
 
 
 
@@ -235,8 +246,8 @@ sys.exit()
 data_path='/nas/helio/data/insitu_python/'
 
 '''
-#################### PSP -> ok!
-filepsp="psp_2018_2019_merged.p"
+#################### PSP 
+filepsp="psp_2018_2019_sceq.p"
 hd.save_psp_data(data_path, filepsp)
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
 
