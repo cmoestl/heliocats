@@ -90,15 +90,6 @@ sys.exit()
 '''
 
 
-#STEREO-A to SCEQ
-filesta2='stereoa_2015_2019_sceq.p'
-start=datetime.datetime(2015, 7, 21)
-end=datetime.datetime(2020, 1, 1)
-hd.save_stereoa_science_data(data_path,filesta2,start,end,sceq=True)   
-
-#PSP to SCEQ
-filepsp="psp_2018_2019_sceq.p"
-hd.save_psp_data(data_path, filepsp,sceq=True)
 
 
 
@@ -229,6 +220,37 @@ text.write('load with: >> [o,ho]=pickle.load(open("'+data_path+fileomni+'", "rb"
 text.write(' \n \n \n \n')
 
 text.close()
+
+
+
+
+
+
+
+
+
+
+
+# #STEREO-A to SCEQ
+filesta2='stereoa_2015_2019_sceq.p'
+start=datetime.datetime(2015, 7, 21)
+end=datetime.datetime(2020, 1, 1)
+hd.save_stereoa_science_data(data_path,filesta2,start,end,sceq=True)   
+#[sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ))
+
+# #PSP to SCEQ
+filepsp="psp_2018_2019_no_sceq.p"
+hd.save_psp_data(data_path, filepsp,sceq=False)
+
+# #PSP to SCEQ
+filepsp="psp_2018_2019_sceq.p"
+hd.save_psp_data(data_path, filepsp,sceq=True)
+
+
+
+
+
+
 
 sys.exit()
 
