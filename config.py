@@ -10,4 +10,7 @@ input parameters for heliocats
 
 #e.g. server
 data_path='/nas/helio/data/insitu_python/'
+data_path_ML='/nas/helio/data/insitu_python/ML_struct_arrays'
+
+
 

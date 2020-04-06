@@ -34,8 +34,6 @@ import requests
 from config import data_path
 #data_path='/nas/helio/data/insitu_python/'
 
-
-
 heliosat_data_path='/nas/helio/data/heliosat/data/'
 
 data_path_sun='/nas/helio/data/SDO_realtime/'
@@ -59,33 +57,28 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-    
-
 
 ####################################### get new data ####################################
-
 
 
 def load_stereoa_science_1min():
 
     varnames = ['Epoch', 'Vp', 'Vr_Over_V_RTN', 'Np', 'Tp', 'BFIELDRTN']
     alldata = {k: [] for k in varnames}
-    if not os.path.exists(heliosat_data_path+'/sta_magplasma_outside_heliosat'):
-        os.mkdir('sta_magplasma_outside_heliosat')
-    #for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016','2017','2018','2019','2020']:
-    for year in ['2007']:
+    if not os.path.exists(heliosat_data_path+'sta_magplasma_outside_heliosat'):
+        os.mkdir(heliosat_data_path+'sta_magplasma_outside_heliosat')
+    for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016','2017','2018','2019']:
+        print('get STEREO-A yearly 1min data file for ',year)
         cdf_write = heliosat_data_path+'sta_magplasma_outside_heliosat/STA_L2_MAGPLASMA_1m_{}_V01.cdf'.format(year)
         if not os.path.exists(cdf_write):
-            cdf_url = ("https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/behind/magplasma/STA_L2_MAGPLASMA_1m_{}_V01.cdf".format(year))
+            cdf_url = ("https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/magplasma/STA_L2_MAGPLASMA_1m_{}_V01.cdf".format(year))
             cdf_file = requests.get(cdf_url)
             open(cdf_write, 'wb').write(cdf_file.content)
         cdf = cdflib.CDF(cdf_write)
         #cdf.cdf_info() shows all variable names and attributes
         for var in varnames:
             data = cdf[var][...]
-            #fillval = cdf[var].attrs['FILLVAL']
-            #fillval=cdf.varattsget(var)['FILLVAL'][0]
-            data[np.where(data <cdf.varattsget(var)['VALIDMIN'][0])] = np.NaN
+            data[np.where(data < cdf.varattsget(var)['VALIDMIN'][0])] = np.NaN
             data[np.where(data > cdf.varattsget(var)['VALIDMAX'][0])] = np.NaN
             alldata[var].append(data)
     arrays = {}
@@ -93,19 +86,165 @@ def load_stereoa_science_1min():
         arrays[var] = np.concatenate(alldata[var])
         
     return arrays
+
+
+
+def save_all_stereoa_science_data(path,file,sceq):
+    ''' 
+    saves all STEREO-Ahead science data btxyz 
+    vt np tp x y z r lat lon 1 min resolution as pickle
+    sceq=True -> convert RTN to SCEQ coordinates for magnetic field components
+    
+    filesta_all='stereoa_2007_2020_sceq.p'
+    hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=True)
+
+    filesta_all='stereoa_2007_2020.p'
+    hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=False)    
+    
+    
+    [sta_t,hsta_t]=pickle.load(open(data_path+filesta_all, "rb" ) )
+    '''
+    
+    #load all data with function
+    s1=load_stereoa_science_1min()    
+    print('download complete')
+
+    #make array
+    sta=np.zeros(len(s1['Epoch']),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+    
+    #convert to recarray
+    sta = sta.view(np.recarray)  
+    
+    #parse Epoch time to datetime objects
+    sta.time=parse_time(s1['Epoch'],format='cdf_epoch').datetime  
+    print('time conversion complete')
+
+    sta.bx=s1['BFIELDRTN'][:,0]
+    sta.by=s1['BFIELDRTN'][:,1]
+    sta.bz=s1['BFIELDRTN'][:,2]
+    sta.bt=np.sqrt(sta.bx**2+sta.by**2+sta.bz**2)
+    
+    sta.vt=s1['Vp']    
+    sta.np=s1['Np']
+    sta.tp=s1['Tp']    
+    
+    print('parameters into array complete')
+    
+    print('position start')
+    frame='HEEQ'
+    kernels = spicedata.get_kernel('stereo_a')
+    kernels += spicedata.get_kernel('stereo_a_pred')
+    spice.furnish(kernels)
+    statra=spice.Trajectory('-234') #STEREO-A SPICE NAIF code
+    statra.generate_positions(sta.time,'Sun',frame)
+    statra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(statra.x,statra.y,statra.z)
+    
+    sta.x=statra.x
+    sta.y=statra.y
+    sta.z=statra.z
+    
+    sta.r=r
+    sta.lat=np.rad2deg(lat)
+    sta.lon=np.rad2deg(lon)
+
+    print('position end ')
+    
+    coord='RTN'
+    #convert magnetic field to SCEQ
+    if sceq==True:
+        print('convert RTN to SCEQ ')
+        coord='SCEQ'
+        sta=convert_RTN_to_SCEQ(sta,'STEREO-A')
+    
+    header='STEREO-A magnetic field (IMPACT instrument) and plasma data (PLASTIC, science), ' + \
+    'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/magplasma   '+ \
+    'Timerange: '+sta.time[0].strftime("%Y-%b-%d %H:%M")+' to '+sta.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', with an average time resolution of '+str(np.mean(np.diff(sta.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by sta.time, sta.bx, sta.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(sta.size)+'. '+\
+    'Units are btxyz [nT, '+coord+', vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats '+\
+    'and https://github.com/heliopython/heliopy. '+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, R. L. Bailey and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+    print('save pickle file')
+    pickle.dump([sta,header], open(path+file, "wb"))
+    
+    print('done sta')
+    print()
+
+    
+    #convert to matplotlib time for linear interpolation
+    #ta_mat=mdates.date2num(tm) 
+    #print('time convert done')
+    
+    #linear interpolation to time_mat times    
+    #bx = np.interp(time_mat, tm_mat, mag[:,0] )
+    #by = np.interp(time_mat, tm_mat, mag[:,1] )
+    #bz = np.interp(time_mat, tm_mat, mag[:,2] )
+    #bt = np.sqrt(bx**2+by**2+bz**2)
+      
+      
+    #den = np.interp(time_mat, tp_mat, pro[:,0])
+    #vt = np.interp(time_mat, tp_mat, pro[:,1])
+    
+    #tp = np.interp(time_mat, tp_mat, pro[:,2])
+    
+     
+    '''     
+    #remove spikes from plasma data
+    #median filter
+    sta.vt=scipy.signal.medfilt(sta.vt,9)
+    #set nans to a high number
+    sta.vt[np.where(np.isfinite(sta.vt) == False)]=1e5
+    #get rid of all single spikes with scipy signal find peaks (cannot use nan)
+    peaks,properties = scipy.signal.find_peaks(sta.vt, prominence=200,width=(1,200))
+    for i in np.arange(len(peaks)):
+        #get width of current peak
+        width=int(np.ceil(properties['widths']/2)[i])
+        #remove data
+        sta.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
+    #set nan again
+    sta.vt[np.where(sta.vt == 1e5)]=np.nan     
+    sta.tp[np.where(np.isfinite(sta.vt) == False)]=np.nan
+    sta.np[np.where(np.isfinite(sta.vt) == False)]=np.nan   
+    
+    #manual spike removal for magnetic field
+    remove_start=datetime.datetime(2018, 9, 23, 11, 00)
+    remove_end=datetime.datetime(2018, 9, 25, 00, 00)
+    remove_start_ind=np.where(remove_start==sta.time)[0][0]
+    remove_end_ind=np.where(remove_end==sta.time)[0][0] 
+
+    sta.bt[remove_start_ind:remove_end_ind]=np.nan
+    sta.bx[remove_start_ind:remove_end_ind]=np.nan
+    sta.by[remove_start_ind:remove_end_ind]=np.nan
+    sta.bz[remove_start_ind:remove_end_ind]=np.nan
+    '''
+
+
+
+
+
+
 
 
 def load_stereob_science_1min():
 
     varnames = ['Epoch', 'Vp', 'Vr_Over_V_RTN', 'Np', 'Tp', 'BFIELDRTN']
     alldata = {k: [] for k in varnames}
-    if not os.path.exists(heliosat_data_path+'/sta_magplasma_outside_heliosat'):
-        os.mkdir('sta_magplasma_outside_heliosat')
-    #for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016','2017','2018','2019','2020']:
-    for year in ['2007']:
-        cdf_write = heliosat_data_path+'sta_magplasma_outside_heliosat/STA_L2_MAGPLASMA_1m_{}_V01.cdf'.format(year)
+    if not os.path.exists(heliosat_data_path+'stb_magplasma_outside_heliosat'):
+        os.mkdir(heliosat_data_path+'stb_magplasma_outside_heliosat')
+    for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014']:
+    #for year in ['2007']:
+        print('get STEREO-B yearly 1min data file for ',year)
+        cdf_write = heliosat_data_path+'stb_magplasma_outside_heliosat/STB_L2_MAGPLASMA_1m_{}_V01.cdf'.format(year)
         if not os.path.exists(cdf_write):
-            cdf_url = ("https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/behind/magplasma/STA_L2_MAGPLASMA_1m_{}_V01.cdf".format(year))
+            cdf_url = ("https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/behind/magplasma/STB_L2_MAGPLASMA_1m_{}_V01.cdf".format(year))
             cdf_file = requests.get(cdf_url)
             open(cdf_write, 'wb').write(cdf_file.content)
         cdf = cdflib.CDF(cdf_write)
@@ -114,7 +253,7 @@ def load_stereob_science_1min():
             data = cdf[var][...]
             #fillval = cdf[var].attrs['FILLVAL']
             #fillval=cdf.varattsget(var)['FILLVAL'][0]
-            data[np.where(data <cdf.varattsget(var)['VALIDMIN'][0])] = np.NaN
+            data[np.where(data < cdf.varattsget(var)['VALIDMIN'][0])] = np.NaN
             data[np.where(data > cdf.varattsget(var)['VALIDMAX'][0])] = np.NaN
             alldata[var].append(data)
     arrays = {}
@@ -124,59 +263,133 @@ def load_stereob_science_1min():
     return arrays
 
 
-
-
-
-
-
-
-def convert_RTN_to_SCEQ(sc,name):
-    '''
-    for STEREO-A and Parker Solar Probe   
-    sc is the input recarray for the data, e.g. psp, sta    
+def save_all_stereob_science_data(path,file,sceq):
+    ''' 
+    saves all STEREO-Behind science data btxyz 
+    vt np tp x y z r lat lon 1 min resolution as pickle
+    sceq=True -> convert RTN to SCEQ coordinates for magnetic field components
+    
+    use as:
+    filestb_all='stereob_2007_2014_sceq.p'
+    hd.save_all_stereob_science_data(data_path, filestb_all,sceq=True)
+    
+    filestb_all='stereob_2007_2014.p'
+    hd.save_all_stereob_science_data(data_path, filestb_all,sceq=False)  
+    
+    [stb_t,hstb_t]=pickle.load(open(data_path+filestb_all, "rb" ) )    
     '''
     
-    sc_len=len(sc)
+    #load all data with function
+    s1=load_stereob_science_1min()    
+    print('download complete')
+
+    #make array
+    stb=np.zeros(len(s1['Epoch']),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+    
+    #convert to recarray
+    stb = stb.view(np.recarray)  
    
-    #HEEQ - make to SCEQ for each timestep,   solar rotation axis at 0, 0, 1 in HEEQ
-    X_heeq=[1,0,0]
-    Y_heeq=[0,1,0]
-    Z_heeq=[0,0,1]
-        
-    # go through all data points    
-    for i in np.arange(0,sc_len):        
-        
-        #rotation for HEEQ to SCEQ vectors, depending on current longitude
-        rotangle=np.radians(sc.lon[i])
-        c, s = np.cos(rotangle), np.sin(rotangle)
-        #rotation matrix around z axis 
-        R = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-        
-        #rotate X and Y  ***visualize if ok
-        X_sceq=np.dot(R,X_heeq)
-        Y_sceq=np.dot(R,Y_heeq)
-         
-        #make normalized RTN vectors
-        Xrtn=[sc.x[i], sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i], sc.y[i],sc.z[i]])
-        Yrtn=np.cross(Z_heeq,Xrtn)/np.linalg.norm(np.cross(Z_heeq,Xrtn))
-        Zrtn=np.cross(Xrtn, Yrtn)/np.linalg.norm(np.cross(Xrtn, Yrtn))
-        
-        #project into new system
-        sc.bx[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),X_sceq)
-        sc.by[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Y_sceq)
-        sc.bz[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Z_heeq)
-        
-        #project into new system
-        if name=='PSP':
-            sc.vx[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),X_sceq)
-            sc.vy[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),Y_sceq)
-            sc.vz[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),Z_heeq)
+    
+    #parse Epoch time to datetime objects
+    stb.time=parse_time(s1['Epoch'],format='cdf_epoch').datetime  
+    
+    print('time conversion complete')
 
+    stb.bx=s1['BFIELDRTN'][:,0]
+    stb.by=s1['BFIELDRTN'][:,1]
+    stb.bz=s1['BFIELDRTN'][:,2]
+    stb.bt=np.sqrt(stb.bx**2+stb.by**2+stb.bz**2)
 
     
-    return sc
+    stb.vt=s1['Vp']    
+    stb.np=s1['Np']
+    stb.tp=s1['Tp']    
+    
+    print('parameters into array complete')
+    
+    print('position start')
+    frame='HEEQ'
+    kernels = spicedata.get_kernel('stereo_b')
+    spice.furnish(kernels)
+    stbtra=spice.Trajectory('-235') #STEREO-A SPICE NAIF code
+    stbtra.generate_positions(stb.time,'Sun',frame)
+    stbtra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(stbtra.x,stbtra.y,stbtra.z)
+    
+    stb.x=stbtra.x
+    stb.y=stbtra.y
+    stb.z=stbtra.z
+    
+    stb.r=r
+    stb.lat=np.rad2deg(lat)
+    stb.lon=np.rad2deg(lon)
+
+    print('position end ')
+
+ 
+    
+    coord='RTN'
+    #convert magnetic field to SCEQ
+    if sceq==True:
+        print('convert RTN to SCEQ ')
+        coord='SCEQ'
+        stb=convert_RTN_to_SCEQ(stb,'STEREO-B')
+    
+    
+    
+    header='STEREO-B magnetic field (IMPACT instrument) and plasma data (PLASTIC, science), ' + \
+    'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/behind/magplasma   '+ \
+    'Timerange: '+stb.time[0].strftime("%Y-%b-%d %H:%M")+' to '+stb.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', with a an average time resolution of '+str(np.mean(np.diff(stb.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by stb.time, stb.bx, stb.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(stb.size)+'. '+\
+    'Units are btxyz [nT, '+coord+'], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats '+\
+    'and https://github.com/heliopython/heliopy. '+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, R. L. Bailey and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+  
+    print('save pickle file')
+    pickle.dump([stb,header], open(path+file, "wb"))
+    
+    print('done stb')
+    print()
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###################
 
 
 def save_wind_data(path,file,start_date,end_date,heeq):
@@ -2307,7 +2520,7 @@ def save_ulysses_data(data_path):
     'Units are btxyz [nT, RTN], vt [km/s], np [#/cm-3], tp[K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
             
 
-    file=data_path+'ulysses_1990_2009_helcats.p'
+    file=data_path+'ulysses_1990_2009_rtn.p'
     pickle.dump([uly,header], open(file, "wb"))
     
     
@@ -2962,7 +3175,57 @@ def convert_GSE_to_HEEQ(sc):
     return sc
 
     
+   
+
+def convert_RTN_to_SCEQ(sc,name):
+    '''
+    for STEREO-A, B and Parker Solar Probe   
+    sc is the input recarray for the data, e.g. psp, sta    
+    '''
     
+    sc_len=len(sc)
+   
+    #HEEQ - make to SCEQ for each timestep,   solar rotation axis at 0, 0, 1 in HEEQ
+    X_heeq=[1,0,0]
+    Y_heeq=[0,1,0]
+    Z_heeq=[0,0,1]
+        
+    # go through all data points    
+    for i in np.arange(0,sc_len):        
+        
+        #rotation for HEEQ to SCEQ vectors, depending on current longitude (correct c, s)
+        rotangle=np.radians(sc.lon[i])
+        c, s = np.cos(rotangle), np.sin(rotangle)
+        #rotation matrix around Z
+        R = np.array(((c,-s, 0), (s, c, 0), (0, 0, 1)))
+        
+        #rotate X and Y  
+        X_sceq=np.dot(R,X_heeq)
+        Y_sceq=np.dot(R,Y_heeq)
+         
+        #make normalized RTN vectors
+        Xrtn=[sc.x[i], sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i], sc.y[i],sc.z[i]])
+        Yrtn=np.cross(Z_heeq,Xrtn)/np.linalg.norm(np.cross(Z_heeq,Xrtn))
+        Zrtn=np.cross(Xrtn, Yrtn)/np.linalg.norm(np.cross(Xrtn, Yrtn))
+        
+        #project into new system
+        sc.bx[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),X_sceq)
+        sc.by[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Y_sceq)
+        sc.bz[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Z_heeq)
+        
+        #project into new system
+        if name=='PSP':
+            sc.vx[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),X_sceq)
+            sc.vy[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),Y_sceq)
+            sc.vz[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),Z_heeq)
+
+
+    
+    return sc
+
+
+
+ 
 
     
 

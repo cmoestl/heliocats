@@ -91,7 +91,26 @@ sys.exit()
 
 
 
+filestb_all='stereob_2007_2014_rtn.p'
+hd.save_all_stereob_science_data(data_path, filestb_all,sceq=False)
+#[sb1,hsb1]=pickle.load(open(data_path+filestb_all, "rb" ) )  
 
+
+filestb_all='stereob_2007_2014_sceq.p'
+hd.save_all_stereob_science_data(data_path, filestb_all,sceq=True)
+#[sb2,hsb2]=pickle.load(open(data_path+filestb_all, "rb" ) ) 
+
+
+
+filewin="wind_2007_2019_heeq.p" 
+start=datetime.datetime(2007, 1, 1)
+end=datetime.datetime(2020, 1, 1)
+hd.save_wind_data(data_path,filewin,start,end,heeq=True)
+#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+
+filewin="wind_2007_2019_rtn.p" 
+hd.save_wind_data(data_path,filewin,start,end,heeq=False)
+#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
 
 
 
