@@ -28,11 +28,15 @@ import heliopy.data.helios as heliosdata
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 import astropy
+import requests
 
 
 from config import data_path
 #data_path='/nas/helio/data/insitu_python/'
 
+
+
+heliosat_data_path='/nas/helio/data/heliosat/data/'
 
 data_path_sun='/nas/helio/data/SDO_realtime/'
 
@@ -59,6 +63,70 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ####################################### get new data ####################################
+
+
+
+def load_stereoa_science_1min():
+
+    varnames = ['Epoch', 'Vp', 'Vr_Over_V_RTN', 'Np', 'Tp', 'BFIELDRTN']
+    alldata = {k: [] for k in varnames}
+    if not os.path.exists(heliosat_data_path+'/sta_magplasma_outside_heliosat'):
+        os.mkdir('sta_magplasma_outside_heliosat')
+    #for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016','2017','2018','2019','2020']:
+    for year in ['2007']:
+        cdf_write = heliosat_data_path+'sta_magplasma_outside_heliosat/STA_L2_MAGPLASMA_1m_{}_V01.cdf'.format(year)
+        if not os.path.exists(cdf_write):
+            cdf_url = ("https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/behind/magplasma/STA_L2_MAGPLASMA_1m_{}_V01.cdf".format(year))
+            cdf_file = requests.get(cdf_url)
+            open(cdf_write, 'wb').write(cdf_file.content)
+        cdf = cdflib.CDF(cdf_write)
+        #cdf.cdf_info() shows all variable names and attributes
+        for var in varnames:
+            data = cdf[var][...]
+            #fillval = cdf[var].attrs['FILLVAL']
+            #fillval=cdf.varattsget(var)['FILLVAL'][0]
+            data[np.where(data <cdf.varattsget(var)['VALIDMIN'][0])] = np.NaN
+            data[np.where(data > cdf.varattsget(var)['VALIDMAX'][0])] = np.NaN
+            alldata[var].append(data)
+    arrays = {}
+    for var in varnames:
+        arrays[var] = np.concatenate(alldata[var])
+        
+    return arrays
+
+
+def load_stereob_science_1min():
+
+    varnames = ['Epoch', 'Vp', 'Vr_Over_V_RTN', 'Np', 'Tp', 'BFIELDRTN']
+    alldata = {k: [] for k in varnames}
+    if not os.path.exists(heliosat_data_path+'/sta_magplasma_outside_heliosat'):
+        os.mkdir('sta_magplasma_outside_heliosat')
+    #for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016','2017','2018','2019','2020']:
+    for year in ['2007']:
+        cdf_write = heliosat_data_path+'sta_magplasma_outside_heliosat/STA_L2_MAGPLASMA_1m_{}_V01.cdf'.format(year)
+        if not os.path.exists(cdf_write):
+            cdf_url = ("https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/behind/magplasma/STA_L2_MAGPLASMA_1m_{}_V01.cdf".format(year))
+            cdf_file = requests.get(cdf_url)
+            open(cdf_write, 'wb').write(cdf_file.content)
+        cdf = cdflib.CDF(cdf_write)
+        #cdf.cdf_info() shows all variable names and attributes
+        for var in varnames:
+            data = cdf[var][...]
+            #fillval = cdf[var].attrs['FILLVAL']
+            #fillval=cdf.varattsget(var)['FILLVAL'][0]
+            data[np.where(data <cdf.varattsget(var)['VALIDMIN'][0])] = np.NaN
+            data[np.where(data > cdf.varattsget(var)['VALIDMAX'][0])] = np.NaN
+            alldata[var].append(data)
+    arrays = {}
+    for var in varnames:
+        arrays[var] = np.concatenate(alldata[var])
+        
+    return arrays
+
+
+
+
+
 
 
 
@@ -301,8 +369,6 @@ def save_wind_data(path,file,start_date,end_date,heeq):
 
 
 
-
-
 def save_stereoa_science_data(path,file,t_start, t_end,sceq):
 
     print('start STA')
@@ -313,7 +379,7 @@ def save_stereoa_science_data(path,file,t_start, t_end,sceq):
     time_mat=mdates.date2num(time) 
     
     tp, pro = sta_sat.get_data_raw(t_start, t_end, "sta_plastic_l2")
-    tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_beacon")
+    #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_beacon")
     #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_l1")
 
     print('download complete')

@@ -229,8 +229,7 @@ text.close()
 
 
 
-
-
+'''
 # #STEREO-A to SCEQ
 filesta2='stereoa_2015_2019_sceq.p'
 start=datetime.datetime(2015, 7, 21)
@@ -246,7 +245,7 @@ hd.save_psp_data(data_path, filepsp,sceq=False)
 filepsp="psp_2018_2019_sceq.p"
 hd.save_psp_data(data_path, filepsp,sceq=True)
 
-
+'''
 
 
 
