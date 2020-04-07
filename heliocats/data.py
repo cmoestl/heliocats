@@ -40,7 +40,7 @@ data_path_sun='/nas/helio/data/SDO_realtime/'
 
 '''
 MIT LICENSE
-Copyright 2020, Christian Moestl 
+Copyright 2020, Christian Moestl, Rachel L. Bailey 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this 
 software and associated documentation files (the "Software"), to deal in the Software
 without restriction, including without limitation the rights to use, copy, modify, 
@@ -59,337 +59,6 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ####################################### get new data ####################################
-
-
-def load_stereoa_science_1min():
-
-    varnames = ['Epoch', 'Vp', 'Vr_Over_V_RTN', 'Np', 'Tp', 'BFIELDRTN']
-    alldata = {k: [] for k in varnames}
-    if not os.path.exists(heliosat_data_path+'sta_magplasma_outside_heliosat'):
-        os.mkdir(heliosat_data_path+'sta_magplasma_outside_heliosat')
-    for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016','2017','2018','2019']:
-        print('get STEREO-A yearly 1min data file for ',year)
-        cdf_write = heliosat_data_path+'sta_magplasma_outside_heliosat/STA_L2_MAGPLASMA_1m_{}_V01.cdf'.format(year)
-        if not os.path.exists(cdf_write):
-            cdf_url = ("https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/magplasma/STA_L2_MAGPLASMA_1m_{}_V01.cdf".format(year))
-            cdf_file = requests.get(cdf_url)
-            open(cdf_write, 'wb').write(cdf_file.content)
-        cdf = cdflib.CDF(cdf_write)
-        #cdf.cdf_info() shows all variable names and attributes
-        for var in varnames:
-            data = cdf[var][...]
-            data[np.where(data < cdf.varattsget(var)['VALIDMIN'][0])] = np.NaN
-            data[np.where(data > cdf.varattsget(var)['VALIDMAX'][0])] = np.NaN
-            alldata[var].append(data)
-    arrays = {}
-    for var in varnames:
-        arrays[var] = np.concatenate(alldata[var])
-        
-    return arrays
-
-
-
-def save_all_stereoa_science_data(path,file,sceq):
-    ''' 
-    saves all STEREO-Ahead science data btxyz 
-    vt np tp x y z r lat lon 1 min resolution as pickle
-    sceq=True -> convert RTN to SCEQ coordinates for magnetic field components
-    
-    filesta_all='stereoa_2007_2020_sceq.p'
-    hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=True)
-
-    filesta_all='stereoa_2007_2020.p'
-    hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=False)    
-    
-    
-    [sta_t,hsta_t]=pickle.load(open(data_path+filesta_all, "rb" ) )
-    '''
-    
-    #load all data with function
-    s1=load_stereoa_science_1min()    
-    print('download complete')
-
-    #make array
-    sta=np.zeros(len(s1['Epoch']),dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
-                ('x', float),('y', float),('z', float),\
-                ('r', float),('lat', float),('lon', float)])   
-    
-    #convert to recarray
-    sta = sta.view(np.recarray)  
-    
-    #parse Epoch time to datetime objects
-    sta.time=parse_time(s1['Epoch'],format='cdf_epoch').datetime  
-    print('time conversion complete')
-
-    sta.bx=s1['BFIELDRTN'][:,0]
-    sta.by=s1['BFIELDRTN'][:,1]
-    sta.bz=s1['BFIELDRTN'][:,2]
-    sta.bt=np.sqrt(sta.bx**2+sta.by**2+sta.bz**2)
-    
-    sta.vt=s1['Vp']    
-    sta.np=s1['Np']
-    sta.tp=s1['Tp']    
-    
-    print('parameters into array complete')
-    
-    print('position start')
-    frame='HEEQ'
-    kernels = spicedata.get_kernel('stereo_a')
-    kernels += spicedata.get_kernel('stereo_a_pred')
-    spice.furnish(kernels)
-    statra=spice.Trajectory('-234') #STEREO-A SPICE NAIF code
-    statra.generate_positions(sta.time,'Sun',frame)
-    statra.change_units(astropy.units.AU)  
-    [r, lat, lon]=cart2sphere(statra.x,statra.y,statra.z)
-    
-    sta.x=statra.x
-    sta.y=statra.y
-    sta.z=statra.z
-    
-    sta.r=r
-    sta.lat=np.rad2deg(lat)
-    sta.lon=np.rad2deg(lon)
-
-    print('position end ')
-    
-    coord='RTN'
-    #convert magnetic field to SCEQ
-    if sceq==True:
-        print('convert RTN to SCEQ ')
-        coord='SCEQ'
-        sta=convert_RTN_to_SCEQ(sta,'STEREO-A')
-    
-    header='STEREO-A magnetic field (IMPACT instrument) and plasma data (PLASTIC, science), ' + \
-    'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/magplasma   '+ \
-    'Timerange: '+sta.time[0].strftime("%Y-%b-%d %H:%M")+' to '+sta.time[-1].strftime("%Y-%b-%d %H:%M")+\
-    ', with an average time resolution of '+str(np.mean(np.diff(sta.time)).seconds)+' seconds. '+\
-    'The data are available in a numpy recarray, fields can be accessed by sta.time, sta.bx, sta.vt etc. '+\
-    'Missing data has been set to "np.nan". Total number of data points: '+str(sta.size)+'. '+\
-    'Units are btxyz [nT, '+coord+', vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with https://github.com/cmoestl/heliocats '+\
-    'and https://github.com/heliopython/heliopy. '+\
-    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, R. L. Bailey and D. Stansby. File creation date: '+\
-    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-
-    print('save pickle file')
-    pickle.dump([sta,header], open(path+file, "wb"))
-    
-    print('done sta')
-    print()
-
-    
-    #convert to matplotlib time for linear interpolation
-    #ta_mat=mdates.date2num(tm) 
-    #print('time convert done')
-    
-    #linear interpolation to time_mat times    
-    #bx = np.interp(time_mat, tm_mat, mag[:,0] )
-    #by = np.interp(time_mat, tm_mat, mag[:,1] )
-    #bz = np.interp(time_mat, tm_mat, mag[:,2] )
-    #bt = np.sqrt(bx**2+by**2+bz**2)
-      
-      
-    #den = np.interp(time_mat, tp_mat, pro[:,0])
-    #vt = np.interp(time_mat, tp_mat, pro[:,1])
-    
-    #tp = np.interp(time_mat, tp_mat, pro[:,2])
-    
-     
-    '''     
-    #remove spikes from plasma data
-    #median filter
-    sta.vt=scipy.signal.medfilt(sta.vt,9)
-    #set nans to a high number
-    sta.vt[np.where(np.isfinite(sta.vt) == False)]=1e5
-    #get rid of all single spikes with scipy signal find peaks (cannot use nan)
-    peaks,properties = scipy.signal.find_peaks(sta.vt, prominence=200,width=(1,200))
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        sta.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-    #set nan again
-    sta.vt[np.where(sta.vt == 1e5)]=np.nan     
-    sta.tp[np.where(np.isfinite(sta.vt) == False)]=np.nan
-    sta.np[np.where(np.isfinite(sta.vt) == False)]=np.nan   
-    
-    #manual spike removal for magnetic field
-    remove_start=datetime.datetime(2018, 9, 23, 11, 00)
-    remove_end=datetime.datetime(2018, 9, 25, 00, 00)
-    remove_start_ind=np.where(remove_start==sta.time)[0][0]
-    remove_end_ind=np.where(remove_end==sta.time)[0][0] 
-
-    sta.bt[remove_start_ind:remove_end_ind]=np.nan
-    sta.bx[remove_start_ind:remove_end_ind]=np.nan
-    sta.by[remove_start_ind:remove_end_ind]=np.nan
-    sta.bz[remove_start_ind:remove_end_ind]=np.nan
-    '''
-
-
-
-
-
-
-
-
-def load_stereob_science_1min():
-
-    varnames = ['Epoch', 'Vp', 'Vr_Over_V_RTN', 'Np', 'Tp', 'BFIELDRTN']
-    alldata = {k: [] for k in varnames}
-    if not os.path.exists(heliosat_data_path+'stb_magplasma_outside_heliosat'):
-        os.mkdir(heliosat_data_path+'stb_magplasma_outside_heliosat')
-    for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014']:
-    #for year in ['2007']:
-        print('get STEREO-B yearly 1min data file for ',year)
-        cdf_write = heliosat_data_path+'stb_magplasma_outside_heliosat/STB_L2_MAGPLASMA_1m_{}_V01.cdf'.format(year)
-        if not os.path.exists(cdf_write):
-            cdf_url = ("https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/behind/magplasma/STB_L2_MAGPLASMA_1m_{}_V01.cdf".format(year))
-            cdf_file = requests.get(cdf_url)
-            open(cdf_write, 'wb').write(cdf_file.content)
-        cdf = cdflib.CDF(cdf_write)
-        #cdf.cdf_info() shows all variable names and attributes
-        for var in varnames:
-            data = cdf[var][...]
-            #fillval = cdf[var].attrs['FILLVAL']
-            #fillval=cdf.varattsget(var)['FILLVAL'][0]
-            data[np.where(data < cdf.varattsget(var)['VALIDMIN'][0])] = np.NaN
-            data[np.where(data > cdf.varattsget(var)['VALIDMAX'][0])] = np.NaN
-            alldata[var].append(data)
-    arrays = {}
-    for var in varnames:
-        arrays[var] = np.concatenate(alldata[var])
-        
-    return arrays
-
-
-def save_all_stereob_science_data(path,file,sceq):
-    ''' 
-    saves all STEREO-Behind science data btxyz 
-    vt np tp x y z r lat lon 1 min resolution as pickle
-    sceq=True -> convert RTN to SCEQ coordinates for magnetic field components
-    
-    use as:
-    filestb_all='stereob_2007_2014_sceq.p'
-    hd.save_all_stereob_science_data(data_path, filestb_all,sceq=True)
-    
-    filestb_all='stereob_2007_2014.p'
-    hd.save_all_stereob_science_data(data_path, filestb_all,sceq=False)  
-    
-    [stb_t,hstb_t]=pickle.load(open(data_path+filestb_all, "rb" ) )    
-    '''
-    
-    #load all data with function
-    s1=load_stereob_science_1min()    
-    print('download complete')
-
-    #make array
-    stb=np.zeros(len(s1['Epoch']),dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
-                ('x', float),('y', float),('z', float),\
-                ('r', float),('lat', float),('lon', float)])   
-    
-    #convert to recarray
-    stb = stb.view(np.recarray)  
-   
-    
-    #parse Epoch time to datetime objects
-    stb.time=parse_time(s1['Epoch'],format='cdf_epoch').datetime  
-    
-    print('time conversion complete')
-
-    stb.bx=s1['BFIELDRTN'][:,0]
-    stb.by=s1['BFIELDRTN'][:,1]
-    stb.bz=s1['BFIELDRTN'][:,2]
-    stb.bt=np.sqrt(stb.bx**2+stb.by**2+stb.bz**2)
-
-    
-    stb.vt=s1['Vp']    
-    stb.np=s1['Np']
-    stb.tp=s1['Tp']    
-    
-    print('parameters into array complete')
-    
-    print('position start')
-    frame='HEEQ'
-    kernels = spicedata.get_kernel('stereo_b')
-    spice.furnish(kernels)
-    stbtra=spice.Trajectory('-235') #STEREO-A SPICE NAIF code
-    stbtra.generate_positions(stb.time,'Sun',frame)
-    stbtra.change_units(astropy.units.AU)  
-    [r, lat, lon]=cart2sphere(stbtra.x,stbtra.y,stbtra.z)
-    
-    stb.x=stbtra.x
-    stb.y=stbtra.y
-    stb.z=stbtra.z
-    
-    stb.r=r
-    stb.lat=np.rad2deg(lat)
-    stb.lon=np.rad2deg(lon)
-
-    print('position end ')
-
- 
-    
-    coord='RTN'
-    #convert magnetic field to SCEQ
-    if sceq==True:
-        print('convert RTN to SCEQ ')
-        coord='SCEQ'
-        stb=convert_RTN_to_SCEQ(stb,'STEREO-B')
-    
-    
-    
-    header='STEREO-B magnetic field (IMPACT instrument) and plasma data (PLASTIC, science), ' + \
-    'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/behind/magplasma   '+ \
-    'Timerange: '+stb.time[0].strftime("%Y-%b-%d %H:%M")+' to '+stb.time[-1].strftime("%Y-%b-%d %H:%M")+\
-    ', with a an average time resolution of '+str(np.mean(np.diff(stb.time)).seconds)+' seconds. '+\
-    'The data are available in a numpy recarray, fields can be accessed by stb.time, stb.bx, stb.vt etc. '+\
-    'Missing data has been set to "np.nan". Total number of data points: '+str(stb.size)+'. '+\
-    'Units are btxyz [nT, '+coord+'], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with https://github.com/cmoestl/heliocats '+\
-    'and https://github.com/heliopython/heliopy. '+\
-    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, R. L. Bailey and D. Stansby. File creation date: '+\
-    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-  
-    print('save pickle file')
-    pickle.dump([stb,header], open(path+file, "wb"))
-    
-    print('done stb')
-    print()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-###################
 
 
 def save_wind_data(path,file,start_date,end_date,heeq):
@@ -578,6 +247,342 @@ def save_wind_data(path,file,start_date,end_date,heeq):
     print('wind update done')
     print()
     
+
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+def load_stereoa_science_1min():
+
+    varnames = ['Epoch', 'Vp', 'Vr_Over_V_RTN', 'Np', 'Tp', 'BFIELDRTN']
+    alldata = {k: [] for k in varnames}
+    if not os.path.exists(heliosat_data_path+'sta_magplasma_outside_heliosat'):
+        os.mkdir(heliosat_data_path+'sta_magplasma_outside_heliosat')
+    for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016','2017','2018','2019']:
+        print('get STEREO-A yearly 1min data file for ',year)
+        cdf_write = heliosat_data_path+'sta_magplasma_outside_heliosat/STA_L2_MAGPLASMA_1m_{}_V01.cdf'.format(year)
+        if not os.path.exists(cdf_write):
+            cdf_url = ("https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/magplasma/STA_L2_MAGPLASMA_1m_{}_V01.cdf".format(year))
+            cdf_file = requests.get(cdf_url)
+            open(cdf_write, 'wb').write(cdf_file.content)
+        cdf = cdflib.CDF(cdf_write)
+        #cdf.cdf_info() shows all variable names and attributes
+        for var in varnames:
+            data = cdf[var][...]
+            data[np.where(data < cdf.varattsget(var)['VALIDMIN'][0])] = np.NaN
+            data[np.where(data > cdf.varattsget(var)['VALIDMAX'][0])] = np.NaN
+            alldata[var].append(data)
+    arrays = {}
+    for var in varnames:
+        arrays[var] = np.concatenate(alldata[var])
+        
+    return arrays
+
+
+
+def save_all_stereoa_science_data(path,file,sceq):
+    ''' 
+    saves all STEREO-Ahead science data btxyz 
+    vt np tp x y z r lat lon 1 min resolution as pickle
+    sceq=True -> convert RTN to SCEQ coordinates for magnetic field components
+    
+    filesta_all='stereoa_2007_2020_sceq.p'
+    hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=True)
+
+    filesta_all='stereoa_2007_2020.p'
+    hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=False)    
+    
+    
+    [sta_t,hsta_t]=pickle.load(open(data_path+filesta_all, "rb" ) )
+    '''
+    
+    #load all data with function
+    s1=load_stereoa_science_1min()    
+    print('download complete')
+
+    #make array
+    sta=np.zeros(len(s1['Epoch']),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+    
+    #convert to recarray
+    sta = sta.view(np.recarray)  
+    
+    #parse Epoch time to datetime objects
+    sta.time=parse_time(s1['Epoch'],format='cdf_epoch').datetime  
+    print('time conversion complete')
+
+    sta.bx=s1['BFIELDRTN'][:,0]
+    sta.by=s1['BFIELDRTN'][:,1]
+    sta.bz=s1['BFIELDRTN'][:,2]
+    sta.bt=np.sqrt(sta.bx**2+sta.by**2+sta.bz**2)
+    
+    sta.vt=s1['Vp']    
+    sta.np=s1['Np']
+    sta.tp=s1['Tp']    
+    
+    print('parameters into array complete')
+    
+    print('position start')
+    frame='HEEQ'
+    kernels = spicedata.get_kernel('stereo_a')
+    kernels += spicedata.get_kernel('stereo_a_pred')
+    spice.furnish(kernels)
+    statra=spice.Trajectory('-234') #STEREO-A SPICE NAIF code
+    statra.generate_positions(sta.time,'Sun',frame)
+    statra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(statra.x,statra.y,statra.z)
+    
+    sta.x=statra.x
+    sta.y=statra.y
+    sta.z=statra.z
+    
+    sta.r=r
+    sta.lat=np.degrees(lat)
+    sta.lon=np.degrees(lon)
+
+    print('position end ')
+    
+    
+    
+    #remove spike in magnetic field in 2015
+    spike_ind=np.where(sta.bt >300)[0]
+    if len(spike_ind) > 0:
+        sta.bt[spike_ind[0]-77:spike_ind[-1]+5]=np.nan
+        sta.bx[spike_ind[0]-77:spike_ind[-1]+5]=np.nan
+        sta.by[spike_ind[0]-77:spike_ind[-1]+5]=np.nan
+        sta.bz[spike_ind[0]-77:spike_ind[-1]+5]=np.nan
+
+
+
+    
+    coord='RTN'
+    #convert magnetic field to SCEQ
+    if sceq==True:
+        print('convert RTN to SCEQ ')
+        coord='SCEQ'
+        sta=convert_RTN_to_SCEQ(sta,'STEREO-A')
+    
+    header='STEREO-A magnetic field (IMPACT instrument) and plasma data (PLASTIC, science), ' + \
+    'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/magplasma   '+ \
+    'Timerange: '+sta.time[0].strftime("%Y-%b-%d %H:%M")+' to '+sta.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', with an average time resolution of '+str(np.mean(np.diff(sta.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by sta.time, sta.bx, sta.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(sta.size)+'. '+\
+    'Units are btxyz [nT, '+coord+', vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats '+\
+    'and https://github.com/heliopython/heliopy. '+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, R. L. Bailey and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+    print('save pickle file')
+    pickle.dump([sta,header], open(path+file, "wb"))
+    
+    print('done sta')
+    print()
+
+   
+
+
+
+
+
+
+
+
+def load_stereob_science_1min():
+
+    varnames = ['Epoch', 'Vp', 'Vr_Over_V_RTN', 'Np', 'Tp', 'BFIELDRTN']
+    alldata = {k: [] for k in varnames}
+    if not os.path.exists(heliosat_data_path+'stb_magplasma_outside_heliosat'):
+        os.mkdir(heliosat_data_path+'stb_magplasma_outside_heliosat')
+    for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014']:
+    #for year in ['2007']:
+        print('get STEREO-B yearly 1min data file for ',year)
+        cdf_write = heliosat_data_path+'stb_magplasma_outside_heliosat/STB_L2_MAGPLASMA_1m_{}_V01.cdf'.format(year)
+        if not os.path.exists(cdf_write):
+            cdf_url = ("https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/behind/magplasma/STB_L2_MAGPLASMA_1m_{}_V01.cdf".format(year))
+            cdf_file = requests.get(cdf_url)
+            open(cdf_write, 'wb').write(cdf_file.content)
+        cdf = cdflib.CDF(cdf_write)
+        #cdf.cdf_info() shows all variable names and attributes
+        for var in varnames:
+            data = cdf[var][...]
+            #fillval = cdf[var].attrs['FILLVAL']
+            #fillval=cdf.varattsget(var)['FILLVAL'][0]
+            data[np.where(data < cdf.varattsget(var)['VALIDMIN'][0])] = np.NaN
+            data[np.where(data > cdf.varattsget(var)['VALIDMAX'][0])] = np.NaN
+            alldata[var].append(data)
+    arrays = {}
+    for var in varnames:
+        arrays[var] = np.concatenate(alldata[var])
+        
+    return arrays
+
+
+def save_all_stereob_science_data(path,file,sceq):
+    ''' 
+    saves all STEREO-Behind science data btxyz 
+    vt np tp x y z r lat lon 1 min resolution as pickle
+    sceq=True -> convert RTN to SCEQ coordinates for magnetic field components
+    
+    use as:
+    filestb_all='stereob_2007_2014_sceq.p'
+    hd.save_all_stereob_science_data(data_path, filestb_all,sceq=True)
+    
+    filestb_all='stereob_2007_2014.p'
+    hd.save_all_stereob_science_data(data_path, filestb_all,sceq=False)  
+    
+    [stb_t,hstb_t]=pickle.load(open(data_path+filestb_all, "rb" ) )    
+    '''
+    
+    #load all data with function
+    s1=load_stereob_science_1min()    
+    print('download complete')
+
+    #make array
+    stb=np.zeros(len(s1['Epoch']),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+    
+    #convert to recarray
+    stb = stb.view(np.recarray)  
+   
+    
+    #parse Epoch time to datetime objects
+    stb.time=parse_time(s1['Epoch'],format='cdf_epoch').datetime  
+    
+    print('time conversion complete')
+
+    stb.bx=s1['BFIELDRTN'][:,0]
+    stb.by=s1['BFIELDRTN'][:,1]
+    stb.bz=s1['BFIELDRTN'][:,2]
+    stb.bt=np.sqrt(stb.bx**2+stb.by**2+stb.bz**2)
+
+    
+    stb.vt=s1['Vp']    
+    stb.np=s1['Np']
+    stb.tp=s1['Tp']    
+    
+    print('parameters into array complete')
+    
+    print('position start')
+    frame='HEEQ'
+    kernels = spicedata.get_kernel('stereo_b')
+    spice.furnish(kernels)
+    stbtra=spice.Trajectory('-235') #STEREO-A SPICE NAIF code
+    stbtra.generate_positions(stb.time,'Sun',frame)
+    stbtra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(stbtra.x,stbtra.y,stbtra.z)
+    
+    stb.x=stbtra.x
+    stb.y=stbtra.y
+    stb.z=stbtra.z
+    
+    stb.r=r
+    stb.lat=np.rad2deg(lat)
+    stb.lon=np.rad2deg(lon)
+
+    print('position end ')
+
+    
+    coord='RTN'
+    #convert magnetic field to SCEQ
+    if sceq==True:
+        print('convert RTN to SCEQ ')
+        coord='SCEQ'
+        stb=convert_RTN_to_SCEQ(stb,'STEREO-B')
+    
+    
+    header='STEREO-B magnetic field (IMPACT instrument) and plasma data (PLASTIC, science), ' + \
+    'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/behind/magplasma   '+ \
+    'Timerange: '+stb.time[0].strftime("%Y-%b-%d %H:%M")+' to '+stb.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', with a an average time resolution of '+str(np.mean(np.diff(stb.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by stb.time, stb.bx, stb.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(stb.size)+'. '+\
+    'Units are btxyz [nT, '+coord+'], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats '+\
+    'and https://github.com/heliopython/heliopy. '+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, R. L. Bailey and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+  
+    print('save pickle file')
+    pickle.dump([stb,header], open(path+file, "wb"))
+    
+    print('done stb')
+    print()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2412,7 +2417,7 @@ def save_helios_data(file):
 
 
 def save_cassini_data(file):
-
+    #***to do
 
 
     print('start Cassini')
@@ -2427,10 +2432,6 @@ def save_cassini_data(file):
 
     #Cassini Orbiter Magnetometer Calibrated MAG data in 1 minute averages available covering the period 1999-08-16 (DOY 228) to 2016-12-31 (DOY 366). The data are provided in RTN coordinates throughout the mission, with Earth, Jupiter, and Saturn centered coordinates for the respective flybys of those planets.
     cas=cassinidata.mag_hires(t_start,t_end, coords)
-
-
-
-
 
 
 
@@ -2516,8 +2517,9 @@ def save_ulysses_data(data_path):
     
  
     header='Ulysses merged magnetic field and plasma data, obtained from CDAWEB. '+ \
-    'Timerange: '+uly.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+uly.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
-    'Units are btxyz [nT, RTN], vt [km/s], np [#/cm-3], tp[K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+    'Timerange: '+uly.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+uly.time[-1].strftime("%d-%b-%Y %H:%M:%S") +\
+    '. Units are btxyz [nT, RTN], vt [km/s], np [cm-3], tp[K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ].\
+Made with https://github.com/cmoestl/heliocats and https://github.com/heliopython/heliopy. By C. Moestl (twitter @chrisoutofspace) and D. Stansby.'
             
 
     file=data_path+'ulysses_1990_2009_rtn.p'
@@ -2715,7 +2717,8 @@ def save_helcats_datacat(data_path,removed):
     win.lat=winin.lat
     win.lon=winin.lon
      
-    [win.x, win.y, win.z]=sphere2cart(win.r,win.lat,win.lon)
+        
+    [win.x, win.y, win.z]=sphere2cart(win.r,np.abs(win.lat-np.radians(90)),win.lon)
     win.lon=np.rad2deg(win.lon)   
     win.lat=np.rad2deg(win.lat)
 
@@ -2725,7 +2728,7 @@ def save_helcats_datacat(data_path,removed):
     'Timerange: '+win.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+win.time[-1].strftime("%d-%b-%Y %H:%M:%S") +\
     'Units are btxyz [nT, SCEQ], vtxyz [km/s, SCEQ], np [#/cm-3], tp[K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
     
-    pickle.dump([win,hwin], open(data_path+ "wind_2007_2018_helcats.p", "wb" ) )
+    pickle.dump([win,hwin], open(data_path+ "helcats/wind_2007_2018_helcats.p", "wb" ) )
     print( 'convert Wind done.')   
      
     
@@ -2767,7 +2770,9 @@ def save_helcats_datacat(data_path,removed):
     sta.lat=stain.lat
     sta.lon=stain.lon
      
-    [sta.x, sta.y, sta.z]=sphere2cart(sta.r,sta.lat,sta.lon)
+        
+
+    [sta.x, sta.y, sta.z]=sphere2cart(sta.r,np.abs(sta.lat-np.radians(90)),sta.lon)
     sta.lon=np.rad2deg(sta.lon)   
     sta.lat=np.rad2deg(sta.lat)
 
@@ -2776,7 +2781,7 @@ def save_helcats_datacat(data_path,removed):
     hsta='STEREO-A merged magnetic field and plasma data, obtained from HELCATS (A. Isavnin). '+ \
     'Timerange: '+sta.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+sta.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
     'Units are btxyz [nT, SCEQ], vtxyz [km/s, SCEQ], np [#/cm-3], tp[K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
-    pickle.dump([sta,hsta], open(data_path+ "stereoa_2007_2015_helcats.p", "wb" ) )
+    pickle.dump([sta,hsta], open(data_path+ "helcats/stereoa_2007_2015_helcats.p", "wb" ) )
     print( 'read STA done.')
     
   
@@ -2816,8 +2821,12 @@ def save_helcats_datacat(data_path,removed):
     stb.r=stbin.r/(astropy.constants.au.value/1e3)
     stb.lat=stbin.lat
     stb.lon=stbin.lon
+    
+    
+    
+    
      
-    [stb.x, stb.y, stb.z]=sphere2cart(stb.r,stb.lat,stb.lon)
+    [stb.x, stb.y, stb.z]=sphere2cart(stb.r,np.abs(stb.lat-np.radians(90)),stb.lon)
     stb.lon=np.rad2deg(stb.lon)   
     stb.lat=np.rad2deg(stb.lat)
     
@@ -2853,7 +2862,7 @@ def save_helcats_datacat(data_path,removed):
     hstb='STEREO-B merged magnetic field and plasma data, obtained from HELCATS (A. Isavnin). '+ \
     'Timerange: '+stb.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+stb.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
     'Units are btxyz [nT, SCEQ], vtxyz [km/s, SCEQ], np [#/cm-3], tp[K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
-    pickle.dump([stb,hstb], open(data_path+ "stereob_2007_2014_helcats.p", "wb" ) )
+    pickle.dump([stb,hstb], open(data_path+ "helcats/stereob_2007_2014_helcats.p", "wb" ) )
     print( 'read STB done.')
     
      
@@ -2868,6 +2877,8 @@ def save_helcats_datacat(data_path,removed):
     #non removed dataset
     if removed == False:  
        mesin= pickle.load( open( datacat_path+"MES_2007to2015_SCEQ_non_removed.p", "rb" ) )
+    
+    
     #time conversion
     mesin_time=parse_time(mesin.time,format='utime').datetime
     #replace mes.time with datetime object
@@ -2876,9 +2887,7 @@ def save_helcats_datacat(data_path,removed):
     mes=np.zeros(np.size(mesin),[('time', 'object'), ('bt', 'float64'),\
                     ('bx', 'float64'), ('by', 'float64'), ('bz', 'float64'), \
                     ('x', 'float64'),('y', 'float64'), ('z', 'float64'),\
-                    ('r', 'float64'),('lat', 'float64'), ('lon', 'float64'),\
-                    ('xo', 'float64'),('yo', 'float64'), ('zo', 'float64'),\
-                    ('ro', 'float64'),('lato', 'float64'), ('lono', 'float64')])
+                    ('r', 'float64'),('lat', 'float64'), ('lon', 'float64')])
                     
     #convert to recarray
     mes = mes.view(np.recarray)  
@@ -2892,53 +2901,25 @@ def save_helcats_datacat(data_path,removed):
     
     #convert distance from Sun from km to AU, astropy constant is given in m
     mes.r=mesin.mes_radius_in_km_heeq/(astropy.constants.au.value/1e3)
-    [mes.x, mes.y, mes.z]=sphere2cart(mes.r,\
-                                      mesin.mes_latitude_in_radians_heeq.astype('float64'),\
-                                      mesin.mes_longitude_in_radians_heeq.astype('float64'))
-    #convert to degree
-    mes.lon=np.rad2deg(mesin.mes_longitude_in_radians_heeq.astype('float64'))   
-    mes.lat=np.rad2deg(mesin.mes_latitude_in_radians_heeq.astype('float64'))
-
-    
-    #add orbit position after orbit insertion March 18, 2011, 01:00
-    #https://naif.jpl.nasa.gov/pub/naif/pds/data/mess-e_v_h-spice-6-v1.0/messsp_1000/aareadme.htm
-    #or from MES_2007to2015_RTN.sav       
-    mes2in=pickle.load( open( datacat_path+"MES_2007to2015_RTN.p", "rb" ) )
-    orbit_insertion=mdates.date2num(datetime.datetime(2011,3,18,1,0,0))
-    before_orbit=np.where(mdates.date2num(mes.time) < orbit_insertion)
-    
-    mes2in.x.astype('float64')[before_orbit]=np.nan
-    mes2in.y.astype('float64')[before_orbit]=np.nan
-    mes2in.z.astype('float64')[before_orbit]=np.nan #for some reason this was saved as int
-    
-    mes.xo=mes2in.x
-    mes.yo=mes2in.y
-    mes.zo=mes2in.z
-    
-    [mes.ro, mes.lato, mes.lono]=cart2sphere(mes.xo,mes.yo,mes.zo)
-    mes.lono=np.rad2deg(mes.lono)   
-    mes.lato=np.rad2deg(mes.lato)
-    del(mesin)
-    del(mes2in)
-    
+    mes.lon=np.degrees(mesin.mes_longitude_in_radians_heeq.astype('float64'))   
+    mes.lat=np.degrees(mesin.mes_latitude_in_radians_heeq.astype('float64'))
+    [mes.x, mes.y, mes.z]=sphere2cart(mes.r,np.radians(np.abs(mes.lat-90)),np.radians(mes.lon))
     
     
     if removed == True:   
       hmes='MESSENGER magnetic field data, obtained from NASA PDS. '+ \
       'Timerange: '+mes.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+mes.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
       '. The magnetosphere is removed with a manual magnetopause crossings list (Lydia Philpott, Reka Winslow, Brian Anderson). '+ \
-      'Units are btxyz [nT, SCEQ], orbital position: '+ \
-      'xo/yo/zo/ro/lono/lato [km, degree, MSO], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
-      pickle.dump([mes,hmes], open(data_path+ "messenger_2007_2015_helcats_removed.p", "wb" ) )
+      'Units are btxyz [nT, SCEQ], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+      pickle.dump([mes,hmes], open(data_path+ "helcats/messenger_2007_2015_helcats_removed.p", "wb" ) )
      
     
     if removed == False:  
        hmes='MESSENGER magnetic field data, obtained from NASA PDS. '+ \
        'Timerange: '+mes.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+mes.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
        '. The magnetosphere is removed with a manual magnetopause crossings list (Lydia Philpott, Reka Winslow, Brian Anderson). '+ \
-       'Units are btxyz [nT, SCEQ], orbital position: '+ \
-       'xo/yo/zo/ro/lono/lato [km, degree, MSO], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
-       pickle.dump([mes,hmes], open(data_path+ "messenger_2007_2015_helcats.p", "wb" ) )
+       'Units are btxyz [nT, SCEQ], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
+       pickle.dump([mes,hmes], open(data_path+ "helcats/messenger_2007_2015_helcats.p", "wb" ) )
     
     print('convert MESSENGER done.')    
     
@@ -2960,13 +2941,14 @@ def save_helcats_datacat(data_path,removed):
                     ('ro', 'float64'),('lato', 'float64'), ('lono', 'float64')])      
     vex = vex.view(np.recarray)                                  
  
+ 
     vex.r=vexin.vex_radius_in_km_heeq/(astropy.constants.au.value/1e3)
-    [vex.x, vex.y, vex.z]=sphere2cart(vex.r,\
-                                      vexin.vex_latitude_in_radians_heeq.astype('float64'),\
-                                      vexin.vex_longitude_in_radians_heeq.astype('float64'))
-    #convert to degree
     vex.lon=np.rad2deg(vexin.vex_longitude_in_radians_heeq)   
     vex.lat=np.rad2deg(vexin.vex_latitude_in_radians_heeq)
+
+    
+    [vex.x, vex.y, vex.z]=sphere2cart(vex.r,np.radians(np.abs(vex.lat-90)),np.radians(vex.lon))
+    #convert to degree
 
     vex.time=vexin_time
     vex.bx=vexin.bx
@@ -2996,18 +2978,18 @@ def save_helcats_datacat(data_path,removed):
     if removed == True:   
      hvex='VEX magnetic field data, obtained from the VEX magnetometer PI T. Zhang IWF Graz, Austria. '+ \
      'Timerange: '+vex.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+vex.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
-     '. The magnetosphere was removed with the ???? model. '+ \
+     '. The magnetosphere was removed with the model from Zhang et al. (2008), see Moestl et al. (2017, doi: 10.1002/2017SW001614) for details. '+ \
      'Units are btxyz [nT, SCEQ], orbital position: '+ \
      'xo/yo/zo/ro/lono/lato [km, degree, VSO], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
-     pickle.dump([vex,hvex], open(data_path+ "vex_2007_2014_helcats_removed.p", "wb" ) )
+     pickle.dump([vex,hvex], open(data_path+ "helcats/vex_2007_2014_helcats_removed.p", "wb" ) )
      
     
     if removed == False:  
      hvex='VEX magnetic field data, obtained from the VEX magnetometer PI T. Zhang IWF Graz, Austria. '+ \
      'Timerange: '+vex.time[0].strftime("%d-%b-%Y %H:%M:%S")+' to '+vex.time[-1].strftime("%d-%b-%Y %H:%M:%S")+\
-     'Units are btxyz [nT, SCEQ], orbital position: '+ \
+     '. Units are btxyz [nT, SCEQ], orbital position: '+ \
      'xo/yo/zo/ro/lono/lato [km, degree, VSO], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]'
-     pickle.dump([vex,hvex], open(data_path+ "vex_2007_2014_helcats.p", "wb" ) )
+     pickle.dump([vex,hvex], open(data_path+ "helcats/vex_2007_2014_helcats.p", "wb" ) )
     
     print( 'convert VEX done.')
     
@@ -3020,17 +3002,17 @@ def save_helcats_datacat(data_path,removed):
     #and then saved as one cdf 2.7 file
     print('read Ulysses from CDAWEB cdf')    
     save_ulysses_data(data_path)
-    fileuly=data_path+'ulysses_1990_2009_helcats.p'
-    [uly,huly]=pickle.load(open(fileuly, 'rb' ) )
+    #fileuly=data_path+'ulysses_1990_2009_helcats.p'
+    #[uly,huly]=pickle.load(open(fileuly, 'rb' ) )
   
 
-    if removed==True: 
-        pickle.dump([vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly], open(data_path+ "helcats_all_data_removed.p", "wb" ) )
-        print('saved as ' +data_path+ 'helcats_all_data_removed.p')
+    #if removed==True: 
+    #    pickle.dump([vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly], open(data_path+ "helcats_all_data_removed.p", "wb" ) )
+    #    print('saved as ' +data_path+ 'helcats_all_data_removed.p')
 
-    if removed==False: 
-        pickle.dump([vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly], open(data_path+ "helcats_all_data_non_removed.p", "wb" ) )
-        print('saved as ' +data_path+ 'helcats_all_data_non_removed.p')
+    #if removed==False: 
+    #    pickle.dump([vex,win,mes,sta,stb,uly,hvex,hwin,hmes,hsta,hstb,huly], open(data_path+ "helcats_all_data_non_removed.p", "wb" ) )
+    #    print('saved as ' +data_path+ 'helcats_all_data_non_removed.p')
 
 
 
@@ -3089,7 +3071,6 @@ def sphere2cart(r,theta,phi):
     z = r * np.cos( theta )
     return (x, y,z)
     
-
 
    
 def convert_GSE_to_HEEQ(sc):

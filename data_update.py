@@ -70,46 +70,26 @@ get_new_data=True
 #~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit2.py
 
 
-'''
-filesta2="stereoa_2007_2009_beacon.p"
-start=datetime.datetime(2007, 3, 20)
-end=datetime.datetime(2009, 12, 31)
-hd.save_stereoa_beacon_data(data_path, filesta2,start, end)
-#[sta,hsta]=pickle.load(open(data_path+filesta2, "rb" ) ) 
-
-sys.exit()
 
 
-filesta2="stereoa_2007_2009_beacon.p"
-start=datetime.datetime(2007, 3, 20)
-end=datetime.datetime(2009, 12, 31)
-hd.save_stereoa_beacon_data(data_path, filesta2,start, end)
-#[sta,hsta]=pickle.load(open(data_path+filesta2, "rb" ) ) 
+filesta_all='stereoa_2007_2019_rtn.p'
+hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=False)
+#[sa1,hsa1]=pickle.load(open(data_path+filesta_all, "rb" ) )  
 
-sys.exit()
-'''
+filesta_all='stereoa_2007_2019_sceq.p'
+hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=True)
+#[sa2,hsa2]=pickle.load(open(data_path+filesta_all, "rb" ) )  
 
 
 
-filestb_all='stereob_2007_2014_rtn.p'
-hd.save_all_stereob_science_data(data_path, filestb_all,sceq=False)
-#[sb1,hsb1]=pickle.load(open(data_path+filestb_all, "rb" ) )  
-
-
-filestb_all='stereob_2007_2014_sceq.p'
-hd.save_all_stereob_science_data(data_path, filestb_all,sceq=True)
-#[sb2,hsb2]=pickle.load(open(data_path+filestb_all, "rb" ) ) 
-
-
-
-filewin="wind_2007_2019_heeq.p" 
-start=datetime.datetime(2007, 1, 1)
-end=datetime.datetime(2020, 1, 1)
-hd.save_wind_data(data_path,filewin,start,end,heeq=True)
+#filewin="wind_2007_2019_heeq.p" 
+#start=datetime.datetime(2007, 1, 1)
+#end=datetime.datetime(2020, 1, 1)
+#hd.save_wind_data(data_path,filewin,start,end,heeq=True)
 #[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
 
-filewin="wind_2007_2019_rtn.p" 
-hd.save_wind_data(data_path,filewin,start,end,heeq=False)
+#filewin="wind_2007_2019_rtn.p" 
+#hd.save_wind_data(data_path,filewin,start,end,heeq=False)
 #[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
 
 
