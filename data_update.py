@@ -71,26 +71,29 @@ get_new_data=True
 
 
 
+################################# PSP
 
-filesta_all='stereoa_2007_2019_rtn.p'
-hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=False)
-#[sa1,hsa1]=pickle.load(open(data_path+filesta_all, "rb" ) )  
+print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
 
-filesta_all='stereoa_2007_2019_sceq.p'
-hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=True)
-#[sa2,hsa2]=pickle.load(open(data_path+filesta_all, "rb" ) )  
+filepsp='psp_2018_2019_rtn.p'
+hd.save_psp_data(data_path,filepsp, sceq=False)   
+
+filepsp='psp_2018_2019_sceq.p'
+hd.save_psp_data(data_path,filepsp, sceq=True)   
 
 
+################################# Wind
 
-#filewin="wind_2007_2019_heeq.p" 
-#start=datetime.datetime(2007, 1, 1)
-#end=datetime.datetime(2020, 1, 1)
-#hd.save_wind_data(data_path,filewin,start,end,heeq=True)
-#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+filewin="wind_2018_2019_gse.p" 
+start=datetime.datetime(2018, 1, 1)
+end=datetime.datetime(2019, 12, 31)
+hd.save_wind_data(data_path,filewin,start,end,heeq=False)
 
-#filewin="wind_2007_2019_rtn.p" 
-#hd.save_wind_data(data_path,filewin,start,end,heeq=False)
-#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+
+filewin="wind_2018_2019_heeq.p" 
+start=datetime.datetime(2018, 1, 1)
+end=datetime.datetime(2019, 12, 31)
+hd.save_wind_data(data_path,filewin,start,end,heeq=True)
 
 
 
@@ -190,6 +193,74 @@ start=datetime.datetime.utcnow() -datetime.timedelta(days=365)
 end=datetime.datetime.utcnow() 
 hp.plot_insitu_update(o, start, end,'OMNI2',plot_path,now=True)
 
+
+# Chris  11:00 Uhr
+# ganz simpel sind die files; monatlich magnetfeld 1 min ascii mit position 
+# https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/
+#  https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/2-min/
+
+
+
+
+# selbiges für SWE https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/2-min/
+
+
+
+
+
+
+# load wind data 
+
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2014/*.cdf"
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2015/*.cdf"
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2016/*.cdf"
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2017/*.cdf"
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2018/*.cdf"
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2019/*.cdf"
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2020/*.cdf"
+
+
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/wind/swe/swe_h1/2018/*.cdf"
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/wind/swe/swe_h1/2019/*.cdf"
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/wind/swe/swe_h1/2020/*.cdf"
+
+
+# https://spdf.gsfc.nasa.gov/pub/data/wind/swe/swe_h1/{YYYY}/wi_h1_swe_{YYYY}{MM}{DD}_v[0-9]{2}.cdf"
+
+
+
+# https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2018/
+
+
+# check psp probleme (evt gleich in spacecraft.json mit version nummern)
+
+
+
+# load PSP data
+# go to heliosat directory psp_fields_l2
+
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2018/*.cdf"
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2019/*.cdf"
+
+# psp_spc_l2
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l2/l2i/2018/*.cdf"
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l2/l2i/2019/*.cdf"
+
+
+
+# psp_spc_l3
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2018/*.cdf"
+# wget "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf"
+
+
+# psp new orbit
+
+
+# mfi h0
+# https://wind.nasa.gov/mission/wind/mfi/
+# swe k0
+# https://wind.nasa.gov/mission/wind/swe_gsfc/swekp/
+# wind testen, heeq etc. files da usw
 
 
 

@@ -61,6 +61,313 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ####################################### get new data ####################################
 
 
+
+def save_psp_data(path, file, sceq):
+
+    t_start = datetime.datetime(2018, 10, 6)
+    #t_start = datetime.datetime(2019, 3, 1) # 
+    t_end = datetime.datetime(2019, 4, 24) #  UNTIL ERROR on Apr 25
+    psp1=get_psp_data(t_start,t_end)
+
+    t_start = datetime.datetime(2019, 4, 26)    
+    #t_end = datetime.datetime(2019, 4, 30)    
+    t_end = datetime.datetime(2019, 10, 15)
+    psp2=get_psp_data(t_start,t_end)
+
+    #add both
+    
+    psp=np.zeros(np.size(psp1.time)+np.size(psp2.time),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('vx', float),('vy', float),('vz', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    psp = psp.view(np.recarray)  
+    psp.time=np.hstack((psp1.time,psp2.time))
+    psp.bx=np.hstack((psp1.bx,psp2.bx))
+    psp.by=np.hstack((psp1.by,psp2.by))
+    psp.bz=np.hstack((psp1.bz,psp2.bz))
+    psp.bt=np.hstack((psp1.bt,psp2.bt))
+    psp.vt=np.hstack((psp1.vt,psp2.vt))
+    psp.vx=np.hstack((psp1.vx,psp2.vx))
+    psp.vy=np.hstack((psp1.vy,psp2.vy))
+    psp.vz=np.hstack((psp1.vz,psp2.vz))
+    psp.np=np.hstack((psp1.np,psp2.np))
+    psp.tp=np.hstack((psp1.tp,psp2.tp))
+    psp.x=np.hstack((psp1.x,psp2.x))
+    psp.y=np.hstack((psp1.y,psp2.y))
+    psp.z=np.hstack((psp1.z,psp2.z))
+    psp.r=np.hstack((psp1.r,psp2.r))
+    psp.lon=np.hstack((psp1.lon,psp2.lon))
+    psp.lat=np.hstack((psp1.lat,psp2.lat))
+
+    print('Merging done')
+    
+    
+    #convert magnetic field to SCEQ
+    coord='RTN'
+    if sceq==True:
+        coord='SCEQ'
+        psp=convert_RTN_to_SCEQ(psp,'PSP')
+    
+    
+    header='PSP magnetic field (FIELDS instrument) and plasma data (SWEAP), ' + \
+    'obtained from https://spdf.gsfc.nasa.gov/pub/data/psp/  '+ \
+    'Timerange: '+psp.time[0].strftime("%Y-%b-%d %H:%M")+' to '+psp.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(psp.time)).seconds)+' seconds. '+\
+    'The data are put in a numpy recarray, fields can be accessed by psp.time, psp.bx, psp.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(psp.size)+'. '+\
+    'Units are btxyz [nT,'+coord+'], vtxyz [km/s, RTN], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats (uses https://github.com/ajefweiss/HelioSat '+\
+    'and https://github.com/heliopython/heliopy). '+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+    
+    pickle.dump([psp,header], open(path+file, "wb"))
+
+
+
+
+def get_psp_data(t_start,t_end):
+     
+    print('start PSP')
+     
+    psp_sat = heliosat.PSP()
+    
+    #create an array with 1 minute resolution between t start and end
+    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
+    time_mat=mdates.date2num(time) 
+    
+    tm, mag = psp_sat.get_data_raw(t_start, t_end, "psp_fields_l2")#,return_datetimes=True)
+    tp, pro = psp_sat.get_data_raw(t_start, t_end, "psp_spc_l3")#,return_datetimes=True)
+    
+    
+    tm=parse_time(tm,format='unix').datetime 
+    tp=parse_time(tp,format='unix').datetime 
+    
+    print('download complete')
+    
+    print('start nan or interpolate')
+    
+    print('field')
+    #round first each original time to full minutes   original data at 30sec
+    tround=copy.deepcopy(tm)
+    format_str = '%Y-%m-%d %H:%M'  
+    for k in np.arange(np.size(tm)):
+         tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(tm[k], format_str), format_str) 
+    tm_mat=parse_time(tround).plot_date
+    
+    bx = np.interp(time_mat, tm_mat, mag[:,0] )
+    by = np.interp(time_mat, tm_mat, mag[:,1] )
+    bz = np.interp(time_mat, tm_mat, mag[:,2] )
+    
+   
+    #which values are not in original data compared to full time range
+    isin=np.isin(time_mat,tm_mat)      
+    setnan=np.where(isin==False)
+    #set to to nan that is not in original data
+    bx[setnan]=np.nan
+    by[setnan]=np.nan
+    bz[setnan]=np.nan
+
+    bt = np.sqrt(bx**2+by**2+bz**2)
+    
+
+    
+    print('plasma')
+        
+    #for plasma round first each original time to full minutes
+    tround=copy.deepcopy(tp)
+    format_str = '%Y-%m-%d %H:%M'  
+    for k in np.arange(np.size(tp)):
+         tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(tp[k], format_str), format_str) 
+    tp_mat=mdates.date2num(tround) 
+    
+    isin=np.isin(time_mat,tp_mat)      
+    setnan=np.where(isin==False)
+        
+    den = np.interp(time_mat, tp_mat, pro[:,0])
+    vx = np.interp(time_mat, tp_mat, pro[:,1])
+    vy = np.interp(time_mat, tp_mat, pro[:,2])
+    vz = np.interp(time_mat, tp_mat, pro[:,3])
+    temp = np.interp(time_mat, tp_mat, pro[:,4])
+    
+    den[setnan]=np.nan
+    temp[setnan]=np.nan
+    vx[setnan]=np.nan
+    vy[setnan]=np.nan
+    vz[setnan]=np.nan
+  
+    vt=np.sqrt(vx**2+vy**2+vz**2)
+
+    print('end nan or interpolate')
+
+        
+    print('position start')
+    frame='HEEQ'
+    spice.furnish(spicedata.get_kernel('psp_pred'))
+    psptra=spice.Trajectory('SPP')
+    psptra.generate_positions(time,'Sun',frame)
+    psptra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(psptra.x,psptra.y,psptra.z)
+    print('PSP pos')    
+    print('position end')
+
+        
+    #make array
+    psp=np.zeros(np.size(bx),dtype=[('time',object),('bt', float),('bx', float),\
+                ('by', float),('bz', float),('vt', float),('vx', float),('vy', float),\
+                ('vz', float),('np', float),('tp', float),('x', float),('y', float),\
+                ('z', float),('r', float),('lat', float),('lon', float)])   
+       
+    #convert to recarray
+    psp = psp.view(np.recarray)  
+
+    #fill with data
+    psp.time=time
+    psp.bx=bx
+    psp.by=by
+    psp.bz=bz 
+    psp.bt=bt
+    
+    psp.x=psptra.x
+    psp.y=psptra.y
+    psp.z=psptra.z
+    
+    psp.r=r
+    psp.lat=np.degrees(lat)
+    psp.lon=np.degrees(lon)
+    
+    psp.vt=vt
+    psp.vx=vx    
+    psp.vy=vy  
+    psp.vz=vz
+    psp.np=den
+    #https://en.wikipedia.org/wiki/Thermal_velocity convert from km/s to K
+    from astropy.constants import m_p,k_B
+    psp.tp=np.pi*m_p*((temp*1e3)**2)/(8*k_B) 
+    
+    #remove spikes
+    psp.tp[np.where(psp.tp > 1e10)]=np.nan
+    
+    print('done get psp')
+    print()
+    
+    return psp
+
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+def save_psp_data_non_merged(path, file):
+    '''
+    save PSP data as pickle file with 3 separate arrays for orbit, magnetic field and plasma data    
+    '''
+     
+    print('start PSP')
+     
+    psp_sat = heliosat.PSP()
+    t_start = datetime.datetime(2018, 10, 14,14,14, 30)
+    #t_end = datetime.datetime(2018, 12, 12,23,59,30)
+    t_end = datetime.datetime(2019, 4, 23,23,59,30)
+
+    #t_end = datetime.datetime(2019, 5, 31,23,59,30)
+    #t_end = datetime.datetime(2019, 5, 1,23,59,30)
+
+    
+    timeb, mag = psp_sat.get_data_raw(t_start, t_end, "psp_fields_l2")
+    timep, pro = psp_sat.get_data_raw(t_start, t_end, "psp_spc_l3")
+    print('download complete')
+    
+    #create an array with 1 minute resolution between t start and end for position
+    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
+    
+    
+    #make separate arrays for orbit plasma and mag
+    psp_orbit=np.zeros(np.size(time),dtype=[('time',object),('x', float),('y', float),\
+                ('z', float),('r', float),('lat', float),('lon', float)])   
+    #convert to recarray
+    psp_orbit = psp_orbit.view(np.recarray)  
+
+    psp_mag=np.zeros(np.size(timeb),dtype=[('time',object),('bt', float),('bx', float),\
+                ('by', float),('bz', float)])   
+    psp_mag = psp_mag.view(np.recarray)  
+
+    psp_plasma=np.zeros(np.size(timep),dtype=[('time',object),('vt', float),('vx', float),('vy', float),\
+                ('vz', float),('np', float),('tp', float)])
+    psp_plasma = psp_plasma.view(np.recarray)  
+
+
+    psp_orbit.time=time
+    psp_mag.time=parse_time(timeb,format='unix').datetime 
+    psp_plasma.time=parse_time(timep,format='unix').datetime 
+    print('time convert done')
+
+
+    print('position start')
+    frame='HEEQ'
+    spice.furnish(spicedata.get_kernel('psp_pred'))
+    psptra=spice.Trajectory('SPP')
+    psptra.generate_positions(time,'Sun',frame)
+    psptra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(psptra.x,psptra.y,psptra.z)
+    psp_orbit.x=psptra.x
+    psp_orbit.y=psptra.y
+    psp_orbit.z=psptra.z
+    psp_orbit.r=r
+    psp_orbit.lat=np.rad2deg(lat)
+    psp_orbit.lon=np.rad2deg(lon)
+    print('position end')
+   
+    #fields
+    psp_mag.bx = mag[:,0] 
+    psp_mag.by = mag[:,1] 
+    psp_mag.bz = mag[:,2] 
+    psp_mag.bt = np.sqrt(psp_mag.bx**2+psp_mag.by**2+psp_mag.bz**2)
+     
+    #sweap
+    from astropy.constants import m_p,k_B
+    psp_plasma.np = pro[:,0]
+    #https://en.wikipedia.org/wiki/Thermal_velocity convert from km/s to K
+
+    psp_plasma.tp = np.pi*m_p*((pro[:,4]*1e3)**2)/(8*k_B) 
+
+    psp_plasma.vx = pro[:,1]
+    psp_plasma.vy = pro[:,2]
+    psp_plasma.vz = pro[:,3]
+    psp_plasma.vt=np.sqrt(psp_plasma.vx**2+psp_plasma.vy**2+psp_plasma.vz**2)
+
+    
+    header='PSP magnetic field (FIELDS instrument) and plasma data (SWEAP), ' + \
+    'obtained from https://spdf.gsfc.nasa.gov/pub/data/psp/  '+ \
+    'Timerange: '+psp_orbit.time[0].strftime("%Y-%b-%d %H:%M")+' to '+psp_orbit.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    '. The data are put in 3 numpy recarrays, fields can be accessed by psp_plasma.timep (for plasma), psp.vt etc.; psp_mag.timeb (for magnetic field),psp.bt, etc.; psp_orbit.time (for position) psp.r, psp.lon, ... '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(psp_plasma.size)+' (plasma), '+str(psp_mag.size)+' (mag). '+\
+    'Units are btxyz [nT, RTN], vtxyz [km/s, RTN], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats heliocats.data.save_psp_data_non_merged (uses https://github.com/ajefweiss/HelioSat '+\
+    'and https://github.com/heliopython/heliopy). '+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+    
+    pickle.dump([psp_orbit,psp_mag,psp_plasma,header], open(path+file, "wb"))
+
+    print('done psp')
+    print()
+
+
+
+
+
+
+
+
+
 def save_wind_data(path,file,start_date,end_date,heeq):
     
     '''
@@ -79,16 +386,20 @@ def save_wind_data(path,file,start_date,end_date,heeq):
     
     #print(parse_time(time[0:10]).iso)
     
-    tm, mag = wind_sat.get_data_raw(t_start, t_end, "wind_mfi_k0", extra_columns=["PGSE"], return_datetimes=True)
+    tm, mag = wind_sat.get_data_raw(t_start, t_end, "wind_mfi_k0", extra_columns=["PGSE"])#, return_datetimes=True)
     #tm, mag = wind_sat.get_data_raw(t_start, t_end, "wind_mfi_h0") k0
-    tp, pro = wind_sat.get_data_raw(t_start, t_end, "wind_swe_h1",return_datetimes=True)
+    tp, pro = wind_sat.get_data_raw(t_start, t_end, "wind_swe_h1")#,return_datetimes=True)
+    
+    tm=parse_time(tm,format='unix').datetime 
+    tp=parse_time(tp,format='unix').datetime 
+
+    
     
     #print(parse_time(tm[0:10]).iso)
     #print(parse_time(tp[0:10]).iso)
     
-    tm=parse_time(tm).plot_date-1/24 #***********bug heliosat?
-    tp=parse_time(tp).plot_date-1/24
-
+    tm=parse_time(tm).plot_date
+    tp=parse_time(tp).plot_date
     
     print('download complete')
      
@@ -101,32 +412,24 @@ def save_wind_data(path,file,start_date,end_date,heeq):
     den = np.interp(time_mat, tp, pro[:,0])
     vt = np.interp(time_mat, tp, pro[:,1])
     tp = np.interp(time_mat, tp, pro[:,2])
-    
-    
+        
     #interpolate the GSE position over full data range
     x_gse = np.interp(time_mat, tm, mag[:,3])*6378.1/149597870.7*astropy.units.AU #earth radii to km to AU
     y_gse = np.interp(time_mat, tm, mag[:,4])*6378.1/149597870.7*astropy.units.AU
     z_gse = np.interp(time_mat, tm, mag[:,5])*6378.1/149597870.7*astropy.units.AU
     
-    
-    print('position start')
-    
+    print('position start')    
     frame='HEEQ'
     planet_kernel=spicedata.get_kernel('planet_trajectories')
-    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
+    earth=spice.Trajectory('399')  #399 for Earth
     earth.generate_positions(time,'Sun',frame)
-
-    #from km to AU
-    earth.change_units(astropy.units.AU)
-    
+    earth.change_units(astropy.units.AU)       #from km to AU    
     #add gse position to Earth position
     x=earth.x-x_gse  #earth radii to km
     y=earth.y-y_gse
     z=earth.z+z_gse
-    [r, lat, lon]=cart2sphere(x,y,z)
-    
+    [r, lat, lon]=cart2sphere(x,y,z)    
     print('position end ')
-       
     
     #make array
     win=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
@@ -149,17 +452,19 @@ def save_wind_data(path,file,start_date,end_date,heeq):
     win.z=z
     
     win.r=r
-    win.lat=np.rad2deg(lat)
-    win.lon=np.rad2deg(lon)
-
+    win.lat=np.degrees(lat)
+    win.lon=np.degrees(lon)
     
     win.np=den
     win.vt=vt
     #https://en.wikipedia.org/wiki/Thermal_velocity convert from km/s to K
     from astropy.constants import m_p,k_B
-    win.tp=np.pi*m_p*((tp*1e3)**2)/(8*k_B) 
-        
+    win.tp=np.pi*m_p*((tp*1e3)**2)/(8*k_B)
     
+    
+    ############ spike removal
+            
+    #plasma    
     win.np[np.where(win.np> 500)]=1000000
     #get rid of all single spikes with scipy signal find peaks
     peaks, properties = scipy.signal.find_peaks(win.np, height=500,width=(1, 250))
@@ -180,6 +485,19 @@ def save_wind_data(path,file,start_date,end_date,heeq):
         #remove data
         win.tp[peaks[i]-width-2:peaks[i]+width+2]=np.nan
 
+    win.vt[np.where(win.vt> 10000)]=1e11
+    #get rid of all single spikes with scipy signal find peaks
+    peaks, properties = scipy.signal.find_peaks(win.vt, height=1e8,width=(1, 250))
+    #go through all of them and set to nan according to widths
+    for i in np.arange(len(peaks)):
+        #get width of current peak
+        width=int(np.ceil(properties['widths']/2)[i])
+        #remove data
+        win.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
+
+        
+        
+        
     #magnetic field    
     peaks, properties = scipy.signal.find_peaks(win.bt, height=50,width=(1, 10))
     #go through all of them and set to nan according to widths
@@ -193,29 +511,32 @@ def save_wind_data(path,file,start_date,end_date,heeq):
         win.bz[peaks[i]-width-2:peaks[i]+width+2]=np.nan    
 
 
-
     #manual spike removal for magnetic field
     if t_start < datetime.datetime(2018, 7, 19, 18, 25):    
-        remove_start=datetime.datetime(2018, 7, 19, 18, 25)
-        remove_end=datetime.datetime(2018, 7, 19, 19, 30)
-        remove_start_ind=np.where(remove_start<win.time)[0][0]
-        remove_end_ind=np.where(remove_end<win.time)[0][0] 
+        if t_end > datetime.datetime(2018, 7, 19, 18, 25):         
 
-        win.bt[remove_start_ind:remove_end_ind]=np.nan
-        win.bx[remove_start_ind:remove_end_ind]=np.nan
-        win.by[remove_start_ind:remove_end_ind]=np.nan
-        win.bz[remove_start_ind:remove_end_ind]=np.nan
+            remove_start=datetime.datetime(2018, 7, 19, 18, 25)
+            remove_end=datetime.datetime(2018, 7, 19, 19, 30)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan
 
     if t_start < datetime.datetime(2018, 8, 29, 21, 00):    
-        remove_start=datetime.datetime(2018, 8, 29, 21, 00)
-        remove_end=datetime.datetime(2018,8, 30, 5, 00)
-        remove_start_ind=np.where(remove_start<win.time)[0][0]
-        remove_end_ind=np.where(remove_end<win.time)[0][0] 
+        if t_end > datetime.datetime(2018, 7, 19, 18, 25):         
 
-        win.bt[remove_start_ind:remove_end_ind]=np.nan
-        win.bx[remove_start_ind:remove_end_ind]=np.nan
-        win.by[remove_start_ind:remove_end_ind]=np.nan
-        win.bz[remove_start_ind:remove_end_ind]=np.nan
+            remove_start=datetime.datetime(2018, 8, 29, 21, 00)
+            remove_end=datetime.datetime(2018,8, 30, 5, 00)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan
 
      
     coord='GSE'
@@ -256,7 +577,91 @@ def save_wind_data(path,file,start_date,end_date,heeq):
     
     
     
+     
+def convert_GSE_to_HEEQ(sc):
+    '''
+    for Wind magnetic field components: convert GSE to HEE to HAE to HEEQ
+    '''
+
+    print('conversion GSE to HEEQ start')                                
+
+    jd=np.zeros(len(sc))
+    mjd=np.zeros(len(sc))
+        
+
+    for i in np.arange(0,len(sc)):
+
+        jd[i]=parse_time(sc.time[i]).jd
+        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
+        
+        #GSE to HEE
+        #Hapgood 1992 rotation by 180 degrees, or simply change sign in bx by    
+        #rotangle=np.radians(180)
+        #c, s = np.cos(rotangle), np.sin(rotangle)
+        #T1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        #[bx_hee,by_hee,bz_hee]=T1[sc.bx[i],sc.by[i],sc.bz[i]]        
+        b_hee=[-sc.bx[i],-sc.by[i],sc.bz[i]]
+        
+        #HEE to HAE        
+        
+        #define T00 and UT
+        T00=(mjd[i]-51544.5)/36525.0          
+        dobj=sc.time[i]
+        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
+
+        #lambda_sun in Hapgood, equation 5, here in rad
+        M=np.radians(357.528+35999.050*T00+0.04107*UT)
+        LAMBDA=280.460+36000.772*T00+0.04107*UT        
+        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
+        
+        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle
+        c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
+        Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        b_hae=np.dot(Sm1,b_hee)
+
+        #HAE to HEEQ
+        
+        iota=np.radians(7.25)
+        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
+        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
+                      
+        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
+        #get lambda-omega angle in degree mod 360   
+        
+        #************** CHECK
+                      
+        lambda_omega_deg=np.degrees(np.mod(np.degrees(lambda_sun)-np.degrees(omega),360))
+        ##get theta_node in deg
+        theta_node_deg=np.degrees(theta)
+        ##if in same quadrant, then theta_node = theta_node +pi   
+        if abs(lambda_omega_deg-theta_node_deg) < 180: theta=theta+np.pi                                                            
+        
+        #rotation around Z by theta
+        c, s = np.cos(theta), np.sin(theta)
+        S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+
+        #rotation around X by iota  
+        iota=np.radians(7.25)
+        c, s = np.cos(iota), np.sin(iota)
+        S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
+                
+        #rotation around Z by Omega  
+        c, s = np.cos(omega), np.sin(omega)
+        S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
+        
+        #matrix multiplication to go from HAE to HEEQ components                
+        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
+        
+        sc.bx[i]=bx_heeq
+        sc.by[i]=by_heeq
+        sc.bz[i]=bz_heeq
+
     
+    print('conversion GSE to HEEQ done')                                
+    return sc
+
+    
+     
     
     
     
@@ -724,185 +1129,6 @@ def save_stereoa_science_data(path,file,t_start, t_end,sceq):
     
     
   
-
-def save_psp_data(path, file,sceq):
-     
-    print('start PSP')
-     
-    psp_sat = heliosat.PSP()
-    #!!!if you change these times, see below for another time set!
-    t_start = datetime.datetime(2018, 10, 14,14,14, 30)
-    t_end = datetime.datetime(2019, 4, 23,23,59,30)
-    #t_end = datetime.datetime(2018, 12, 12,23,59,30)
-    #t_end = datetime.datetime(2018, 11, 23,23,59,30)
-    #t_end = datetime.datetime(2019, 5, 31,23,59,30)    
-    #!!!if you change these times, see below for another time set!
-    
-    #create an array with 1 minute resolution between t start and end
-    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
-    time_mat=mdates.date2num(time) 
-    
-    tm, mag = psp_sat.get_data_raw(t_start, t_end, "psp_fields_l2")
-    tp, pro = psp_sat.get_data_raw(t_start, t_end, "psp_spc_l3")
-
-    print('download complete')
-
-    tm=parse_time(tm,format='unix').datetime 
-    tp=parse_time(tp,format='unix').datetime 
-    
-    #convert to matplotlib time for linear interpolation
-    tm_mat=mdates.date2num(tm) 
-    tp_mat=mdates.date2num(tp) 
-    
-    print('time convert done')
-
-      
-    print('position start')
-    frame='HEEQ'
-    spice.furnish(spicedata.get_kernel('psp_pred'))
-    psptra=spice.Trajectory('SPP')
-    psptra.generate_positions(time,'Sun',frame)
-    psptra.change_units(astropy.units.AU)  
-    [r, lat, lon]=cart2sphere(psptra.x,psptra.y,psptra.z)
-    print('PSP pos')    
-    print('position end')
-   
-    #linear interpolation to time_mat times 
-    
-    #which values are not in original data?
-    isin=np.isin(time_mat,tm_mat)      
-    setnan=np.where(isin==False)
-  
-    #linear interpolation to time_mat times now with new array at full minutes
-    t_start = datetime.datetime(2018, 10, 14,14,15, 0)
-    #t_end = datetime.datetime(2018, 11, 23,23,59,0)
-    t_end = datetime.datetime(2019, 4, 23,23,59,0)
-    #t_end = datetime.datetime(2019, 5, 31,23,59,0)
-    
-    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
-    time_mat=mdates.date2num(time) 
-   
-    bx = np.interp(time_mat, tm_mat, mag[:,0] )
-    by = np.interp(time_mat, tm_mat, mag[:,1] )
-    bz = np.interp(time_mat, tm_mat, mag[:,2] )
-
-    bx[setnan]=np.nan
-    by[setnan]=np.nan
-    bz[setnan]=np.nan
-
-    bt = np.sqrt(bx**2+by**2+bz**2)
-     
-     
-    print('plasma')
-
-    #for plasma round first each original time to full minutes
-    tround=copy.deepcopy(tp)
-    format_str = '%Y-%m-%d %H:%M'  
-    for k in np.arange(np.size(tp)):
-         tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(tp[k], format_str), format_str) 
-    tround_mat=mdates.date2num(tround) 
-
-    #same as above for magnetic field
-    isin=np.isin(time_mat,tround_mat)      
-    setnan=np.where(isin==False)
-
-        
-    den = np.interp(time_mat, tp_mat, pro[:,0])
-    vx = np.interp(time_mat, tp_mat, pro[:,1])
-    vy = np.interp(time_mat, tp_mat, pro[:,2])
-    vz = np.interp(time_mat, tp_mat, pro[:,3])
-    temp = np.interp(time_mat, tp_mat, pro[:,4])
-
-    
-    den[setnan]=np.nan
-    temp[setnan]=np.nan
-    vx[setnan]=np.nan
-    vy[setnan]=np.nan
-    vz[setnan]=np.nan
-  
-    vt=np.sqrt(vx**2+vy**2+vz**2)
-
-    
-    #make array
-    psp=np.zeros(np.size(bx),dtype=[('time',object),('bt', float),('bx', float),\
-                ('by', float),('bz', float),('vt', float),('vx', float),('vy', float),\
-                ('vz', float),('np', float),('tp', float),('x', float),('y', float),\
-                ('z', float),('r', float),('lat', float),('lon', float)])   
-       
-    #convert to recarray
-    psp = psp.view(np.recarray)  
-
-    #fill with data
-    psp.time=time
-    psp.bx=bx
-    psp.by=by
-    psp.bz=bz 
-    psp.bt=bt
-    
-    psp.x=psptra.x
-    psp.y=psptra.y
-    psp.z=psptra.z
-    
-    psp.r=r
-    psp.lat=np.rad2deg(lat)
-    psp.lon=np.rad2deg(lon)
-    
-    psp.vt=vt
-    psp.vx=vx    
-    psp.vy=vy  
-    psp.vz=vz
-    psp.np=den
-    #https://en.wikipedia.org/wiki/Thermal_velocity convert from km/s to K
-    from astropy.constants import m_p,k_B
-    psp.tp=np.pi*m_p*((temp*1e3)**2)/(8*k_B) 
-    
-    #remove spikes
-    psp.tp[np.where(psp.tp > 1e10)]=np.nan
-    
-    #convert magnetic field to SCEQ
-    if sceq==True:
-        psp=convert_RTN_to_SCEQ(psp,'PSP')
-    
-    
-    header='PSP magnetic field (FIELDS instrument) and plasma data (SWEAP), ' + \
-    'obtained from https://spdf.gsfc.nasa.gov/pub/data/psp/  '+ \
-    'Timerange: '+psp.time[0].strftime("%Y-%b-%d %H:%M")+' to '+psp.time[-1].strftime("%Y-%b-%d %H:%M")+\
-    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(psp.time)).seconds)+' seconds. '+\
-    'The data are put in a numpy recarray, fields can be accessed by psp.time, psp.bx, psp.vt etc. '+\
-    'Missing data has been set to "np.nan". Total number of data points: '+str(psp.size)+'. '+\
-    'Units are btxyz [nT, RTN], vtxyz [km/s, RTN], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with https://github.com/cmoestl/heliocats (uses https://github.com/ajefweiss/HelioSat '+\
-    'and https://github.com/heliopython/heliopy). '+\
-    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
-    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-    
-    pickle.dump([psp,header], open(path+file, "wb"))
-
-    print('done psp')
-    print()
-
-    ########## for debugging
-    '''
-    plt.figure(1)
-    plt.plot_date(tm_mat,mag[:,0],'r-')
-    plt.plot_date(time_mat,bx,'g-')
-    plt.figure(2)
-    plt.plot_date(tp_mat,pro[:,2],'r-')
-    plt.plot_date(time_mat,vx,'g-')
-    plt.figure(3)
-    plt.plot_date(time_mat,bx,'r-')
-    plt.plot_date(time_mat,vx,'g-')
-    plt.show()
-    sys.exit()
-    '''  
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     
@@ -1419,202 +1645,6 @@ def save_stereoa_beacon_data(path,file,start_time,end_time):
 
 
 
-def save_wind_data(path,file,start_date,end_date,heeq):
-    
-    '''
-    description of data sources used in heliosat:
-    https://cdaweb.sci.gsfc.nasa.gov/misc/NotesW.html
-    '''
-  
-    print('start wind update')
-    wind_sat = heliosat.WIND()
-    t_start = start_date
-    t_end = end_date
-    
-    #create an array with 1 minute resolution between t start and end
-    time = [ t_start + datetime.timedelta(minutes=2*n) for n in range(int ((t_end - t_start).days*30*24))]  
-    time_mat=mdates.date2num(time) 
-    
-    #print(parse_time(time[0:10]).iso)
-    
-    tm, mag = wind_sat.get_data_raw(t_start, t_end, "wind_mfi_k0", extra_columns=["PGSE"], return_datetimes=True)
-    #tm, mag = wind_sat.get_data_raw(t_start, t_end, "wind_mfi_h0") k0
-    tp, pro = wind_sat.get_data_raw(t_start, t_end, "wind_swe_h1",return_datetimes=True)
-    
-    #print(parse_time(tm[0:10]).iso)
-    #print(parse_time(tp[0:10]).iso)
-    
-    tm=parse_time(tm).plot_date-1/24 #***********bug heliosat?
-    tp=parse_time(tp).plot_date-1/24
-
-    
-    print('download complete')
-     
-    #linear interpolation to time_mat times    
-    bx = np.interp(time_mat, tm, mag[:,0] )
-    by = np.interp(time_mat, tm, mag[:,1] )
-    bz = np.interp(time_mat, tm, mag[:,2] )
-    bt = np.sqrt(bx**2+by**2+bz**2)
-        
-    den = np.interp(time_mat, tp, pro[:,0])
-    vt = np.interp(time_mat, tp, pro[:,1])
-    tp = np.interp(time_mat, tp, pro[:,2])
-    
-    
-    #interpolate the GSE position over full data range
-    x_gse = np.interp(time_mat, tm, mag[:,3])*6378.1/149597870.7*astropy.units.AU #earth radii to km to AU
-    y_gse = np.interp(time_mat, tm, mag[:,4])*6378.1/149597870.7*astropy.units.AU
-    z_gse = np.interp(time_mat, tm, mag[:,5])*6378.1/149597870.7*astropy.units.AU
-    
-    
-    print('position start')
-    
-    frame='HEEQ'
-    planet_kernel=spicedata.get_kernel('planet_trajectories')
-    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
-    earth.generate_positions(time,'Sun',frame)
-
-    #from km to AU
-    earth.change_units(astropy.units.AU)
-    
-    #add gse position to Earth position
-    x=earth.x-x_gse  #earth radii to km
-    y=earth.y-y_gse
-    z=earth.z+z_gse
-    [r, lat, lon]=cart2sphere(x,y,z)
-    
-    print('position end ')
-       
-    
-    #make array
-    win=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('np', float),('vt', float),('tp', float),\
-                ('x', float),('y', float),('z', float),\
-                ('r', float),('lat', float),('lon', float)])   
-       
-    #convert to recarray
-    win = win.view(np.recarray)  
-
-    #fill with data
-    win.time=time
-    win.bx=bx
-    win.by=by
-    win.bz=bz 
-    win.bt=bt
-
-    win.x=x
-    win.y=y
-    win.z=z
-    
-    win.r=r
-    win.lat=np.rad2deg(lat)
-    win.lon=np.rad2deg(lon)
-
-    
-    win.np=den
-    win.vt=vt
-    #https://en.wikipedia.org/wiki/Thermal_velocity convert from km/s to K
-    from astropy.constants import m_p,k_B
-    win.tp=np.pi*m_p*((tp*1e3)**2)/(8*k_B) 
-        
-    
-    win.np[np.where(win.np> 500)]=1000000
-    #get rid of all single spikes with scipy signal find peaks
-    peaks, properties = scipy.signal.find_peaks(win.np, height=500,width=(1, 250))
-    #go through all of them and set to nan according to widths
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        win.np[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-
-    win.tp[np.where(win.tp> 1e8)]=1e11
-    #get rid of all single spikes with scipy signal find peaks
-    peaks, properties = scipy.signal.find_peaks(win.tp, height=1e8,width=(1, 250))
-    #go through all of them and set to nan according to widths
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        win.tp[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-
-    #magnetic field    
-    peaks, properties = scipy.signal.find_peaks(win.bt, height=50,width=(1, 10))
-    #go through all of them and set to nan according to widths
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        win.bt[peaks[i]-width-2:peaks[i]+width+2]=np.nan    
-        win.bx[peaks[i]-width-2:peaks[i]+width+2]=np.nan    
-        win.by[peaks[i]-width-2:peaks[i]+width+2]=np.nan    
-        win.bz[peaks[i]-width-2:peaks[i]+width+2]=np.nan    
-
-
-
-    #manual spike removal for magnetic field
-    if t_start < datetime.datetime(2018, 7, 19, 18, 25):    
-        remove_start=datetime.datetime(2018, 7, 19, 18, 25)
-        remove_end=datetime.datetime(2018, 7, 19, 19, 30)
-        remove_start_ind=np.where(remove_start<win.time)[0][0]
-        remove_end_ind=np.where(remove_end<win.time)[0][0] 
-
-        win.bt[remove_start_ind:remove_end_ind]=np.nan
-        win.bx[remove_start_ind:remove_end_ind]=np.nan
-        win.by[remove_start_ind:remove_end_ind]=np.nan
-        win.bz[remove_start_ind:remove_end_ind]=np.nan
-
-    if t_start < datetime.datetime(2018, 8, 29, 21, 00):    
-        remove_start=datetime.datetime(2018, 8, 29, 21, 00)
-        remove_end=datetime.datetime(2018,8, 30, 5, 00)
-        remove_start_ind=np.where(remove_start<win.time)[0][0]
-        remove_end_ind=np.where(remove_end<win.time)[0][0] 
-
-        win.bt[remove_start_ind:remove_end_ind]=np.nan
-        win.bx[remove_start_ind:remove_end_ind]=np.nan
-        win.by[remove_start_ind:remove_end_ind]=np.nan
-        win.bz[remove_start_ind:remove_end_ind]=np.nan
-
-     
-    coord='GSE'
-    #convert magnetic field to SCEQ
-    if heeq==True:
-        win=convert_GSE_to_HEEQ(win)
-        coord='HEEQ'
-   
-    
-        
-    ###################### 
-
-    
-    header='Wind magnetic field (MAG instrument) and plasma data (SWE), ' + \
-    'obtained from https://spdf.gsfc.nasa.gov/pub/data/wind/  '+ \
-    'Timerange: '+win.time[0].strftime("%Y-%b-%d %H:%M")+' to '+win.time[-1].strftime("%Y-%b-%d %H:%M")+\
-    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(win.time)).seconds)+' seconds. '+\
-    'The data are available in a numpy recarray, fields can be accessed by win.time, win.bx, win.vt etc. '+\
-    'Missing data has been set to "np.nan". Total number of data points: '+str(win.size)+'. '+\
-    'Units are btxyz [nT, '+coord+'], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with https://github.com/cmoestl/heliocats heliocats.data.save_wind_data (uses https://github.com/ajefweiss/HelioSat '+\
-    'and https://github.com/heliopython/heliopy). '+\
-    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
-    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-
-    pickle.dump([win,header], open(path+file, "wb"))
-    
-    
-    print('wind update done')
-    print()
-    
-
-
-
-
-
-
-
-
-
-
 def omni_loader(overwrite):
    '''
    downloads all omni2 data into the "data" folder
@@ -1925,108 +1955,6 @@ def save_stereob_science_data(path,file,start_time,end_time):
        
     
     
-
-
-    
-def save_psp_data_non_merged(path, file):
-    '''
-    save PSP data as pickle file with 3 separate arrays for orbit, magnetic field and plasma data    
-    '''
-     
-    print('start PSP')
-     
-    psp_sat = heliosat.PSP()
-    t_start = datetime.datetime(2018, 10, 14,14,14, 30)
-    #t_end = datetime.datetime(2018, 12, 12,23,59,30)
-    t_end = datetime.datetime(2019, 4, 23,23,59,30)
-
-    #t_end = datetime.datetime(2019, 5, 31,23,59,30)
-    #t_end = datetime.datetime(2019, 5, 1,23,59,30)
-
-    
-    timeb, mag = psp_sat.get_data_raw(t_start, t_end, "psp_fields_l2")
-    timep, pro = psp_sat.get_data_raw(t_start, t_end, "psp_spc_l3")
-    print('download complete')
-    
-    #create an array with 1 minute resolution between t start and end for position
-    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
-    
-    
-    #make separate arrays for orbit plasma and mag
-    psp_orbit=np.zeros(np.size(time),dtype=[('time',object),('x', float),('y', float),\
-                ('z', float),('r', float),('lat', float),('lon', float)])   
-    #convert to recarray
-    psp_orbit = psp_orbit.view(np.recarray)  
-
-    psp_mag=np.zeros(np.size(timeb),dtype=[('time',object),('bt', float),('bx', float),\
-                ('by', float),('bz', float)])   
-    psp_mag = psp_mag.view(np.recarray)  
-
-    psp_plasma=np.zeros(np.size(timep),dtype=[('time',object),('vt', float),('vx', float),('vy', float),\
-                ('vz', float),('np', float),('tp', float)])
-    psp_plasma = psp_plasma.view(np.recarray)  
-
-
-    psp_orbit.time=time
-    psp_mag.time=parse_time(timeb,format='unix').datetime 
-    psp_plasma.time=parse_time(timep,format='unix').datetime 
-    print('time convert done')
-
-
-    print('position start')
-    frame='HEEQ'
-    spice.furnish(spicedata.get_kernel('psp_pred'))
-    psptra=spice.Trajectory('SPP')
-    psptra.generate_positions(time,'Sun',frame)
-    psptra.change_units(astropy.units.AU)  
-    [r, lat, lon]=cart2sphere(psptra.x,psptra.y,psptra.z)
-    psp_orbit.x=psptra.x
-    psp_orbit.y=psptra.y
-    psp_orbit.z=psptra.z
-    psp_orbit.r=r
-    psp_orbit.lat=np.rad2deg(lat)
-    psp_orbit.lon=np.rad2deg(lon)
-    print('position end')
-   
-    #fields
-    psp_mag.bx = mag[:,0] 
-    psp_mag.by = mag[:,1] 
-    psp_mag.bz = mag[:,2] 
-    psp_mag.bt = np.sqrt(psp_mag.bx**2+psp_mag.by**2+psp_mag.bz**2)
-     
-    #sweap
-    from astropy.constants import m_p,k_B
-    psp_plasma.np = pro[:,0]
-    #https://en.wikipedia.org/wiki/Thermal_velocity convert from km/s to K
-
-    psp_plasma.tp = np.pi*m_p*((pro[:,4]*1e3)**2)/(8*k_B) 
-
-    psp_plasma.vx = pro[:,1]
-    psp_plasma.vy = pro[:,2]
-    psp_plasma.vz = pro[:,3]
-    psp_plasma.vt=np.sqrt(psp_plasma.vx**2+psp_plasma.vy**2+psp_plasma.vz**2)
-
-    
-    header='PSP magnetic field (FIELDS instrument) and plasma data (SWEAP), ' + \
-    'obtained from https://spdf.gsfc.nasa.gov/pub/data/psp/  '+ \
-    'Timerange: '+psp_orbit.time[0].strftime("%Y-%b-%d %H:%M")+' to '+psp_orbit.time[-1].strftime("%Y-%b-%d %H:%M")+\
-    '. The data are put in 3 numpy recarrays, fields can be accessed by psp_plasma.timep (for plasma), psp.vt etc.; psp_mag.timeb (for magnetic field),psp.bt, etc.; psp_orbit.time (for position) psp.r, psp.lon, ... '+\
-    'Missing data has been set to "np.nan". Total number of data points: '+str(psp_plasma.size)+' (plasma), '+str(psp_mag.size)+' (mag). '+\
-    'Units are btxyz [nT, RTN], vtxyz [km/s, RTN], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with https://github.com/cmoestl/heliocats heliocats.data.save_psp_data_non_merged (uses https://github.com/ajefweiss/HelioSat '+\
-    'and https://github.com/heliopython/heliopy). '+\
-    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
-    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-    
-    pickle.dump([psp_orbit,psp_mag,psp_plasma,header], open(path+file, "wb"))
-
-    print('done psp')
-    print()
-
-
-
-
-
 
 
 
