@@ -3,8 +3,7 @@
 
 This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections and their analysis. 
 
-by [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/)
-Contributors: A. J. Weiss, R. L. Bailey, A. Isavnin.
+by [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/), contributors: A. J. Weiss, R. L. Bailey, A. Isavnin.
 
 Current status (April 2020): **work in progress** 
 
@@ -35,7 +34,7 @@ Before running the icmecat scripts, you need to download 9 data files for 8 spac
 [https://doi.org/10.6084/m9.figshare.11973693](https://doi.org/10.6084/m9.figshare.11973693)
 
 and place these files in the a folder e.g. named "data", 
-(the name of this folder is set by the variable data_path in file config.py)
+(the name of this folder is set by the variable data_path in file config.py):
 
     data/wind_2018_2019_heeq.p
     data/wind_2007_2018_heeq_helcats.p
