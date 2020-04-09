@@ -11,20 +11,22 @@
 # twitter @chrisoutofspace, https://github.com/cmoestl
 # last update March 2020
 # 
-# for installation of a conda environment to run this code, see instructions in README.md
-# conda dependencies are listed under environment.yml, and pip in requirements.txt
+# for installation of a conda environment to run this code, see instructions in README.md.
+# 
+# Conda dependencies are listed under environment.yml, and pip in requirements.txt.
 # 
 # structure of this code:
 # 
-# 1. settings
+# 0. Settings and load data
 # 
-# 2. ICME duration vs heliocentric distance
+# 1. ICME arrival frequencies
 # 
-# 3. magnetic field 
+# 2. ICME duration 
 # 
-# 4. time inside CMEs at each planet 
+# 3. Magnetic field 
 # 
-# 5. CME arrival frequencies
+# 4. Times the planets spend inside ICMEs total, yearly and per solar cycle phase
+# 
 # 
 # plots are saved in results/plots_stats/ as png and pdf
 # 
@@ -35,7 +37,7 @@
 #     jupyter nbconvert --to script cme_statistics.ipynb
 # 
 
-# In[45]:
+# In[1]:
 
 
 from scipy import stats
@@ -58,6 +60,11 @@ import json
 import warnings
 import importlib
 
+#where the 6 in situ data files are located is read from input.py
+#as data_path=....
+from config import data_path
+
+
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
@@ -71,25 +78,32 @@ register_matplotlib_converters()
 from heliocats import stats as hs
 importlib.reload(hs) #reload again while debugging
 
+from heliocats import data as hd
+importlib.reload(hd) #reload again while debugging
 
-# ## 1. Settings
+
+#Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
+os.system('jupyter nbconvert --to script cme_statistics.ipynb')    
+
+
+# ## 0. Settings and load data
 # 
 # 
 
-# In[46]:
+# In[2]:
 
-
-### constants
-#solar radius
-Rs_in_AU=float(const.R_sun/const.au)
 
 
 plt.close('all')
-print()
-print()
-print('cme_statistics.py main program.')
+
+print('cme_statistics main program.')
 print('ICME parameters at all 4 terrestrial planets.')
 print('Christian Moestl et al., IWF Graz, Austria, last update March 2020')
+
+
+#constants 
+#solar radius
+Rs_in_AU=float(const.R_sun/const.au)
 
 
 ########### make directories first time
@@ -102,33 +116,63 @@ if os.path.isdir(datadir) == False: os.mkdir(datadir)
 outputdirectory='results/plots_stats'
 if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
 
+load_data=1
 
-############ get basic data for times and btotal available at each mission
-hs.load_url_current_directory('data/insitu_data_time_btot_moestl_2019_paper.p',                   'https://oeawcloud.oeaw.ac.at/index.php/s/z7nZVbH8qBjaTf5/download')
-                  
-#open this file
-[win_time,win_btot,sta_time,sta_btot,stb_time,stb_btot, mav_time, mav_btot, vex_time, vex_btot, mes_time, mes_btot]= pickle.load(open( "data/insitu_data_time_btot_moestl_2019_paper.p", "rb" ) )
-print('loaded time/Btotal data for STEREO-A/B, Wind, VEX, MESSENGER, MAVEN')
+if load_data > 0:
+  
+    print('load data')
+
+    filemav='maven_2014_2018_removed_smoothed.p'
+    [mav,hmav]=pickle.load(open(data_path+filemav, 'rb' ) )
+
+    filewin="wind_2007_2018_heeq.p" 
+    [win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+
+    filevex='vex_2007_2014_sceq_removed.p'
+    [vex,hvex]=pickle.load(open(data_path+filevex, 'rb' ) )
+
+    filemes='messenger_2007_2015_sceq_removed.p'
+    [mes,hmes]=pickle.load(open(data_path+filemes, 'rb' ) )
+ 
+    filestb='stereob_2007_2014_sceq.p'
+    [stb,hstb]=pickle.load(open(data_path+filestb, "rb" ) )      
+             
+    filesta='stereoa_2007_2019_sceq.p'
+    [sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) )  
+
+    filepsp='psp_2018_2019_sceq.p'
+    [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
+    
+    fileuly='ulysses_1990_2009_rtn.p'
+    [uly,huly]=pickle.load(open(data_path+fileuly, "rb" ) ) 
 
 
-############# get positions from an IDL sav file
+    # ADD BepiColombo  
+        
+    # ADD Solar Orbiter
+    
+    print('load all data done')
+
+    
+############# get positions from a 
+# pre-made IDL sav file for older spacecraft positions
+print()
 print('get positions')
 pos = hs.getcat('data/positions_2007_2023_HEEQ_6hours.sav')
-pos_time= hs.decode_array(pos.time[0:-1]) 
-pos_time_num=parse_time(pos_time[0:-1]).plot_date 
+pos_time= hs.decode_array(pos.time) 
+pos_time_num=parse_time(pos_time).plot_date 
+print('positions done')
 
 
-########### load ICMECAT v2.0
-file='icmecat/HELCATS_ICMECAT_v20.p'
-print('loaded ', file)
-
+########### load ICMECAT v2.0, made with icmecat.py/ipynb
+file='icmecat/HELCATS_ICMECAT_v20_pandas.p'
 print()
+print('loaded ', file)
 print()
 print('Keys (parameters) in this pandas data frame are:')
 
 ic=pickle.load(open(file, "rb" ) )  
 print(ic.keys())
-print()
 print()
 
 #get indices of events for each spacecraft
@@ -142,7 +186,6 @@ ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]
 pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
 #get indices for Mercury after orbit insertion in March 2011
 merci=np.where(np.logical_and(ic.sc_insitu =='MESSENGER', ic.icme_start_time > parse_time('2011-03-18').datetime))[0]
-
 
 
 ############### set limits of solar minimum, rising/declining phase and solar maximum
@@ -202,547 +245,37 @@ merci_rise=iall_rise[np.where(np.logical_and(ic.sc_insitu[iall_rise] =='MESSENGE
 merci_max=iall_max[np.where(np.logical_and(ic.sc_insitu[iall_max] =='MESSENGER',ic.icme_start_time[iall_max] > parse_time('2011-03-18').datetime))]
 
 
-# In[47]:
+# In[ ]:
 
 
 ic
 
 
-# ## 2. Duration vs distance
-# 
-# 
-# 
+# ## 1. arrival frequencies in ICMECAT 
 
-# In[42]:
+# ### 1a Data days available each year for each planet
 
-
-xfit=np.linspace(0,2,1000)
-
-#force through origin, fit with y=kx
-scx=ic.mo_sc_heliodistance[:,np.newaxis]
-durfit_f, _, _, _ =np.linalg.lstsq(scx,ic.icme_duration, rcond=None)
-
-scxmin=ic.mo_sc_heliodistance[iall_min][:,np.newaxis]
-durfitmin_f, _, _, _ =np.linalg.lstsq(scxmin,ic.icme_duration[iall_min],rcond=None)
-
-scxrise=ic.mo_sc_heliodistance[iall_rise][:,np.newaxis]
-durfitrise_f, _, _, _ =np.linalg.lstsq(scxrise,ic.icme_duration[iall_rise],rcond=None)
-
-scxmax=ic.mo_sc_heliodistance[iall_max][:,np.newaxis]
-durfitmax_f, _, _, _ =np.linalg.lstsq(scxmax,ic.icme_duration[iall_max],rcond=None)
-
-#make the y axis for the fits forced through the origin
-ydurfitall_f=durfit_f*xfit
-ydurfitmin_f=durfitmin_f*xfit
-ydurfitrise_f=durfitrise_f*xfit
-ydurfitmax_f=durfitmax_f*xfit
-
-
-# In[48]:
-
-
-sns.set_context("talk")                
-#sns.set_style("darkgrid")  
-sns.set_style("ticks",{'grid.linestyle': '--'})
-
-fig=plt.figure(1,figsize=(12,11	))
-fsize=15
-ax1 = plt.subplot2grid((2,1), (0, 0))
-#x axis
-
-plt.plot(ic.mo_sc_heliodistance,ic.icme_duration,'o',color='blue',markersize=4, alpha=0.4)
-#for plotting min/rise/max differently
-#plt.plot(sc_heliodistance[iall_min],icme_durations[iall_min],'o',color='dimgre',markersize=3, alpha=0.4,label='D min')
-#plt.plot(sc_heliodistance[iall_rise],icme_durations[iall_rise],'o',color='grey',markersize=3, alpha=0.7,label='D rise')
-#plt.plot(sc_heliodistance[iall_max],icme_durations[iall_max],'o',color='black',markersize=3, alpha=0.8,label='D max')
-
-#plot fits
-plt.plot(xfit,ydurfitall_f,'-',color='blue', lw=3, alpha=0.9,label='fit')
-plt.plot(xfit,ydurfitmin_f,'--',color='black', lw=2, alpha=0.9,label='min fit')
-plt.plot(xfit,ydurfitrise_f,'-.',color='black', lw=2, alpha=0.9,label='rise fit')
-plt.plot(xfit,ydurfitmax_f,'-',color='black', lw=2, alpha=0.9,label='max fit')
-
-print()
-print('linear fit results, hours vs AU')	
-print('overall:    D[h]={:.2f} R[AU] '.format(durfit_f[0]))
-print('minimum:    D[h]={:.2f} R[AU] '.format(durfitmin_f[0]))
-print('rise phase: D[h]={:.2f} R[AU]'.format(durfitrise_f[0]))
-print('maximum:    D[h]={:.2f} R[AU]'.format(durfitmax_f[0]))
-
-label_level=85
-label_level=30
-
-#plt.annotate('overall:',xy=(0.06,label_level),fontsize=11)
-#plt.annotate('D[h]={:.2f} R[AU]'.format(durfit_f[0]),xy=(0.15,label_level),fontsize=11)
-plt.annotate('min:',xy=(0.06,label_level-4),fontsize=11) 
-plt.annotate('D[h]={:.2f} R[AU] '.format(durfitmin_f[0]),xy=(0.12,label_level-4),fontsize=11)
-plt.annotate('rise:',xy=(0.06,label_level-8),fontsize=11) 
-plt.annotate('D[h]={:.2f} R[AU]'.format(durfitrise_f[0]),xy=(0.12,label_level-8),fontsize=11)
-plt.annotate('max:',xy=(0.06,label_level-12),fontsize=11)    
-plt.annotate('D[h]={:.2f} R[AU]'.format(durfitmax_f[0]),xy=(0.12,label_level-12),fontsize=11)
-
-#planet limits
-plt.axvspan(np.min(pos.mars[0]),np.max(pos.mars[0]), color='orangered', alpha=0.2)
-plt.axvspan(np.min(pos.mercury[0]),np.max(pos.mercury[0]), color='darkgrey', alpha=0.2)
-plt.axvspan(np.min(pos.venus[0]),np.max(pos.venus[0]), color='orange', alpha=0.2)
-plt.axvspan(np.min(pos.earth[0]),np.max(pos.earth[0]), color='mediumseagreen', alpha=0.2)
-#plt.axvspan(np.min(pos.sta[0]),np.max(pos.sta[0]), color='red', alpha=0.2)  #STEREO-A
-#plt.axvspan(np.min(pos.stb[0]),np.max(pos.stb[0]), color='blue', alpha=0.2)  #STEREO-B
-#Parker Probe minimum
-plt.plot([0.046,0.046],[0,110], color='black', linestyle='--', linewidth=1)
-
-#label_level=100
-label_level=38
-
-plt.annotate('Mars', xy=(1.5,label_level), ha='center',fontsize=fsize)
-plt.annotate('Mercury', xy=(0.38,label_level), ha='center',fontsize=fsize)
-plt.annotate('Venus', xy=(0.72,label_level), ha='center',fontsize=fsize)
-plt.annotate('Earth', xy=(1,label_level), ha='center',fontsize=fsize)
-plt.annotate('PSP', xy=(0.05,label_level), ha='left',fontsize=fsize)
-
-#for PSP zoom
-#plt.xlim(0,1.2)
-#plt.ylim(0,40)
-
-ax1.set_xticks(np.arange(0,2,0.1))
-#plt.xlim(0,max(sc_heliodistance)+0.3)
-#plt.ylim(0,110)
-
-plt.legend(loc=4,fontsize=fsize-1)
-plt.xlabel('Heliocentric distance R [AU]',fontsize=fsize)
-plt.ylabel('ICME duration D [hours]',fontsize=fsize)
-plt.yticks(fontsize=fsize) 
-plt.xticks(fontsize=fsize) 
-#plt.grid()
-
-
-
-
-
-
-
-##################### (2b) ICME DURATION VS TIME ########################################
-
-
-print('')
-print('2b ICME DURATION VS TIME')
-print()
-print()
-
-'''
-tests for gaussians and Hathaway's function for solar cycle, not used
-Wind
-tfit=mdates.date2num(sunpy.time.parse_time('2009-04-01'))+np.arange(0,365*10)
-t0=mdates.date2num(sunpy.time.parse_time('2009-01-01'))
-
-Gaussian
-sigma=1000
-bfitmax=30
-mu=mdates.date2num(sunpy.time.parse_time('2013-01-01'))
-ygauss=1/(sigma*np.sqrt(2*np.pi))*np.exp(-((xfit-mu)**2)/(2*sigma**2) )
-normalize with 1/max(ygauss)
-plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='mediumseagreen',linestyle='-',markersize=0, label='Earth fit')
-
-Hathaway 2015 equation 6 page 40
-average cycle sunspot number 
-A=100 amplitude 195 for sunspot
-b=100*12 56*12 for months to days
-c=0.8
-4 free parameters A, b, c, t0
-
-Fwind=A*(((tfit-t0)/b)**3) * 1/(np.exp((((tfit-t0)/b)**2))-c)
-plt.plot_date(tfit, Fwind,'o',color='mediumseagreen',linestyle='-',markersize=0, label='Earth fit')
-
-xaxis: 10 years, daily data point
-xfit2=mdates.date2num(sunpy.time.parse_time('2007-01-01'))+np.arange(0,365*10)
-MESSENGER
-sigma=1000
-bfitmax=10
-mu=mdates.date2num(sunpy.time.parse_time('2013-01-01'))
-ygauss=1/(sigma*np.sqrt(2*np.pi))*np.exp(-((xfit2-mu)**2)/(2*sigma**2) )
-normalize with 1/max(ygauss)
-plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='darkgrey',linestyle='-',markersize=0, label='Mercury fit')
-
-VEX
-inital guess
-sigma=1000
-bfitmax=20
-mu=mdates.date2num(sunpy.time.parse_time('2013-01-01'))
-ygauss=1/(sigma*np.sqrt(2*np.pi))*np.exp(-((xfit2-mu)**2)/(2*sigma**2) )
-normalize with 1/max(ygauss)
-plt.plot_date(xfit2, ygauss*1/max(ygauss)*bfitmax,'o',color='orange',linestyle='-',markersize=0, label='Venus fit')
-
-for Mars: reconstruct likely parameters if sigma is quite similar for all fits, take mean of those sigmas and adjust bfitmax as function of distance with power law)
-plot reconstructed function for Mars
-bfitmax=40
-plt.plot_date(xfit2, Fwind,'o',color='steelblue',linestyle='--',markersize=0, label='Mars reconstr.')
-'''
-
-
-
-#################################### plot 
-
-ax2 = plt.subplot2grid((2,1), (1, 0))
-markers=6
-linew=0
-
-#plot durations for all planets
-ax2.plot_date(ic.icme_start_time[mesi],ic.icme_duration[mesi],     'o',color='darkgrey',markersize=markers,linestyle='-',linewidth=linew,label='MESSENGER')
-ax2.plot_date(ic.icme_start_time[vexi],ic.icme_duration[vexi],     'o',color='orange',markersize=markers,linestyle='-',linewidth=linew, label='Venus')
-ax2.plot_date(ic.icme_start_time[wini],ic.icme_duration[wini],     'o',color='mediumseagreen',markersize=markers, linestyle='-', linewidth=linew, label='Earth')
-ax2.plot_date(ic.icme_start_time[mavi],ic.icme_duration[mavi],     'o',color='steelblue',markersize=markers,linestyle='-',linewidth=linew, label='Mars')
-
-
-#limits solar min/rise/maxax2.set_ylim(0,80)
-vlevel=130
-spanalpha=0.05
-
-plt.axvspan(minstart,minend, color='green', alpha=spanalpha)
-plt.annotate('solar minimum',xy=(minstart_num+(minend_num-minstart_num)/2,vlevel),color='black', ha='center')
-plt.annotate('<',xy=(minstart_num+10,vlevel),ha='left')
-plt.annotate('>',xy=(minend_num-10,vlevel),ha='right')
-
-plt.axvspan(risestart,riseend, color='yellow', alpha=spanalpha)
-plt.annotate('rising phase',xy=(risestart_num+(riseend_num-risestart_num)/2,vlevel),color='black', ha='center')
-plt.annotate('<',xy=(risestart_num+10,vlevel),ha='left')
-plt.annotate('>',xy=(riseend_num-10,vlevel),ha='right')
-
-plt.axvspan(maxstart,maxend, color='red', alpha=spanalpha)
-plt.annotate('solar maximum',xy=(maxstart_num+(maxend_num-maxstart_num)/2,vlevel),color='black', ha='center')
-plt.annotate('<',xy=(maxstart_num+10,vlevel),ha='left')
-plt.annotate('>',xy=(maxend_num,vlevel),ha='right')
-
-
-#plot means as horizontal lines for each sub interval
-plt.plot_date( [minstart,minend], [np.mean(ic.icme_duration[wini_min]),np.mean(ic.icme_duration[wini_min])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [minstart,minend], [np.mean(ic.icme_duration[vexi_min]),np.mean(ic.icme_duration[vexi_min])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [minstart,minend], [np.mean(ic.icme_duration[mesi_min]),np.mean(ic.icme_duration[mesi_min])], color='darkgrey', linestyle='-', markersize=0) 
-
-plt.plot_date( [risestart,riseend], [np.mean(ic.icme_duration[wini_rise]),np.mean(ic.icme_duration[wini_rise])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [risestart,riseend], [np.mean(ic.icme_duration[vexi_rise]),np.mean(ic.icme_duration[vexi_rise])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [risestart,riseend], [np.mean(ic.icme_duration[mesi_rise]),np.mean(ic.icme_duration[mesi_rise])], color='darkgrey', linestyle='-', markersize=0) 
-
-plt.plot_date( [maxstart,maxend], [np.mean(ic.icme_duration[wini_max]),np.mean(ic.icme_duration[wini_max])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [maxstart,maxend], [np.mean(ic.icme_duration[vexi_max]),np.mean(ic.icme_duration[vexi_max])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [maxstart,maxend], [np.mean(ic.icme_duration[mesi_max]),np.mean(ic.icme_duration[mesi_max])], color='darkgrey', linestyle='-', markersize=0) 
-
-plt.xlim(sunpy.time.parse_time('2007-01-01').datetime, sunpy.time.parse_time('2016-12-31').datetime)
-plt.ylabel('ICME duration D [hours]',fontsize=fsize)
-plt.xlabel('year',fontsize=fsize)
-plt.tight_layout()
-plt.yticks(fontsize=fsize) 
-plt.xticks(fontsize=fsize) 
-plt.legend(loc=1,fontsize=fsize-1)
-
-#panel labels
-plt.figtext(0.01,0.98,'a',color='black', fontsize=fsize, ha='left',fontweight='bold')
-plt.figtext(0.01,0.485,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
-
-plt.savefig('results/plots_stats/icme_duration_distance_time_paper.pdf', dpi=300)
-plt.savefig('results/plots_stats/icme_duration_distance_time_paper.png', dpi=300)
-
-
-# ## 3. Bfield vs distance
-
-# In[49]:
-
-
-
-# xfit starts here at 1 Rs  because there should not be a 0 in xfit ** bmaxfit[0] later	
-xfit=np.linspace(Rs_in_AU,2,1000)
-
-print('Fit results for B in Form: y=B0*x^k')
-####### power law fits for all events
-bmaxfit=np.polyfit(np.log10(ic.mo_sc_heliodistance),np.log10(ic.mo_bmax),1)
-b=10**bmaxfit[1]
-bmaxfitfun=b*(xfit**bmaxfit[0])
-print('bmax:       ',round(10**bmaxfit[1],2),' x ^', round(bmaxfit[0],2))
-
-bmeanfit=np.polyfit(np.log10(ic.mo_sc_heliodistance),np.log10(ic.mo_bmean),1)
-b=10**bmeanfit[1]
-bmeanfitfun=b*(xfit**bmeanfit[0])
-print('bmean:      ', round(10**bmeanfit[1],2),' x ^',round(bmeanfit[0],2))
-
-##fit with only minimum events
-bmeanfit_min=np.polyfit(np.log10(ic.mo_sc_heliodistance[iall_min]),np.log10(ic.mo_bmean[iall_min]),1)
-bmeanfitfun_min=(10**bmeanfit_min[1])*(xfit**bmeanfit_min[0])
-print('bmean_min:  ', round(10**bmeanfit_min[1],2),' x ^', round(bmeanfit_min[0],2))
-
-##fit with only rising events
-bmeanfit_rise=np.polyfit(np.log10(ic.mo_sc_heliodistance[iall_rise]),np.log10(ic.mo_bmean[iall_rise]),1)
-bmeanfitfun_rise=(10**bmeanfit_rise[1])*(xfit**bmeanfit_rise[0])
-print('bmean_rise: ', round(10**bmeanfit_rise[1],2),' x ^', round(bmeanfit_rise[0],2))
-
-##fit with only maximum events
-bmeanfit_max=np.polyfit(np.log10(ic.mo_sc_heliodistance[iall_max]),np.log10(ic.mo_bmean[iall_max]),1)
-bmeanfitfun_max=(10**bmeanfit_max[1])*(xfit**bmeanfit_max[0])
-print('bmean_max:  ', round(10**bmeanfit_max[1],2),' x ^',round(bmeanfit_max[0],2))
-
-
-# In[50]:
-
-
-
-sns.set_context("talk")     
-sns.set_style("ticks",{'grid.linestyle': '--'})
-fig=plt.figure(2,figsize=(12,12	))
-fsize=15
-ax1 = plt.subplot2grid((2,2), (0, 0))
-
-
-################# plots 3a
-plt.plot(ic.mo_sc_heliodistance,ic.mo_bmean,'o',color='black',markersize=5, alpha=0.7,label='$\mathregular{<B>}$')
-plt.plot(xfit,bmeanfitfun,'-',color='black', lw=2, alpha=0.7,label='$\mathregular{<B> \\ fit}$')
-
-plt.plot(ic.mo_sc_heliodistance,ic.mo_bmax,'o',color='dodgerblue',markersize=5, alpha=0.7,label='$\mathregular{B_{max}}$')
-plt.plot(xfit,bmaxfitfun,'-',color='dodgerblue', lw=2, alpha=0.7,label='$\mathregular{B_{max} \\ fit}$')
-
-#plt.text(1.1,120,'$\mathregular{<B> [nT]= {:.2f} R[AU]^{{:.2f}}}$'.format(10**bmeanfit[1],bmeanfit[0]), fontsize=10)
-plt.text(1.1,60,r'<B> [nT]= {:.2f} R[AU]^{:.2f}'.format(10**bmeanfit[1],bmeanfit[0]), fontsize=10)
-plt.text(1.1,100,r'Bmax [nT]= {:.2f} R[AU]^{:.2f}'.format(10**bmaxfit[1],bmaxfit[0]), fontsize=10,color='dodgerblue')
-
-#planet limits
-plt.axvspan(np.min(pos.mars[0]),np.max(pos.mars[0]), color='orangered', alpha=0.2)
-#plt.figtext(0.8,0.8,'Mars',color='orangered')
-plt.axvspan(np.min(pos.mercury[0]),np.max(pos.mercury[0]), color='darkgrey', alpha=0.2)
-#plt.figtext(0.25,0.8,'Mercury',color='darkgrey')
-plt.axvspan(np.min(pos.venus[0]),np.max(pos.venus[0]), color='orange', alpha=0.2)
-#plt.figtext(0.42,0.8,'Venus',color='orange')
-plt.axvspan(np.min(pos.earth[0]),np.max(pos.earth[0]), color='mediumseagreen', alpha=0.2)
-#plt.figtext(0.6,0.8,'Earth',color='mediumseagreen')
-
-#plt.figtext(0.65,0.2,' D[h]={:.2f} R[AU] + {:.2f}'.format(durfit[0],durfit[1]))
-plt.xlim(0,1.8)
-plt.ylim(0,max(ic.mo_bmax)+20)
-
-plt.legend(loc=1,fontsize=fsize)
-
-plt.xlabel('Heliocentric distance R [AU]',fontsize=fsize)
-plt.ylabel('Magnetic field in MO B [nT]',fontsize=fsize)
-plt.yticks(fontsize=fsize) 
-plt.xticks(fontsize=fsize) 
-#plt.grid()
-
-
-
-
-######################## 3b logarithmic plot with Sun
-
-#for the bmean fit, append one value for the coronal field 
-#patsourakos georgoulis 2016: 0.03 G for 10 Rs #10^5 nT is 1 Gauss
-ic.mo_bmean_sun=np.append(ic.mo_bmean,10**5*0.03) 
-ic.mo_bmax_sun=np.append(ic.mo_bmax,10**5*0.03) 
-ic.mo_sc_heliodistance_sun=np.append(ic.mo_sc_heliodistance,10*Rs_in_AU)
-
-print()
-bmeanfit_sun=np.polyfit(np.log10(ic.mo_sc_heliodistance_sun),np.log10(ic.mo_bmean_sun),1)
-b=10**bmeanfit_sun[1]
-bmeanfitfun_sun=b*(xfit**bmeanfit_sun[0])
-print('bmean_sun:  ', round(10**bmeanfit_sun[1],2),' x ^',round(bmeanfit_sun[0],2))
-
-bmaxfit_sun=np.polyfit(np.log10(ic.mo_sc_heliodistance_sun),np.log10(ic.mo_bmax_sun),1)
-b=10**bmaxfit_sun[1]
-bmaxfitfun_sun=b*(xfit**bmaxfit_sun[0])
-print('bmax_sun:   ', round(10**bmaxfit_sun[1],2),' x ^',round(bmaxfit_sun[0],2))
-
-
-ax3 = plt.subplot2grid((2,2), (0, 1))
-
-plt.plot(ic.mo_sc_heliodistance_sun,np.log10(ic.mo_bmean_sun),'o',color='black',markersize=2, alpha=0.7,label='$\mathregular{<B>}$')
-plt.plot(ic.mo_sc_heliodistance,np.log10(ic.mo_bmax),'o',color='dodgerblue',markersize=2, alpha=0.7,label='$\mathregular{B_{max}}$')
-plt.plot(xfit,np.log10(bmeanfitfun_sun),'-',color='black', lw=2, alpha=0.7,label='$\mathregular{<B> fit}$')
-plt.plot(xfit,np.log10(bmaxfitfun_sun),'-',color='dodgerblue', lw=2, alpha=0.7,label='$\mathregular{B_{max} fit}$')
-plt.ylim(0.1,4)
-
-
-#Planet labels and shades
-ax3.annotate('Mars', xy=(1.5,2.8), ha='center',fontsize=fsize-2)
-ax3.annotate('Mercury', xy=(0.38,2.8), ha='center',fontsize=fsize-2)
-ax3.annotate('Venus', xy=(0.72,2.8), ha='center',fontsize=fsize-2)
-ax3.annotate('Earth', xy=(1,2.8), ha='center',fontsize=fsize-2)
-plt.plot([0.046,0.046],[0,10], color='black', linestyle='--', linewidth=1)
-
-plt.axvspan(np.min(pos.mars[0]),np.max(pos.mars[0]), color='orangered', alpha=0.2)
-plt.axvspan(np.min(pos.mercury[0]),np.max(pos.mercury[0]), color='darkgrey', alpha=0.2)
-plt.axvspan(np.min(pos.venus[0]),np.max(pos.venus[0]), color='orange', alpha=0.2)
-plt.axvspan(np.min(pos.earth[0]),np.max(pos.earth[0]), color='mediumseagreen', alpha=0.2)
-#plt.xlim(0,1.8)
-#PSP
-plt.xlim(0,1.2)
-
-plt.text(0.1,0.2,r'<B> [nT]= {:.2f} R[AU]^{:.2f}'.format(10**bmeanfit[1],bmeanfit[0]), fontsize=10)
-plt.text(0.1,0.6,r'Bmax [nT]= {:.2f} R[AU]^{:.2f}'.format(10**bmaxfit[1],bmaxfit[0]), fontsize=10,color='dodgerblue')
-
-plt.legend(loc=1,fontsize=fsize-5)
-
-plt.xlabel('Heliocentric distance R [AU]',fontsize=fsize)
-plt.ylabel('MFR Magnetic field log(B) [nT]',fontsize=fsize)
-plt.yticks(fontsize=fsize) 
-plt.xticks(fontsize=fsize) 
-
-
-#panel labels
-plt.figtext(0.03,0.96,'a',color='black', fontsize=fsize, ha='left',fontweight='bold')
-plt.figtext(0.515,0.96,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
-plt.figtext(0.03,0.49,'c',color='black', fontsize=fsize, ha='left',fontweight='bold')
-
-
-#plt.text(1.1,60,r'<B> [nT]= {:.2f} R[AU]^{:.2f}'.format(10**bmeanfit[1],bmeanfit[0]), fontsize=10)
-#plt.text(1.1,100,r'Bmax [nT]= {:.2f} R[AU]^{:.2f}'.format(10**bmaxfit[1],bmaxfit[0]), fontsize=10,color='dodgerblue')
-
-
-
-################################# 3c MO B vs. time
-ax2 = plt.subplot2grid((2,2), (1, 0), colspan=2)
-markers=6
-linew=0
-plt.plot_date(ic.icme_start_time[mesi],ic.mo_bmean[mesi],'o',color='darkgrey',markersize=markers,linestyle='-',linewidth=linew,label='MESSENGER')
-plt.plot_date(ic.icme_start_time[vexi],ic.mo_bmean[vexi],'o',color='orange',markersize=markers,linestyle='-',linewidth=linew, label='Venus')
-plt.plot_date(ic.icme_start_time[wini],ic.mo_bmean[wini],'o',color='mediumseagreen',markersize=markers, linestyle='-', linewidth=linew, label='Earth')
-plt.plot_date(ic.icme_start_time[mavi],ic.mo_bmean[mavi],'o',color='steelblue',markersize=markers,linestyle='-',linewidth=linew, label='Mars')
-
-'''
-NOT USED:
-add gaussian fits for MESSENGER, VEX, Wind (MAVEN too few data points)
-instead of gaussian, fit solar cycle functions in Hathaway 2015 solar cycle living reviews equation 6
-xaxis: 10 years, daily data point
-xfit=mdates.date2num(sunpy.time.parse_time('2007-01-01'))+np.arange(0,365*10)
-MESSENGER
-sigma=1000
-bfitmax=80
-mu=mdates.date2num(sunpy.time.parse_time('2013-01-01'))
-ygauss=1/(sigma*np.sqrt(2*np.pi))*np.exp(-((xfit-mu)**2)/(2*sigma**2) )
-normalize with 1/max(ygauss)
-plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='darkgrey',linestyle='-',markersize=0, label='Mercury fit')
-VEX
-inital guess
-sigma=1000
-bfitmax=40
-mu=mdates.date2num(sunpy.time.parse_time('2013-01-01'))
-ygauss=1/(sigma*np.sqrt(2*np.pi))*np.exp(-((xfit-mu)**2)/(2*sigma**2) )
-normalize with 1/max(ygauss)
-plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='orange',linestyle='-',markersize=0, label='Venus fit')
-Wind
-sigma=1000
-bfitmax=10
-mu=mdates.date2num(sunpy.time.parse_time('2013-01-01'))
-ygauss=1/(sigma*np.sqrt(2*np.pi))*np.exp(-((xfit-mu)**2)/(2*sigma**2) )
-normalize with 1/max(ygauss)
-plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='mediumseagreen',linestyle='-',markersize=0, label='Earth fit')
-for Mars: reconstruct likely parameters if sigma is quite similar for all fits, take mean of those sigmas and adjust bfitmax as function of distance with power law)
-plot reconstructed function for Mars
-bfitmax=6
-plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='steelblue',linestyle='--',markersize=0, label='Mars reconstr.')
-'''
-
-
-plt.legend(loc=1,fontsize=fsize-2)
-
-#limits solar min/rise/max
-
-vlevel=150
-
-plt.axvspan(minstart,minend, color='green', alpha=0.1)
-plt.annotate('solar minimum',xy=(minstart+(minend-minstart)/2,vlevel),color='black', ha='center')
-plt.annotate('<',xy=(mdates.date2num(minstart)+10,vlevel),ha='left')
-plt.annotate('>',xy=(mdates.date2num(minend)-10,vlevel),ha='right')
-
-plt.axvspan(risestart,riseend, color='yellow', alpha=0.1)
-plt.annotate('rising phase',xy=(risestart+(riseend-risestart)/2,vlevel),color='black', ha='center')
-plt.annotate('<',xy=(mdates.date2num(risestart)+10,vlevel),ha='left')
-plt.annotate('>',xy=(mdates.date2num(riseend)-10,vlevel),ha='right')
-
-plt.axvspan(maxstart,maxend, color='red', alpha=0.1)
-plt.annotate('solar maximum',xy=(maxstart+(maxend-maxstart)/2,vlevel),color='black', ha='center')
-plt.annotate('<',xy=(mdates.date2num(maxstart)+10,vlevel),ha='left')
-plt.annotate('>',xy=(mdates.date2num(maxend),vlevel),ha='right')
-
-
-plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[wini_min]),                np.mean(ic.mo_bmean[wini_min])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[vexi_min]),                np.mean(ic.mo_bmean[vexi_min])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[mesi_min]),                np.mean(ic.mo_bmean[mesi_min])], color='darkgrey', linestyle='-', markersize=0) 
-
-plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[wini_rise]),                np.mean(ic.mo_bmean[wini_rise])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[vexi_rise]),                np.mean(ic.mo_bmean[vexi_rise])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[mesi_rise]),                np.mean(ic.mo_bmean[mesi_rise])], color='darkgrey', linestyle='-', markersize=0) 
-
-plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[wini_max]),                np.mean(ic.mo_bmean[wini_max])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[vexi_max]),                np.mean(ic.mo_bmean[vexi_max])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[mesi_max]),                np.mean(ic.mo_bmean[mesi_max])], color='darkgrey', linestyle='-', markersize=0) 
-
-plt.ylabel('Magnetic field in MO [nT]', fontsize=fsize)
-plt.xlabel('Year', fontsize=fsize)
-fsize=14
-plt.xlim(parse_time('2007-01-01').datetime, parse_time('2016-12-31').datetime)
-
-plt.ylabel('Magnetic field in MO [nT]', fontsize=fsize)
-plt.xlabel('Year', fontsize=fsize)
-plt.tight_layout()
-plt.yticks(fontsize=fsize) 
-plt.xticks(fontsize=fsize) 
-plt.legend(loc=1,fontsize=fsize-1)
-
-plt.tight_layout()
-plt.savefig('results/plots_stats/icme_total_field_distance_time_paper.pdf', dpi=300)
-plt.savefig('results/plots_stats/icme_total_field_distance_time_paper.png', dpi=300)
-
-
-# In[51]:
-
-
-########################### RESULTS Bfield
-
-print()
-print()
-
-print('Magnetic field B ic.mo_bmean results, mean +/- std [nT]')
-
-print()
-print('Mercury ', round(np.mean(ic.mo_bmean[merci]),1),' +/- ', round(np.std(ic.mo_bmean[merci]),1))
-#print('min     ', round(np.mean(ic.mo_bmean[merci_min]),1), ' +/- ', round(np.std(ic.mo_bmean[merci_min]),1))
-print('min      no events')
-print('rise    ', round(np.mean(ic.mo_bmean[merci_rise]),1), ' +/- ', round(np.std(ic.mo_bmean[merci_rise]),1))
-print('max     ', round(np.mean(ic.mo_bmean[merci_max]),1), ' +/- ', round(np.std(ic.mo_bmean[merci_max]),1))
-
-print()
-print('Venus   ', round(np.mean(ic.mo_bmean[vexi]),1),' +/- ', round(np.std(ic.mo_bmean[vexi]),1))
-print('min     ', round(np.mean(ic.mo_bmean[vexi_min]),1), ' +/- ', round(np.std(ic.mo_bmean[vexi_min]),1))
-print('rise    ', round(np.mean(ic.mo_bmean[vexi_rise]),1), ' +/- ', round(np.std(ic.mo_bmean[vexi_rise]),1))
-print('max     ', round(np.mean(ic.mo_bmean[vexi_max]),1), ' +/- ', round(np.std(ic.mo_bmean[vexi_max]),1))
-
-print()
-print('Earth   ', round(np.mean(ic.mo_bmean[wini]),1),' +/- ', round(np.std(ic.mo_bmean[wini]),1))
-print('min     ', round(np.mean(ic.mo_bmean[wini_min]),1), ' +/- ', round(np.std(ic.mo_bmean[wini_min]),1))
-print('rise    ', round(np.mean(ic.mo_bmean[wini_rise]),1), ' +/- ', round(np.std(ic.mo_bmean[wini_rise]),1))
-print('max     ', round(np.mean(ic.mo_bmean[wini_max]),1), ' +/- ', round(np.std(ic.mo_bmean[wini_max]),1))
-
-print()
-print('MAVEN only declining phase')
-print('decl    ',round(np.mean(ic.mo_bmean[mavi]),1),' +/- ', round(np.std(ic.mo_bmean[mavi]),1))
-
-
-print('-------------------------------------------------')
-
-
-
-
-# ## 4. Time spent by planet inside CMEs
-
-# In[52]:
+# In[ ]:
 
 
 #make bin for each year for yearly histograms
 #define dates of January 1 from 2007 to 2017
 years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,2018) ] 
 yearly_start_times=parse_time(years_jan_1_str).plot_date
+yearly_start_times_d=parse_time(years_jan_1_str).datetime
+
 
 #same for July
 years_jul_1_str=[str(i)+'-07-01' for i in np.arange(2007,2018) ] 
 yearly_mid_times=parse_time(years_jul_1_str).plot_date
+yearly_mid_times_d=parse_time(years_jul_1_str).datetime
+
 
 #same for december
 years_dec_31_str=[str(i)+'-12-31' for i in np.arange(2007,2018) ] 
 yearly_end_times=parse_time(years_dec_31_str).plot_date
+yearly_end_times_d=parse_time(years_dec_31_str).datetime
+
 
 
 ########### 2a Determine for SOLAR WIND ONLY MISSIONS STA, STB, Wind
@@ -778,9 +311,9 @@ total_data_days_yearly_mav.fill(np.nan)
 for i in range(np.size(yearly_mid_times)):
 
   #Wind index for this year  
-  thisyear=np.where(np.logical_and((win_time > yearly_start_times[i]),(win_time < yearly_end_times[i])))
+  thisyear=np.where(np.logical_and((win.time > yearly_start_times_d[i]),(win.time < yearly_end_times_d[i])))
   #get np.size of available data for each year
-  datas=np.size(np.where(np.isnan(win_btot[thisyear])==False))
+  datas=np.size(np.where(np.isnan(win.bt[thisyear])==False))
   #wind is  in 1 minute resolution
   min_in_days=1/(60*24)
   #calculate available days from number of datapoints (each 1 minute) 
@@ -789,44 +322,44 @@ for i in range(np.size(yearly_mid_times)):
   if datas >0: total_data_days_yearly_win[i]=datas*min_in_days
 
   #same for STEREO-A
-  thisyear=np.where(np.logical_and((sta_time > yearly_start_times[i]),(sta_time < yearly_end_times[i])))
-  datas=np.size(np.where(np.isnan(sta_btot[thisyear])==False))
+  thisyear=np.where(np.logical_and((sta.time > yearly_start_times_d[i]),(sta.time < yearly_end_times_d[i])))
+  datas=np.size(np.where(np.isnan(sta.bt[thisyear])==False))
   if datas >0: total_data_days_yearly_sta[i]=datas*min_in_days
 
   #same for STEREO-B
-  thisyear=np.where(np.logical_and((stb_time > yearly_start_times[i]),(stb_time < yearly_end_times[i])))
-  datas=np.size(np.where(np.isnan(stb_btot[thisyear])==False))
+  thisyear=np.where(np.logical_and((stb.time > yearly_start_times_d[i]),(stb.time < yearly_end_times_d[i])))
+  datas=np.size(np.where(np.isnan(stb.bt[thisyear])==False))
   if datas >0: total_data_days_yearly_stb[i]=datas*min_in_days
 
   #same for MESSENGER
-  thisyear=np.where(np.logical_and((mes_time > yearly_start_times[i]),(mes_time < yearly_end_times[i])))
-  datas=np.size(np.where(np.isnan(mes_btot[thisyear])==False))
+  thisyear=np.where(np.logical_and((mes.time > yearly_start_times_d[i]),(mes.time < yearly_end_times_d[i])))
+  datas=np.size(np.where(np.isnan(mes.bt[thisyear])==False))
   if datas >0: total_data_days_yearly_mes[i]=datas*min_in_days
 
   #same for Mercury alone
   #start with 2011
   if i == 4: 
-   thisyear=np.where(np.logical_and((mes_time > mdates.date2num(parse_time('2011-03-18').datetime)),(mes_time < yearly_end_times[i])))
-   datas=np.size(np.where(np.isnan(mes_btot[thisyear])==False))
+   thisyear=np.where(np.logical_and((mes.time > parse_time('2011-03-18').datetime),(mes.time < yearly_end_times_d[i])))
+   datas=np.size(np.where(np.isnan(mes.bt[thisyear])==False))
    if datas >0: total_data_days_yearly_merc[i]=datas*min_in_days
   #2012 onwards 
   if i > 4: 
-   thisyear=np.where(np.logical_and((mes_time > yearly_start_times[i]),(mes_time < yearly_end_times[i])))
-   datas=np.size(np.where(np.isnan(mes_btot[thisyear])==False))
+   thisyear=np.where(np.logical_and((mes.time > yearly_start_times_d[i]),(mes.time < yearly_end_times_d[i])))
+   datas=np.size(np.where(np.isnan(mes.bt[thisyear])==False))
    if datas >0: total_data_days_yearly_merc[i]=datas*min_in_days
       
 
   #same for VEX
-  thisyear=np.where(np.logical_and((vex_time > yearly_start_times[i]),(vex_time < yearly_end_times[i])))
-  datas=np.size(np.where(np.isnan(vex_btot[thisyear])==False))
+  thisyear=np.where(np.logical_and((vex.time > yearly_start_times_d[i]),(vex.time < yearly_end_times_d[i])))
+  datas=np.size(np.where(np.isnan(vex.bt[thisyear])==False))
   if datas >0: total_data_days_yearly_vex[i]=datas*min_in_days
 
   #for MAVEN different time resolution
-  thisyear=np.where(np.logical_and((mav_time > yearly_start_times[i]),(mav_time < yearly_end_times[i])))
-  datas=np.size(np.where(np.isnan(mav_btot[thisyear])==False))
-  datas_ind=np.where(np.isnan(mav_btot[thisyear])==False)
+  thisyear=np.where(np.logical_and((mav.time > yearly_start_times_d[i]),(mav.time < yearly_end_times_d[i])))
+  datas=np.size(np.where(np.isnan(mav.bt[thisyear])==False))
+  datas_ind=np.where(np.isnan(mav.bt[thisyear])==False)
   #sum all time intervals for existing data points, but avoid counting gaps where diff is > 1 orbit (0.25 days)
-  alldiff=np.diff(mav_time[datas_ind])
+  alldiff=np.diff(parse_time(mav.time[datas_ind]).plot_date)
   smalldiff_ind=np.where(alldiff <0.25)  
   if datas >0: total_data_days_yearly_mav[i]=np.sum(alldiff[smalldiff_ind])
 
@@ -849,86 +382,716 @@ print('MAV')
 print(np.round(total_data_days_yearly_mav,1))
 
 
+# ### 1b plot ICME frequency
+
+# In[ ]:
+
+
+#define dates of January 1 from 2007 to 2017
+years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,2019) ] 
+yearly_bin_edges=parse_time(years_jan_1_str).plot_date
+
+#bin width in days         
+binweite=360/8
+
+sns.set_context("talk")     
+sns.set_style("ticks",{'grid.linestyle': '--'})
+fsize=15
+
+fig=plt.figure(4,figsize=(12,10	))
+
+#Fig 1a
+ax1 = plt.subplot(211) 
+plt.plot_date(ic.icme_start_time[wini],ic.mo_sc_heliodistance[wini],fmt='o',color='mediumseagreen',markersize=5)
+plt.plot_date(ic.icme_start_time[mesi],ic.mo_sc_heliodistance[mesi],fmt='o',color='darkgrey',markersize=5)
+plt.plot_date(ic.icme_start_time[vexi],ic.mo_sc_heliodistance[vexi],fmt='o',color='orange',markersize=5)
+plt.plot_date(ic.icme_start_time[stbi],ic.mo_sc_heliodistance[stbi],fmt='o',color='royalblue',markersize=5)
+plt.plot_date(ic.icme_start_time[stai],ic.mo_sc_heliodistance[stai],fmt='o',color='red',markersize=5)
+plt.plot_date(ic.icme_start_time[ulyi],ic.mo_sc_heliodistance[ulyi],fmt='o',color='brown',markersize=5)
+plt.plot_date(ic.icme_start_time[mavi],ic.mo_sc_heliodistance[mavi],fmt='o',color='steelblue',markersize=5)
+
+plt.ylabel('Heliocentric distance R [AU]',fontsize=fsize)
+plt.xlabel('Year',fontsize=fsize)
+plt.yticks(fontsize=fsize) 
+plt.xticks(fontsize=fsize) 
+
+plt.xlim(yearly_bin_edges[0],yearly_bin_edges[10])
+ax1.xaxis_date()
+myformat = mdates.DateFormatter('%Y')
+ax1.xaxis.set_major_formatter(myformat)
+
+
+# Fig 1b
+
+(histwin, bin_edgeswin) = np.histogram(mdates.date2num(ic.icme_start_time[wini]), yearly_bin_edges)
+(histvex, bin_edgesvex) = np.histogram(mdates.date2num(ic.icme_start_time[vexi]), yearly_bin_edges)
+(histmes, bin_edgesmes) = np.histogram(mdates.date2num(ic.icme_start_time[mesi]), yearly_bin_edges)
+(histstb, bin_edgesstb) = np.histogram(mdates.date2num(ic.icme_start_time[stbi]), yearly_bin_edges)
+(histsta, bin_edgessta) = np.histogram(mdates.date2num(ic.icme_start_time[stai]), yearly_bin_edges)
+(histmav, bin_edgesmav) = np.histogram(mdates.date2num(ic.icme_start_time[mavi]), yearly_bin_edges)
+
+#normalize each dataset for data gaps
+
+histwin=histwin/total_data_days_yearly_win*365
+histvex=histvex/total_data_days_yearly_vex*365
+histmes=histmes/total_data_days_yearly_mes*365
+histsta=histsta/total_data_days_yearly_sta*365
+histstb=histstb/total_data_days_yearly_stb*365
+histmav=histmav/total_data_days_yearly_mav*365
+
+binedges=bin_edgeswin
+#pickle.dump([binedges,histwin,histvex,histmes,histsta,histstb,histmav], \
+#             open( "data/icme_frequency.p", "wb" ), protocol=2 )
+#[binedges,histwin,histvex,histmes,histsta,histstb,histmav]=pickle.load( open( "plots_stats/stats/icme_frequency.p", "rb" ) )
+
+ax2 = plt.subplot(212) 
+
+#binweite=45
+ax2.bar(bin_edgeswin[:-1]+30,histwin, width=binweite,color='mediumseagreen', alpha=0.5)
+ax2.bar(bin_edgesvex[:-1]+30+binweite,histvex, width=binweite,color='orange', alpha=0.5)
+ax2.bar(bin_edgesmes[:-1]+30+ binweite*2,histmes, width=binweite,color='darkgrey', alpha=0.5)
+ax2.bar(bin_edgesstb[:-1]+30+binweite*3,histstb, width=binweite,color='royalblue', alpha=0.5)
+ax2.bar(bin_edgessta[:-1]+30+binweite*4,histsta, width=binweite,color='red', alpha=0.5)
+#ax2.bar(bin_edgessta[:-1]+30+binweite*5,histuly, width=binweite,color='brown', alpha=0.5)
+ax2.bar(bin_edgesmav[:-1]+30+binweite*6,histmav, width=binweite,color='steelblue', alpha=0.5)
+
+plt.xlim(yearly_bin_edges[0],yearly_bin_edges[10])
+ax2.xaxis_date()
+myformat = mdates.DateFormatter('%Y')
+ax2.xaxis.set_major_formatter(myformat)
+#sets planet / spacecraft labels
+xoff=0.85 
+yoff=0.45
+fsize=12
+plt.figtext(xoff,yoff,'Earth L1',color='mediumseagreen', fontsize=fsize, ha='left')
+plt.figtext(xoff,yoff-0.03*1,'VEX',color='orange', fontsize=fsize, ha='left')
+plt.figtext(xoff,yoff-0.03*2,'MESSENGER',color='dimgrey', fontsize=fsize, ha='left')
+plt.figtext(xoff,yoff-0.03*3,'STEREO-A',color='red', fontsize=fsize, ha='left')
+plt.figtext(xoff,yoff-0.03*4,'STEREO-B',color='royalblue', fontsize=fsize, ha='left')
+#plt.figtext(xoff,yoff-0.03*5,'Ulysses',color='brown', fontsize=fsize, ha='left')
+plt.figtext(xoff,yoff-0.03*5,'MAVEN',color='steelblue', fontsize=fsize, ha='left')
+#panel labels
+plt.figtext(0.02,0.98,'(a)',color='black', fontsize=fsize+5, ha='left')
+plt.figtext(0.02,0.48,'(b)',color='black', fontsize=fsize+5, ha='left')
+plt.ylim(0,48)
+#limits solar min/rise/max
+vlevel=44
+fsize=13
+
+plt.axvspan(minstart_num,minend_num, color='green', alpha=0.1)
+plt.annotate('solar minimum',xy=(minstart_num+(minend_num-minstart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
+
+plt.axvspan(risestart_num,riseend_num, color='yellow', alpha=0.1)
+plt.annotate('rising phase',xy=(risestart_num+(riseend_num-risestart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
+
+plt.axvspan(maxstart_num,maxstart_num, color='red', alpha=0.1)
+plt.annotate('solar maximum',xy=(maxstart_num+(maxstart_num-maxstart_num)/2,vlevel),color='black', ha='left', fontsize=fsize)
+
+fsize=15
+plt.ylabel('ICMEs per year',fontsize=fsize)
+plt.xlabel('Year',fontsize=fsize)
+plt.yticks(fontsize=fsize) 
+plt.xticks(fontsize=fsize) 
+plt.tight_layout()
+
+
+#++++++++++++++++++ Sunspot number in back with right axis
+
+#sns.despine()
+
+plt.savefig('results/plots_stats/ICME_frequency_paper.pdf', dpi=300)
+plt.savefig('results/plots_stats/ICME_frequency_paper.png', dpi=300)
+
+
+#calculate general parameters
+
+print('for solar min 2007-2009 average ICME per year rate:')
+mean07=np.mean([histwin[0],histvex[0],histsta[0],histstb[0],histmes[0]])
+mean08=np.mean([histwin[1],histvex[1],histsta[1],histstb[1],histmes[1]])
+mean09=np.mean([histwin[2],histvex[2],histsta[2],histstb[2],histmes[2]])
+print(np.nanmean([mean07,mean08,mean09]))
+
+print('for 2010 2011')
+mean10=np.mean([histwin[3],histvex[3],histsta[3],histstb[3],histmes[3]])
+mean11=np.mean([histwin[4],histvex[4],histsta[4],histstb[4],histmes[4]])
+print(np.mean([mean10,mean11]))
+
+
+print('for 2012 2013 2014')
+mean12=np.mean([histwin[5],histvex[5],histsta[5],histstb[5],histmes[5]])
+mean13=np.mean([histwin[6],histvex[6],histsta[6],histstb[6],histmes[6]])
+mean14=np.mean([histwin[7],histvex[7],histsta[7],histstb[7],histmes[7]])
+
+print(np.mean([mean12,mean13,mean14]))
+
+
+# ## 2. ICME duration vs time and distance
+# 
+# 
+# 
+
+# In[ ]:
+
+
+print('2a Duration vs distance')
+#make power law fits
+
+xfit=np.arange(0,2,0.01)
+
+#power law fit for all durations
+scr=ic.mo_sc_heliodistance
+scd=ic.mo_duration
+param_all = scipy.optimize.curve_fit(hs.powerlaw, scr, scd)
+#print(param_all)
+yfit_all=hs.powerlaw(xfit,param_all[0][0],param_all[0][1])
+
+#power law fit for solar minimum durations
+scr=ic.mo_sc_heliodistance[iall_min]
+scd=ic.mo_duration[iall_min]
+param_min = scipy.optimize.curve_fit(hs.powerlaw, scr, scd)
+#print(param_all)
+yfit_min=hs.powerlaw(xfit,param_min[0][0],param_min[0][1])
+
+#power law fit for solar minimum durations
+scr=ic.mo_sc_heliodistance[iall_rise]
+scd=ic.mo_duration[iall_rise]
+param_rise = scipy.optimize.curve_fit(hs.powerlaw, scr, scd)
+#print(param_all)
+yfit_rise=hs.powerlaw(xfit,param_rise[0][0],param_rise[0][1])
+
+#power law fit for solar minimum durations
+scr=ic.mo_sc_heliodistance[iall_max]
+scd=ic.mo_duration[iall_max]
+param_max = scipy.optimize.curve_fit(hs.powerlaw, scr, scd)
+#print(param_all)
+yfit_max=hs.powerlaw(xfit,param_max[0][0],param_max[0][1])
+
+print()
+print('power law fit results, hours vs AU')	
+print('overall:    D[h]={:.2f} R[AU]^{:.2f} '.format(param_all[0][0],param_all[0][1]))
+print('minimum:    D[h]={:.2f} R[AU]^{:.2f} '.format(param_min[0][0],param_min[0][1]))
+print('rise phase: D[h]={:.2f} R[AU]^{:.2f} '.format(param_rise[0][0],param_rise[0][1]))
+print('maximum:    D[h]={:.2f} R[AU]^{:.2f} '.format(param_max[0][0],param_max[0][1]))
+
+
+# In[ ]:
+
+
+print('2b ICME DURATION VS TIME')
+
+
+#gaussian fit for Wind
+
+#Wind
+wt=parse_time(ic.icme_start_time[wini]).plot_date
+wd=ic.icme_duration[wini]
+
+#shift time axis for gaussian fit
+wt1=wt-wt[0]-2000
+paramg = scipy.optimize.curve_fit(hs.gaussian_nox0, wt1,wd)
+print('Gaussian fit parameters:',paramg[0])
+xgfit=np.arange(wt[0],wt[-1],1)-wt[0]-2000
+ygfit=hs.gaussian_nox0(xgfit,paramg[0][0],paramg[0][1])
+xgfit=xgfit+wt[0]+2000
+
+#plt.figure(3)
+#plt.plot_date(wt,wd,'o',color='mediumseagreen',markersize=markers,linestyle='-',linewidth=linew,label='Earth')
+#plt.plot_date(xgfit,ygfit,'-k')
+
+
+
+
+
+# In[ ]:
+
+
+#plot results
+sns.set_context("talk")                
+#sns.set_style("darkgrid")  
+sns.set_style("ticks",{'grid.linestyle': '--'})
+
+fig=plt.figure(1,figsize=(12,11	))
+fsize=15
+
+
+ax1 = plt.subplot2grid((2,1), (0, 0))
+
+plt.plot(ic.mo_sc_heliodistance,ic.icme_duration,'o',color='blue',markersize=4, alpha=0.4)
+#for plotting min/rise/max differently
+#plt.plot(sc_heliodistance[iall_min],icme_durations[iall_min],'o',color='dimgre',markersize=3, alpha=0.4,label='D min')
+#plt.plot(sc_heliodistance[iall_rise],icme_durations[iall_rise],'o',color='grey',markersize=3, alpha=0.7,label='D rise')
+#plt.plot(sc_heliodistance[iall_max],icme_durations[iall_max],'o',color='black',markersize=3, alpha=0.8,label='D max')
+
+#plot fits
+plt.plot(xfit,yfit_all,'-',color='blue', lw=3, alpha=0.9,label='fit')
+plt.plot(xfit,yfit_min,'--',color='black', lw=2, alpha=0.9,label='min fit')
+plt.plot(xfit,yfit_rise,'-.',color='black', lw=2, alpha=0.9,label='rise fit')
+plt.plot(xfit,yfit_max,'-',color='black', lw=2, alpha=0.9,label='max fit')
+
+
+label_level=85
+
+#plt.annotate('overall:',xy=(0.06,label_level),fontsize=11)
+#plt.annotate('D[h]={:.2f} R[AU]'.format(durfit_f[0]),xy=(0.15,label_level),fontsize=11)
+plt.annotate('minimum:    D[h]={:.2f} R[AU]^{:.2f} '.format(param_all[0][0],param_all[0][1]),xy=(0.12,label_level-5),fontsize=11)
+plt.annotate('rise phase:   D[h]={:.2f} R[AU]^{:.2f} '.format(param_rise[0][0],param_rise[0][1]),xy=(0.12,label_level-10),fontsize=11)
+plt.annotate('maximum:   D[h]={:.2f} R[AU]^{:.2f} '.format(param_max[0][0],param_max[0][1]),xy=(0.12,label_level-15),fontsize=11)
+
+#planet limits
+plt.axvspan(np.min(pos.mars[0]),np.max(pos.mars[0]), color='orangered', alpha=0.2)
+plt.axvspan(np.min(pos.mercury[0]),np.max(pos.mercury[0]), color='darkgrey', alpha=0.2)
+plt.axvspan(np.min(pos.venus[0]),np.max(pos.venus[0]), color='orange', alpha=0.2)
+plt.axvspan(np.min(pos.earth[0]),np.max(pos.earth[0]), color='mediumseagreen', alpha=0.2)
+#plt.axvspan(np.min(pos.sta[0]),np.max(pos.sta[0]), color='red', alpha=0.2)  #STEREO-A
+#plt.axvspan(np.min(pos.stb[0]),np.max(pos.stb[0]), color='blue', alpha=0.2)  #STEREO-B
+#Parker Probe minimum
+plt.plot([0.046,0.046],[0,110], color='black', linestyle='--', linewidth=1)
+
+#label_level=100
+label_level=100
+
+plt.annotate('Mars', xy=(1.5,label_level), ha='center',fontsize=fsize)
+plt.annotate('Mercury', xy=(0.38,label_level), ha='center',fontsize=fsize)
+plt.annotate('Venus', xy=(0.72,label_level), ha='center',fontsize=fsize)
+plt.annotate('Earth', xy=(1,label_level), ha='center',fontsize=fsize)
+plt.annotate('PSP', xy=(0.05,label_level), ha='left',fontsize=fsize)
+
+ax1.set_xticks(np.arange(0,2,0.1))
+plt.xlim(0,max(ic.mo_sc_heliodistance)+0.3)
+plt.ylim(0,110)
+
+plt.legend(loc=1,fontsize=fsize-1)
+plt.xlabel('Heliocentric distance R [AU]',fontsize=fsize)
+plt.ylabel('ICME duration D [hours]',fontsize=fsize)
+plt.yticks(fontsize=fsize) 
+plt.xticks(fontsize=fsize) 
+plt.grid()
+
+#panel labels
+plt.figtext(0.01,0.98,'(a)',color='black', fontsize=fsize+5, ha='left')
+plt.figtext(0.01,0.485,'(b)',color='black', fontsize=fsize+5, ha='left')
+plt.tight_layout()
+
+
+
+
+#################################### plot 
+
+ax2 = plt.subplot2grid((2,1), (1, 0))
+markers=6
+linew=0
+
+#plot durations for all planets
+ax2.plot_date(ic.icme_start_time[mesi],ic.icme_duration[mesi],     'o',color='darkgrey',markersize=markers,linestyle='-',linewidth=linew,label='MESSENGER')
+ax2.plot_date(ic.icme_start_time[vexi],ic.icme_duration[vexi],     'o',color='orange',markersize=markers,linestyle='-',linewidth=linew, label='Venus')
+ax2.plot_date(ic.icme_start_time[wini],ic.icme_duration[wini],     'o',color='mediumseagreen',markersize=markers, linestyle='-', linewidth=linew, label='Earth')
+ax2.plot_date(ic.icme_start_time[mavi],ic.icme_duration[mavi],     'o',color='steelblue',markersize=markers,linestyle='-',linewidth=linew, label='Mars')
+#ax2.plot_date(xgfit,ygfit,markersize=0,linestyle='-',color='mediumseagreen',linewidth=2,label='Wind Gaussian fit')
+
+
+
+
+#limits solar min/rise/maxax2.set_ylim(0,80)
+vlevel=130
+spanalpha=0.05
+
+plt.axvspan(minstart,minend, color='green', alpha=spanalpha)
+plt.annotate('solar minimum',xy=(minstart_num+(minend_num-minstart_num)/2,vlevel),color='black', ha='center',fontsize=12)
+#plt.annotate('<',xy=(minstart_num+10,vlevel),ha='left')
+#plt.annotate('>',xy=(minend_num-10,vlevel),ha='right')
+
+plt.axvspan(risestart,riseend, color='yellow', alpha=spanalpha)
+plt.annotate('rising phase',xy=(risestart_num+(riseend_num-risestart_num)/2,vlevel),color='black', ha='center',fontsize=12)
+#plt.annotate('<',xy=(risestart_num+10,vlevel),ha='left')
+#plt.annotate('>',xy=(riseend_num-10,vlevel),ha='right')
+
+plt.axvspan(maxstart,maxend, color='red', alpha=spanalpha)
+plt.annotate('solar maximum',xy=(maxstart_num+(maxend_num-maxstart_num)/2,vlevel),color='black', ha='center',fontsize=12)
+#plt.annotate('<',xy=(maxstart_num+10,vlevel),ha='left')
+#plt.annotate('>',xy=(maxend_num,vlevel),ha='right')
+
+
+#plot means as horizontal lines for each sub interval
+plt.plot_date( [minstart,minend], [np.mean(ic.icme_duration[wini_min]),np.mean(ic.icme_duration[wini_min])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [minstart,minend], [np.mean(ic.icme_duration[vexi_min]),np.mean(ic.icme_duration[vexi_min])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [minstart,minend], [np.mean(ic.icme_duration[mesi_min]),np.mean(ic.icme_duration[mesi_min])], color='darkgrey', linestyle='-', markersize=0) 
+
+plt.plot_date( [risestart,riseend], [np.mean(ic.icme_duration[wini_rise]),np.mean(ic.icme_duration[wini_rise])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [risestart,riseend], [np.mean(ic.icme_duration[vexi_rise]),np.mean(ic.icme_duration[vexi_rise])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [risestart,riseend], [np.mean(ic.icme_duration[mesi_rise]),np.mean(ic.icme_duration[mesi_rise])], color='darkgrey', linestyle='-', markersize=0) 
+
+plt.plot_date( [maxstart,maxend], [np.mean(ic.icme_duration[wini_max]),np.mean(ic.icme_duration[wini_max])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [maxstart,maxend], [np.mean(ic.icme_duration[vexi_max]),np.mean(ic.icme_duration[vexi_max])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [maxstart,maxend], [np.mean(ic.icme_duration[mesi_max]),np.mean(ic.icme_duration[mesi_max])], color='darkgrey', linestyle='-', markersize=0) 
+
+plt.xlim(parse_time('2007-01-01').datetime, parse_time('2017-12-31').datetime)
+plt.ylabel('ICME duration D [hours]',fontsize=fsize)
+plt.xlabel('year',fontsize=fsize)
+plt.tight_layout()
+plt.yticks(fontsize=fsize) 
+plt.xticks(fontsize=fsize) 
+plt.legend(loc=1,fontsize=fsize-1)
+
+
+plt.savefig('results/plots_stats/icme_duration_distance_time_paper.pdf', dpi=300)
+plt.savefig('results/plots_stats/icme_duration_distance_time_paper.png', dpi=300)
+
+
+# ## 3. Bfield vs distance
+
+# ### 3a power law fits
+
+# In[ ]:
+
+
+# xfit starts here at 2 Rs  because there should not be a 0 for the power law fits
+xfit=np.linspace(2*Rs_in_AU,2,1000)
+
+print('3a Bfield vs distance fits')
+
+#power law fit bmean
+scr=ic.mo_sc_heliodistance
+scb=ic.mo_bmean
+param_all = scipy.optimize.curve_fit(hs.powerlaw, scr, scb)
+yfit_all=hs.powerlaw(xfit,param_all[0][0],param_all[0][1])
+print('bmean all:        ',np.round(param_all[0][0]),' x ^', np.round(param_all[0][1],2))
+
+#power law fit bmax 
+scr=ic.mo_sc_heliodistance
+scb=ic.mo_bmax
+param_all_max = scipy.optimize.curve_fit(hs.powerlaw, scr, scb)
+yfit_all_max=hs.powerlaw(xfit,param_all_max[0][0],param_all_max[0][1])
+print('bmax all:        ',np.round(param_all_max[0][0]),' x ^', np.round(param_all_max[0][1],2))
+
+
+#power law fit for solar minimum durations
+scr=ic.mo_sc_heliodistance[iall_min]
+scb=ic.mo_bmean[iall_min]
+param_min = scipy.optimize.curve_fit(hs.powerlaw, scr, scb)
+yfit_min=hs.powerlaw(xfit,param_min[0][0],param_min[0][1])
+print('bmean min:        ',np.round(param_min[0][0]),' x ^', np.round(param_min[0][1],2))
+
+
+#power law fit for solar minimum durations
+scr=ic.mo_sc_heliodistance[iall_rise]
+scb=ic.mo_bmean[iall_rise]
+param_rise = scipy.optimize.curve_fit(hs.powerlaw, scr, scb)
+yfit_rise=hs.powerlaw(xfit,param_rise[0][0],param_rise[0][1])
+print('bmean rise:        ',np.round(param_rise[0][0]),' x ^', np.round(param_rise[0][1],2))
+
+#power law fit for solar minimum durations
+scr=ic.mo_sc_heliodistance[iall_max]
+scb=ic.mo_bmean[iall_max]
+param_max = scipy.optimize.curve_fit(hs.powerlaw, scr, scb)
+yfit_max=hs.powerlaw(xfit,param_max[0][0],param_max[0][1])
+print('bmean max:        ',np.round(param_max[0][0]),' x ^', np.round(param_max[0][1],2))
+
+
+
+#for the bmean fit, append one value for the coronal field 
+#patsourakos georgoulis 2016: 0.03 G for 10 Rs #10^5 nT is 1 Gauss
+
+#power law fit bmean with solar data point
+scr=np.append(ic.mo_sc_heliodistance,10*Rs_in_AU)
+scb1=np.append(ic.mo_bmean,10**5*0.03) 
+param_all_sun = scipy.optimize.curve_fit(hs.powerlaw, scr, scb1)
+yfit_all_sun=hs.powerlaw(xfit,param_all_sun[0][0],param_all_sun[0][1])
+print('bmean all with sun:        ',np.round(param_all_sun[0][0]),' x ^', np.round(param_all_sun[0][1],2))
+
+#power law fit bmax with solar data point
+scr=np.append(ic.mo_sc_heliodistance,10*Rs_in_AU)
+scb2=np.append(ic.mo_bmax,10**5*0.03) 
+param_all_sun_max = scipy.optimize.curve_fit(hs.powerlaw, scr, scb2)
+yfit_all_sun_max=hs.powerlaw(xfit,param_all_sun_max[0][0],param_all_sun_max[0][1])
+print('bmax all with sun:        ',np.round(param_all_sun_max[0][0]),' x ^', np.round(param_all_sun_max[0][1],2))
+
+
+# ### 3a plot results
+
+# In[ ]:
+
+
+#plot results
+sns.set_context("talk")     
+sns.set_style("ticks",{'grid.linestyle': '--'})
+fig=plt.figure(2,figsize=(16,12))
+fsize=15
+ax1 = plt.subplot2grid((2,2), (0, 0))
+
+
+
+################# plots 3a
+plt.plot(ic.mo_sc_heliodistance,ic.mo_bmean,'o',color='black',markersize=5, alpha=0.7,label='$\mathregular{<B>}$')
+plt.plot(xfit,yfit_all,'-',color='black', lw=2, alpha=0.7,label='fit $\mathregular{<B>}$')
+plt.plot(xfit,yfit_min,'-',color='dodgerblue', lw=2, alpha=0.7,label='fit $\mathregular{ <B>_{cycle min}}$')
+plt.plot(xfit,yfit_max,'-',color='mediumseagreen', lw=2, alpha=0.7,label='fit $ \mathregular{<B>_{cycle max} }$')
+
+
+#plt.plot(ic.mo_sc_heliodistance,ic.mo_bmax,'o',color='dodgerblue',markersize=5, alpha=0.7,label='$\mathregular{B_{max}}$')
+#plt.plot(xfit,bmaxfitfun,'-',color='dodgerblue', lw=2, alpha=0.7,label='$\mathregular{B_{max} \\ fit}$')
+
+#plt.text(1.1,120,'$\mathregular{<B> [nT]= {:.2f} R[AU]^{{:.2f}}}$'.format(10**bmeanfit[1],bmeanfit[0]), fontsize=10)
+plt.text(0.75,140,r'<B> [nT]= {:.2f} R[AU]^{:.2f}'.format(param_all[0][0],param_all[0][1]), fontsize=10)
+plt.text(0.75,120,r'<B> cycle min [nT]= {:.2f} R[AU]^{:.2f}'.format(param_min[0][0],param_min[0][1]), fontsize=10,color='dodgerblue')
+plt.text(0.75,100,r'<B> cycle max [nT]= {:.2f} R[AU]^{:.2f}'.format(param_max[0][0],param_max[0][1]), fontsize=10,color='mediumseagreen')
+
+
+
+#planet limits
+plt.axvspan(np.min(pos.mars[0]),np.max(pos.mars[0]), color='orangered', alpha=0.2)
+#plt.figtext(0.8,0.8,'Mars',color='orangered')
+plt.axvspan(np.min(pos.mercury[0]),np.max(pos.mercury[0]), color='darkgrey', alpha=0.2)
+#plt.figtext(0.25,0.8,'Mercury',color='darkgrey')
+plt.axvspan(np.min(pos.venus[0]),np.max(pos.venus[0]), color='orange', alpha=0.2)
+#plt.figtext(0.42,0.8,'Venus',color='orange')
+plt.axvspan(np.min(pos.earth[0]),np.max(pos.earth[0]), color='mediumseagreen', alpha=0.2)
+#plt.figtext(0.6,0.8,'Earth',color='mediumseagreen')
+
+#plt.figtext(0.65,0.2,' D[h]={:.2f} R[AU] + {:.2f}'.format(durfit[0],durfit[1]))
+plt.xlim(0,1.8)
+plt.ylim(0,max(ic.mo_bmax)+20)
+
+plt.legend(loc=1,fontsize=fsize-3)
+
+plt.xlabel('Heliocentric distance R [AU]',fontsize=fsize)
+plt.ylabel('Magnetic field in MO B [nT]',fontsize=fsize)
+plt.yticks(fontsize=fsize) 
+plt.xticks(fontsize=fsize) 
+#plt.grid()
+
+
+
+
+
+
+######################## 3b logarithmic plot with Sun
+
+
+ax3 = plt.subplot2grid((2,2), (0, 1))
+
+plt.plot(scr,np.log10(scb1),'o',color='black',markersize=4, alpha=0.7,label='$\mathregular{<B> sun}$')
+plt.plot(scr,np.log10(scb2),'o',color='tomato',markersize=4, alpha=0.7,label='$\mathregular{B_{max} sun}$')
+plt.plot(xfit,np.log10(yfit_all),'-',color='black', lw=2, alpha=0.7,label='fit $\mathregular{<B>}$')
+plt.plot(xfit,np.log10(yfit_all_sun),'--',color='black', lw=2, alpha=0.7,label='fit $\mathregular{<B> sun}$')
+plt.plot(xfit,np.log10(yfit_all_sun_max),'-',color='tomato', lw=2, alpha=0.7,label='fit $\mathregular{ B_{max} sun}$')
+
+# planet labels and shades
+ax3.annotate('Mercury', xy=(0.38,2.5), ha='center',fontsize=fsize-2)
+ax3.annotate('Venus', xy=(0.72,2.5), ha='center',fontsize=fsize-2)
+#ax3.annotate('Earth', xy=(1,2.8), ha='center',fontsize=fsize-2)
+#ax3.annotate('Mars', xy=(1.5,2.8), ha='center',fontsize=fsize-2)
+plt.plot([0.046,0.046],[0,10], color='black', linestyle='--', linewidth=1)
+ax3.annotate('10 solar radii', xy=(0.05,3.5), ha='left',fontsize=fsize-2)
+ax3.annotate('PSP', xy=(0.25,1.7), ha='center',fontsize=fsize-2)
+
+
+plt.axvspan(np.min(pos.mars[0]),np.max(pos.mars[0]), color='orangered', alpha=0.2)
+plt.axvspan(np.min(pos.mercury[0]),np.max(pos.mercury[0]), color='darkgrey', alpha=0.2)
+plt.axvspan(np.min(pos.venus[0]),np.max(pos.venus[0]), color='orange', alpha=0.2)
+#plt.axvspan(np.min(pos.earth[0]),np.max(pos.earth[0]), color='mediumseagreen', alpha=0.2)
+
+
+plt.text(0.1,1.2,r'<B> sun [nT]= {:.2f} R[AU]^{:.2f}'.format(param_all_sun[0][0],param_all_sun[0][1]), fontsize=10,color='black')
+plt.text(0.1,1.0,r'<B> max sun [nT]= {:.2f} R[AU]^{:.2f}'.format(param_all_sun_max[0][0],param_all_sun_max[0][1]), fontsize=10,color='tomato')
+
+
+
+
+plt.xlim(0,0.8)
+plt.ylim(0.8,4.0)
+plt.legend(loc=1,fontsize=fsize-2)
+plt.xlabel('Heliocentric distance R [AU]',fontsize=fsize)
+plt.ylabel('MFR Magnetic field log(B) [nT]',fontsize=fsize)
+plt.yticks(fontsize=fsize) 
+plt.xticks(fontsize=fsize) 
+
+
+
+
+
+
+
+################################# 3c MO B vs. time
+ax2 = plt.subplot2grid((2,2), (1, 0), colspan=2)
+markers=6
+linew=0
+plt.plot_date(ic.icme_start_time[merci],ic.mo_bmean[merci],'o',color='darkgrey',markersize=markers,linestyle='-',linewidth=linew,label='Mercury')
+plt.plot_date(ic.icme_start_time[vexi],ic.mo_bmean[vexi],'o',color='orange',markersize=markers,linestyle='-',linewidth=linew, label='Venus')
+plt.plot_date(ic.icme_start_time[wini],ic.mo_bmean[wini],'o',color='mediumseagreen',markersize=markers, linestyle='-', linewidth=linew, label='Earth')
+plt.plot_date(ic.icme_start_time[mavi],ic.mo_bmean[mavi],'o',color='steelblue',markersize=markers,linestyle='-',linewidth=linew, label='Mars')
+
+
+plt.legend(loc=1,fontsize=fsize-2)
+#limits solar min/rise/max
+vlevel=150
+plt.axvspan(minstart,minend, color='green', alpha=0.1)
+plt.annotate('solar minimum',xy=(minstart+(minend-minstart)/2,vlevel),color='black', ha='center')
+plt.axvspan(risestart,riseend, color='yellow', alpha=0.1)
+plt.annotate('rising phase',xy=(risestart+(riseend-risestart)/2,vlevel),color='black', ha='center')
+plt.axvspan(maxstart,maxend, color='red', alpha=0.1)
+plt.annotate('solar maximum',xy=(maxstart+(maxend-maxstart)/2,vlevel),color='black', ha='center')
+
+
+plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[wini_min]),                np.mean(ic.mo_bmean[wini_min])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[vexi_min]),                np.mean(ic.mo_bmean[vexi_min])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [minstart,minend], [np.mean(ic.mo_bmean[mesi_min]),                np.mean(ic.mo_bmean[mesi_min])], color='darkgrey', linestyle='-', markersize=0) 
+
+plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[wini_rise]),                np.mean(ic.mo_bmean[wini_rise])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[vexi_rise]),                np.mean(ic.mo_bmean[vexi_rise])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [risestart,riseend], [np.mean(ic.mo_bmean[mesi_rise]),                np.mean(ic.mo_bmean[mesi_rise])], color='darkgrey', linestyle='-', markersize=0) 
+
+plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[wini_max]),                np.mean(ic.mo_bmean[wini_max])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[vexi_max]),                np.mean(ic.mo_bmean[vexi_max])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [maxstart,maxend], [np.mean(ic.mo_bmean[mesi_max]),                np.mean(ic.mo_bmean[mesi_max])], color='darkgrey', linestyle='-', markersize=0) 
+
+plt.ylabel('Magnetic field in MO [nT]', fontsize=fsize)
+plt.xlabel('Year', fontsize=fsize)
+fsize=14
+plt.xlim(parse_time('2007-01-01').datetime, parse_time('2016-12-31').datetime)
+
+plt.ylabel('Magnetic field in MO [nT]', fontsize=fsize)
+plt.xlabel('Year', fontsize=fsize)
+plt.tight_layout()
+plt.yticks(fontsize=fsize) 
+plt.xticks(fontsize=fsize) 
+plt.legend(loc=1,fontsize=fsize+2)
+
+#panel labels
+plt.figtext(0.03,0.96,'(a)',color='black', fontsize=fsize+5, ha='left')
+plt.figtext(0.50,0.96,'(b)',color='black', fontsize=fsize+5, ha='left')
+plt.figtext(0.03,0.49,'(c)',color='black', fontsize=fsize+5, ha='left')
+
+
+#+++ add indicator for missions at planet durations
+
+
+
+plt.tight_layout()
+plt.savefig('results/plots_stats/icme_total_field_distance_time_paper.pdf', dpi=300)
+plt.savefig('results/plots_stats/icme_total_field_distance_time_paper.png', dpi=300)
+plt.savefig('results/plots_stats/icme_total_field_distance_time_paper.jpg', dpi=300)
+
+
+# ### 3c magnetic field results
+
+# In[ ]:
+
+
+########################### RESULTS Bfield
+print()
+print('Magnetic field B ic.mo_bmean results, mean +/- std [nT]')
+
+print()
+print('Mercury ', round(np.mean(ic.mo_bmean[merci]),1),' +/- ', round(np.std(ic.mo_bmean[merci]),1))
+#print('min     ', round(np.mean(ic.mo_bmean[merci_min]),1), ' +/- ', round(np.std(ic.mo_bmean[merci_min]),1))
+print('min      no events')
+print('rise    ', round(np.mean(ic.mo_bmean[merci_rise]),1), ' +/- ', round(np.std(ic.mo_bmean[merci_rise]),1))
+print('max     ', round(np.mean(ic.mo_bmean[merci_max]),1), ' +/- ', round(np.std(ic.mo_bmean[merci_max]),1))
+
+print()
+print('Venus   ', round(np.mean(ic.mo_bmean[vexi]),1),' +/- ', round(np.std(ic.mo_bmean[vexi]),1))
+print('min     ', round(np.mean(ic.mo_bmean[vexi_min]),1), ' +/- ', round(np.std(ic.mo_bmean[vexi_min]),1))
+print('rise    ', round(np.mean(ic.mo_bmean[vexi_rise]),1), ' +/- ', round(np.std(ic.mo_bmean[vexi_rise]),1))
+print('max     ', round(np.mean(ic.mo_bmean[vexi_max]),1), ' +/- ', round(np.std(ic.mo_bmean[vexi_max]),1))
+
+print()
+print('Earth   ', round(np.mean(ic.mo_bmean[wini]),1),' +/- ', round(np.std(ic.mo_bmean[wini]),1))
+print('min     ', round(np.mean(ic.mo_bmean[wini_min]),1), ' +/- ', round(np.std(ic.mo_bmean[wini_min]),1))
+print('rise    ', round(np.mean(ic.mo_bmean[wini_rise]),1), ' +/- ', round(np.std(ic.mo_bmean[wini_rise]),1))
+print('max     ', round(np.mean(ic.mo_bmean[wini_max]),1), ' +/- ', round(np.std(ic.mo_bmean[wini_max]),1))
+
+print()
+print('Mars only declining phase')
+print('decl    ',round(np.mean(ic.mo_bmean[mavi]),1),' +/- ', round(np.std(ic.mo_bmean[mavi]),1))
+
+
+
+# ## 4. Time spent by planet inside CMEs
+
 # ### 4a get time inside ICME percentage for full time range
+# 
 
-# In[53]:
-
-
-###### check for each spacecraft and all data points if it is inside an ICME
-# save results as pickle because it takes a minute to calculate
-
-if not os.path.exists('data/data_icme_indices_moestl_2019_paper.p'):
-
-    #get all win_btot correct data indices -> 
-    win_data_ind=np.where(np.isnan(win_btot)==False)
-    win_icme_ind=np.int32(0) #needs to be integer because these will be array indices
-    #Wind: go through each icme
-    for i in np.arange(np.size(ic.icme_start_time[wini])): 
-        this_icme_ind=np.where(np.logical_and( (win_time[win_data_ind] > mdates.date2num(ic.icme_start_time[wini])[i]),                                                win_time[win_data_ind] < mdates.date2num(ic.mo_end_time[wini])[i]))[0]
-        win_icme_ind=np.append(win_icme_ind,this_icme_ind)	
-
-    sta_data_ind=np.where(np.isnan(sta_btot)==False)
-    sta_icme_ind=np.int32(0)
-    for i in np.arange(np.size(ic.icme_start_time[stai])): 
-        this_icme_ind=np.where(np.logical_and( (sta_time[sta_data_ind] > mdates.date2num(ic.icme_start_time[stai])[i]),                                                sta_time[sta_data_ind] < mdates.date2num(ic.mo_end_time[stai])[i]))[0]
-        sta_icme_ind=np.append(sta_icme_ind,this_icme_ind)	
-
-    stb_data_ind=np.where(np.isnan(stb_btot)==False)
-    stb_icme_ind=np.int32(0)
-    for i in np.arange(np.size(ic.icme_start_time[stbi])): 
-        this_icme_ind=np.where(np.logical_and( (stb_time[stb_data_ind] > mdates.date2num(ic.icme_start_time[stbi])[i]),                                                stb_time[stb_data_ind] < mdates.date2num(ic.mo_end_time[stbi])[i] ))[0]
-        stb_icme_ind=np.append(stb_icme_ind,this_icme_ind)	
-
-    vex_data_ind=np.where(np.isnan(vex_btot)==False)
-    vex_icme_ind=np.int32(0)
-    for i in np.arange(np.size(ic.icme_start_time[vexi])): 
-        this_icme_ind=np.where(np.logical_and( (vex_time[vex_data_ind] > mdates.date2num(ic.icme_start_time[vexi])[i]),                                                vex_time[vex_data_ind] < mdates.date2num(ic.mo_end_time[vexi])[i]) )[0]
-        vex_icme_ind=np.append(vex_icme_ind,this_icme_ind)	
-
-    mes_data_ind=np.where(np.isnan(mes_btot)==False)
-    mes_icme_ind=np.int32(0)
-    for i in np.arange(np.size(ic.icme_start_time[mesi])): 
-        this_icme_ind=np.where(np.logical_and( (mes_time[mes_data_ind] > mdates.date2num(ic.icme_start_time[mesi])[i]),                                                mes_time[mes_data_ind] < mdates.date2num(ic.mo_end_time[mesi])[i]) )[0]
-        mes_icme_ind=np.append(mes_icme_ind,this_icme_ind)	
-
-    mav_data_ind=np.where(np.isnan(mav_btot)==False)
-    mav_icme_ind=np.int32(0)
-    for i in np.arange(np.size(ic.icme_start_time[mavi])): 
-        this_icme_ind=np.where(np.logical_and( (mav_time[mav_data_ind] > mdates.date2num(ic.icme_start_time[mavi])[i]),                                                mav_time[mav_data_ind] < mdates.date2num(ic.mo_end_time[mavi])[i]) )[0]
-        mav_icme_ind=np.append(mav_icme_ind,this_icme_ind)	
+# In[ ]:
 
 
-    merc_data_ind=np.where(np.logical_and(np.isnan(mes_btot)==False,mes_time >                        mdates.date2num(parse_time('2011-03-18').datetime)))
-    merc_icme_ind=np.int32(0)
-    for i in np.arange(np.size(ic.icme_start_time[merci])): 
-        this_icme_ind=np.where(np.logical_and( (mes_time[merc_data_ind] > mdates.date2num(ic.icme_start_time[merci])[i]),                                                mes_time[merc_data_ind] < mdates.date2num(ic.mo_end_time[merci])[i] ))[0]
-        merc_icme_ind=np.append(merc_icme_ind,this_icme_ind)	
+#check all data points in the magnetic field data which are not NaN
+win_data_ind=np.where(np.isnan(win.bt)==False)[0]
+sta_data_ind=np.where(np.isnan(sta.bt)==False)[0]
+stb_data_ind=np.where(np.isnan(stb.bt)==False)[0]
+vex_data_ind=np.where(np.isnan(vex.bt)==False)[0]
+mav_data_ind=np.where(np.isnan(mav.bt)==False)[0]
+mes_data_ind=np.where(np.isnan(mes.bt)==False)[0]
+merc_data_ind=np.where(np.logical_and(np.isnan(mes.bt)==False,mes.time > parse_time('2011-03-18').datetime ))[0]
 
-    pickle.dump([win_icme_ind,win_data_ind, sta_icme_ind,sta_data_ind, stb_icme_ind,stb_data_ind,  vex_icme_ind,vex_data_ind, mes_icme_ind,mes_data_ind,
-    merc_icme_ind,merc_data_ind, mav_icme_ind, mav_data_ind],open( "data/data_icme_indices_moestl_2019_paper.p", "wb" ) )
-#######################
+print('Total data points')
+print('Mercury: ', np.size(merc_data_ind))
+print('Venus:', np.size(vex_data_ind))
+print('Earth:', np.size(win_data_ind))
+print('Mars:', np.size(mav_data_ind))
+
+#go through all spacecraft to count ICME data points, take files produced by icmecat.py
 
 
+print()
+#initialize arrays as size is not known
+win_icme_ind=np.int32(0)
+sta_icme_ind=np.int32(0)
+stb_icme_ind=np.int32(0)
+vex_icme_ind=np.int32(0)
+mes_icme_ind=np.int32(0)
+mav_icme_ind=np.int32(0)
+merc_icme_ind=np.int32(0)
 
-[win_icme_ind,win_data_ind, sta_icme_ind,sta_data_ind, stb_icme_ind,stb_data_ind,  vex_icme_ind,vex_data_ind, mes_icme_ind,mes_data_ind, merc_icme_ind,merc_data_ind,mav_icme_ind, mav_data_ind]= pickle.load(open( "data/data_icme_indices_moestl_2019_paper.p", "rb" ) )
+print('get arrays including all icme indices')
+names=['Wind', 'STEREO-A', 'STEREO-B','MAVEN', 'VEX', 'MESSENGER']
+
+for name in names:
+    fileind='data/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    print('file: ',fileind)
+    #get indices of events for this spaceccrat
+    [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+    for k in np.arange(np.size(icme_start_ind)):
+        #print(mo_end_ind[k]-icme_start_ind[k])
+        #print(np.arange(icme_start_ind[k],mo_end_ind[k],1))
+        if name=='Wind':      win_icme_ind=np.append(win_icme_ind,np.arange(icme_start_ind[k],mo_end_ind[k],1))
+        if name=='STEREO-A':  sta_icme_ind=np.append(sta_icme_ind,np.arange(icme_start_ind[k],mo_end_ind[k],1))
+        if name=='STEREO-B':  stb_icme_ind=np.append(stb_icme_ind,np.arange(icme_start_ind[k],mo_end_ind[k],1))
+        if name=='VEX':       vex_icme_ind=np.append(vex_icme_ind,np.arange(icme_start_ind[k],mo_end_ind[k],1))
+        if name=='MESSENGER': mes_icme_ind=np.append(mes_icme_ind,np.arange(icme_start_ind[k],mo_end_ind[k],1))
+        if name=='MAVEN':     mav_icme_ind=np.append(mav_icme_ind,np.arange(icme_start_ind[k],mo_end_ind[k],1))
+
+                                  
+
+#get ICME indices for Mercury after orbit insertion
+merc_icme_ind=mes_icme_ind[np.where(mes_icme_ind > merc_data_ind[0])[0] ]  
+    
+print('Total data points inside ICMEs')
+print('Mercury: ', np.size(merc_icme_ind))
+print('Venus:', np.size(vex_icme_ind))
+print('Earth:', np.size(win_icme_ind))
+print('Mars:', np.size(mav_icme_ind))
+
+
 
 print()
 print()
 print('Percentage of time inside ICMEs average over full time range')    
-print()
-print('Mercury MESSENGER:******* ',np.round((np.size(merc_icme_ind)/np.size(merc_data_ind)*100),1))
+print('planets')
+print('Mercury MESSENGER:',np.round((np.size(merc_icme_ind)/np.size(merc_data_ind)*100),1))
 print('Venus VEX:         ',np.round((np.size(vex_icme_ind)/np.size(vex_data_ind)*100),1))
 print('Earth Wind:        ',np.round((np.size(win_icme_ind)/np.size(win_data_ind)*100),1))
 print('Mars MAVEN:        ',np.round((np.size(mes_icme_ind)/np.size(mes_data_ind)*100),1))
 print()
-print('MESSENGER:         ',np.round((np.size(mes_icme_ind)/np.size(mes_data_ind)*100),1))
+print('solar wind')
+print('MESSENGER all data:         ',np.round((np.size(mes_icme_ind)/np.size(mes_data_ind)*100),1))
 print('STB:               ',np.round((np.size(stb_icme_ind)/np.size(stb_data_ind)*100),1))
 print('STA:               ',np.round((np.size(sta_icme_ind)/np.size(sta_data_ind)*100),1))
 
 
+# ### 4b get time inside ICME percentage for yearly time range
 
+# In[ ]:
 
-##################  4b get time inside ICME percentage for yearly time range, using results for arrays from 3a
 
 ############# make array for time inside percentages
 
@@ -959,33 +1122,33 @@ inside_mav_perc.fill(np.nan)
 
 for i in range(np.size(yearly_mid_times)):
 
-    thisyear_icme=np.where(np.logical_and((win_time[win_icme_ind] > yearly_start_times[i]),(win_time[win_icme_ind] < yearly_end_times[i])))
-    thisyear_data=np.where(np.logical_and((win_time[win_data_ind] > yearly_start_times[i]),(win_time[win_data_ind] < yearly_end_times[i])))
-    if np.size(thisyear_data) >0:inside_win_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
+    thisyear_icme=np.where(np.logical_and((win.time[win_icme_ind] > yearly_start_times_d[i]),(win.time[win_icme_ind] < yearly_end_times_d[i])))
+    thisyear_data=np.where(np.logical_and((win.time[win_data_ind] > yearly_start_times_d[i]),(win.time[win_data_ind] < yearly_end_times_d[i])))
+    if np.size(thisyear_data) >0:inside_win_perc[i]=np.round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((sta_time[sta_icme_ind] > yearly_start_times[i]),(sta_time[sta_icme_ind] < yearly_end_times[i])))
-    thisyear_data=np.where(np.logical_and((sta_time[sta_data_ind] > yearly_start_times[i]),(sta_time[sta_data_ind] < yearly_end_times[i])))
-    if np.size(thisyear_data) >0:inside_sta_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
+    thisyear_icme=np.where(np.logical_and((sta.time[sta_icme_ind] > yearly_start_times_d[i]),(sta.time[sta_icme_ind] < yearly_end_times_d[i])))
+    thisyear_data=np.where(np.logical_and((sta.time[sta_data_ind] > yearly_start_times_d[i]),(sta.time[sta_data_ind] < yearly_end_times_d[i])))
+    if np.size(thisyear_data) >0:inside_sta_perc[i]=np.round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((stb_time[stb_icme_ind] > yearly_start_times[i]),(stb_time[stb_icme_ind] < yearly_end_times[i])))
-    thisyear_data=np.where(np.logical_and((stb_time[stb_data_ind] > yearly_start_times[i]),(stb_time[stb_data_ind] < yearly_end_times[i])))
-    if np.size(thisyear_data) >0:inside_stb_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
+    thisyear_icme=np.where(np.logical_and((stb.time[stb_icme_ind] > yearly_start_times_d[i]),(stb.time[stb_icme_ind] < yearly_end_times_d[i])))
+    thisyear_data=np.where(np.logical_and((stb.time[stb_data_ind] > yearly_start_times_d[i]),(stb.time[stb_data_ind] < yearly_end_times_d[i])))
+    if np.size(thisyear_data) >0:inside_stb_perc[i]=np.round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((mes_time[mes_icme_ind] > yearly_start_times[i]),(mes_time[mes_icme_ind] < yearly_end_times[i])))
-    thisyear_data=np.where(np.logical_and((mes_time[mes_data_ind] > yearly_start_times[i]),(mes_time[mes_data_ind] < yearly_end_times[i])))
-    if np.size(thisyear_data) >0:inside_mes_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
+    thisyear_icme=np.where(np.logical_and((mes.time[mes_icme_ind] > yearly_start_times_d[i]),(mes.time[mes_icme_ind] < yearly_end_times_d[i])))
+    thisyear_data=np.where(np.logical_and((mes.time[mes_data_ind] > yearly_start_times_d[i]),(mes.time[mes_data_ind] < yearly_end_times_d[i])))
+    if np.size(thisyear_data) >0:inside_mes_perc[i]=np.round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((vex_time[vex_icme_ind] > yearly_start_times[i]),(vex_time[vex_icme_ind] < yearly_end_times[i])))
-    thisyear_data=np.where(np.logical_and((vex_time[vex_data_ind] > yearly_start_times[i]),(vex_time[vex_data_ind] < yearly_end_times[i])))
-    if np.size(thisyear_data) >0:inside_vex_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
+    thisyear_icme=np.where(np.logical_and((vex.time[vex_icme_ind] > yearly_start_times_d[i]),(vex.time[vex_icme_ind] < yearly_end_times_d[i])))
+    thisyear_data=np.where(np.logical_and((vex.time[vex_data_ind] > yearly_start_times_d[i]),(vex.time[vex_data_ind] < yearly_end_times_d[i])))
+    if np.size(thisyear_data) >0:inside_vex_perc[i]=np.round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((mes_time[merc_icme_ind] > yearly_start_times[i]),(mes_time[merc_icme_ind] < yearly_end_times[i])))
-    thisyear_data=np.where(np.logical_and((mes_time[merc_data_ind] > yearly_start_times[i]),(mes_time[merc_data_ind] < yearly_end_times[i])))
-    if np.size(thisyear_data) >0: inside_merc_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
+    thisyear_icme=np.where(np.logical_and((mes.time[merc_icme_ind] > yearly_start_times_d[i]),(mes.time[merc_icme_ind] < yearly_end_times_d[i])))
+    thisyear_data=np.where(np.logical_and((mes.time[merc_data_ind] > yearly_start_times_d[i]),(mes.time[merc_data_ind] < yearly_end_times_d[i])))
+    if np.size(thisyear_data) >0: inside_merc_perc[i]=np.round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((mav_time[mav_icme_ind] > yearly_start_times[i]),(mav_time[mav_icme_ind] < yearly_end_times[i])))
-    thisyear_data=np.where(np.logical_and((mav_time[mav_data_ind] > yearly_start_times[i]),(mav_time[mav_data_ind] < yearly_end_times[i])))
-    if np.size(thisyear_data) >0: inside_mav_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
+    thisyear_icme=np.where(np.logical_and((mav.time[mav_icme_ind] > yearly_start_times_d[i]),(mav.time[mav_icme_ind] < yearly_end_times_d[i])))
+    thisyear_data=np.where(np.logical_and((mav.time[mav_data_ind] > yearly_start_times_d[i]),(mav.time[mav_data_ind] < yearly_end_times_d[i])))
+    if np.size(thisyear_data) >0: inside_mav_perc[i]=np.round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
 
 print()
@@ -1002,16 +1165,13 @@ print('STB:               ',inside_stb_perc)
 print('STA:               ',inside_sta_perc)
 
 
+# ### 4c get time inside ICME percentage for solar cycle phases
+
+# In[ ]:
 
 
-
-
-
-
-#################### make the same thing not yearly, but for the 3 solar cycle phases
-
-cycle_start_times=mdates.date2num(parse_time([minstart, risestart, maxstart]).datetime) 
-cycle_end_times=mdates.date2num(parse_time([minend, riseend, maxend]).datetime)
+cycle_start_times=parse_time([minstart, risestart, maxstart]).datetime
+cycle_end_times=parse_time([minend, riseend, maxend]).datetime
 
 ############################################
 
@@ -1042,32 +1202,32 @@ inside_mav_cycle.fill(np.nan)
 
 for i in range(np.size(cycle_start_times)):
 
-    thisyear_icme=np.where(np.logical_and((win_time[win_icme_ind] > cycle_start_times[i]),(win_time[win_icme_ind] < cycle_end_times[i])))
-    thisyear_data=np.where(np.logical_and((win_time[win_data_ind] > cycle_start_times[i]),(win_time[win_data_ind] < cycle_end_times[i])))
+    thisyear_icme=np.where(np.logical_and((win.time[win_icme_ind] > cycle_start_times[i]),(win.time[win_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((win.time[win_data_ind] > cycle_start_times[i]),(win.time[win_data_ind] < cycle_end_times[i])))
     if np.size(thisyear_data) >0:inside_win_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((sta_time[sta_icme_ind] > cycle_start_times[i]),(sta_time[sta_icme_ind] < cycle_end_times[i])))
-    thisyear_data=np.where(np.logical_and((sta_time[sta_data_ind] > cycle_start_times[i]),(sta_time[sta_data_ind] < cycle_end_times[i])))
+    thisyear_icme=np.where(np.logical_and((sta.time[sta_icme_ind] > cycle_start_times[i]),(sta.time[sta_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((sta.time[sta_data_ind] > cycle_start_times[i]),(sta.time[sta_data_ind] < cycle_end_times[i])))
     if np.size(thisyear_data) >0:inside_sta_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((stb_time[stb_icme_ind] > cycle_start_times[i]),(stb_time[stb_icme_ind] < cycle_end_times[i])))
-    thisyear_data=np.where(np.logical_and((stb_time[stb_data_ind] > cycle_start_times[i]),(stb_time[stb_data_ind] < cycle_end_times[i])))
+    thisyear_icme=np.where(np.logical_and((stb.time[stb_icme_ind] > cycle_start_times[i]),(stb.time[stb_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((stb.time[stb_data_ind] > cycle_start_times[i]),(stb.time[stb_data_ind] < cycle_end_times[i])))
     if np.size(thisyear_data) >0:inside_stb_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((mes_time[mes_icme_ind] > cycle_start_times[i]),(mes_time[mes_icme_ind] < cycle_end_times[i])))
-    thisyear_data=np.where(np.logical_and((mes_time[mes_data_ind] > cycle_start_times[i]),(mes_time[mes_data_ind] < cycle_end_times[i])))
+    thisyear_icme=np.where(np.logical_and((mes.time[mes_icme_ind] > cycle_start_times[i]),(mes.time[mes_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((mes.time[mes_data_ind] > cycle_start_times[i]),(mes.time[mes_data_ind] < cycle_end_times[i])))
     if np.size(thisyear_data) >0:inside_mes_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((vex_time[vex_icme_ind] > cycle_start_times[i]),(vex_time[vex_icme_ind] < cycle_end_times[i])))
-    thisyear_data=np.where(np.logical_and((vex_time[vex_data_ind] > cycle_start_times[i]),(vex_time[vex_data_ind] < cycle_end_times[i])))
+    thisyear_icme=np.where(np.logical_and((vex.time[vex_icme_ind] > cycle_start_times[i]),(vex.time[vex_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((vex.time[vex_data_ind] > cycle_start_times[i]),(vex.time[vex_data_ind] < cycle_end_times[i])))
     if np.size(thisyear_data) >0:inside_vex_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((mes_time[merc_icme_ind] > cycle_start_times[i]),(mes_time[merc_icme_ind] < cycle_end_times[i])))
-    thisyear_data=np.where(np.logical_and((mes_time[merc_data_ind] > cycle_start_times[i]),(mes_time[merc_data_ind] < cycle_end_times[i])))
+    thisyear_icme=np.where(np.logical_and((mes.time[merc_icme_ind] > cycle_start_times[i]),(mes.time[merc_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((mes.time[merc_data_ind] > cycle_start_times[i]),(mes.time[merc_data_ind] < cycle_end_times[i])))
     if np.size(thisyear_data) >0: inside_merc_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-    thisyear_icme=np.where(np.logical_and((mav_time[mav_icme_ind] > cycle_start_times[i]),(mav_time[mav_icme_ind] < cycle_end_times[i])))
-    thisyear_data=np.where(np.logical_and((mav_time[mav_data_ind] > cycle_start_times[i]),(mav_time[mav_data_ind] < cycle_end_times[i])))
+    thisyear_icme=np.where(np.logical_and((mav.time[mav_icme_ind] > cycle_start_times[i]),(mav.time[mav_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((mav.time[mav_data_ind] > cycle_start_times[i]),(mav.time[mav_data_ind] < cycle_end_times[i])))
     if np.size(thisyear_data) >0: inside_mav_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
 
@@ -1085,18 +1245,15 @@ print('STB:               ',inside_stb_cycle)
 print('STA:               ',inside_sta_cycle)
 
 
-# In[54]:
+# ### 4d plot results on time inside 
+
+# In[ ]:
 
 
-##################################### PLOT RESULTS ON TIME INSIDE
-
-
-### fix that VEX MESSENGER impact frequency is less than 1 AU by multiplying with a factor of 1.5
+### maybe fix that VEX MESSENGER impact frequency is less than 1 AU by multiplying with a factor of 1.5
 #check exact values with frequency plot
-
 #inside_vex_perc=inside_vex_perc*1.5
 #inside_mes_perc=inside_mes_perc*1.5
-
 
 sns.set_context("talk")     
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -1134,8 +1291,6 @@ plt.figtext(xoff,yoff-0.03*5,'STEREO-B',color='royalblue', fontsize=fsize, ha='l
 plt.figtext(0.02,0.98,'a',color='black', fontsize=fsize, ha='left',fontweight='bold')
 plt.figtext(0.02,0.48,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
 
-
-
 #limits solar min/rise/max
 
 vlevel=22
@@ -1143,19 +1298,19 @@ fsize=11
 
 plt.axvspan(minstart_num,minend_num, color='green', alpha=0.1)
 plt.annotate('solar minimum',xy=(minstart_num+(minend_num-minstart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
-plt.annotate('<',xy=(minstart_num+10,vlevel),ha='left', fontsize=fsize)
-plt.annotate('>',xy=(minend_num-10,vlevel),ha='right', fontsize=fsize)
+#plt.annotate('<',xy=(minstart_num+10,vlevel),ha='left', fontsize=fsize)
+#plt.annotate('>',xy=(minend_num-10,vlevel),ha='right', fontsize=fsize)
 
 
 plt.axvspan(risestart_num,riseend_num, color='yellow', alpha=0.1)
 plt.annotate('rising phase',xy=(risestart_num+(riseend_num-risestart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
-plt.annotate('<',xy=(risestart_num+10,vlevel),ha='left', fontsize=fsize)
-plt.annotate('>',xy=(riseend_num-10,vlevel),ha='right', fontsize=fsize)
+#plt.annotate('<',xy=(risestart_num+10,vlevel),ha='left', fontsize=fsize)
+#plt.annotate('>',xy=(riseend_num-10,vlevel),ha='right', fontsize=fsize)
 
 plt.axvspan(maxstart_num,maxstart_num, color='red', alpha=0.1)
 plt.annotate('solar maximum',xy=(maxstart_num+(maxstart_num-maxstart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
-plt.annotate('<',xy=(maxstart_num+10,vlevel),ha='left', fontsize=fsize)
-plt.annotate('>',xy=(maxstart_num,vlevel),ha='right', fontsize=fsize)
+#plt.annotate('<',xy=(maxstart_num+10,vlevel),ha='left', fontsize=fsize)
+#plt.annotate('>',xy=(maxstart_num,vlevel),ha='right', fontsize=fsize)
 
 
 plt.ylim((0,25))
@@ -1165,17 +1320,11 @@ plt.xlabel('Year',fontsize=fsize)
 plt.yticks(fontsize=fsize) 
 plt.xticks(fontsize=fsize) 
 
-
 plt.tight_layout()
-
-
-
 #plt.ylim(0,45)
-plt.xlim(yearly_start_times[0],yearly_end_times[9])
+plt.xlim(yearly_start_times_d[0],yearly_end_times[9])
 
 #sns.despine()
-
-
 
 
 #### plot time inside vs. heliocentric distance
@@ -1404,195 +1553,6 @@ print('on average, Mars is hit by a CME every ... days')
 print(totaldays/np.size(mavi))
 print('The ICME average duration is, in hours')
 print(np.mean(ic.icme_duration[mavi]))
-
-
-# ## 5. arrival frequencies in ICMECAT 
-
-# In[22]:
-
-
-#define dates of January 1 from 2007 to 2017
-years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,2019) ] 
-yearly_bin_edges=parse_time(years_jan_1_str).plot_date
-
-#bin width in days         
-binweite=360/8
-
-sns.set_context("talk")     
-sns.set_style("ticks",{'grid.linestyle': '--'})
-
-fig=plt.figure(4,figsize=(12,10	))
-
-fsize=15
-ax1 = plt.subplot(211) 
-
-plt.plot_date(ic.icme_start_time[wini],ic.mo_sc_heliodistance[wini],fmt='o',color='mediumseagreen',markersize=5)
-plt.plot_date(ic.icme_start_time[mesi],ic.mo_sc_heliodistance[mesi],fmt='o',color='darkgrey',markersize=5)
-plt.plot_date(ic.icme_start_time[vexi],ic.mo_sc_heliodistance[vexi],fmt='o',color='orange',markersize=5)
-plt.plot_date(ic.icme_start_time[stbi],ic.mo_sc_heliodistance[stbi],fmt='o',color='royalblue',markersize=5)
-plt.plot_date(ic.icme_start_time[stai],ic.mo_sc_heliodistance[stai],fmt='o',color='red',markersize=5)
-plt.plot_date(ic.icme_start_time[ulyi],ic.mo_sc_heliodistance[ulyi],fmt='o',color='brown',markersize=5)
-plt.plot_date(ic.icme_start_time[mavi],ic.mo_sc_heliodistance[mavi],fmt='o',color='steelblue',markersize=5)
-
-
-
-
-fsize=15
-plt.ylabel('Heliocentric distance R [AU]',fontsize=fsize)
-plt.xlabel('Year',fontsize=fsize)
-plt.yticks(fontsize=fsize) 
-plt.xticks(fontsize=fsize) 
-
-
-plt.xlim(yearly_bin_edges[0],yearly_bin_edges[10])
-ax1.xaxis_date()
-myformat = mdates.DateFormatter('%Y')
-ax1.xaxis.set_major_formatter(myformat)
-
-
-
-##############
-
-ax2 = plt.subplot(212) 
-
-(histwin, bin_edgeswin) = np.histogram(mdates.date2num(ic.icme_start_time[wini]), yearly_bin_edges)
-(histvex, bin_edgesvex) = np.histogram(mdates.date2num(ic.icme_start_time[vexi]), yearly_bin_edges)
-(histmes, bin_edgesmes) = np.histogram(mdates.date2num(ic.icme_start_time[mesi]), yearly_bin_edges)
-(histstb, bin_edgesstb) = np.histogram(mdates.date2num(ic.icme_start_time[stbi]), yearly_bin_edges)
-(histsta, bin_edgessta) = np.histogram(mdates.date2num(ic.icme_start_time[stai]), yearly_bin_edges)
-(histmav, bin_edgesmav) = np.histogram(mdates.date2num(ic.icme_start_time[mavi]), yearly_bin_edges)
-
-#********
-#recalculate number of ICMEs as events per month or day, including data gaps
-'''
-cycle_bin_edges=parse_time([minstart, minend, riseend, maxend]).plot_date
-
-(histwincyc, bin_edgescyc) = np.histogram(mdates.date2num(ic.icme_start_time[wini]), cycle_bin_edges)
-(histvexcyc, bin_edgescyc) = np.histogram(mdates.date2num(ic.icme_start_time[vexi]), cycle_bin_edges)
-(histmescyc, bin_edgescyc) = np.histogram(mdates.date2num(ic.icme_start_time[mesi]), cycle_bin_edges)
-(histstbcyc, bin_edgescyc) = np.histogram(mdates.date2num(ic.icme_start_time[stbi]), cycle_bin_edges)
-(histstacyc, bin_edgescyc) = np.histogram(mdates.date2num(ic.icme_start_time[stai]), cycle_bin_edges)
-(histmavcyc, bin_edgescyc) = np.histogram(mdates.date2num(ic.icme_start_time[mavi]), cycle_bin_edges)
-
-#use total_data_days_vex etc. from previous plot 
-histwincyc=histwincyc/total_data_days_win_cycle*365
-histvexcyc=histvexcyc/total_data_days_vex_cycle*365
-histmescyc=histmescyc/total_data_days_mes_cycle*365
-histstbcyc=histstbcyc/total_data_days_stb_cycle*365
-histstacyc=histstacyc/total_data_days_sta_cycle*365
-histmavcyc=histmavcyc/total_data_days_mav_cycle*365
-'''
-
-#normalize each dataset for data gaps
-
-histwin=histwin/total_data_days_yearly_win*365
-histvex=histvex/total_data_days_yearly_vex*365
-histmes=histmes/total_data_days_yearly_mes*365
-histsta=histsta/total_data_days_yearly_sta*365
-histstb=histstb/total_data_days_yearly_stb*365
-histmav=histmav/total_data_days_yearly_mav*365
-
-binedges=bin_edgeswin
-pickle.dump([binedges,histwin,histvex,histmes,histsta,histstb,histmav],              open( "data/icme_frequency.p", "wb" ), protocol=2 )
-#[binedges,histwin,histvex,histmes,histsta,histstb,histmav]=pickle.load( open( "plots_stats/stats/icme_frequency.p", "rb" ) )
-
-#binweite=45
-ax2.bar(bin_edgeswin[:-1]+30,histwin, width=binweite,color='mediumseagreen', alpha=0.5)
-ax2.bar(bin_edgesvex[:-1]+30+binweite,histvex, width=binweite,color='orange', alpha=0.5)
-ax2.bar(bin_edgesmes[:-1]+30+ binweite*2,histmes, width=binweite,color='darkgrey', alpha=0.5)
-ax2.bar(bin_edgesstb[:-1]+30+binweite*3,histstb, width=binweite,color='royalblue', alpha=0.5)
-ax2.bar(bin_edgessta[:-1]+30+binweite*4,histsta, width=binweite,color='red', alpha=0.5)
-#ax2.bar(bin_edgessta[:-1]+30+binweite*5,histuly, width=binweite,color='brown', alpha=0.5)
-ax2.bar(bin_edgesmav[:-1]+30+binweite*6,histmav, width=binweite,color='steelblue', alpha=0.5)
-
-plt.xlim(yearly_bin_edges[0],yearly_bin_edges[10])
-ax2.xaxis_date()
-myformat = mdates.DateFormatter('%Y')
-ax2.xaxis.set_major_formatter(myformat)
-#sets planet / spacecraft labels
-xoff=0.85
-yoff=0.45
-fsize=12
-plt.figtext(xoff,yoff,'Earth L1',color='mediumseagreen', fontsize=fsize, ha='left')
-plt.figtext(xoff,yoff-0.03*1,'VEX',color='orange', fontsize=fsize, ha='left')
-plt.figtext(xoff,yoff-0.03*2,'MESSENGER',color='dimgrey', fontsize=fsize, ha='left')
-plt.figtext(xoff,yoff-0.03*3,'STEREO-A',color='red', fontsize=fsize, ha='left')
-plt.figtext(xoff,yoff-0.03*4,'STEREO-B',color='royalblue', fontsize=fsize, ha='left')
-#plt.figtext(xoff,yoff-0.03*5,'Ulysses',color='brown', fontsize=fsize, ha='left')
-plt.figtext(xoff,yoff-0.03*5,'MAVEN',color='steelblue', fontsize=fsize, ha='left')
-#panel labels
-plt.figtext(0.02,0.98,'a',color='black', fontsize=fsize, ha='left',fontweight='bold')
-plt.figtext(0.02,0.48,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
-
-plt.ylim(0,48)
-
-#limits solar min/rise/max
-vlevel=44
-fsize=13
-
-plt.axvspan(minstart_num,minend_num, color='green', alpha=0.1)
-plt.annotate('solar minimum',xy=(minstart_num+(minend_num-minstart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
-plt.annotate('<',xy=(minstart_num+10,vlevel),ha='left', fontsize=fsize)
-plt.annotate('>',xy=(minend_num-10,vlevel),ha='right', fontsize=fsize)
-
-plt.axvspan(risestart_num,riseend_num, color='yellow', alpha=0.1)
-plt.annotate('rising phase',xy=(risestart_num+(riseend_num-risestart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
-plt.annotate('<',xy=(risestart_num+10,vlevel),ha='left', fontsize=fsize)
-plt.annotate('>',xy=(riseend_num-10,vlevel),ha='right', fontsize=fsize)
-
-plt.axvspan(maxstart_num,maxstart_num, color='red', alpha=0.1)
-plt.annotate('solar maximum',xy=(maxstart_num+(maxstart_num-maxstart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
-plt.annotate('<',xy=(maxstart_num+10,vlevel),ha='left', fontsize=fsize)
-plt.annotate('>',xy=(maxstart_num,vlevel),ha='right', fontsize=fsize)
-
-
-fsize=15
-plt.ylabel('ICMEs per year',fontsize=fsize)
-plt.xlabel('Year',fontsize=fsize)
-plt.yticks(fontsize=fsize) 
-plt.xticks(fontsize=fsize) 
-
-
-plt.tight_layout()
-
-#sns.despine()
-
-plt.savefig('results/plots_stats/ICME_frequency_paper.pdf', dpi=300)
-plt.savefig('results/plots_stats/ICME_frequency_paper.png', dpi=300)
-
-
-
-
-
-
-
-print('for solar min 2007-2009 average ICME per year rate:')
-mean07=np.mean([histwin[0],histvex[0],histsta[0],histstb[0],histmes[0]])
-mean08=np.mean([histwin[1],histvex[1],histsta[1],histstb[1],histmes[1]])
-mean09=np.mean([histwin[2],histvex[2],histsta[2],histstb[2],histmes[2]])
-print(np.nanmean([mean07,mean08,mean09]))
-
-print('for 2010 2011')
-mean10=np.mean([histwin[3],histvex[3],histsta[3],histstb[3],histmes[3]])
-mean11=np.mean([histwin[4],histvex[4],histsta[4],histstb[4],histmes[4]])
-print(np.mean([mean10,mean11]))
-
-
-print('for 2012 2013 2014')
-mean12=np.mean([histwin[5],histvex[5],histsta[5],histstb[5],histmes[5]])
-mean13=np.mean([histwin[6],histvex[6],histsta[6],histstb[6],histmes[6]])
-mean14=np.mean([histwin[7],histvex[7],histsta[7],histstb[7],histmes[7]])
-
-print(np.mean([mean12,mean13,mean14]))
-
-
-
-
-
-
-
-print('done')
-############################################
 
 
 # In[ ]:

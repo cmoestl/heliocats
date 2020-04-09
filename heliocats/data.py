@@ -1,5 +1,5 @@
 #data.py
-#load data for heliocats
+#load and save data for heliocats
 #https://github.com/cmoestl/heliocats
 
 import numpy as np
@@ -258,8 +258,7 @@ def get_psp_data(t_start,t_end):
     
     
     
-    
-    
+      
     
     
     
@@ -267,6 +266,7 @@ def get_psp_data(t_start,t_end):
     
 def save_psp_data_non_merged(path, file):
     '''
+    *** TO DO
     save PSP data as pickle file with 3 separate arrays for orbit, magnetic field and plasma data    
     '''
      
@@ -631,122 +631,6 @@ def save_wind_data(path,file,start_date,end_date,heeq):
     
     
     
-     
-def convert_GSE_to_HEEQ(sc):
-    '''
-    for Wind magnetic field components: convert GSE to HEE to HAE to HEEQ
-    '''
-
-    print('conversion GSE to HEEQ start')                                
-
-    jd=np.zeros(len(sc))
-    mjd=np.zeros(len(sc))
-        
-
-    for i in np.arange(0,len(sc)):
-
-        jd[i]=parse_time(sc.time[i]).jd
-        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
-        
-        #GSE to HEE
-        #Hapgood 1992 rotation by 180 degrees, or simply change sign in bx by    
-        #rotangle=np.radians(180)
-        #c, s = np.cos(rotangle), np.sin(rotangle)
-        #T1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-        #[bx_hee,by_hee,bz_hee]=T1[sc.bx[i],sc.by[i],sc.bz[i]]        
-        b_hee=[-sc.bx[i],-sc.by[i],sc.bz[i]]
-        
-        #HEE to HAE        
-        
-        #define T00 and UT
-        T00=(mjd[i]-51544.5)/36525.0          
-        dobj=sc.time[i]
-        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
-
-        #lambda_sun in Hapgood, equation 5, here in rad
-        M=np.radians(357.528+35999.050*T00+0.04107*UT)
-        LAMBDA=280.460+36000.772*T00+0.04107*UT        
-        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
-        
-        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle
-        c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
-        Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-        b_hae=np.dot(Sm1,b_hee)
-
-        #HAE to HEEQ
-        
-        iota=np.radians(7.25)
-        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
-        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
-                      
-        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
-        #get lambda-omega angle in degree mod 360   
-        
-        #************** CHECK
-                      
-        lambda_omega_deg=np.degrees(np.mod(np.degrees(lambda_sun)-np.degrees(omega),360))
-        ##get theta_node in deg
-        theta_node_deg=np.degrees(theta)
-        ##if in same quadrant, then theta_node = theta_node +pi   
-        if abs(lambda_omega_deg-theta_node_deg) < 180: theta=theta+np.pi                                                            
-        
-        #rotation around Z by theta
-        c, s = np.cos(theta), np.sin(theta)
-        S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-
-        #rotation around X by iota  
-        iota=np.radians(7.25)
-        c, s = np.cos(iota), np.sin(iota)
-        S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
-                
-        #rotation around Z by Omega  
-        c, s = np.cos(omega), np.sin(omega)
-        S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
-        
-        #matrix multiplication to go from HAE to HEEQ components                
-        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
-        
-        sc.bx[i]=bx_heeq
-        sc.by[i]=by_heeq
-        sc.bz[i]=bz_heeq
-
-    
-    print('conversion GSE to HEEQ done')                                
-    return sc
-
-    
-     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
 
 def load_stereoa_science_1min():
@@ -1012,180 +896,7 @@ def save_all_stereob_science_data(path,file,sceq):
     print()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def save_stereoa_science_data(path,file,t_start, t_end,sceq):
-
-    print('start STA')
-    sta_sat = heliosat.STA()
-     
-    #create an array with 1 minute resolution between t start and end
-    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
-    time_mat=mdates.date2num(time) 
-    
-    tp, pro = sta_sat.get_data_raw(t_start, t_end, "sta_plastic_l2")
-    #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_beacon")
-    #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_l1")
-
-    print('download complete')
-   
-    tm=parse_time(tm,format='unix').datetime 
-    tp=parse_time(tp,format='unix').datetime 
-
-    #convert to matplotlib time for linear interpolation
-    tm_mat=mdates.date2num(tm) 
-    tp_mat=mdates.date2num(tp) 
-    
-    print('time convert done')
-    
-    
-    print('position start')
-    frame='HEEQ'
-    spice.furnish(spicedata.get_kernel('stereo_a_pred'))
-    statra=spice.Trajectory('-234') #STEREO-A SPICE NAIF code
-    statra.generate_positions(time,'Sun',frame)
-    statra.change_units(astropy.units.AU)  
-    [r, lat, lon]=cart2sphere(statra.x,statra.y,statra.z)
-    print('position end ')
-    
-    
-    #linear interpolation to time_mat times    
-    bx = np.interp(time_mat, tm_mat, mag[:,0] )
-    by = np.interp(time_mat, tm_mat, mag[:,1] )
-    bz = np.interp(time_mat, tm_mat, mag[:,2] )
-    bt = np.sqrt(bx**2+by**2+bz**2)
-      
-      
-    den = np.interp(time_mat, tp_mat, pro[:,0])
-    vt = np.interp(time_mat, tp_mat, pro[:,1])
-    tp = np.interp(time_mat, tp_mat, pro[:,2])
-    
-    #make array
-    sta=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
-                ('x', float),('y', float),('z', float),\
-                ('r', float),('lat', float),('lon', float)])   
-       
-    #convert to recarray
-    sta = sta.view(np.recarray)  
-
-    #fill with data
-    sta.time=time
-    sta.bx=bx
-    sta.by=by
-    sta.bz=bz 
-    sta.bt=bt
-
-    sta.x=statra.x
-    sta.y=statra.y
-    sta.z=statra.z
-    
-    sta.r=r
-    sta.lat=np.rad2deg(lat)
-    sta.lon=np.rad2deg(lon)
-    
-    sta.vt=vt    
-    sta.np=den
-    sta.tp=tp    
-    
-     
-     
-    #remove spikes from plasma data
-    #median filter
-    sta.vt=scipy.signal.medfilt(sta.vt,9)
-    #set nans to a high number
-    sta.vt[np.where(np.isfinite(sta.vt) == False)]=1e5
-    #get rid of all single spikes with scipy signal find peaks (cannot use nan)
-    peaks,properties = scipy.signal.find_peaks(sta.vt, prominence=200,width=(1,200))
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        sta.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-    #set nan again
-    sta.vt[np.where(sta.vt == 1e5)]=np.nan     
-    sta.tp[np.where(np.isfinite(sta.vt) == False)]=np.nan
-    sta.np[np.where(np.isfinite(sta.vt) == False)]=np.nan   
-    
-    #manual spike removal for magnetic field
-    remove_start=datetime.datetime(2018, 9, 23, 11, 00)
-    remove_end=datetime.datetime(2018, 9, 25, 00, 00)
-    remove_start_ind=np.where(remove_start==sta.time)[0][0]
-    remove_end_ind=np.where(remove_end==sta.time)[0][0] 
-
-    sta.bt[remove_start_ind:remove_end_ind]=np.nan
-    sta.bx[remove_start_ind:remove_end_ind]=np.nan
-    sta.by[remove_start_ind:remove_end_ind]=np.nan
-    sta.bz[remove_start_ind:remove_end_ind]=np.nan
-
-    
-    
-    #convert magnetic field to SCEQ
-    if sceq==True:
-        sta=convert_RTN_to_SCEQ(sta,'STEREO-A')
-    
-    
-    
-    
-    
-    header='STEREO-A magnetic field (IMPACT instrument, beacon) and plasma data (PLASTIC, science), ' + \
-    'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/   '+ \
-    'Timerange: '+sta.time[0].strftime("%Y-%b-%d %H:%M")+' to '+sta.time[-1].strftime("%Y-%b-%d %H:%M")+\
-    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(sta.time)).seconds)+' seconds. '+\
-    'The data are available in a numpy recarray, fields can be accessed by sta.time, sta.bx, sta.vt etc. '+\
-    'Missing data has been set to "np.nan". Total number of data points: '+str(sta.size)+'. '+\
-    'Units are btxyz [nT, RTN], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with https://github.com/cmoestl/heliocats (uses https://github.com/ajefweiss/HelioSat '+\
-    'and https://github.com/heliopython/heliopy). '+\
-    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
-    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-  
-    pickle.dump([sta,header], open(path+file, "wb"))
-    
-    print('done sta')
-    print()
-
-
-
-    
-    
-    
-  
-    
-    
-    
+ 
     
     
     
@@ -1705,12 +1416,150 @@ def save_stereoa_beacon_data(path,file,start_time,end_time,sceq):
 
 
 
+def save_stereoa_science_data(path,file,t_start, t_end,sceq):
+    
+    '''** TO DO 
+    '''
+
+    print('start STA')
+    sta_sat = heliosat.STA()
+     
+    #create an array with 1 minute resolution between t start and end
+    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
+    time_mat=mdates.date2num(time) 
+    
+    tp, pro = sta_sat.get_data_raw(t_start, t_end, "sta_plastic_l2")
+    #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_beacon")
+    #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_l1")
+
+    print('download complete')
+   
+    tm=parse_time(tm,format='unix').datetime 
+    tp=parse_time(tp,format='unix').datetime 
+
+    #convert to matplotlib time for linear interpolation
+    tm_mat=mdates.date2num(tm) 
+    tp_mat=mdates.date2num(tp) 
+    
+    print('time convert done')
+    
+    
+    print('position start')
+    frame='HEEQ'
+    spice.furnish(spicedata.get_kernel('stereo_a_pred'))
+    statra=spice.Trajectory('-234') #STEREO-A SPICE NAIF code
+    statra.generate_positions(time,'Sun',frame)
+    statra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(statra.x,statra.y,statra.z)
+    print('position end ')
+    
+    
+    #linear interpolation to time_mat times    
+    bx = np.interp(time_mat, tm_mat, mag[:,0] )
+    by = np.interp(time_mat, tm_mat, mag[:,1] )
+    bz = np.interp(time_mat, tm_mat, mag[:,2] )
+    bt = np.sqrt(bx**2+by**2+bz**2)
+      
+      
+    den = np.interp(time_mat, tp_mat, pro[:,0])
+    vt = np.interp(time_mat, tp_mat, pro[:,1])
+    tp = np.interp(time_mat, tp_mat, pro[:,2])
+    
+    #make array
+    sta=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+       
+    #convert to recarray
+    sta = sta.view(np.recarray)  
+
+    #fill with data
+    sta.time=time
+    sta.bx=bx
+    sta.by=by
+    sta.bz=bz 
+    sta.bt=bt
+
+    sta.x=statra.x
+    sta.y=statra.y
+    sta.z=statra.z
+    
+    sta.r=r
+    sta.lat=np.rad2deg(lat)
+    sta.lon=np.rad2deg(lon)
+    
+    sta.vt=vt    
+    sta.np=den
+    sta.tp=tp    
+    
+     
+     
+    #remove spikes from plasma data
+    #median filter
+    sta.vt=scipy.signal.medfilt(sta.vt,9)
+    #set nans to a high number
+    sta.vt[np.where(np.isfinite(sta.vt) == False)]=1e5
+    #get rid of all single spikes with scipy signal find peaks (cannot use nan)
+    peaks,properties = scipy.signal.find_peaks(sta.vt, prominence=200,width=(1,200))
+    for i in np.arange(len(peaks)):
+        #get width of current peak
+        width=int(np.ceil(properties['widths']/2)[i])
+        #remove data
+        sta.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
+    #set nan again
+    sta.vt[np.where(sta.vt == 1e5)]=np.nan     
+    sta.tp[np.where(np.isfinite(sta.vt) == False)]=np.nan
+    sta.np[np.where(np.isfinite(sta.vt) == False)]=np.nan   
+    
+    #manual spike removal for magnetic field
+    remove_start=datetime.datetime(2018, 9, 23, 11, 00)
+    remove_end=datetime.datetime(2018, 9, 25, 00, 00)
+    remove_start_ind=np.where(remove_start==sta.time)[0][0]
+    remove_end_ind=np.where(remove_end==sta.time)[0][0] 
+
+    sta.bt[remove_start_ind:remove_end_ind]=np.nan
+    sta.bx[remove_start_ind:remove_end_ind]=np.nan
+    sta.by[remove_start_ind:remove_end_ind]=np.nan
+    sta.bz[remove_start_ind:remove_end_ind]=np.nan
+
+    
+    
+    #convert magnetic field to SCEQ
+    if sceq==True:
+        sta=convert_RTN_to_SCEQ(sta,'STEREO-A')
+    
+    
+    
+    
+    
+    header='STEREO-A magnetic field (IMPACT instrument, beacon) and plasma data (PLASTIC, science), ' + \
+    'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/   '+ \
+    'Timerange: '+sta.time[0].strftime("%Y-%b-%d %H:%M")+' to '+sta.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(sta.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by sta.time, sta.bx, sta.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(sta.size)+'. '+\
+    'Units are btxyz [nT, RTN], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats (uses https://github.com/ajefweiss/HelioSat '+\
+    'and https://github.com/heliopython/heliopy). '+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+  
+    pickle.dump([sta,header], open(path+file, "wb"))
+    
+    print('done sta')
+    print()
+
+
+
+
+
+
 
 def omni_loader(overwrite):
    '''
    downloads all omni2 data into the "data" folder
    '''
-   
 
    if overwrite>0: 
          print('download OMNI2 again')
@@ -1867,159 +1716,6 @@ def save_omni_data(path,file,overwrite):
     print()
 
     
-  
-
-def save_stereob_science_data(path,file,start_time,end_time):
-
-    print('start STB')
-    stb_sat = heliosat.STB()
-    t_start = start_time
-    t_end = end_time
-   
-    #create an array with 1 minute resolution between t start and end
-    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
-    time_mat=mdates.date2num(time) 
-
-    tp, pro = stb_sat.get_data_raw(t_start, t_end, "stb_plastic_l2")
-    tm, mag = stb_sat.get_data_raw(t_start, t_end, "stb_impact_beacon") #******************
-
-
-    print('download complete')
-   
-    tm=parse_time(tm,format='unix').datetime 
-    tp=parse_time(tp,format='unix').datetime 
-
-    #convert to matplotlib time for linear interpolation
-    tm_mat=mdates.date2num(tm) 
-    tp_mat=mdates.date2num(tp) 
-    
-    print('time convert done')
-    
-    print('position start')
-    frame='HEEQ'
-    spice.furnish(spicedata.get_kernel('stereo_b'))
-    stbtra=spice.Trajectory('-235') #STEREO-A SPICE NAIF code
-    stbtra.generate_positions(time,'Sun',frame)
-    stbtra.change_units(astropy.units.AU)  
-    [r, lat, lon]=cart2sphere(stbtra.x,stbtra.y,stbtra.z)
-    print('position end ')
-    
-    #linear interpolation to time_mat times    
-    bx = np.interp(time_mat, tm_mat, mag[:,0] )
-    by = np.interp(time_mat, tm_mat, mag[:,1] )
-    bz = np.interp(time_mat, tm_mat, mag[:,2] )
-    bt = np.sqrt(bx**2+by**2+bz**2)
-      
-    den = np.interp(time_mat, tp_mat, pro[:,0])
-    vt = np.interp(time_mat, tp_mat, pro[:,1])
-    tp = np.interp(time_mat, tp_mat, pro[:,2])
-    
-    #make array
-    stb=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
-                ('x', float),('y', float),('z', float),\
-                ('r', float),('lat', float),('lon', float)])   
-       
-    #convert to recarray
-    stb = stb.view(np.recarray)  
-
-    #fill with data
-    stb.time=time
-    stb.bx=bx
-    stb.by=by
-    stb.bz=bz 
-    stb.bt=bt
-
-    stb.x=stbtra.x
-    stb.y=stbtra.y
-    stb.z=stbtra.z
-    
-    stb.r=r
-    stb.lat=np.rad2deg(lat)
-    stb.lon=np.rad2deg(lon)
-    
-    stb.np=den
-    stb.tp=tp    
-    stb.vt=vt  
-        
-    #remove spikes from plasma data
-    #median filter
-    stb.vt=scipy.signal.medfilt(stb.vt,9)
-    #set nans to a high number
-    stb.vt[np.where(np.isfinite(stb.vt) == False)]=1e5
-    #get rid of all single spikes with scipy signal find peaks (cannot use nan)
-    peaks,properties = scipy.signal.find_peaks(stb.vt, prominence=200,width=(1,200))
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        stb.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-    #set nan again
-    stb.vt[np.where(stb.vt == 1e5)]=np.nan     
-    stb.tp[np.where(np.isfinite(stb.vt) == False)]=np.nan
-    stb.np[np.where(np.isfinite(stb.vt) == False)]=np.nan   
-    
-    #remove spikes from magnetic field data
-    #median filter
-    #set nans to a high number
-    stb.bt[np.where(np.isfinite(stb.bt) == False)]=1e5
-    #get rid of all single spikes with scipy signal find peaks (cannot use nan)
-    peaks,properties = scipy.signal.find_peaks(stb.bt, height=40,width=(1,20))
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths'])[i])
-        #remove data
-        stb.bt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-        stb.bx[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-        stb.by[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-        stb.bz[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-
-    #set nan again
-    stb.bt[np.where(stb.bt == 1e5)]=np.nan     
-
-    #manual spike removal for speed
-    #remove_start=datetime.datetime(2007, 7, 18,22, 00)
-    #remove_end=datetime.datetime(2007, 7, 19, 16, 00)
-    #remove_start_ind=np.where(remove_start==stb.time)[0][0]
-    #remove_end_ind=np.where(remove_end==stb.time)[0][0] 
-    #stb.vt[remove_start_ind:remove_end_ind]=np.nan
-    
-  
-    
-    
-    
-    
-    header='STEREO-B magnetic field (IMPACT instrument) and plasma data (PLASTIC), ' + \
-    'obtained from https://stereo-ssc.nascom.nasa.gov/data/beacon/behind/  '+ \
-    'Timerange: '+stb.time[0].strftime("%Y-%b-%d %H:%M")+' to '+stb.time[-1].strftime("%Y-%b-%d %H:%M")+\
-    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(stb.time)).seconds)+' seconds. '+\
-    'A median filter has been applied (plasma data only) and then spikes were removed with scipy.signal.find_peaks (plasma and field). '+\
-    'The data are available in a numpy recarray, fields can be accessed by stb.time, stb.bx, stb.vt etc. '+\
-    'Missing data has been set to "np.nan". Total number of data points: '+str(stb.size)+'. '+\
-    'Units are btxyz [nT, RTN], vt  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with https://github.com/cmoestl/heliocats heliocats.data.save_stereob_beacon_data (uses https://github.com/ajefweiss/HelioSat '+\
-    'and https://github.com/heliopython/heliopy). '+\
-    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
-    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-    
-    pickle.dump([stb,header], open(path+file, "wb"))
-    
-    print('done stb')
-    print()
-
- 
- 
-    
-    
-    
-    
-       
-    
-    
-
-
-
-
 
 
 
@@ -2135,9 +1831,6 @@ def convert_MAVEN_mat_original(data_path,filename):
 
    
     
-
-
-
 
 
 
@@ -2260,7 +1953,6 @@ def convert_MAVEN_mat_removed(data_path,filename):
 def MAVEN_smooth_orbit(data_path,filename):
 
 
-
     filemav=data_path+'maven_2014_2018_removed.p'
     [mav,hmav]=pickle.load(open(filemav, 'rb' ) )
     print('loaded ',filemav)
@@ -2378,6 +2070,10 @@ def MAVEN_smooth_orbit(data_path,filename):
     
 
 
+    
+    
+    
+    
 
 
 
@@ -2385,8 +2081,10 @@ def MAVEN_smooth_orbit(data_path,filename):
 
 
 def save_helios_data(file):
-
-
+    
+    '''
+    **TO DO
+    '''
 
     print('start Helios')
     t_start = datetime.datetime(1975, 1, 1)
@@ -2406,8 +2104,10 @@ def save_helios_data(file):
 
 
 def save_cassini_data(file):
-    #***to do
 
+    '''
+    **TO DO
+    '''
 
     print('start Cassini')
     t_start = datetime.datetime(1999, 8, 16)
@@ -2419,12 +2119,11 @@ def save_cassini_data(file):
 
     coords='RTN'
 
-    #Cassini Orbiter Magnetometer Calibrated MAG data in 1 minute averages available covering the period 1999-08-16 (DOY 228) to 2016-12-31 (DOY 366). The data are provided in RTN coordinates throughout the mission, with Earth, Jupiter, and Saturn centered coordinates for the respective flybys of those planets.
+    #Cassini Orbiter Magnetometer Calibrated MAG data in 1 minute averages available 
+    #covering the period 1999-08-16 (DOY 228) to 2016-12-31 (DOY 366). 
+    #The data are provided in RTN coordinates throughout the mission, with Earth, Jupiter, 
+    #and Saturn centered coordinates for the respective flybys of those planets.
     cas=cassinidata.mag_hires(t_start,t_end, coords)
-
-
-
-
 
 
 
@@ -2485,9 +2184,6 @@ def save_ulysses_data(data_path):
     uly.r=r
     uly.lat=np.rad2deg(lat)
     uly.lon=np.rad2deg(lon)
-
-
-    
         
     badmag=np.where(uly.bt < -10000)
     uly.bt[badmag]=np.nan  
@@ -2516,22 +2212,6 @@ Made with https://github.com/cmoestl/heliocats and https://github.com/heliopytho
     
     
     print('Ulysses done')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3017,9 +2697,6 @@ def load_helcats_datacat(file):
     
     
     
-  
-    
-    
     
 def recarray_to_numpy_array(rec):    
     
@@ -3194,8 +2871,6 @@ def convert_RTN_to_SCEQ(sc,name):
     return sc
 
 
-
- 
 
     
 

@@ -59,8 +59,6 @@ get_new_data=True
 #~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit2.py
 
 
-
-
 ################################# PSP update
 
 # load PSP data
@@ -180,7 +178,6 @@ if get_new_data: hd.save_omni_data(data_path,fileomni,overwrite)
 start=datetime.datetime.utcnow() -datetime.timedelta(days=365)
 end=datetime.datetime.utcnow() 
 hp.plot_insitu_update(o, start, end,'OMNI2',plot_path,now=True)
-
 
 
 

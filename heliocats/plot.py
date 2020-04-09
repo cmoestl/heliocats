@@ -1,5 +1,5 @@
-#stats.py
-#statistics stuff for heliocats
+#plots.py
+#plotting routines for heliocats
 #https://github.com/cmoestl/heliocats
 
 import numpy as np
@@ -30,10 +30,6 @@ import heliopy.spice as spice
 
 from config import data_path
 
-
-####################################### 
-
-#def (sc, start, end, sc_label, path, **kwargs):
 
 
 ####################################### 
@@ -984,47 +980,7 @@ def plot_insitu_hint20(sc, start, end, sc_label, path, e1,e2,e3,**kwargs):
          plt.savefig(plotfile)
          print('saved as ',plotfile)
    
-   
-    
-     
-          
-     
-
 
 
      
      
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-##################################
- 
-''' 
-plt.close() 
-sns.set_style("darkgrid")
-sns.set_context('paper')
-
- 
-data_path='/nas/helio/data/insitu_python/'  
-plot_path='/nas/helio/data/insitu_python/plots/'
-filewin="wind_2018_now.p" 
-
-
-filewin='wind_2007_2018_helcats.p'
-[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
-
-start=datetime.datetime(2010, 10, 30)
-end=datetime.datetime(2010, 11, 1)     
-
-plot_insitu(win, start, end,'Wind',plot_path)
-'''
-
-
-

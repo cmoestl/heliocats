@@ -17,13 +17,11 @@
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
 # 
-# 
 # **current status: work in progress**
 # 
 # features to be added: 
-# - finish PSP data
 # - new events for Wind > 2018, new events STA > 2018, PSP
-# - MAVEN CME verification with RAD and HI    
+# - MAVEN ICME verification with RAD and HI    
 # 
 
 # In[1]:
@@ -104,7 +102,18 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # from heliocats import data as hd
 # importlib.reload(hd) #reload again while debugging
 
+# # ################################# PSP
 
+# print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
+
+# #filepsp='psp_2018_2019_rtn.p'
+# #hd.save_psp_data(data_path,filepsp, sceq=False)   
+# #[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
+# #print('done')
+
+# filepsp='psp_2018_2019_sceq.p'
+# hd.save_psp_data(data_path,filepsp, sceq=True)   
+# [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
 
 # ################################# Wind
 
@@ -127,18 +136,6 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # [win3,hwin3]=pickle.load(open(data_path+filewin3, "rb" ) )  
 
 
-
-# ################################# PSP
-
-# print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
-
-# filepsp='psp_2018_2019_rtn.p'
-# hd.save_psp_data(data_path,filepsp, sceq=False)   
-# [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
-
-# filepsp='psp_2018_2019_sceq.p'
-# hd.save_psp_data(data_path,filepsp, sceq=True)   
-# [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
 
 
 
@@ -281,9 +278,6 @@ if load_data > 0:
     
     # ADD Solar Orbiter
 
-    
-    
-    #-------------- final
         
     print('load Ulysses RTN') #made with heliocats.data.save_ulysses_data
     fileuly='ulysses_1990_2009_rtn.p'
@@ -313,7 +307,10 @@ if load_data > 0:
     filesta='stereoa_2007_2019_sceq.p'
     [sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) )  
     #may add recent beacon data, see cell above     
-
+    
+    print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
+    filepsp='psp_2018_2019_sceq.p'
+    [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
     print('load and merge Wind data HEEQ') 
     #from HELCATS HEEQ until 2018 1 1 + new self-processed data with heliosat and hd.save_wind_data
@@ -349,11 +346,6 @@ if load_data > 0:
 
     print('Merging done')
 
-    #------------
-
-    print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
-    filepsp='psp_2018_2019_sceq.p'
-    [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
      
          
 print()
@@ -374,7 +366,7 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning if needed
 
-# In[5]:
+# In[14]:
 
 
 # save data as numpy structured arrays for machine learning
@@ -382,10 +374,10 @@ data_to_numpy=0
 
 
 if data_to_numpy > 0:  
-    print('convert data to numpy structured arrays suitable for machine learning')
 
+    print('convert data to numpy structured arrays suitable for machine learning')
     
-    #------------- final
+
     print('STEREO-B')
     #STEREO-B
     #make extra header with variable attributes
@@ -434,13 +426,10 @@ if data_to_numpy > 0:
     win_nd=win_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
     pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_2007_2019_heeq_ndarray.p", "wb" ) )
 
-    
-    #------------------------------------------
-
-    
+   
     
     print('PSP')  
-    hpsp_att='dtype=[(time, matplotlib), (bt [nT], <f8), (bx, SCEQ  [nT], <f8), (by  [nT, SCEQ], <f8),                        (bz, RTN  [nT], <f8), (vt  [km/s], <f8),(vx  [km/s, RTN], <f8)(vy  [km/s, RTN], <f8),                        (vz  [km/s, RTN], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),                        (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8])'
+    hpsp_att='dtype=[(time, matplotlib), (bt [nT], <f8), (bx, SCEQ  [nT], <f8), (by  [nT, SCEQ], <f8),                        (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8),(vx  [km/s, SCEQ], <f8)(vy  [km/s, SCEQ], <f8),                        (vz  [km/s, SCEQ], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),                        (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8])'
 
     psp_nd=hd.recarray_to_numpy_array(psp)
     psp_nd=psp_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'),('vx', '<f8'),('vy', '<f8'),('vz', '<f8'), ('np', '<f8'), ('tp', '<f8'),                                ('x', '<f8'), ('y', '<f8'), ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
@@ -455,7 +444,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[6]:
+# In[15]:
 
 
 #for measuring new events use this function from heliocats.plot 
@@ -506,7 +495,7 @@ print(a)
 
 # ## (3) make ICMECAT 
 
-# In[7]:
+# In[16]:
 
 
 print('data loaded')
@@ -553,7 +542,7 @@ print('done')
 
 # ### 4a save header
 
-# In[8]:
+# In[17]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -751,7 +740,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[10]:
+# In[13]:
 
 
 #load icmecat as pandas dataframe

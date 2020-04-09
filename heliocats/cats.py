@@ -50,15 +50,6 @@ def load_helcats_icmecat_master_from_excel(file):
     return ic
 
 
-def make_icmecat_header(ic):
-    ''' todo
-    '''
-  
-    
-    header='header'
-   
-    return header
-
 
 
 def pdyn(density, speed):
@@ -265,15 +256,6 @@ def get_cat_parameters(sc, sci, ic, name):
             ic.at[sci[i],'sheath_pdyn_std']=np.nan
 
     
-
-    
     return ic
-
-
-
-
-
-
-
 
 
