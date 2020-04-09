@@ -392,8 +392,7 @@ def save_wind_data(path,file,start_date,end_date,heeq):
     
     tm=parse_time(tm,format='unix').datetime 
     tp=parse_time(tp,format='unix').datetime 
-
-    
+   
     
     #print(parse_time(tm[0:10]).iso)
     #print(parse_time(tp[0:10]).iso)
@@ -485,7 +484,7 @@ def save_wind_data(path,file,start_date,end_date,heeq):
         #remove data
         win.tp[peaks[i]-width-2:peaks[i]+width+2]=np.nan
 
-    win.vt[np.where(win.vt> 10000)]=1e11
+    win.vt[np.where(win.vt> 3000)]=1e11
     #get rid of all single spikes with scipy signal find peaks
     peaks, properties = scipy.signal.find_peaks(win.vt, height=1e8,width=(1, 250))
     #go through all of them and set to nan according to widths
@@ -499,24 +498,37 @@ def save_wind_data(path,file,start_date,end_date,heeq):
         
         
     #magnetic field    
-    peaks, properties = scipy.signal.find_peaks(win.bt, height=50,width=(1, 10))
+    peaks, properties = scipy.signal.find_peaks(win.bt, prominence=30,width=(1, 10))
     #go through all of them and set to nan according to widths
     for i in np.arange(len(peaks)):
         #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
+        width=int(np.ceil(properties['widths'])[i])
         #remove data
-        win.bt[peaks[i]-width-2:peaks[i]+width+2]=np.nan    
-        win.bx[peaks[i]-width-2:peaks[i]+width+2]=np.nan    
-        win.by[peaks[i]-width-2:peaks[i]+width+2]=np.nan    
-        win.bz[peaks[i]-width-2:peaks[i]+width+2]=np.nan    
+        win.bt[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
+    peaks, properties = scipy.signal.find_peaks(abs(win.bx), prominence=30,width=(1, 10))
+    for i in np.arange(len(peaks)):
+        width=int(np.ceil(properties['widths'])[i])
+        win.bx[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
+    peaks, properties = scipy.signal.find_peaks(abs(win.by), prominence=30,width=(1, 10))
+    for i in np.arange(len(peaks)):
+        width=int(np.ceil(properties['widths'])[i])
+        win.by[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
+    peaks, properties = scipy.signal.find_peaks(abs(win.bz), prominence=30,width=(1, 10))
+    for i in np.arange(len(peaks)):
+        width=int(np.ceil(properties['widths'])[i])
+        win.bz[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
 
 
     #manual spike removal for magnetic field
-    if t_start < datetime.datetime(2018, 7, 19, 18, 25):    
-        if t_end > datetime.datetime(2018, 7, 19, 18, 25):         
+    if t_start < datetime.datetime(2018, 7, 19, 16, 25):    
+        if t_end > datetime.datetime(2018, 7, 19, 16, 25):         
 
-            remove_start=datetime.datetime(2018, 7, 19, 18, 25)
-            remove_end=datetime.datetime(2018, 7, 19, 19, 30)
+            remove_start=datetime.datetime(2018, 7, 19, 16, 25)
+            remove_end=datetime.datetime(2018, 7, 19, 17, 35)
             remove_start_ind=np.where(remove_start<win.time)[0][0]
             remove_end_ind=np.where(remove_end<win.time)[0][0] 
 
@@ -525,10 +537,10 @@ def save_wind_data(path,file,start_date,end_date,heeq):
             win.by[remove_start_ind:remove_end_ind]=np.nan
             win.bz[remove_start_ind:remove_end_ind]=np.nan
 
-    if t_start < datetime.datetime(2018, 8, 29, 21, 00):    
-        if t_end > datetime.datetime(2018, 7, 19, 18, 25):         
+    if t_start < datetime.datetime(2018, 8, 29, 19, 00):    
+        if t_end > datetime.datetime(2018, 8, 29, 19, 00):         
 
-            remove_start=datetime.datetime(2018, 8, 29, 21, 00)
+            remove_start=datetime.datetime(2018, 8, 29, 19, 00)
             remove_end=datetime.datetime(2018,8, 30, 5, 00)
             remove_start_ind=np.where(remove_start<win.time)[0][0]
             remove_end_ind=np.where(remove_end<win.time)[0][0] 
@@ -538,6 +550,48 @@ def save_wind_data(path,file,start_date,end_date,heeq):
             win.by[remove_start_ind:remove_end_ind]=np.nan
             win.bz[remove_start_ind:remove_end_ind]=np.nan
 
+            
+    if t_start < datetime.datetime(2019, 8, 8, 22, 45):    
+        if t_end > datetime.datetime(2019, 8, 8, 22, 45):         
+
+            remove_start=datetime.datetime(2019, 8, 8, 22, 45)
+            remove_end=datetime.datetime(2019,   8, 9, 17, 00)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan
+
+    if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
+        if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
+
+            remove_start=datetime.datetime(2019, 8, 20, 18, 0)
+            remove_end=datetime.datetime(2019,   8, 21, 12, 0)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan            
+
+    if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
+        if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
+
+            remove_start=datetime.datetime(2019, 8, 22, 1, 0)
+            remove_end=datetime.datetime(2019,   8, 22, 9, 0)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan            
+
+
+    
      
     coord='GSE'
     #convert magnetic field to SCEQ
@@ -1517,7 +1571,7 @@ def save_stereob_beacon_data(path,file,start_time,end_time):
 
 
  
-def save_stereoa_beacon_data(path,file,start_time,end_time):
+def save_stereoa_beacon_data(path,file,start_time,end_time,sceq):
 
     print('start STA')
     sta_sat = heliosat.STA()
@@ -1616,7 +1670,15 @@ def save_stereoa_beacon_data(path,file,start_time,end_time):
     #sta.bx[remove_start_ind:remove_end_ind]=np.nan
     #sta.by[remove_start_ind:remove_end_ind]=np.nan
     #sta.bz[remove_start_ind:remove_end_ind]=np.nan
-
+    
+        
+    coord='RTN'
+    #convert magnetic field to SCEQ
+    if sceq==True:
+        sta=convert_RTN_to_SCEQ(sta,'STEREO-A')
+        coord='SCEQ'
+   
+    
     
     header='BEACON STEREO-A magnetic field (IMPACT instrument) and plasma data (PLASTIC), ' + \
     'obtained from https://stereo-ssc.nascom.nasa.gov/data/beacon/ahead/  '+ \
@@ -1626,13 +1688,12 @@ def save_stereoa_beacon_data(path,file,start_time,end_time):
     'scipy.signal.find_peaks(sta.vt, prominence=200,width=(1,200)). '+\
     'The data are available in a numpy recarray, fields can be accessed by sta.time, sta.bx, sta.vt etc. '+\
     'Missing data has been set to "np.nan". Total number of data points: '+str(sta.size)+'. '+\
-    'Units are btxyz [nT, RTN], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Units are btxyz [nT, '+coord+'], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with https://github.com/cmoestl/heliocats heliocats.data.save_stereoa_beacon_data (uses https://github.com/ajefweiss/HelioSat '+\
     'and https://github.com/heliopython/heliopy). '+\
     'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
     
-    #'Units are btxyz [nT, RTN], vtxyz [km/s, RTN], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
 
     pickle.dump([sta,header], open(path+file, "wb"))
     

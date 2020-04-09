@@ -68,9 +68,7 @@ warnings.filterwarnings('ignore')
 #for server
 matplotlib.use('Agg')
 
-
 #import 
-
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
@@ -122,11 +120,13 @@ high_res_mode=False
 #t_end   ='2018-Dec-06'
 
 
-#orbit 2
-outputdirectory='results/anim_plots_sc_insitu_final_orbit2'
-animdirectory='results/anim_movie_sc_insitu_final_orbit2'
-t_start ='2019-Mar-10'
-t_end   ='2019-Apr-22'
+#orbit all
+
+
+outputdirectory='results/anim_plots_sc_insitu_psp_orbit3'
+animdirectory='results/anim_movie_sc_insitu_psp_orbit3'
+t_start ='2018-Oct-01'
+t_end   ='2019-Dec-31'
 
 
 
@@ -155,21 +155,6 @@ if os.path.isdir(positions_plot_directory) == False: os.mkdir(positions_plot_dir
 
 
 
-@jit(nopython=True)
-def sphere2cart(r, phi, theta):
-    x = r*np.cos(theta)*np.cos(phi)
-    y = r*np.cos(theta)*np.sin(phi)
-    z = r*np.sin(theta)
-    return (x, y, z) 
-
-@jit(nopython=True)
-def cart2sphere(x,y,z):
-    r = np.sqrt(x**2+ y**2 + z**2)            # r
-    theta = np.arctan2(z,np.sqrt(x**2+ y**2))     # theta
-    phi = np.arctan2(y,x)                        # phi
-    return (r, theta, phi)
-
-
 
 
 
@@ -192,7 +177,7 @@ def make_positions():
     print('PSP pos')
 
     psp.change_units(astropy.units.AU)  
-    [psp_r, psp_lat, psp_lon]=cart2sphere(psp.x,psp.y,psp.z)
+    [psp_r, psp_lat, psp_lon]=hd.cart2sphere(psp.x,psp.y,psp.z)
     print('PSP conv')
 
 
@@ -210,7 +195,7 @@ def make_positions():
     bepi=spice.Trajectory('BEPICOLOMBO MPO') # or BEPICOLOMBO MMO
     bepi.generate_positions(bepi_time,'Sun',frame)
     bepi.change_units(astropy.units.AU)  
-    [bepi_r, bepi_lat, bepi_lon]=cart2sphere(bepi.x,bepi.y,bepi.z)
+    [bepi_r, bepi_lat, bepi_lon]=hd.cart2sphere(bepi.x,bepi.y,bepi.z)
     print('Bepi')
 
 
@@ -229,7 +214,7 @@ def make_positions():
     solo=spice.Trajectory('Solar Orbiter')
     solo.generate_positions(solo_time, 'Sun',frame)
     solo.change_units(astropy.units.AU)
-    [solo_r, solo_lat, solo_lon]=cart2sphere(solo.x,solo.y,solo.z)
+    [solo_r, solo_lat, solo_lon]=hd.cart2sphere(solo.x,solo.y,solo.z)
     print('Solo')
 
 
@@ -298,7 +283,7 @@ def make_positions():
     earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
     earth.generate_positions(earth_time,'Sun',frame)
     earth.change_units(astropy.units.AU)  
-    [earth_r, earth_lat, earth_lon]=cart2sphere(earth.x,earth.y,earth.z)
+    [earth_r, earth_lat, earth_lon]=hd.cart2sphere(earth.x,earth.y,earth.z)
     print('Earth')
 
     ################ mercury
@@ -306,7 +291,7 @@ def make_positions():
     mercury=spice.Trajectory('1')  #barycenter
     mercury.generate_positions(earth_time,'Sun',frame)  
     mercury.change_units(astropy.units.AU)  
-    [mercury_r, mercury_lat, mercury_lon]=cart2sphere(mercury.x,mercury.y,mercury.z)
+    [mercury_r, mercury_lat, mercury_lon]=hd.cart2sphere(mercury.x,mercury.y,mercury.z)
     print('mercury') 
 
     ################# venus
@@ -314,7 +299,7 @@ def make_positions():
     venus=spice.Trajectory('2')  
     venus.generate_positions(earth_time,'Sun',frame)  
     venus.change_units(astropy.units.AU)  
-    [venus_r, venus_lat, venus_lon]=cart2sphere(venus.x,venus.y,venus.z)
+    [venus_r, venus_lat, venus_lon]=hd.cart2sphere(venus.x,venus.y,venus.z)
     print('venus') 
 
     ############### Mars
@@ -323,7 +308,7 @@ def make_positions():
     mars=spice.Trajectory('4')  
     mars.generate_positions(earth_time,'Sun',frame)  
     mars.change_units(astropy.units.AU)  
-    [mars_r, mars_lat, mars_lon]=cart2sphere(mars.x,mars.y,mars.z)
+    [mars_r, mars_lat, mars_lon]=hd.cart2sphere(mars.x,mars.y,mars.z)
     print('mars') 
 
     #############stereo-A
@@ -332,7 +317,7 @@ def make_positions():
     sta=spice.Trajectory('-234')  
     sta.generate_positions(earth_time,'Sun',frame)  
     sta.change_units(astropy.units.AU)  
-    [sta_r, sta_lat, sta_lon]=cart2sphere(sta.x,sta.y,sta.z)
+    [sta_r, sta_lat, sta_lon]=hd.cart2sphere(sta.x,sta.y,sta.z)
     print('STEREO-A') 
 
 
@@ -685,33 +670,17 @@ start_time=time.time()
 
 ########## get data
 
-
-
-file=data_path+'psp_2018_2019.p'
+file=data_path+'psp_2018_2019_sceq.p'
 [p,ph]=pickle.load(open(file, "rb" ) )  
 
-'''
-#make datafile new
-#Wind
-filewin="wind_2018_2019.p" 
-start=datetime(2018, 1, 1)
-end=datetime(2019, 12, 31)
-hd.save_wind_data(data_path,filewin,start,end)
-'''
-
-file=data_path+'wind_2018_2019.p'
+file=data_path+'wind_2018_now_heeq.p'
 [w,wh]=pickle.load(open(file, "rb" ) )  
 
-'''
-#make datafile new
-filesta="sta_2018_2019_beacon.p" 
-start=datetime(2018, 1, 1)
-end=datetime(2019, 12, 31)
-hd.save_stereoa_beacon_data(data_path,filesta,start,end)
-'''
+file=data_path+'stereoa_2007_2019_sceq.p'
+[s,sh]=pickle.load(open(file, "rb" ) )
+#file=data_path+'stereoa_2019_now_sceq.p'
 
-file=data_path+'sta_2018_2019_beacon.p'
-[s,sh]=pickle.load(open(file, "rb" ) )  
+#merge with beacon like for wind in icmecat until end of 2019
 
 
 ########## make animation
