@@ -924,12 +924,16 @@ def get_sdo_realtime_image():
     try: urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_0193.jpg')
     except urllib.error.URLError as e:
         print('Failed downloading ', sdo_latest,' ',e)
+
+    print('saved ',data_path_sun+'latest_1024_0193.jpg')    
     
     
-    sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193pfss.jpg'        
-    try: urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_0193pfss.jpg')
+    sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_HMIB.jpg'        
+    try: urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_HMIB.jpg')
     except urllib.error.URLError as e:
         print('Failed downloading ', sdo_latest,' ',e)
+        
+    print('saved ',data_path_sun+'latest_1024_HMIB.jpg')    
         
     '''    
     #convert to png

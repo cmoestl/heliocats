@@ -32,11 +32,11 @@ sftp.put(path_position+'positions_now.png')
 
 
 sftp.put(data_path_sun+'latest_1024_0193.jpg')
-sftp.put(data_path_sun+'latest_1024_0193pfss.jpg')
+sftp.put(data_path_sun+'latest_1024_HMIB.jpg')
 
-sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20.txt')
-sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20_header.txt')
-sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20.xlsx')
+#sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20.txt')
+#sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20_header.txt')
+#sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20.xlsx')
 
 
 #sftp.get('remote_file')         # get a remote file
