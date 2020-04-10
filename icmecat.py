@@ -24,7 +24,7 @@
 # - MAVEN ICME verification with RAD and HI    
 # 
 
-# In[1]:
+# In[ ]:
 
 
 import numpy as np
@@ -95,7 +95,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (0) process in situ data into similar format
 
-# In[2]:
+# In[ ]:
 
 
 # make data
@@ -139,7 +139,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 
 
-# In[3]:
+# In[ ]:
 
 
 ############################# make Ulysses files
@@ -265,7 +265,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[4]:
+# In[ ]:
 
 
 load_data=1
@@ -366,7 +366,7 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning if needed
 
-# In[14]:
+# In[ ]:
 
 
 # save data as numpy structured arrays for machine learning
@@ -444,7 +444,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[15]:
+# In[ ]:
 
 
 #for measuring new events use this function from heliocats.plot 
@@ -495,7 +495,7 @@ print(a)
 
 # ## (3) make ICMECAT 
 
-# In[16]:
+# In[ ]:
 
 
 print('data loaded')
@@ -524,8 +524,8 @@ ic=hc.get_cat_parameters(mav,mavi,ic,'MAVEN')
 ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
 
 
-####### 3c make all plots if wanted
-#matplotlib.use('Agg')
+# ###### 3c make all plots if wanted
+# matplotlib.use('Agg')
 # hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 # hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
 # hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
@@ -542,7 +542,7 @@ print('done')
 
 # ### 4a save header
 
-# In[17]:
+# In[ ]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -581,7 +581,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[9]:
+# In[ ]:
 
 
 ########## python formats
@@ -740,7 +740,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[13]:
+# In[ ]:
 
 
 #load icmecat as pandas dataframe
@@ -752,13 +752,13 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[11]:
+# In[ ]:
 
 
 ic_pandas
 
 
-# In[12]:
+# In[ ]:
 
 
 ic_nprec
@@ -767,7 +767,13 @@ ic_nprec
 # In[ ]:
 
 
+ic_nprec
 
+
+# In[ ]:
+
+
+ic_nprec.icmecat_id
 
 
 # In[ ]:
