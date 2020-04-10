@@ -24,7 +24,7 @@
 # - MAVEN ICME verification with RAD and HI    
 # 
 
-# In[ ]:
+# In[1]:
 
 
 import numpy as np
@@ -95,7 +95,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (0) process in situ data into similar format
 
-# In[ ]:
+# In[2]:
 
 
 # make data
@@ -139,7 +139,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 
 
-# In[ ]:
+# In[3]:
 
 
 ############################# make Ulysses files
@@ -265,7 +265,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[ ]:
+# In[4]:
 
 
 load_data=1
@@ -366,7 +366,7 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning if needed
 
-# In[ ]:
+# In[5]:
 
 
 # save data as numpy structured arrays for machine learning
@@ -444,7 +444,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[ ]:
+# In[6]:
 
 
 #for measuring new events use this function from heliocats.plot 
@@ -495,7 +495,7 @@ print(a)
 
 # ## (3) make ICMECAT 
 
-# In[ ]:
+# In[7]:
 
 
 print('data loaded')
@@ -542,7 +542,7 @@ print('done')
 
 # ### 4a save header
 
-# In[ ]:
+# In[8]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -581,7 +581,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[ ]:
+# In[9]:
 
 
 ########## python formats
@@ -740,7 +740,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[ ]:
+# In[10]:
 
 
 #load icmecat as pandas dataframe
@@ -752,25 +752,25 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[ ]:
+# In[11]:
 
 
 ic_pandas
 
 
-# In[ ]:
+# In[12]:
 
 
 ic_nprec
 
 
-# In[ ]:
+# In[13]:
 
 
 ic_nprec
 
 
-# In[ ]:
+# In[14]:
 
 
 ic_nprec.icmecat_id
