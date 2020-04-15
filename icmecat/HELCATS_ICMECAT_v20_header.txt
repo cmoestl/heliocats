@@ -7,9 +7,9 @@ This is version 2.0, released in April 2020 with a major update to the original 
 Released 2020-**-**. DOI: 10.6084/m9.figshare.4588315.v2 
 The catalog is available as .p (python pickle), .xlsx, .csv, .html, .json, hdf5 at https://helioforecast.space/icmecat 
 
-Number of events in ICMECAT: 698 
+Number of events in ICMECAT: 716 
 ICME observatories: Wind, STEREO-A, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses, MAVEN, Parker Solar Probe (PSP).   
-Time range: January 2007 - December 2018. 
+Time range: January 2007 - December 2019. 
  
 Authors: Christian Moestl, Andreas Weiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria.
 Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, Mateja Dumbovic, Benoit Lavraud.  
@@ -25,7 +25,7 @@ MESSENGER:  Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW.
 MAVEN:      Möstl et al. (2020, in prep.), tag: MOESTL.
 Ulysses:    Added by us, tag: MOESTL. 
 PSP:        Added by us, tag: MOESTL. 
-We have also added extra events at Ulysses, STEREO-A, PSP, MESSENGER, VEX, Wind and MAVEN (all tagged with MOESTL in icmecat_id).
+We have also added extra events at, MESSENGER, VEX, Wind**check (all tagged with MOESTL in icmecat_id).
 
 The in situ data (about 4 GB) can be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693 
 The python code for producing this catalog is available as a jupyter notebook and .py script: https://github.com/cmoestl/icmecat.ipynb 
