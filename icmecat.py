@@ -24,7 +24,7 @@
 # - MAVEN ICME verification with RAD and HI    
 # 
 
-# In[2]:
+# In[3]:
 
 
 import numpy as np
@@ -95,7 +95,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (0) process in situ data into similar format
 
-# In[32]:
+# In[4]:
 
 
 # make data
@@ -149,7 +149,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 
 
-# In[3]:
+# In[5]:
 
 
 ############################# make Ulysses files
@@ -275,7 +275,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[47]:
+# In[6]:
 
 
 load_data=1
