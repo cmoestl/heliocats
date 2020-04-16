@@ -24,7 +24,7 @@
 # - MAVEN ICME verification with RAD and HI    
 # 
 
-# In[3]:
+# In[1]:
 
 
 import numpy as np
@@ -95,7 +95,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (0) process in situ data into similar format
 
-# In[4]:
+# In[2]:
 
 
 # make data
@@ -149,7 +149,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 
 
-# In[5]:
+# In[3]:
 
 
 ############################# make Ulysses files
@@ -275,7 +275,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[6]:
+# In[4]:
 
 
 load_data=1
@@ -414,7 +414,7 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning if needed
 
-# In[25]:
+# In[5]:
 
 
 # save data as numpy structured arrays for machine learning
@@ -493,7 +493,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[6]:
+# In[8]:
 
 
 #for measuring new events use this function from heliocats.plot 
@@ -505,9 +505,14 @@ if data_to_numpy > 0:
 #plt.ion()
 
 
-#hp.plot_insitu_measure(psp, '2018-Nov-10','2018-Nov-15', 'PSP', 'results/plots_icmecat/')
-#%matplotlib 
 
+#%matplotlib 
+#hp.plot_insitu_measure(psp, '2018-Nov-10','2018-Nov-15', 'PSP', 'results/plots_icmecat/')
+
+
+
+#STEREO-A
+#hp.plot_insitu_measure(sta, '2018-Jan-01 12:00','2018-Feb-01 12:00', 'STEREO-A', 'results/')
 
 
 #Wind
@@ -544,7 +549,7 @@ print(a)
 
 # ## (3) make ICMECAT 
 
-# In[48]:
+# In[54]:
 
 
 print('data loaded')
@@ -563,6 +568,7 @@ pspi=np.where(ic.sc_insitu == 'PSP')[:][0]
 
 ####### 3b get parameters for all spacecraft one after another
 
+ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
 ic=hc.get_cat_parameters(win,wini,ic,'Wind')
 ic=hc.get_cat_parameters(sta,stai,ic,'STEREO-A')
 ic=hc.get_cat_parameters(stb,stbi,ic,'STEREO-B')
@@ -570,19 +576,20 @@ ic=hc.get_cat_parameters(vex,vexi,ic,'VEX')
 ic=hc.get_cat_parameters(mes,mesi,ic,'MESSENGER')
 ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 ic=hc.get_cat_parameters(mav,mavi,ic,'MAVEN')
-ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
+
 
 
 # ###### 3c make all plots if wanted
-# matplotlib.use('Agg')
-# hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
-# hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-# hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
-# hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
-# hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
-# hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
-# hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
-# hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+matplotlib.use('Agg')
+hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
+hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
+hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
+hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
+hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
+hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
+hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+
 
 print('done')
 
@@ -807,19 +814,19 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 ic_pandas
 
 
-# In[12]:
+# In[53]:
 
 
 ic_nprec
 
 
-# In[13]:
+# In[ ]:
 
 
 ic_nprec
 
 
-# In[14]:
+# In[ ]:
 
 
 ic_nprec.icmecat_id

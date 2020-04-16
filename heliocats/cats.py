@@ -143,8 +143,10 @@ def get_cat_parameters(sc, sci, ic, name):
     sci_istart=mdates.date2num(ic.icme_start_time[sci])   
     sci_iend=mdates.date2num(ic.mo_end_time[sci])   
     ic.at[sci,'icme_duration']=np.round((sci_iend-sci_istart)*24,2)
+    
 
-    for i in np.arange(len(sci))-1:
+    for i in np.arange(0,len(sci)):
+        
 
         #ICME B_max
         ic.at[sci[i],'icme_bmax']=np.round(np.nanmax(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
