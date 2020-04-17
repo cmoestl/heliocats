@@ -20,11 +20,11 @@
 # **current status: work in progress**
 # 
 # features to be added: 
-# - new events STA > 2018, PSP
+# - new events STA > 2018
 # - MAVEN ICME verification with RAD and HI    
 # 
 
-# In[1]:
+# In[56]:
 
 
 import numpy as np
@@ -114,7 +114,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # filepsp='psp_2018_2019_sceq_new.p'
 # hd.save_psp_data(data_path,filepsp, sceq=True)   
 # [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
-
+# plt.xlim(parse_time('2007-08-15').plot_date,parse_time('2007-08-15 12:00').plot_date)
 
 
 # ################################# Wind
@@ -549,7 +549,7 @@ print(a)
 
 # ## (3) make ICMECAT 
 
-# In[54]:
+# In[57]:
 
 
 print('data loaded')
@@ -580,15 +580,15 @@ ic=hc.get_cat_parameters(mav,mavi,ic,'MAVEN')
 
 
 # ###### 3c make all plots if wanted
-matplotlib.use('Agg')
-hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
-hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
-hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
-hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
-hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
-hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
-hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+# matplotlib.use('Agg')
+# hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+# hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
+# hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
+# hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
+# hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
+# hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
+# hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
+# hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 
 print('done')

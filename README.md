@@ -40,6 +40,7 @@ and place these files in the a folder e.g. named "data",
     data/wind_2007_2018_heeq_helcats.p
     data/psp_2018_2019_sceq.p
     data/stereoa_2007_2019_sceq.p
+    data/stereoa_2019_2020_sceq_beacon.p
     data/stereob_2007_2014_sceq.p
     data/maven_2014_2018_removed_smoothed.p
     data/ulysses_1990_2009_rtn.p
