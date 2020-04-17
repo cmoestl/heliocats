@@ -3,16 +3,15 @@
 
 This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections and their analysis. 
 
-by [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/), contributors: A. J. Weiss, R. L. Bailey, A. Isavnin.
+by [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/), A. J. Weiss, R. L. Bailey, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow, D. Stansby
 
 Current status (April 2020): **work in progress** 
 
 This is a continuation of work done in the EU HELCATS project (2014-2017): 
-[https://www.helcats-fp7.eu](https://www.helcats-fp7.eu), in particular concerning 
-the Interplanetary Coronal Mass ejection CATalog ICMECAT.
+[https://www.helcats-fp7.eu](https://www.helcats-fp7.eu). This package is used for updates of the the Interplanetary Coronal Mass ejection CATalog (ICMECAT).
 
 If you want to use parts of this code for generating results for peer-reviewed scientific publications, 
-please contact me per email (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace for possible co-authorships.
+please contact me per email (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace for co-authorships.
 
 ---
 ## Usage
@@ -21,7 +20,7 @@ For running the jupyter notebooks (files with .ipynb) or the python scripts (.py
 
     conda activate helio
 
-Folder *data/* contains all data files needed and produced during the analysis. 
+Folder *data/* contains all data files needed during the analysis. 
 Outputs can be found in the folder *results/* or subfolders, the files created for the ICMECAT are in folder *icmecat/*. Jupyter notebooks can be converted to scripts by e.g. for icmecat.ipynb to icmecat.py:
 
     jupyter nbconvert --to script icmecat.ipynb
@@ -29,12 +28,12 @@ Outputs can be found in the folder *results/* or subfolders, the files created f
 ---
 ### ICME catalog 
 
-Before running the icmecat scripts, you need to download 9 data files for 8 spacecraft the we made 
+Before running the icmecat scripts, you need to download 10 data files for 8 spacecraft the we made 
 (in total 8 GB, but not all files are needed) from this figshare repository: 
 [https://doi.org/10.6084/m9.figshare.11973693](https://doi.org/10.6084/m9.figshare.11973693)
 
 and place these files in the a folder e.g. named "data", 
-(the name of this folder is set by the variable data_path in file config.py):
+(the name of this folder is set by the variable *data_path* in file config.py):
 
     data/wind_2018_2019_heeq.p
     data/wind_2007_2018_heeq_helcats.p
