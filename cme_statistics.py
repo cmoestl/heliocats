@@ -37,7 +37,7 @@
 #     jupyter nbconvert --to script cme_statistics.ipynb
 # 
 
-# In[3]:
+# In[1]:
 
 
 from scipy import stats
@@ -90,7 +90,7 @@ os.system('jupyter nbconvert --to script cme_statistics.ipynb')
 # 
 # 
 
-# In[32]:
+# In[2]:
 
 
 
@@ -247,7 +247,7 @@ merci_max=iall_max[np.where(np.logical_and(ic.sc_insitu[iall_max] =='MESSENGER',
 print('done')
 
 
-# In[33]:
+# In[3]:
 
 
 ic
@@ -257,7 +257,7 @@ ic
 
 # ### 1a Data days available each year for each planet
 
-# In[48]:
+# In[4]:
 
 
 #make bin for each year for yearly histograms
@@ -386,7 +386,7 @@ print(np.round(total_data_days_yearly_mav,1))
 
 # ### 1b plot ICME frequency
 
-# In[49]:
+# In[5]:
 
 
 #define dates of January 1 from 2007 to 2017
@@ -532,7 +532,7 @@ print(np.mean([mean12,mean13,mean14]))
 # 
 # 
 
-# In[50]:
+# In[6]:
 
 
 print('2a Duration vs distance')
@@ -576,7 +576,7 @@ print('rise phase: D[h]={:.2f} R[AU]^{:.2f} '.format(param_rise[0][0],param_rise
 print('maximum:    D[h]={:.2f} R[AU]^{:.2f} '.format(param_max[0][0],param_max[0][1]))
 
 
-# In[51]:
+# In[7]:
 
 
 print('2b ICME DURATION VS TIME')
@@ -604,7 +604,7 @@ xgfit=xgfit+wt[0]+2000
 
 
 
-# In[52]:
+# In[8]:
 
 
 #plot results
@@ -743,7 +743,7 @@ plt.savefig('results/plots_stats/icme_duration_distance_time_paper.png', dpi=300
 
 # ### 3a power law fits
 
-# In[53]:
+# In[9]:
 
 
 # xfit starts here at 2 Rs  because there should not be a 0 for the power law fits
@@ -810,7 +810,7 @@ print('bmax all with sun:        ',np.round(param_all_sun_max[0][0]),' x ^', np.
 
 # ### 3a plot results
 
-# In[54]:
+# In[10]:
 
 
 #plot results
@@ -976,7 +976,7 @@ plt.savefig('results/plots_stats/icme_total_field_distance_time_paper.png', dpi=
 
 # ### 3c magnetic field results
 
-# In[55]:
+# In[11]:
 
 
 ########################### RESULTS Bfield
@@ -1013,7 +1013,7 @@ print('decl    ',round(np.mean(ic.mo_bmean[mavi]),1),' +/- ', round(np.std(ic.mo
 # ### 4a get time inside ICME percentage for full time range
 # 
 
-# In[56]:
+# In[12]:
 
 
 #check all data points in the magnetic field data which are not NaN
@@ -1092,7 +1092,7 @@ print('STA:               ',np.round((np.size(sta_icme_ind)/np.size(sta_data_ind
 
 # ### 4b get time inside ICME percentage for yearly time range
 
-# In[57]:
+# In[13]:
 
 
 ############# make array for time inside percentages
@@ -1169,7 +1169,7 @@ print('STA:               ',inside_sta_perc)
 
 # ### 4c get time inside ICME percentage for solar cycle phases
 
-# In[58]:
+# In[ ]:
 
 
 cycle_start_times=parse_time([minstart, risestart, maxstart]).datetime
@@ -1249,7 +1249,7 @@ print('STA:               ',inside_sta_cycle)
 
 # ### 4d plot results on time inside 
 
-# In[59]:
+# In[ ]:
 
 
 ### maybe fix that VEX MESSENGER impact frequency is less than 1 AU by multiplying with a factor of 1.5
