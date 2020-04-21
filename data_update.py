@@ -136,6 +136,14 @@ print()
 
 
 
+#make quick new plot for ICMEs
+# hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
+# start=noaa.time[-1]-datetime.timedelta(days=3)
+# end=datetime.datetime.utcnow() #noaa.time[-1]     
+# hp.plot_insitu(noaa, start, end,'NOAA_RTSW','/home/cmoestl/pycode/heliocats')
+
+
+
 ########################################### STEREO-A
 filesta="stereoa_2019_now_sceq_beacon.p" 
 start=datetime.datetime(2019, 1, 1)
@@ -187,6 +195,14 @@ start=datetime.datetime.utcnow() -datetime.timedelta(days=365)
 end=datetime.datetime.utcnow() 
 hp.plot_insitu_update(o, start, end,'OMNI2',plot_path,now=True)
 
+
+#for making quick plots
+# plot_path='/home/cmoestl/pycode/heliocats/'
+# fileomni="omni_1963_now.p"
+# [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
+# start=datetime.datetime.utcnow() -datetime.timedelta(days=365)
+# end=datetime.datetime.utcnow() 
+# hp.plot_insitu_update(o, start, end,'OMNI2',plot_path,now=True)
 
 
 ############### write header file for daily updates

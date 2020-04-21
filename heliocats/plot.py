@@ -153,7 +153,7 @@ def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      plt.legend(loc=3,ncol=4,fontsize=8)
      ax1.set_xlim(start,end)
      ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
-     #plt.ylim((-20, 20))
+     plt.ylim((-20, 20))
      #ax1.set_xticklabels([]) does not work with sharex
      #plt.setp(ax1.get_xticklabels(), fontsize=6)
      plt.setp(ax1.get_xticklabels(), visible=False)
@@ -168,7 +168,7 @@ def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('V [km/s]')
      ax2.set_xlim(start,end)
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     #plt.ylim((250, 800))
+     plt.ylim((250, 800))
      #ax2.set_xticklabels([])
      plt.setp(ax2.get_xticklabels(), visible=False)
 
@@ -179,7 +179,7 @@ def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('N [ccm-3]')
      ax3.set_xlim(start,end)
      ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     #plt.ylim((0, 50))
+     plt.ylim((0, 100))
      #ax3.set_xticklabels([])
      plt.setp(ax3.get_xticklabels(), visible=False)
 
@@ -190,7 +190,7 @@ def plot_insitu(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('T [MK]')
      ax4.set_xlim(start,end)
      ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     #plt.ylim((0, 0.5))
+     plt.ylim((0, 0.5))
      
      plt.tight_layout()
      #plt.show()

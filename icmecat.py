@@ -20,11 +20,10 @@
 # **current status: work in progress**
 # 
 # features to be added: 
-# - new events STA > 2018
 # - MAVEN ICME verification with RAD and HI    
 # 
 
-# In[56]:
+# In[1]:
 
 
 import numpy as np
@@ -275,7 +274,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[4]:
+# In[2]:
 
 
 load_data=1
@@ -329,7 +328,7 @@ if load_data > 0:
     sta1=sta1[np.where(sta1.time < parse_time('2019-Sep-01 00:00').datetime)[0]]
 
     #beacon data
-    filesta2="stereoa_2019_2020_sceq.p"
+    filesta2="stereoa_2019_2020_sceq_beacon.p"
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
     sta2=sta2[np.where(sta2.time >= parse_time('2019-Sep-01 00:00').datetime)[0]]
 
@@ -421,7 +420,6 @@ print('done')
 data_to_numpy=0
 
 
-
 if data_to_numpy > 0:  
 
     print('convert data to numpy structured arrays suitable for machine learning')
@@ -482,8 +480,6 @@ if data_to_numpy > 0:
 
     psp_nd=hd.recarray_to_numpy_array(psp)
     psp_nd=psp_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'),('vx', '<f8'),('vy', '<f8'),('vz', '<f8'), ('np', '<f8'), ('tp', '<f8'),                                ('x', '<f8'), ('y', '<f8'), ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    
-    
     pickle.dump([psp_nd,hpsp_att], open(data_path_ML+ "psp_2018_2019_sceq_ndarray.p", "wb" ) ) 
 
  
@@ -493,7 +489,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[8]:
+# In[6]:
 
 
 #for measuring new events use this function from heliocats.plot 
@@ -535,7 +531,7 @@ from astropy.io.votable import parse_single_table
 table = parse_single_table('data/HCME_WP3_V06.vot')
 data = table.array
 a=table.array['HM HEEQ Long'][10]
-print(a)
+#print(a)
 
 
 
@@ -549,7 +545,7 @@ print(a)
 
 # ## (3) make ICMECAT 
 
-# In[57]:
+# In[3]:
 
 
 print('data loaded')
@@ -568,27 +564,34 @@ pspi=np.where(ic.sc_insitu == 'PSP')[:][0]
 
 ####### 3b get parameters for all spacecraft one after another
 
+
+# os.system('rm icmecat/indices_icmecat/ICMECAT_indices_STEREO-A.p')
+
 ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
 ic=hc.get_cat_parameters(win,wini,ic,'Wind')
 ic=hc.get_cat_parameters(sta,stai,ic,'STEREO-A')
+ic=hc.get_cat_parameters(mav,mavi,ic,'MAVEN')
+
+
 ic=hc.get_cat_parameters(stb,stbi,ic,'STEREO-B')
 ic=hc.get_cat_parameters(vex,vexi,ic,'VEX')
 ic=hc.get_cat_parameters(mes,mesi,ic,'MESSENGER')
 ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
-ic=hc.get_cat_parameters(mav,mavi,ic,'MAVEN')
 
 
 
 # ###### 3c make all plots if wanted
 # matplotlib.use('Agg')
+# hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
 # hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 # hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
-# hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
+# hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+
+
 # hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
 # hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
 # hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
 # hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
-# hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 
 print('done')
@@ -598,7 +601,7 @@ print('done')
 
 # ### 4a save header
 
-# In[49]:
+# In[5]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -637,7 +640,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[50]:
+# In[6]:
 
 
 ########## python formats
@@ -796,7 +799,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[51]:
+# In[7]:
 
 
 #load icmecat as pandas dataframe
@@ -808,25 +811,26 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[52]:
+# In[8]:
 
 
 ic_pandas
+ic_pandas.keys()
 
 
-# In[53]:
-
-
-ic_nprec
-
-
-# In[ ]:
+# In[9]:
 
 
 ic_nprec
 
 
-# In[ ]:
+# In[10]:
+
+
+ic_nprec
+
+
+# In[14]:
 
 
 ic_nprec.icmecat_id
