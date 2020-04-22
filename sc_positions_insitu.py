@@ -804,11 +804,14 @@ theta=np.arange(0,np.deg2rad(180),0.01)
 ######################## make frames
 
 
-#for i in range(10):
+#for i in np.arange(6454,6576,1):
 #    make_frame(i)
 
 
-#make_frame(1)
+print(k_all,' frames in total')
+print() 
+
+# make_frame(1)
 
 nr_of_processes_used=20
 print('Using multiprocessing, nr of cores',multiprocessing.cpu_count(), \
@@ -817,16 +820,17 @@ print('Using multiprocessing, nr of cores',multiprocessing.cpu_count(), \
 #run multiprocessing pool to make all movie frames, depending only on frame number
 pool = multiprocessing.Pool(processes=nr_of_processes_used)
 input=[i for i in range(k_all)]
+#input=[i for i in np.arange(6721,6851,1)]
 pool.map(make_frame, input)
 pool.close()
-pool.join()
+# pool.join()
 
 
 print('time in min: ',np.round((time.time()-start_time)/60))
 print('plots done, frames saved in ',outputdirectory)
  
 os.system(ffmpeg_path+'ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k \
-    -r 25 '+str(animdirectory)+'/pos_anim.mp4 -y -loglevel quiet')
+    -r 25 '+str(animdirectory)+'/pos_anim.mp4 -y') #-loglevel quiet')
 
 print('movie done, saved in ',animdirectory)
 
