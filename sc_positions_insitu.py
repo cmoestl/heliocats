@@ -123,8 +123,8 @@ high_res_mode=False
 #orbit all
 
 
-outputdirectory='results/anim_plots_sc_insitu_psp_orbit3'
-animdirectory='results/anim_movie_sc_insitu_psp_orbit3'
+outputdirectory='results/anim_plots_sc_insitu_psp_orbit_april2020'
+animdirectory='results/anim_movie_sc_insitu_psp_orbit_april2020'
 t_start ='2018-Oct-01'
 t_end   ='2019-Dec-31'
 
@@ -357,7 +357,8 @@ def make_frame(k):
     
     
     if not black: 
-        fig=plt.figure(1, figsize=(20,10), dpi=100)
+        fig=plt.figure(1, figsize=(19.2,10.8), dpi=100) #full hd
+        #fig=plt.figure(1, figsize=(19.2*2,10.8*2), dpi=100) #4k
         ax = plt.subplot2grid((5,2), (0, 0), rowspan=5, projection='polar')
         backcolor='black'
         psp_color='black'
@@ -365,7 +366,7 @@ def make_frame(k):
         solo_color='green'
 
     if black: 
-        fig=plt.figure(1, figsize=(19.5,11), dpi=100, facecolor='black', edgecolor='black')
+        fig=plt.figure(1, figsize=(19.9,11), dpi=100, facecolor='black', edgecolor='black')
         ax = plt.subplot(121,projection='polar',facecolor='black') 
         #ax = plt.subplot2grid((5,2), (0, 0), rowspan=5, projection='polar')
         backcolor='white'
@@ -403,7 +404,7 @@ def make_frame(k):
         ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
 
 
-        plt.figtext(0.95,0.75,'Parker Probe', color='black', ha='center',fontsize=fsize+3)
+        plt.figtext(0.95,0.75,'PSP ', color='black', ha='center',fontsize=fsize+3)
         plt.figtext(0.95,0.5,'Wind', color='mediumseagreen', ha='center',fontsize=fsize+3)
         plt.figtext(0.95,0.25,'STEREO-A', color='red', ha='center',fontsize=fsize+3)
         '''
@@ -451,7 +452,7 @@ def make_frame(k):
         ax.scatter(psp.lon[psp_timeind], psp.r[psp_timeind]*np.cos(psp.lat[psp_timeind]), s=symsize_spacecraft, c=psp_color, marker='s', alpha=1,lw=0,zorder=3)
         #plot positiona as text
         psp_text='PSP:   '+str(f'{psp.r[psp_timeind]:6.2f}')+str(f'{np.rad2deg(psp.lon[psp_timeind]):8.1f}')+str(f'{np.rad2deg(psp.lat[psp_timeind]):8.1f}')
-        f5=plt.figtext(0.01,0.78,psp_text, fontsize=fsize, ha='left',color=backcolor)
+        f5=plt.figtext(0.01,0.78,psp_text, fontsize=fsize, ha='left',color=psp_color)
         if plot_orbit: 
             fadestart=psp_timeind-fadeind
             if  fadestart < 0: fadestart=0
@@ -460,7 +461,7 @@ def make_frame(k):
     if bepi_timeind > 0:
         ax.scatter(bepi.lon[bepi_timeind], bepi.r[bepi_timeind]*np.cos(bepi.lat[bepi_timeind]), s=symsize_spacecraft, c=bepi_color, marker='s', alpha=1,lw=0,zorder=3)
         bepi_text='Bepi:   '+str(f'{bepi.r[bepi_timeind]:6.2f}')+str(f'{np.rad2deg(bepi.lon[bepi_timeind]):8.1f}')+str(f'{np.rad2deg(bepi.lat[bepi_timeind]):8.1f}')
-        f6=plt.figtext(0.01,0.74,bepi_text, fontsize=fsize, ha='left',color=backcolor)
+        f6=plt.figtext(0.01,0.74,bepi_text, fontsize=fsize, ha='left',color=bepi_color)
         if plot_orbit: 
             fadestart=bepi_timeind-fadeind
             if  fadestart < 0: fadestart=0            
@@ -469,15 +470,15 @@ def make_frame(k):
     if solo_timeind > 0:
         ax.scatter(solo.lon[solo_timeind], solo.r[solo_timeind]*np.cos(solo.lat[solo_timeind]), s=symsize_spacecraft, c=solo_color, marker='s', alpha=1,lw=0,zorder=3)
         solo_text='SolO:  '+str(f'{solo.r[solo_timeind]:6.2f}')+str(f'{np.rad2deg(solo.lon[solo_timeind]):8.1f}')+str(f'{np.rad2deg(solo.lat[solo_timeind]):8.1f}')
-        f7=plt.figtext(0.01,0.7,solo_text, fontsize=fsize, ha='left',color=backcolor)
+        f7=plt.figtext(0.01,0.7,solo_text, fontsize=fsize, ha='left',color=solo_color)
         if plot_orbit: 
             fadestart=solo_timeind-fadeind
             if  fadestart < 0: fadestart=0            
             ax.plot(solo.lon[fadestart:solo_timeind+fadeind], solo.r[fadestart:solo_timeind+fadeind]*np.cos(solo.lat[fadestart:solo_timeind+fadeind]), c=solo_color, alpha=0.6,lw=1,zorder=3)
 
-    f10=plt.figtext(0.01,0.9,earth_text, fontsize=fsize, ha='left',color=backcolor)
-    f9=plt.figtext(0.01,0.86,mars_text, fontsize=fsize, ha='left',color=backcolor)
-    f8=plt.figtext(0.01,0.82,sta_text, fontsize=fsize, ha='left',color=backcolor)
+    f10=plt.figtext(0.01,0.9,earth_text, fontsize=fsize, ha='left',color='mediumseagreen')
+    f9=plt.figtext(0.01,0.86,mars_text, fontsize=fsize, ha='left',color='orangered')
+    f8=plt.figtext(0.01,0.82,sta_text, fontsize=fsize, ha='left',color='red')
 
 
     #parker spiral
@@ -530,11 +531,13 @@ def make_frame(k):
     plt.plot_date(p.time,p.bt,'-k',label='Btotal',lw=0.5)
 
     ax2.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
-    ax2.set_ylabel('B [nT]')
+    ax2.set_ylabel('B [nT]',fontsize=fsize-1)
     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
     ax2.set_xlim(time_now-days_window,time_now+days_window)
     plt.ylim((-110, 110))
     ax2.set_xticklabels([])
+    plt.yticks(fontsize=fsize-1)
+    
 
     ax3 = plt.subplot2grid((6,2), (1, 1))
     #plt.plot_date(p_tp,pv,'-k',label='V',linewidth=0.5)
@@ -543,8 +546,9 @@ def make_frame(k):
     ax3.set_xlim(time_now-days_window,time_now+days_window)
     ax3.plot_date([time_now,time_now], [0,800],'-k', lw=0.5, alpha=0.8)
     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
-    plt.ylabel('V [km/s]')
-    plt.ylim((250, 700))
+    plt.ylabel('V [km/s]',fontsize=fsize-1)
+    plt.ylim((290, 710))
+    plt.yticks(fontsize=fsize-1)
     ax3.set_xticklabels([])
 
 
@@ -562,10 +566,11 @@ def make_frame(k):
 
 
     ax4.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
-    ax4.set_ylabel('B [nT]')
+    ax4.set_ylabel('B [nT]',fontsize=fsize-1)
     ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
     ax4.set_xlim(time_now-days_window,time_now+days_window)
     plt.ylim((-18, 18))
+    plt.yticks(fontsize=fsize-1) 
     ax4.set_xticklabels([])
 
     ax5 = plt.subplot2grid((6,2), (3, 1))
@@ -574,8 +579,10 @@ def make_frame(k):
 
     ax5.plot_date([time_now,time_now], [0,800],'-k', lw=0.5, alpha=0.8)
     ax5.set_xlim(time_now-days_window,time_now+days_window)
-    plt.ylabel('V [km/s]')
-    plt.ylim((250, 700))
+    plt.ylabel('V [km/s]',fontsize=fsize-1)
+    plt.ylim((290, 710))
+    plt.yticks(fontsize=fsize-1)
+ 
     ax5.set_xticklabels([])
 
 
@@ -591,23 +598,29 @@ def make_frame(k):
     plt.plot_date(s.time,s.bz,'-b',label='BN',linewidth=0.5)
     plt.plot_date(s.time,s.bt,'-k',label='Btotal',linewidth=0.5)
 
-    ax6.set_ylabel('B [nT]')
+    ax6.set_ylabel('B [nT]',fontsize=fsize-1)
     ax6.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
     #ax6.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
     ax6.set_xlim(time_now-days_window,time_now+days_window)
     ax6.set_xticklabels([])
-
+    plt.yticks(fontsize=fsize-1) 
     plt.tick_params( axis='x', labelbottom='off')
     plt.ylim((-18, 18))
+    
+    
+    
 
     ax7 = plt.subplot2grid((6,2), (5, 1))
     plt.plot_date(s.time,s.vt,'-k',label='V',linewidth=0.7)
-    ax7.plot_date([time_now,time_now], [-100,100],'-k', lw=0.5, alpha=0.8)
+    ax7.plot_date([time_now,time_now], [0,800],'-k', lw=0.5, alpha=0.8)
     ax7.set_xlim(time_now-days_window,time_now+days_window)
     ax7.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
-    plt.ylabel('V [km/s]')
+    plt.ylabel('V [km/s]',fontsize=fsize-1)
     plt.tick_params(axis='x', labelbottom='off') 
-    plt.ylim((250, 700))
+    plt.ylim((290, 710))
+    plt.yticks(fontsize=fsize-1)
+    plt.xticks(fontsize=fsize)
+ 
 
     ############################
 
@@ -621,18 +634,22 @@ def make_frame(k):
     #hours
     f4=plt.figtext(0.45+0.12,0.93,frame_time_str[11:13], ha='center',color=backcolor,fontsize=fsize+6)
 
-    plt.figtext(0.02, 0.02,'Spacecraft trajectories '+frame+' 2D projection', fontsize=fsize+2, ha='left',color=backcolor)	
+    plt.figtext(0.02, 0.02,'Spacecraft trajectories '+frame+' 2D projection', fontsize=fsize-1, ha='left',color=backcolor)	
 
+    
+    plt.figtext(0.35,0.02,'――― trajectory from - 60 days to + 60 days', color='black', ha='center',fontsize=fsize-3)
+    
     #signature
-    plt.figtext(0.99,0.01/2,r'$C. M\ddot{o}stl / Helio4Cast$', fontsize=fsize-1, ha='right',color=backcolor) 
+    plt.figtext(0.99,0.01/2,'Möstl, Weiss, Bailey / Helio4Cast', fontsize=fsize-4, ha='right',color=backcolor) 
 
 
     #save figure
     framestr = '%05i' % (k)  
     filename=outputdirectory+'/pos_anim_'+framestr+'.jpg'  
+    if k==0: print(filename)
     plt.savefig(filename,dpi=100,facecolor=fig.get_facecolor(), edgecolor='none')
-    plt.clf()
-    #plt.close('all')
+    #plt.clf()
+    plt.close('all')
 
 
     ########################################### loop end
@@ -668,26 +685,92 @@ start_time=time.time()
 #make_positions()
 
 
-########## get data
-
-file=data_path+'psp_2018_2019_sceq.p'
-[p,ph]=pickle.load(open(file, "rb" ) )  
-
-file=data_path+'wind_2018_now_heeq.p'
-[w,wh]=pickle.load(open(file, "rb" ) )  
-
-file=data_path+'stereoa_2007_2019_sceq.p'
-[s,sh]=pickle.load(open(file, "rb" ) )
-#file=data_path+'stereoa_2019_now_sceq.p'
-
-#merge with beacon like for wind in icmecat until end of 2019
-
-
-########## make animation
-
+print('load positions')
 #load positions
 [psp, bepi, solo, sta, earth, venus, mars, mercury,frame]= \
       pickle.load( open( 'data/positions_psp_solo_bepi_sta_planets_HEEQ_1hour.p', "rb" ))
+
+
+
+
+########## get data
+
+get_data=0
+
+if get_data > 0:
+
+
+    file=data_path+'psp_2018_2019_sceq.p'
+    [p,ph]=pickle.load(open(file, "rb" ) )  
+
+    file=data_path+'wind_2018_now_heeq.p'
+    [w,wh]=pickle.load(open(file, "rb" ) )  
+
+
+    #cut with 2018 Oct 1
+    wcut=np.where(w.time> parse_time('2018-10-01').datetime)[0][0]
+    w=w[wcut:-1]
+
+
+
+    #file=data_path+'stereoa_2007_2019_sceq.p'
+    #[s,sh]=pickle.load(open(file, "rb" ) )
+    #file=data_path+'stereoa_2019_now_sceq.p'
+
+    #merge with beacon like for wind in icmecat until end of 2019
+    print('load and merge STEREO-A data SCEQ') #yearly magplasma files from stereo science center, conversion to SCEQ 
+    filesta1='stereoa_2007_2019_sceq.p'
+    [sta1,hsta1]=pickle.load(open(data_path+filesta1, "rb" ) )  
+    sta1=sta1[np.where(sta1.time < parse_time('2019-Sep-01 00:00').datetime)[0]]
+
+    #beacon data
+    filesta2="stereoa_2019_2020_sceq_beacon.p"
+    [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
+    sta2=sta2[np.where(sta2.time >= parse_time('2019-Sep-01 00:00').datetime)[0]]
+
+    #make array
+    sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    sta = sta.view(np.recarray)  
+    sta.time=np.hstack((sta1.time,sta2.time))
+    sta.bx=np.hstack((sta1.bx,sta2.bx))
+    sta.by=np.hstack((sta1.by,sta2.by))
+    sta.bz=np.hstack((sta1.bz,sta2.bz))
+    sta.bt=np.hstack((sta1.bt,sta2.bt))
+    sta.vt=np.hstack((sta1.vt,sta2.vt))
+    sta.np=np.hstack((sta1.np,sta2.np))
+    sta.tp=np.hstack((sta1.tp,sta2.tp))
+    sta.x=np.hstack((sta1.x,sta2.x))
+    sta.y=np.hstack((sta1.y,sta2.y))
+    sta.z=np.hstack((sta1.z,sta2.z))
+    sta.r=np.hstack((sta1.r,sta2.r))
+    sta.lon=np.hstack((sta1.lon,sta2.lon))
+    sta.lat=np.hstack((sta1.lat,sta2.lat))
+    print('STA Merging done')
+
+
+    #cut with 2018 Oct 1
+    scut=np.where(sta.time> parse_time('2018-10-01').datetime)[0][0]
+
+    s=sta[scut:-1]
+
+    file='data/movie_data.p'
+    pickle.dump([p,w,s], open(file, 'wb'))
+
+    
+print('load data from data/movie_data.p')
+[p,w,s]=pickle.load(open('data/movie_data.p', "rb" ) ) 
+
+
+
+
+
+
+########## make animation
 
 
 print()
@@ -714,27 +797,32 @@ symsize_spacecraft=80
 #for parker spiral   
 theta=np.arange(0,np.deg2rad(180),0.01)
 
-'''
-nr_of_processes_used=10
-#run multiprocessing pool to make all movie frames, depending only on frame number
-pool = multiprocessing.Pool(processes=nr_of_processes_used)
+
+
+
+
+######################## make frames
+
+
+#for i in range(10):
+#    make_frame(i)
+
+
+#make_frame(1)
+
+nr_of_processes_used=20
 print('Using multiprocessing, nr of cores',multiprocessing.cpu_count(), \
       'with nr of processes used: ',nr_of_processes_used)
-      
-     
+
+#run multiprocessing pool to make all movie frames, depending only on frame number
+pool = multiprocessing.Pool(processes=nr_of_processes_used)
 input=[i for i in range(k_all)]
 pool.map(make_frame, input)
 pool.close()
 pool.join()
-'''
-
-
-for i in range(k_all):
-    make_frame(i)
 
 
 print('time in min: ',np.round((time.time()-start_time)/60))
- 
 print('plots done, frames saved in ',outputdirectory)
  
 os.system(ffmpeg_path+'ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k \

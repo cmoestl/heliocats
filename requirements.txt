@@ -1,4 +1,4 @@
-pillow==7.0.0 
+pillow==7.1.1 
 cdflib==0.3.17
 heliosat==0.4.1
 pysftp==0.2.8
