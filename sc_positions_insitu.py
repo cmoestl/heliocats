@@ -47,6 +47,7 @@ from sunpy.time import parse_time
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from scipy.signal import medfilt
 import numpy as np
 import pdb
 import pickle
@@ -78,80 +79,8 @@ importlib.reload(hd) #reload again while debugging
 ##########################################################################################
 
 
-########################### (1)SETTINGS ##################################################
 
-
-
-#Coordinate System
-#frame='HCI'
-frame='HEEQ'
-print(frame)
-
-#sidereal solar rotation rate
-if frame=='HCI': sun_rot=24.47
-#synodic
-if frame=='HEEQ': sun_rot=26.24
-
-
-
-AUkm=149597870.7   
-
-
-#black background on or off
-#black=True
-black=False
-
-#animation settings
-plot_orbit=True
-#plot_orbit=False
-plot_parker=True
-#plot_parker=False
-
-high_res_mode=False
-
-
-#orbit 1
-#outputdirectory='results/anim_plots_sc_insitu_final_orbit1'
-#animdirectory='results/anim_movie_sc_insitu_final_orbit1'
-#t_start ='2018-Oct-15'
-#t_end   ='2018-Dec-06'
-
-#t_start ='2018-Dec-03'
-#t_end   ='2018-Dec-06'
-
-
-#orbit all
-
-
-outputdirectory='results/anim_plots_sc_insitu_psp_orbit_april2020'
-animdirectory='results/anim_movie_sc_insitu_psp_orbit_april2020'
-t_start ='2018-Oct-01'
-t_end   ='2019-Dec-31'
-
-
-
-
-#Time resolution
-res_in_days=1/24. #1hour =1/24
-#make time range
-time_array = [ parse_time(t_start).datetime + timedelta(hours=1*n) \
-         for n in range(int ((parse_time(t_end).datetime - parse_time(t_start).datetime).days*24))]  
-
-k_all=np.size(time_array)
-
-days_window=3     #size of in situ timerange
-
-
-
-if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
-if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
-
-positions_plot_directory='results/plots_positions/'
-if os.path.isdir(positions_plot_directory) == False: os.mkdir(positions_plot_directory)
-
-
-
-################################## (2) FUNCTIONS #########################################
+################################## (1) FUNCTIONS #########################################
 
 
 
@@ -356,6 +285,14 @@ def make_frame(k):
     '''
     
     
+
+    
+    
+    
+    
+    
+    
+    
     if not black: 
         fig=plt.figure(1, figsize=(19.2,10.8), dpi=100) #full hd
         #fig=plt.figure(1, figsize=(19.2*2,10.8*2), dpi=100) #4k
@@ -512,8 +449,30 @@ def make_frame(k):
 
     ############################ IN SITU DATA
 
+        
 
     time_now=frame_time_num+k*res_in_days
+  
+    #cut put current time window in data
+    
+    pindex1=np.where(p_time_num > time_now-days_window)[0][0]
+    pindex2=np.where(p_time_num > time_now+days_window)[0][0]
+    p=p1[pindex1:pindex2]
+
+    
+    sindex1=np.where(s_time_num > time_now-days_window)[0][0]
+    sindex2=np.where(s_time_num > time_now+days_window)[0][0]
+    s=s1[sindex1:sindex2]
+
+
+    
+    windex1=np.where(w_time_num > time_now-days_window)[0][0]
+    windex2=np.where(w_time_num > time_now+days_window)[0][0]
+    w=w1[windex1:windex2]
+
+
+
+    
 
     #### PSP
 
@@ -547,7 +506,7 @@ def make_frame(k):
     ax3.plot_date([time_now,time_now], [0,800],'-k', lw=0.5, alpha=0.8)
     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
     plt.ylabel('V [km/s]',fontsize=fsize-1)
-    plt.ylim((290, 710))
+    plt.ylim((240, 810))
     plt.yticks(fontsize=fsize-1)
     ax3.set_xticklabels([])
 
@@ -580,7 +539,7 @@ def make_frame(k):
     ax5.plot_date([time_now,time_now], [0,800],'-k', lw=0.5, alpha=0.8)
     ax5.set_xlim(time_now-days_window,time_now+days_window)
     plt.ylabel('V [km/s]',fontsize=fsize-1)
-    plt.ylim((290, 710))
+    plt.ylim((240, 810))
     plt.yticks(fontsize=fsize-1)
  
     ax5.set_xticklabels([])
@@ -617,7 +576,7 @@ def make_frame(k):
     ax7.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
     plt.ylabel('V [km/s]',fontsize=fsize-1)
     plt.tick_params(axis='x', labelbottom='off') 
-    plt.ylim((290, 710))
+    plt.ylim((240, 810))
     plt.yticks(fontsize=fsize-1)
     plt.xticks(fontsize=fsize)
  
@@ -678,7 +637,69 @@ def make_frame(k):
 plt.close('all')
 
 
-start_time=time.time()
+
+####################### SETTINGS
+
+#Coordinate System
+#frame='HCI'
+frame='HEEQ'
+print(frame)
+
+#sidereal solar rotation rate
+if frame=='HCI': sun_rot=24.47
+#synodic
+if frame=='HEEQ': sun_rot=26.24
+
+AUkm=149597870.7   
+
+#black background on or off
+#black=True
+black=False
+
+#animation settings
+plot_orbit=True
+#plot_orbit=False
+plot_parker=True
+#plot_parker=False
+
+high_res_mode=False
+
+#orbit 1
+#outputdirectory='results/anim_plots_sc_insitu_final_orbit1'
+#animdirectory='results/anim_movie_sc_insitu_final_orbit1'
+#t_start ='2018-Oct-15'
+#t_end   ='2018-Dec-06'
+
+#t_start ='2018-Dec-03'
+#t_end   ='2018-Dec-06'
+#orbit all
+
+outputdirectory='results/plots_wind_psp_sta_april2020_1'
+animdirectory='results/movie_wind_psp_sta_april2020_1'
+t_start ='2018-Oct-01'
+t_end   ='2019-Dec-28'
+
+
+#Time resolution
+res_in_days=1/24. #1hour =1/24
+#make time range
+time_array = [ parse_time(t_start).datetime + timedelta(hours=1*n) \
+         for n in range(int ((parse_time(t_end).datetime - parse_time(t_start).datetime).days*24))]  
+
+k_all=np.size(time_array)
+
+days_window=3     #size of in situ timerange
+
+
+
+if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
+if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
+
+positions_plot_directory='results/plots_positions/'
+if os.path.isdir(positions_plot_directory) == False: os.mkdir(positions_plot_directory)
+
+
+
 
 
 ########## MAKE TRAJECTORIES
@@ -763,14 +784,23 @@ if get_data > 0:
 
     
 print('load data from data/movie_data.p')
-[p,w,s]=pickle.load(open('data/movie_data.p', "rb" ) ) 
+[p1,w1,s1]=pickle.load(open('data/movie_data.p', "rb" ) ) 
 
 
+p_time_num=parse_time(p1.time).plot_date
+w_time_num=parse_time(w1.time).plot_date
+s_time_num=parse_time(s1.time).plot_date
 
 
+#median filter psp speed because of spikes
+p1.vt=medfilt(p1.vt,31)
 
 
 ########## make animation
+
+
+start_time=time.time()
+
 
 
 print()
@@ -802,8 +832,11 @@ theta=np.arange(0,np.deg2rad(180),0.01)
 
 
 ######################## make frames
+k_all=1
 
-
+#for debugging
+#k_all=1000
+# make_frame(1)
 #for i in np.arange(6454,6576,1):
 #    make_frame(i)
 
@@ -811,9 +844,10 @@ theta=np.arange(0,np.deg2rad(180),0.01)
 print(k_all,' frames in total')
 print() 
 
-# make_frame(1)
 
-nr_of_processes_used=20
+#number of processes depends on your machines memory; check with command line "top"
+#how much memory is used by all your processesii
+nr_of_processes_used=50
 print('Using multiprocessing, nr of cores',multiprocessing.cpu_count(), \
       'with nr of processes used: ',nr_of_processes_used)
 
@@ -830,7 +864,7 @@ print('time in min: ',np.round((time.time()-start_time)/60))
 print('plots done, frames saved in ',outputdirectory)
  
 os.system(ffmpeg_path+'ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k \
-    -r 25 '+str(animdirectory)+'/pos_anim.mp4 -y') #-loglevel quiet')
+    -r 25 '+str(animdirectory)+'/psp_sta_wind_oct_2018_dec_2019.mp4 -y -loglevel quiet')
 
 print('movie done, saved in ',animdirectory)
 
