@@ -62,6 +62,45 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
+def save_msl_rad():
+
+    #convert file 
+    # year, doy, sol, doseE hourly [uGy/day], doseE sol-filtered [uGy/day]
+    raw=np.loadtxt('data/doseE_sol_filter_2019.dat')
+    
+    rad=np.zeros(len(raw),dtype=[('time',object),('sol', float),('dose_hour', float),('dose_sol', float)])   
+    rad = rad.view(np.recarray) 
+    
+    rad.sol=raw[:,2]
+    rad.dose_hour=raw[:,3]
+    rad.dose_sol=raw[:,4]
+
+
+    #make datetime array from year and doy
+    for i in np.arange(len(rad)):
+        rad[i].time=parse_time(str(int(raw[i,0]))+'-01-01 00:00').datetime+datetime.timedelta(days=raw[i,1])
+        
+    file='msl_2012_2019_rad.p'  
+    pickle.dump(rad, open(data_path+file, "wb"))
+    
+    return 0
+
+
+
+def load_msl_rad():
+
+    file='msl_2012_2019_rad.p'  
+    rad=pickle.load(open(data_path+file, "rb"))
+    
+    return rad
+
+
+
+
+
+
+
+
 def save_psp_data(path, file, sceq):
 
     t_start = datetime.datetime(2018, 10, 6)

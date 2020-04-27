@@ -13,7 +13,7 @@
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
 # Adding a new ICME event: edit the file icmecat/HELCATS_ICMECAT_v20_master.xlsx to add 3 times, the id and spacecraft name, 
-# delete the file for the respective spacecraft under data/indices_icmecat, and run this notebook or script.
+# delete the file for the respective spacecraft under icmecat/indices_icmecat/, and run this notebook or script.
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
 # 
@@ -23,7 +23,7 @@
 # - MAVEN ICME verification with RAD and HI    
 # 
 
-# In[46]:
+# In[14]:
 
 
 import numpy as np
@@ -89,6 +89,8 @@ if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir)
 
 #Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
 os.system('jupyter nbconvert --to script icmecat.ipynb')    
+
+
     
 
 
@@ -145,6 +147,12 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 #hd.save_stereoa_beacon_data(data_path,filesta,start,end,sceq=True)
 #[sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
 
+
+
+
+
+########################## SAVE MSL rad data into recarray as pickle
+#hd.save_msl_rad()
 
 
 
@@ -274,7 +282,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[2]:
+# In[15]:
 
 
 load_data=1
@@ -315,6 +323,12 @@ if load_data > 0:
     #[mav,hmav]=pickle.load(open(filemav, 'rb' ) )    
     filemav='maven_2014_2018_removed_smoothed.p'
     [mav,hmav]=pickle.load(open(data_path+filemav, 'rb' ) )
+    
+    print('load MSL RAD')
+    #MSL RAD
+    rad=hd.load_msl_rad()#, rad.time,rad.dose_sol
+
+
     
     
     print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
@@ -388,19 +402,27 @@ if load_data > 0:
     win.lat=np.hstack((win1.lat,win2.lat))
 
     print('Wind merging done')
+    
+    
+
+#HIGEOCAT
+higeocat=hc.load_higeocat()
+higeocat_time=parse_time(higeocat['Date']).datetime    
+    
 
      
          
 print()
     
 print()       
-print('time ranges of the data: ')    
+print('time ranges of the in situ data: ')    
 print()
 print('active spacecraft:')
 print('Wind                 ',str(win.time[0])[0:10],str(win.time[-1])[0:10])
 print('STEREO-A             ',str(sta.time[0])[0:10],str(sta.time[-1])[0:10])
 print('Parker Solar Probe   ',str(psp.time[0])[0:10],str(psp.time[-1])[0:10])
 print('MAVEN                ',str(mav.time[0])[0:10],str(mav.time[-1])[0:10])
+print('MSL/RAD              ',str(rad.time[0])[0:10],str(rad.time[-1])[0:10])
 print()
 print('missions finished:')
 print('VEX                  ',str(vex.time[0])[0:10],str(vex.time[-1])[0:10])
@@ -408,6 +430,12 @@ print('MESSENGER            ',str(mes.time[0])[0:10],str(mes.time[-1])[0:10])
 print('STEREO-B             ',str(stb.time[0])[0:10],str(stb.time[-1])[0:10])
 print('Ulysses              ',str(uly.time[0])[0:10],str(uly.time[-1])[0:10])
 print()
+print('catalogs:')
+print()
+print('HELCATS HIGeoCAT     ',str(higeocat_time[0])[0:10],str(higeocat_time[-1])[0:10])
+
+
+
 print('done')
 
 
@@ -489,7 +517,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[6]:
+# In[32]:
 
 
 #for measuring new events use this function from heliocats.plot 
@@ -500,52 +528,25 @@ if data_to_numpy > 0:
 #matplotlib.use('qt5agg')  
 #plt.ion()
 
-
-
 #%matplotlib 
 #hp.plot_insitu_measure(psp, '2018-Nov-10','2018-Nov-15', 'PSP', 'results/plots_icmecat/')
 
-
-
 #STEREO-A
 #hp.plot_insitu_measure(sta, '2018-Jan-01 12:00','2018-Feb-01 12:00', 'STEREO-A', 'results/')
-
 
 #Wind
 #hp.plot_insitu_measure(win, '2019-Jan-29','2019-Feb-28', 'Wind', 'results/')
 
-
 #STEREO-A
 #hp.plot_insitu_measure(sta, '2018-Jan-01 12:00','2018-Feb-01 12:00', 'STEREO-A', 'results/')
-
-
 
 #for plotting single events
 #hp.plot_insitu(psp, ic.icme,'2018-Nov-15', 'PSP', icplotsdir)
 
-#-----------------------
-
-#read HIGEOCAT from https://www.helcats-fp7.eu/catalogues/wp3_cat.html
-#https://docs.astropy.org/en/stable/io/votable/
-from astropy.io.votable import parse_single_table
-table = parse_single_table('data/HCME_WP3_V06.vot')
-data = table.array
-a=table.array['HM HEEQ Long'][10]
-#print(a)
-
-
-
-#    "columns" : [ "ID", "Date [UTC]", "SC", "L-N", "PA-N [deg]", "L-S", "PA-S [deg]", "Quality" 
-#       , "PA-fit [deg]"
-#       , "FP Speed [kms-1]", "FP Speed Err [kms-1]", "FP Phi [deg]", "FP Phi Err [deg]","FP HEEQ Long [deg]",  "FP HEEQ Lat [deg]",  "FP Carr Long [deg]", "FP Launch [UTC]"
-#       , "SSE Speed [kms-1]", "SSE Speed Err [kms-1]", "SSE Phi [deg]", "SSE Phi Err [deg]", "SSE HEEQ Long [deg]", "SSE HEEQ Lat [deg]",  "SSE Carr Long [deg]","SSE Launch [UTC]"
-#       , "HM Speed [kms-1]", "HM Speed Err [kms-1]", "HM Phi [deg]", "HM Phi Err [deg]", "HM HEEQ Long [deg]", "HM HEEQ Lat [deg]", "HM Carr Long [deg]", "HM Launch [UTC]"
-#  ],
-
 
 # ## (3) make ICMECAT 
 
-# In[3]:
+# In[7]:
 
 
 print('data loaded')
@@ -585,7 +586,12 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 # hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
 # hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 # hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
-# hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+
+
+
+
+
+#hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 
 # hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
@@ -601,7 +607,7 @@ print('done')
 
 # ### 4a save header
 
-# In[77]:
+# In[8]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -637,7 +643,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[78]:
+# In[70]:
 
 
 ########## python formats
@@ -660,9 +666,12 @@ dtype1=[('index','i8'),('icmecat_id', '<U30'),('sc_insitu', '<U20')] +[(i, '<f8'
 ic_num_struct=np.array(ic_num_rec,dtype=dtype1)
 
 
+
 file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 pickle.dump([ic_num,ic_num_struct,header,parameters], open(file, 'wb'))
 print('ICMECAT saved as '+file)
+
+
 
 
 
@@ -709,6 +718,12 @@ np.savetxt(file, ic_copy.values.astype(str), fmt='%s' )
 print('ICMECAT saved as '+file)
 
 
+
+
+
+
+
+
 #########################
 
 
@@ -726,16 +741,24 @@ print('ICMECAT saved as '+file)
 f.close()
 
 #reading h5py files http://docs.h5py.org/en/latest/quick.html
-fr = h5py.File('icmecat/HELCATS_ICMECAT_v20.h5', 'r')
-list(fr.keys())
-ich5=fr['icmecat']
-ich5['mo_bstd']
-ich5.dtype
-fr.close()
+#fr = h5py.File('icmecat/HELCATS_ICMECAT_v20.h5', 'r')
+#list(fr.keys())
+#ich5=fr['icmecat']
+#ich5['mo_bstd']
+#ich5.dtype
+#fr.close()
 ##################
 
 
+#save as .npy without pickle
+file='icmecat/HELCATS_ICMECAT_v20_numpy.npy'
+np.save(file,ich5, allow_pickle=False)
+print('ICMECAT saved as '+file)
 
+#for loading do:
+#icnpy=np.load(file)
+#decode strings:
+#icnpy['icmecat_id'][0].decode()
 
 
 
@@ -796,7 +819,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[7]:
+# In[10]:
 
 
 #load icmecat as pandas dataframe
@@ -808,20 +831,20 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[8]:
+# In[11]:
 
 
 ic_pandas
 ic_pandas.keys()
 
 
-# In[9]:
+# In[12]:
 
 
 ic_nprec
 
 
-# In[10]:
+# In[13]:
 
 
 ic_nprec
