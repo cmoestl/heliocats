@@ -48,7 +48,7 @@
 # 
 # 
 
-# In[ ]:
+# In[103]:
 
 
 import numpy as np
@@ -109,8 +109,8 @@ if os.path.isdir(indexdir) == False: os.mkdir(indexdir)
 catdir='sircat'
 if os.path.isdir(catdir) == False: os.mkdir(catdir)
 
-scplotsdir='sircat/plots_sircat/' 
-if os.path.isdir(scplotsdir) == False: os.mkdir(scplotsdir) 
+sirplotsdir='sircat/plots_sircat/' 
+if os.path.isdir(sirplotsdir) == False: os.mkdir(sirplotsdir) 
 
 #Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
 os.system('jupyter nbconvert --to script sircat.ipynb')    
@@ -122,7 +122,7 @@ os.system('jupyter nbconvert --to script sircat.ipynb')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[3]:
+# In[ ]:
 
 
 load_data=1
@@ -271,7 +271,7 @@ print('done')
 
 # ## (2) make SIRCAT masterfile from STEREO and Wind catalogs
 
-# In[5]:
+# In[93]:
 
 
 ###################### read raw STEREO SIR catalog
@@ -279,6 +279,7 @@ print('done')
 file='sircat/STEREO_Level3_SIR_data.xlsx'
 print('load Jian STEREO catalog from excel file:', file)
 sraw=pd.read_excel(file)
+
 
 print('Events in STEREO SIR cat:', sraw.shape[0])
 
@@ -328,7 +329,7 @@ for i in np.arange(0,sraw.shape[0]):
     sircat_id=sc_idstring+id_time[0:4]+id_time[5:7]+id_time[8:10]+'_01'
     
     #put all data for this event in a list
-    list1 = [sircat_id,sc_string,parse_time(sir_start_time).isot,parse_time(sir_end_time).isot,np.nan,np.nan,np.nan,             np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan]
+    list1 = [sircat_id,sc_string,parse_time(sir_start_time).isot,parse_time(sir_end_time).isot,np.nan,np.nan,np.nan,             np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,             np.nan,np.nan,np.nan]
     
     #print(list1)    
     #append to full list
@@ -339,7 +340,7 @@ for i in np.arange(0,sraw.shape[0]):
 
 ########################## read raw Wind catalog
 
-#********** TO DO similar to STEREO-A
+#********** TO DO similar to STEREO
     
     
 
@@ -367,12 +368,19 @@ for i in np.arange(0,sraw.shape[0]):
     
 ################ make pandas data frame for master file
         
-parameters =['sircat_id','sc_insitu','sir_start_time','sir_end_time','hss_end_time',             'sir_vmax','sir_vmean','sir_vstd','sir_btmax','sir_btmean','sir_bstd','hss_vmax',             ' hss_vmean','hss_vstd','hss_btmax','hss_btmean','hss_bstd']
+parameters =['sircat_id','sc_insitu','sir_start_time','sir_end_time','hss_end_time','sc_heliodistance',             'sc_long_heeq', 'sc_lat_heeq', 'sir_vtmax','sir_vtmean','sir_vtstd','sir_btmax','sir_btmean','sir_btstd','sir_bzmin','sir_bzmean','sir_bzstd','sir_duration','hss_vmax',             'hss_vmean','hss_vstd','hss_btmax','hss_btmean','hss_btstd','hss_duration']
 
 
 master=pd.DataFrame(rows_list,columns=parameters)
-master   
-    
+
+
+
+#sort by spacecraft indicator
+master=master.sort_values(['sc_insitu','sir_start_time'])
+master = master.reset_index(drop=True)
+
+
+master
    
 
 
@@ -382,20 +390,30 @@ file='sircat/HELCATS_SIRCAT_v10_master.xlsx'
 master.to_excel(file,sheet_name='SIRCATv1.0')
 print()
 print('SIRCAT master saved as '+file)
+print('done')
 
 
 # ## (3) make SIRCAT 
 
-# In[39]:
+# In[124]:
 
+
+
+from heliocats import cats as hc
+importlib.reload(hc) #reload again while debugging
+
+from heliocats import plot as hp
+importlib.reload(hp) #reload again while debugging
 
 #load master file
 scat=hc.load_helcats_sircat_master_from_excel('sircat/HELCATS_SIRCAT_v10_master.xlsx')
 scat
 
+
+
 ####### 3a get indices for all spacecraft
-stai=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
-stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
+stai=np.where(scat.sc_insitu == 'STEREO-A')[:][0]    
+stbi=np.where(scat.sc_insitu == 'STEREO-B')[:][0]    
 #wini=np.where(ic.sc_insitu == 'Wind')[:][0] 
 
 
@@ -404,15 +422,15 @@ stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]
 #remove indices for new events
 # os.system('rm sirecat/indices_icmecat/ICMECAT_indices_STEREO-A.p')
 
-#scat=hc.get_sircat_parameters(sta,stai,scat,'STEREO-A')
-#scat=hc.get_sircat_parameters(stb,stbi,scat,'STEREO-B')
+scat=hc.get_sircat_parameters(sta,stai,scat,'STEREO-A')
+scat=hc.get_sircat_parameters(stb,stbi,scat,'STEREO-B')
 #scat=hc.get_sircat_parameters(win,wini,scat,'Wind')
 
 
 # ###### 3c make all plots if wanted
-# matplotlib.use('Agg')
-# hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-# hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
+matplotlib.use('Agg')
+hp.plot_sircat_events(sta,stai,scat,'STEREO-A',sirplotsdir)
+hp.plot_sircat_events(stb,stbi,scat,'STEREO-B',sirplotsdir)
 
 
 print('done')
@@ -420,9 +438,69 @@ print('done')
 
 # ### (4) save SIRCAT 
 
-# ### 4a save header
+# ### 4a save into different formats
 
-# In[76]:
+# In[99]:
+
+
+########## python formats
+
+# save ICMECAT as pandas dataframe with times as datetime objects as pickle
+file='sircat/HELCATS_SIRCAT_v10_pandas.p'
+pickle.dump([scat,header,parameters], open(file, 'wb'))
+print('SIRCAT saved as '+file)
+
+
+#load icmecat as pandas dataframe
+file='sircat/HELCATS_SIRCAT_v10_pandas.p'
+[scat_pandas,h,p]=pickle.load( open(file, 'rb'))   
+scat.keys()
+scat
+
+
+
+################ save to different formats
+
+#copy pandas dataframe first to change time format consistent with HELCATS
+scat_copy=copy.deepcopy(scat)  
+scat_copy.sir_start_time=parse_time(scat.sir_start_time).isot
+scat_copy.sir_end_time=parse_time(scat.sir_end_time).isot
+
+#change time format
+for i in np.arange(len(scat)):
+
+    dum=scat_copy.sir_start_time[i] 
+    scat_copy.at[i,'sir_start_time']=dum[0:16]+'Z'
+     
+    dum=scat_copy.sir_end_time[i] 
+    scat_copy.at[i,'sir_end_time']=dum[0:16]+'Z'
+
+
+#save as Excel
+file='sircat/HELCATS_SIRCAT_v10.xlsx'
+scat_copy.to_excel(file,sheet_name='SIRCATv1.0')
+print('SIRCAT saved as '+file)
+
+#save as json
+file='sircat/HELCATS_SIRCAT_v10.json'
+scat_copy.to_json(file)
+print('SIRCAT saved as '+file)
+
+#save as csv
+file='sircat/HELCATS_SIRCAT_v10.csv'
+scat_copy.to_csv(file)
+print('SIRCAT saved as '+file)
+
+#save as txt
+file='sircat/HELCATS_SIRCAT_v10.txt'
+np.savetxt(file, scat_copy.values.astype(str), fmt='%s' )
+print('SIRCAT saved as '+file)
+
+
+
+# ### 4b save header
+
+# In[90]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -439,7 +517,7 @@ print(parameters)
 
 
 #make header file
-file='icmecat/HELCATS_ICMECAT_v20_header.txt'
+file='sircat/HELCATS_SIRCAT_v10_header.txt'
 with open(file, "w") as text_file:
     text_file.write(header)
     text_file.write(parameters)
@@ -457,32 +535,7 @@ print()
 print()    
 
 
-# ### 4b save into different formats
-
-# In[79]:
-
-
-########## python formats
-
-# save ICMECAT as pandas dataframe with times as datetime objects as pickle
-file='icmecat/HELCATS_SIRCAT_v20_pandas.p'
-pickle.dump([scat,header,parameters], open(file, 'wb'))
-print('SIRCAT saved as '+file)
-
-
-
-#load icmecat as pandas dataframe
-file='icmecat/HELCATS_ICMECAT_v20_pandas.p'
-[scat_pandas,h,p]=pickle.load( open(file, 'rb'))   
-scat.keys()
-scat
-
-
-
-sys.exit()
-
-
-# In[70]:
+# In[ ]:
 
 
 # save SIRCAT as numpy array with times as matplotlib datetime as pickle
@@ -650,7 +703,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[10]:
+# In[ ]:
 
 
 #load icmecat as pandas dataframe
@@ -662,26 +715,26 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[11]:
+# In[ ]:
 
 
 ic_pandas
 ic_pandas.keys()
 
 
-# In[12]:
+# In[ ]:
 
 
 ic_nprec
 
 
-# In[13]:
+# In[ ]:
 
 
 ic_nprec
 
 
-# In[14]:
+# In[ ]:
 
 
 ic_nprec.icmecat_id
