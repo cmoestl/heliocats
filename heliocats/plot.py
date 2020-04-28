@@ -212,12 +212,25 @@ def plot_sircat_events(sc,sci,ic,name,icplotsdir):
     [sir_start_ind, sir_end_ind,hss_end_ind]=pickle.load(open(fileind, 'rb'))  
     
     
-    for i in np.arange(np.size(sci)):            
-        
-        plot_insitu_sircat_mag_plasma(sc[sir_start_ind[i]-90*24:sir_end_ind[i]+5*90*24],\
-                             ic.sir_start_time[sci[i]]-datetime.timedelta(days=1.5), \
-                             ic.sir_end_time[sci[i]]+datetime.timedelta(days=4),name, icplotsdir,ic,sci[i])
-        plt.close('all')       
+    
+    if name=='STEREO-A' or name=='STEREO-B':
+    
+        for i in np.arange(np.size(sci)):            
+
+            plot_insitu_sircat_mag_plasma(sc[sir_start_ind[i]-90*24:sir_end_ind[i]+5*90*24],\
+                                 ic.sir_start_time[sci[i]]-datetime.timedelta(days=1.5), \
+                                 ic.sir_end_time[sci[i]]+datetime.timedelta(days=7),name, icplotsdir,ic,sci[i])
+            plt.close('all')       
+
+    if name=='Wind':
+    
+        for i in np.arange(np.size(sci)):            
+
+            plot_insitu_sircat_mag_plasma(sc[sir_start_ind[i]-90*24:sir_end_ind[i]+5*90*24],\
+                                 ic.sir_start_time[sci[i]]-datetime.timedelta(days=1.5), \
+                                 ic.hss_end_time[sci[i]]+datetime.timedelta(days=7),name, icplotsdir,ic,sci[i])
+            plt.close('all')       
+
 
 
      
@@ -249,7 +262,11 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      #plot vertical lines
      #ax1.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[-500,500],'-k',linewidth=1)            
      ax1.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[-500,500],'-k',linewidth=1)            
-     ax1.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[-500,500],'-k',linewidth=1)            
+     ax1.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[-500,500],'--k',linewidth=1)            
+     ax1.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[-500,500],'-b',linewidth=1)            
+     ax1.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[-500,500],'-k',linewidth=1)    
+
+
 
     
      plt.ylabel('B [nT]')
@@ -274,7 +291,10 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      #plot vertical lines
      #ax2.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,3000],'-k',linewidth=1)            
      ax2.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,3000],'-k',linewidth=1)            
-     ax2.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,3000],'-k',linewidth=1)            
+     ax2.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,3000],'--k',linewidth=1)            
+     ax2.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,3000],'-b',linewidth=1)            
+     ax2.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,3000],'-k',linewidth=1)    
+
 
 
 
@@ -297,7 +317,11 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      #plot vertical lines
      #ax3.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,1000],'-k',linewidth=1)            
      ax3.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,1000],'-k',linewidth=1)            
-     ax3.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,1000],'-k',linewidth=1)            
+     ax3.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,1000],'--k',linewidth=1)            
+     ax3.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,1000],'-b',linewidth=1)            
+     ax3.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,1000],'-k',linewidth=1)    
+
+
 
 
      plt.ylabel('N [ccm-3]')
@@ -318,7 +342,10 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      #plot vertical lines
      #ax4.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,10],'-k',linewidth=1)            
      ax4.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,10],'-k',linewidth=1)            
-     ax4.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,10],'-k',linewidth=1)            
+     ax4.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,10],'--k',linewidth=1)            
+     ax4.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,10],'-b',linewidth=1)            
+     ax4.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,10],'-k',linewidth=1)    
+
 
 
 
