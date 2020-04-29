@@ -44,26 +44,25 @@ importlib.reload(hd) #reload again while debugging
 
 
 
-def load_helcats_sircat_master_from_excel(file):
+def load_helio4cast_sircat_master_from_excel(file):
     ''' convert excel master file to pandas dataframe and convert times
         to datetime objects
     '''
-
     print('load HELCATS SIRCAT from file:', file)
-    ic=pd.read_excel(file)
-    ic=ic.drop(columns='Unnamed: 0')
+    sc=pd.read_excel(file)
+    sc=sc.drop(columns='Unnamed: 0')
 
     #convert all times to datetime objects
-    for i in np.arange(0,ic.shape[0]):    
-    
+    for i in np.arange(0,sc.shape[0]):    
+        
         #remove leading and ending blank spaces if any and write datetime object into dataframe
-        ic.at[i,'sir_start_time']= parse_time(str(ic.sir_start_time[i]).strip()).datetime 
-        if ic.sc_insitu[i] != 'Wind':   ic.at[i,'sir_end_time']=parse_time(str(ic.sir_end_time[i]).strip()).datetime       
-        if ic.sc_insitu[i] == 'Wind':   ic.at[i,'hss_end_time']=parse_time(str(ic.hss_end_time[i]).strip()).datetime       
-
-
+        sc.at[i,'hss_start_time']= parse_time(str(sc.hss_start_time[i]).strip()).datetime 
+        #for STEREO convert sir end time
+        if sc.sc_insitu[i] != 'Wind':   sc.at[i,'sir_end_time']=parse_time(str(sc.sir_end_time[i]).strip()).datetime       
+        #for STEREO convert hss end time            
+        if sc.sc_insitu[i] == 'Wind':   sc.at[i,'hss_end_time']=parse_time(str(sc.hss_end_time[i]).strip()).datetime       
             
-    return ic
+    return sc
 
 
 
@@ -85,14 +84,14 @@ def get_sircat_parameters(sc, sci, scat, name):
     
         print('extract indices of ICMEs in '+ name+ ' data')
         #### get all ICMECAT times for this spacecraft as datenum
-        sc_sir_start=scat.sir_start_time[sci]
+        sc_hss_start=scat.hss_start_time[sci]
         sc_sir_end=scat.sir_end_time[sci]
         sc_hss_end=scat.hss_end_time[sci]
 
 
     
         ### arrays containing the indices of where the SIRs are in the data
-        sir_start_ind=np.zeros(len(sci),dtype=int)
+        hss_start_ind=np.zeros(len(sci),dtype=int)
         sir_end_ind=np.zeros(len(sci),dtype=int)
         hss_end_ind=np.zeros(len(sci),dtype=int)
 
@@ -107,7 +106,7 @@ def get_sircat_parameters(sc, sci, scat, name):
             
             if (name== 'STEREO-A') or (name== 'STEREO-B'):
 
-                sir_start_ind[i-sci[0]]=np.where(sc.time > sc_sir_start[i])[0][0]-1   
+                hss_start_ind[i-sci[0]]=np.where(sc.time > sc_hss_start[i])[0][0]-1   
                 sir_end_ind[i-sci[0]]=np.where(sc.time   > sc_sir_end[i])[0][0]-1 
                 
                 #here the hss_end_time needs to be extracted - criteria similar to Grandin et al. 2018 
@@ -115,21 +114,21 @@ def get_sircat_parameters(sc, sci, scat, name):
                 #check the indices in the 450 array that are greater than the sir_end index and take the first one            
                 hss_end_ind[i-sci[0]]=vt_lt_450[np.where(vt_lt_450 > sir_end_ind[i-sci[0]])[0][0]    ]                  
                 
-                #print(sir_start_ind[i-sci[0]],sir_end_ind[i-sci[0]],hss_end_ind[i-sci[0]]   )               
+                #print(hss_start_ind[i-sci[0]],sir_end_ind[i-sci[0]],hss_end_ind[i-sci[0]]   )               
                                 
         
             if name=='Wind':      
                 
                 #here only sir start and hss end exist
-                sir_start_ind[i-sci[0]]=np.where(sc.time > sc_sir_start[i])[0][0]-1   
+                hss_start_ind[i-sci[0]]=np.where(sc.time > sc_hss_start[i])[0][0]-1   
                 hss_end_ind[i-sci[0]]=np.where(sc.time   > sc_hss_end[i])[0][0]-1                 
             
             
 
-        pickle.dump([sir_start_ind,sir_end_ind,hss_end_ind], open(fileind, 'wb'))
+        pickle.dump([hss_start_ind,sir_end_ind,hss_end_ind], open(fileind, 'wb'))
     ############################################            
                 
-    [sir_start_ind,sir_end_ind,hss_end_ind]=pickle.load(open(fileind, 'rb'))           
+    [hss_start_ind,sir_end_ind,hss_end_ind]=pickle.load(open(fileind, 'rb'))           
     
     
     
@@ -150,61 +149,53 @@ def get_sircat_parameters(sc, sci, scat, name):
 
     #SIR heliodistance
     for i in np.arange(len(sci))-1:
-        scat.at[sci[i],'sc_heliodistance']=np.round(sc.r[sir_start_ind[i]],4)
+        scat.at[sci[i],'sc_heliodistance']=np.round(sc.r[hss_start_ind[i]],4)
         #SIR longitude
-        scat.at[sci[i],'sc_long_heeq']=np.round(sc.lon[sir_start_ind[i]],2)
+        scat.at[sci[i],'sc_long_heeq']=np.round(sc.lon[hss_start_ind[i]],2)
         ##SIR latitude
-        scat.at[sci[i],'sc_lat_heeq']=np.round(sc.lat[sir_start_ind[i]],2)
+        scat.at[sci[i],'sc_lat_heeq']=np.round(sc.lat[hss_start_ind[i]],2)
 
-        
 
     print('hss')
+    
+        
+    ############ HSS duration
+    sci_istart=mdates.date2num(scat.hss_start_time[sci])       
+    sci_hss_iend=mdates.date2num(scat.hss_end_time[sci])   
+    scat.at[sci,'hss_duration']=np.round((sci_hss_iend-sci_istart)*24,2)
 
 
     for i in np.arange(0,len(sci)):        
-
         
         #v_max
-        scat.at[sci[i],'hss_vtmax']=np.round(np.nanmax(sc.vt[sir_start_ind[i]:hss_end_ind[i]]),1)
-        #vtmaxtime
-        scat.at[sci[i],'hss_vtmax_time']=sc.time[np.nanargmax(sc.vt[sir_start_ind[i]:hss_end_ind[i]])]        
+        scat.at[sci[i],'hss_vtmax']=np.round(np.nanmax(sc.vt[hss_start_ind[i]:hss_end_ind[i]]),1)
+        #vtmaxtime -search for index in sliced array and at beginning of array to see the index in the whole dataset
+        scat.at[sci[i],'hss_vtmax_time']=sc.time[np.nanargmax(sc.vt[hss_start_ind[i]:hss_end_ind[i]])+hss_start_ind[i]]        
         # v_mean
-        scat.at[sci[i],'hss_vtmean']=np.round(np.nanmean(sc.vt[sir_start_ind[i]:hss_end_ind[i]]),1)
+        scat.at[sci[i],'hss_vtmean']=np.round(np.nanmean(sc.vt[hss_start_ind[i]:hss_end_ind[i]]),1)
         #v_bstd
-        scat.at[sci[i],'hss_vtstd']=np.round(np.nanstd(sc.vt[sir_start_ind[i]:hss_end_ind[i]]),1)
-
+        scat.at[sci[i],'hss_vtstd']=np.round(np.nanstd(sc.vt[hss_start_ind[i]:hss_end_ind[i]]),1)
 
         #B_max
-        scat.at[sci[i],'hss_btmax']=np.round(np.nanmax(sc.bt[sir_start_ind[i]:hss_end_ind[i]]),1)
+        scat.at[sci[i],'hss_btmax']=np.round(np.nanmax(sc.bt[hss_start_ind[i]:hss_end_ind[i]]),1)
         # B_mean
-        scat.at[sci[i],'hss_btmean']=np.round(np.nanmean(sc.bt[sir_start_ind[i]:hss_end_ind[i]]),1)
+        scat.at[sci[i],'hss_btmean']=np.round(np.nanmean(sc.bt[hss_start_ind[i]:hss_end_ind[i]]),1)
         #bstd
-        scat.at[sci[i],'hss_btstd']=np.round(np.nanstd(sc.bt[sir_start_ind[i]:hss_end_ind[i]]),1)
+        scat.at[sci[i],'hss_btstd']=np.round(np.nanstd(sc.bt[hss_start_ind[i]:hss_end_ind[i]]),1)
         #bz
-        scat.at[sci[i],'hss_bzmin']=np.round(np.nanmin(sc.bz[sir_start_ind[i]:hss_end_ind[i]]),1)
-        scat.at[sci[i],'hss_bzmean']=np.round(np.nanmean(sc.bz[sir_start_ind[i]:hss_end_ind[i]]),1)
-        scat.at[sci[i],'hss_bzstd']=np.round(np.nanstd(sc.bz[sir_start_ind[i]:hss_end_ind[i]]),1)
-
-        
-        
-  
-        
-    ############ HSS duration
-    sci_istart=mdates.date2num(scat.sir_start_time[sci])       
-    sci_hss_iend=mdates.date2num(scat.hss_end_time[sci])   
-    scat.at[sci,'sir_duration']=np.round((sci_hss_iend-sci_istart)*24,2)
-
+        scat.at[sci[i],'hss_bzmin']=np.round(np.nanmin(sc.bz[hss_start_ind[i]:hss_end_ind[i]]),1)
+        scat.at[sci[i],'hss_bzmean']=np.round(np.nanmean(sc.bz[hss_start_ind[i]:hss_end_ind[i]]),1)
+        scat.at[sci[i],'hss_bzstd']=np.round(np.nanstd(sc.bz[hss_start_ind[i]:hss_end_ind[i]]),1)
+ 
         
     print('sir')
-   
-        
     ###SIR parameters only for STEREO
     
     ############ SIR duration
     
     if (name== 'STEREO-A') or (name== 'STEREO-B'):
 
-        sci_istart=mdates.date2num(scat.sir_start_time[sci])   
+        sci_istart=mdates.date2num(scat.hss_start_time[sci])   
         sci_iend=mdates.date2num(scat.sir_end_time[sci])   
         scat.at[sci,'sir_duration']=np.round((sci_iend-sci_istart)*24,2)
 
@@ -213,32 +204,38 @@ def get_sircat_parameters(sc, sci, scat, name):
 
         for i in np.arange(0,len(sci)):
 
-            #B_max
-            scat.at[sci[i],'sir_btmax']=np.round(np.nanmax(sc.bt[sir_start_ind[i]:sir_end_ind[i]]),1)
-
-            # B_mean
-            scat.at[sci[i],'sir_btmean']=np.round(np.nanmean(sc.bt[sir_start_ind[i]:sir_end_ind[i]]),1)
-
-            #bstd
-            scat.at[sci[i],'sir_btstd']=np.round(np.nanstd(sc.bt[sir_start_ind[i]:sir_end_ind[i]]),1)
-
-            #bz
-            scat.at[sci[i],'sir_bzmin']=np.round(np.nanmin(sc.bz[sir_start_ind[i]:sir_end_ind[i]]),1)
-            scat.at[sci[i],'sir_bzmean']=np.round(np.nanmean(sc.bz[sir_start_ind[i]:sir_end_ind[i]]),1)
-            scat.at[sci[i],'sir_bzstd']=np.round(np.nanstd(sc.bz[sir_start_ind[i]:sir_end_ind[i]]),1)
-
-
             #v_max
-            scat.at[sci[i],'sir_vtmax']=np.round(np.nanmax(sc.vt[sir_start_ind[i]:sir_end_ind[i]]),1)
-
+            scat.at[sci[i],'sir_vtmax']=np.round(np.nanmax(sc.vt[hss_start_ind[i]:sir_end_ind[i]]),1)
             # v_mean
-            scat.at[sci[i],'sir_vtmean']=np.round(np.nanmean(sc.vt[sir_start_ind[i]:sir_end_ind[i]]),1)
-
+            scat.at[sci[i],'sir_vtmean']=np.round(np.nanmean(sc.vt[hss_start_ind[i]:sir_end_ind[i]]),1)
             #v_bstd
-            scat.at[sci[i],'sir_vtstd']=np.round(np.nanstd(sc.vt[sir_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_vtstd']=np.round(np.nanstd(sc.vt[hss_start_ind[i]:sir_end_ind[i]]),1)
 
+            #B_max
+            scat.at[sci[i],'sir_btmax']=np.round(np.nanmax(sc.bt[hss_start_ind[i]:sir_end_ind[i]]),1)
+            # B_mean
+            scat.at[sci[i],'sir_btmean']=np.round(np.nanmean(sc.bt[hss_start_ind[i]:sir_end_ind[i]]),1)
+            #bstd
+            scat.at[sci[i],'sir_btstd']=np.round(np.nanstd(sc.bt[hss_start_ind[i]:sir_end_ind[i]]),1)
+            #bz
+            scat.at[sci[i],'sir_bzmin']=np.round(np.nanmin(sc.bz[hss_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_bzmean']=np.round(np.nanmean(sc.bz[hss_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_bzstd']=np.round(np.nanstd(sc.bz[hss_start_ind[i]:sir_end_ind[i]]),1)
     
     return scat
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

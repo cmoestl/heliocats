@@ -20,12 +20,18 @@
 # ---
 # 
 # ### Installation 
-# Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
+# In a command line, do: "git clone https://github.com/cmoestl/heliocats".
+#     
+# Install a specific conda environment to run this code, see README at https://github.com/cmoestl/heliocats
+# 
+# Download the files from https://doi.org/10.6084/m9.figshare.11973693.v7 and place them in the /data folder.
 # 
 # 
 # ### Updates
 # 
-# Adding a new SIR event: add times in section 2 (to be done) before the master file sircat/HELCATS_SIRCAT_v10_master.xlsx is produced. Then delete the file for the respective spacecraft under sircat/indices_sircat, and run this notebook or script.
+# Adding a new SIR event: add the *hss_start_time* and *hss_end_time* in section 2 before the master file sircat/HELIO4CAST_SIRCAT_v10_master.xlsx is produced (*tbd*). Then delete the file for the respective spacecraft under sircat/indices_sircat, and run this notebook or script.
+# 
+# Convert this notebook to a script with "jupyter nbconvert --to script sircat.ipynb" in a command line
 # 
 # ---
 # 
@@ -33,27 +39,37 @@
 # ### Data sources
 # 
 # **STEREO SIR list**: Lan Jian, https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/
-# published in:
-# 
-# L. K. Jian, J. G. Luhmann, C. T. Russell, A. B. Galvin, Solar-Terrestrial Relations Observatory (STEREO) Observations of Stream Interaction Regions in 2007-2016: Relationship with Heliospheric Current Sheets, Solar Cycle Variations, and Dual Observations, Solar Phys., 294, 31, https://doi.org/10.1007/s11207-019-1416-8, 2019.
+# published in: L. K. Jian et al. https://doi.org/10.1007/s11207-019-1416-8, 2019.
 # 
 # The STEREO SIR list currently includes events from 2007 January 1 to 2018 July 31.
+# This catalog contains the SIR start and end times. We use their SIR start time as our *hss_start_time*, and create our *hss_end_time* by setting it as the first time when the total bulk speed drops below 450 km/s after the SIR end time given in the Jian catalog. Thus, for the Jian catalog there exists 3 times: *hss_start_time*, *sir_end_time*, *hss_end_time*.
 # 
 # 
 # **Earth SIR/HSS list**: Maxim Grandin et al., 2018, https://doi.org/10.1029/2018JA026396
+# This catalog directly gives the *hss_start_time* and the *hss_end_time*, with a similar definition as the *hss_end_time* that we use for the STEREO catalog. (TO DO: Need to check definitions of the start times in both catalogs).
+# 
+# 
+# All other parameters are calculated from scratch from the spacecraft data via this notebook or script.
+# 
+# ---
+# 
+# ### Other resourcess
+# 
+# 
+# **Great review on SIRs** by Ian G. Richardson: https://link.springer.com/article/10.1007/s41116-017-0011-z
+# 
 # 
 # ---
 # 
 # 
-# **Review on SIRs** by Ian G. Richardson: https://link.springer.com/article/10.1007/s41116-017-0011-z
 # 
 # 
-# 
-# Convert this notebook to a script with "jupyter nbconvert --to script sircat.ipynb"
 # 
 # 
 
-# In[1]:
+# start with importing packages, get paths from config.py file and make directories 
+
+# In[12]:
 
 
 import numpy as np
@@ -125,9 +141,12 @@ os.system('jupyter nbconvert --to script sircat.ipynb')
     
 
 
-# ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
+# ## (1) load data 
 
-# In[2]:
+# load data from STEREO-B, STEREO-A and Wind, from HELCATS, or made with HelioSat and heliocats.data
+# 
+
+# In[13]:
 
 
 load_data=1
@@ -241,11 +260,10 @@ if load_data > 0:
     
 
 #HIGEOCAT
-higeocat=hc.load_higeocat()
-higeocat_time=parse_time(higeocat['Date']).datetime    
+#higeocat=hc.load_higeocat()
+#higeocat_time=parse_time(higeocat['Date']).datetime    
     
-
-     
+    
          
 print()
     
@@ -276,7 +294,9 @@ print('done')
 
 # ## (2) make SIRCAT masterfile from STEREO and Wind catalogs
 
-# In[3]:
+# read raw STEREO SIR and Earth SIR catalogs from Lan Jian and Maxim Grandin, and convert to master catalog xlsx file
+
+# In[15]:
 
 
 ###################### read raw STEREO SIR catalog
@@ -285,8 +305,7 @@ file='sircat/sources/STEREO_Level3_SIR_data.xlsx'
 print('load Jian STEREO catalog from excel file:', file)
 sraw=pd.read_excel(file)
 
-
-#2 times: SIR/HSS start, HSS end (where speed again < 450km/s)
+#2 times: HSS start (equivalent to SIR start as defined in the L. Jian catalog), HSS end (where speed again < 450km/s)
 
 
 print('Events in STEREO SIR cat:', sraw.shape[0])
@@ -316,7 +335,7 @@ for i in np.arange(0,sraw.shape[0]):
     hour=int(s[-5:-3])
     minute=int(s[-2:])
     #print(y,doy,hour, min)
-    sir_start_time=datetime.datetime(y,1,1)+timedelta(days=doy-1)+timedelta(hours=hour)+timedelta(minutes=minute)
+    hss_start_time=datetime.datetime(y,1,1)+timedelta(days=doy-1)+timedelta(hours=hour)+timedelta(minutes=minute)
 
     e=etime[i]    
     y=year_end[i]
@@ -327,7 +346,7 @@ for i in np.arange(0,sraw.shape[0]):
     sir_end_time=datetime.datetime(y,1,1)+timedelta(days=doy-1)+timedelta(hours=hour)+timedelta(minutes=minute)
     
     #make id for event    
-    id_time=parse_time(sir_start_time).isot
+    id_time=parse_time(hss_start_time).isot
     if sc[i]=='A': sc_idstring='SIR_STEREO_A_JIAN_'
     if sc[i]=='B': sc_idstring='SIR_STEREO_B_JIAN_'
 
@@ -337,7 +356,7 @@ for i in np.arange(0,sraw.shape[0]):
     sircat_id=sc_idstring+id_time[0:4]+id_time[5:7]+id_time[8:10]+'_01'
     
     #put all data for this event in a list
-    list1 = [sircat_id,sc_string,parse_time(sir_start_time).isot,parse_time(sir_end_time).isot,np.nan,np.nan,np.nan,np.nan,             np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,             np.nan,np.nan,np.nan]
+    list1 = [sircat_id,sc_string,parse_time(hss_start_time).isot,parse_time(sir_end_time).isot,np.nan,np.nan,np.nan,np.nan,             np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,             np.nan,np.nan,np.nan]
     
     #print(list1)    
     #append to full list
@@ -375,7 +394,7 @@ for i in np.arange(begin2007,len(wraw),1):
     sircat_id=sc_idstring+id_time[0:4]+id_time[5:7]+id_time[8:10]+'_01'
     sc_string='Wind'
     
-    list2 = [sircat_id,sc_string,parse_time(wstart).isot,np.nan,parse_time(wend).isot,np.nan,np.nan,np.nan,             np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,             np.nan,np.nan,np.nan]
+    list2 = [sircat_id,sc_string,parse_time(wstart).isot,np.nan,parse_time(wend).isot,np.nan,np.nan,np.nan,             np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,             np.nan,np.nan,np.nan]
     
     #print(list2)
 
@@ -405,15 +424,18 @@ for i in np.arange(begin2007,len(wraw),1):
     
 ################ make pandas data frame for master file
         
-parameters =['sircat_id','sc_insitu','sir_start_time','sir_end_time','hss_end_time','vtmax_time','sc_heliodistance',             'sc_long_heeq', 'sc_lat_heeq', 'sir_vtmax','sir_vtmean','sir_vtstd','sir_btmax','sir_btmean','sir_btstd','sir_bzmin','sir_bzmean','sir_bzstd','sir_duration','hss_vmax',             'hss_vmean','hss_vstd','hss_btmax','hss_btmean','hss_btstd','hss_duration']
+parameters =['sircat_id','sc_insitu','hss_start_time','sir_end_time',             'hss_end_time','hss_vtmax_time','sc_heliodistance',             'sc_long_heeq', 'sc_lat_heeq', 
+             'hss_vtmax','hss_vtmean','hss_vtstd','hss_btmax','hss_btmean',\
+             'hss_btstd','hss_bzmin', 'hss_bzmean','hss_bzstd','hss_duration',\
+             'sir_vtmax','sir_vtmean', 'sir_vtstd','sir_btmax','sir_btmean',\
+             'sir_btstd','sir_bzmin', 'sir_bzmean','sir_bzstd','sir_duration']
 
 
 master=pd.DataFrame(rows_list,columns=parameters)
 
 
-
 #sort by spacecraft indicator
-master=master.sort_values(['sc_insitu','sir_start_time'])
+master=master.sort_values(['sc_insitu','hss_start_time'])
 master = master.reset_index(drop=True)
 
 
@@ -421,9 +443,8 @@ master
    
 
 
-
 #save master file as Excel
-file='sircat/HELCATS_SIRCAT_v10_master.xlsx'
+file='sircat/HELIO4CAST_SIRCAT_v10_master.xlsx'
 master.to_excel(file,sheet_name='SIRCATv1.0')
 print()
 print('SIRCAT master saved as '+file)
@@ -432,7 +453,7 @@ print('done')
 
 # ## (3) make SIRCAT 
 
-# In[4]:
+# In[16]:
 
 
 
@@ -443,7 +464,7 @@ from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
 #load master file
-scat=hc.load_helcats_sircat_master_from_excel('sircat/HELCATS_SIRCAT_v10_master.xlsx')
+scat=hc.load_helio4cast_sircat_master_from_excel('sircat/HELIO4CAST_SIRCAT_v10_master.xlsx')
 scat
 
 
@@ -457,8 +478,11 @@ print('done')
 
 ####### 3b get parameters for all spacecraft one after another
 
-#!!!!!!!!!! remove indices if the  events in the master file have changed
+# remove indices if the  events in the master file have changed
 #os.system('rm sircat/indices_sircat/SIRCAT_indices_Wind.p')
+#os.system('rm sircat/indices_sircat/SIRCAT_indices_STEREO-A.p')
+#os.system('rm sircat/indices_sircat/SIRCAT_indices_STEREO-B.p')
+
 
 scat=hc.get_sircat_parameters(sta,stai,scat,'STEREO-A')
 scat=hc.get_sircat_parameters(stb,stbi,scat,'STEREO-B')
@@ -480,26 +504,53 @@ print('done')
 
 # ### 4a save header
 
-# In[5]:
+# In[53]:
 
 
 #save header and parameters as text file and prepare for html website
-header='SIR CATALOGUE v1.0 \n\nThis is the HELCATS stream interaction region (SRI) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. \n\nThis is version 1.0, released 2020-**-**. DOI: 10.6084/m9.**** \n\nThe catalog is available as  python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at \nhttps://helioforecast.space/sircat \nhttps://www.helcats-fp7.eu/catalogues/wp4_sircat.html \n\nNumber of events in SIRCAT: '+str(len(scat))+' \nICME observatories: Wind, STEREO-A, STEREO-B.   \nTime range: January 2007 - July 2018. \n\nAuthors: Christian Moestl, Andreas Weiss, R. L. Bailey, Space Research Institute, Austrian Academy of Sciences, Graz, Austria. Lan Jian, NASA, USA, Maxim Grandin, University of Helsinki, Finland. \n\nRules: If results are produced with this catalog for peer-reviewed scientific publications, please contact christian.moestl@oeaw.ac.at for possible co-authorship. \n\nThis catalog has been made by getting the start and end times of each SIR from the individual catalogs below, and then calculating all parameters again consistently from the data by us. \nThe in situ data that were used for the catalog, with a size of 8 GB in total, including extra data files with magnetic field components in RTN coordinates that are not used for producing the catalog and many other in situ data files, can be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693 \nThe python code for producing this catalog is available as part of https://github.com/cmoestl/heliocats \n\nEach icmecat_id has a tag in it that indicates from which catalog the ICME times were taken: \n\nSTEREO-A:   Jian et al. (2019), tag: JIAN. \nSTEREO-B:   Jian et al. (2019), tag: JIAN. \nWind:       Grandin et al. (2018), tag: GRANDIN \n\nReferences \nGrandin, M. et al. (2018), https://doi.org/10.1029/2018JA026396, 2019. \nJian, L. et al. (2019), https://doi.org/10.1007/s11207-019-1416-8, 2019. \n\nComments: \n- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth). \n        Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n        Z is the solar rotation axis. \n        Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.\n        X completes the right handed triad (and points away from the Sun). \nThis system is thus like HEEQ but centered on the respective in situ spacecraft, so the SCEQ X and Y \nbase vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\nThe Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \nare rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \na few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).\nWe choose SCEQ because it has the advantage that a comparison between multipoint CME events \nand for comparison to simulations there is always a similar reference plane (the solar equatorial plane). \n\n '     
+header='SIR CATALOGUE v1.0 \n\nThis is the HELIO4CAST stream interaction region (SIR) and high speed stream (HSS) catalog,\nbased on in situ magnetic field and bulk plasma observations in the heliosphere. \nIt is a merged catalog created from individual ones made by Lan Jian et al. and Maxim Grandin et al. (see references).\n\nThis is version 1.0, released 2020-**-**. DOI: 10.6084/m9.**** \n\nThe catalog is available as  python pandas dataframe (pickle), json, csv, xlsx, txt, html at \nhttps://helioforecast.space/sircat \n\nNumber of events in SIRCAT: '+str(len(scat))+' \nICME observatories: Wind, STEREO-A, STEREO-B.   \nTime range: January 2007 - December 2017 (Wind), January 2007 - July 2018 (STEREO). \n\nAuthors: Christian Moestl, Andreas Weiss, R. L. Bailey, Space Research Institute, Austrian Academy of Sciences, Graz, Austria. \nLan Jian, NASA, USA, Maxim Grandin, University of Helsinki, Finland. \n\nRules: If results are produced with this catalog for peer-reviewed scientific publications, \nplease contact christian.moestl@oeaw.ac.at for possible co-authorships. \n\nThis catalog has been made by getting the start and end times of each high speed stream from the \nindividual catalogs, and then calculating all parameters again consistently from the data by us. \nThe in situ data that were used for the creating catalog, with a size of 8 GB in total, including extra data \nfiles with magnetic field components in RTN coordinates and other spacecrat that are not used for producing this catalog, \ncan be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693.v7 \nThe python code for producing this catalog is available at https://github.com/cmoestl/heliocats/sircat.ipynb \n\nEach sircat_id has a tag in it that indicates from which catalog the ICME times were taken: \n\nWind:       Grandin et al. (2018), tag: GRANDIN \nSTEREO-A:   Jian et al. (2019), tag: JIAN. \nSTEREO-B:   Jian et al. (2019), tag: JIAN. \n\nReferences \nGrandin, M. et al. (2018), https://doi.org/10.1029/2018JA026396, 2019. \nJian, L. et al. (2019), https://doi.org/10.1007/s11207-019-1416-8, 2019. \n\nComments: \n- The STEREO catalog contains the SIR start and end times. We use their SIR start time as our hss_start_time, \nand create our hss_end_time by setting it as the first time when the total bulk speed drops below 450 km/s \nafter the SIR end time given in the Jian catalog. \nThus, for the Jian catalog there exists 3 times: hss_start_time, sir_end_time, hss_end_time.\n- Earth SIR/HSS list: This catalog directly gives the hss_start_time and the hss_end_time,  \nwith a similar definition as the hss_end_time that we use for the STEREO catalog. \n- The times in the Earth SIR/HSS list have been modified to 1 hour earlier as these times were \noriginally given for the magnetopause, but the Wind spacecraft is located at the L1 point. \nOne hour is practically equivalent to the propagation time of a 400 km/s slow solar wind \nfrom the L1 point to the magnetopause.\n- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth). \n        Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n        Z is the solar rotation axis. \n        Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.\n        X completes the right handed triad (and points away from the Sun). \nThis system is thus like HEEQ but centered on the respective in situ spacecraft, so the SCEQ X and Y \nbase vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\nThe Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \nare rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \na few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).\nWe choose SCEQ because it has the advantage that a comparison between multipoint CME events \nand for comparison to simulations there is always a similar reference plane (the solar equatorial plane). \n\n '     
 
 
-                       
-parameters='Parameters: \n\ to be defined'
+
+parameters_text='Parameters:\n00: sircat_id: The unique identifier for the observed ICME. unit: string. \n01: sc insitu: The name of the in situ observing spacecraft. unit: string. \n02: hss_start_time: High speed stream start time. unit: UTC. \n03: sir_end_time: End time of the stream interaction region. unit: UTC. \n04: hss_end_time: High speed stream end time, speed < 450 km/s. unit: UTC. \n05: hss_vtmax_time: High speed stream maxmimum speed time. unit: UTC. \n06: sc_heliodistance: Heliocentric distance of the spacecraft at hss_start_time. unit: AU.\n07: sc_long_heeq: Heliospheric longitude of the spacecraft at hss_start_time, range [-180,180]. unit: degree (HEEQ).\n08: sc_lat_heeq: Heliospheric latitude of the spacecraft at hss_start_time, range [-90,90]. unit: degree (HEEQ).\n09: hss_vt_max: Maximum proton speed from hss_start_time to hss_end_time. unit: km/s.\n\.\n\''
+
+
+# 24: mo_speed_std: Standard deviation of proton speed from mo_start_time to mo_end_time. unit: km/s.\n\
+# 25: mo_expansion_speed: Difference between proton speed at mo_start_time to proton speed at mo_end_time. unit: km/s.\n\
+
+# 08: icme_duration: Duration of the interval between icme_start_time and mo_endtime. unit: hours.\n\
+# 09: icme_bmax: Maximum total magnetic field in the full icme interval (icme_start_time to mo_end_time). unit: nT.\n\
+# 10: icme_bmean: Mean total magnetic field during the full icme interval (icme_start_time to mo_end_time). unit: nT.\n\
+# 11: icme_bstd: Standard deviation of the total magnetic field from icme_start_time to mo_end_time. unit: nT.\n\
+# 12: icme_speed_mean: Mean proton speed from icme_start_time to mo_end_time. unit: km/s.\n\
+# 13: icme_speed_std: Standard deviation of proton speed from icme_start_time to mo_end_time. unit: km/s.\n\
+# 14: mo_duration: Duration of the interval between mo_start_time and mo_endtime. unit: hours.\n\
+# 15: mo_bmax: Maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.\n\
+# 16: mo_bmean: Mean total magnetic field in the magnetic obstacle. unit: nT.\n\
+# 17: mo_bstd: Standard deviation of the total magnetic field in the magnetic obstacle. unit: nT.\n\
+# 18: mo_bzmean: Mean magnetic field Bz component in the magnetic obstacle. unit: nT.\n\
+# 19: mo_bzmin: Minimum magnetic field Bz component in the magnetic obstacle. unit: nT.\n\
+# 20: mo_bzstd: Standard deviation of the magnetic field Bz component in the magnetic obstacle. unit: nT.'
+
+
+# #parameters =['sircat_id','sc_insitu','hss_start_time','sir_end_time',\
+#              'hss_end_time','hss_vtmax_time','sc_heliodistance',\
+#              'sc_long_heeq', 'sc_lat_heeq', 
+#              'hss_vtmax','hss_vtmean','hss_vtstd','hss_btmax','hss_btmean',\
+#              'hss_btstd','hss_bzmin', 'hss_bzmean','hss_bzstd','hss_duration',\
+#              'sir_vtmax','sir_vtmean', 'sir_vtstd','sir_btmax','sir_btmean',\
+#              'sir_btstd','sir_bzmin', 'sir_bzmean','sir_bzstd','sir_duration']
 
 
 print(header)
-print(parameters)
+print(parameters_text)
 
 
 #make header file
-file='sircat/HELCATS_SIRCAT_v10_header.txt'
+file='sircat/HELIO4CAST_SIRCAT_v10_header.txt'
 with open(file, "w") as text_file:
     text_file.write(header)
-    text_file.write(parameters)
+    text_file.write(parameters_text)
 print()    
 print('header saved as '+file)
 print()    
@@ -508,7 +559,7 @@ print()
 header_spaces=header.replace(" ", "&nbsp;")
 header_html= "<p>" +header_spaces.replace('\n', '<br>')+ "</p>" 
 parameters_spaces=parameters.replace(" ", "&nbsp;")
-parameters_html= "<p>" +parameters.replace('\n', '<br>')+ "</p>"
+parameters_html= "<p>" +parameters_text.replace('\n', '<br>')+ "</p>"
 print('header converted to HTML')
 print()    
 print()    
@@ -516,20 +567,20 @@ print()
 
 # ### 4b save into different formats
 
-# In[6]:
+# In[54]:
 
 
 ########## python formats
 
 # save ICMECAT as pandas dataframe with times as datetime objects as pickle
-file='sircat/HELCATS_SIRCAT_v10_pandas.p'
+file='sircat/HELIO4CAST_SIRCAT_v10_pandas.p'
 pickle.dump([scat,header,parameters], open(file, 'wb'))
 print('SIRCAT saved as '+file)
 
 
 
 #load sircat as pandas dataframe
-file='sircat/HELCATS_SIRCAT_v10_pandas.p'
+file='sircat/HELIO4CAST_SIRCAT_v10_pandas.p'
 [scat_pandas,h,p]=pickle.load( open(file, 'rb'))   
 scat.keys()
 scat
@@ -549,7 +600,7 @@ scat
 
 
 
-# file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
+# file='icmecat/HELIO4CAST_ICMECAT_v20_numpy.p'
 # pickle.dump([scat_num,scat_num_struct,header,parameters], open(file, 'wb'))
 # print('ICMECAT saved as '+file)
 
@@ -557,20 +608,32 @@ scat
 
 ################ save to different formats
 
-#copy pandas dataframe first to change time format consistent with HELCATS
+#copy pandas dataframe first to change time format consistent with HELIO4CAST
 scat_copy=copy.deepcopy(scat)  
-scat_copy.sir_start_time=parse_time(scat.sir_start_time).isot
+scat_copy.hss_start_time=parse_time(scat.hss_start_time).isot
+scat_copy.hss_end_time=parse_time(scat.hss_end_time).isot
+scat_copy.hss_vtmax_time=parse_time(scat.hss_vtmax_time).isot
+
 scat_copy.at[stai,'sir_end_time']=parse_time(scat.sir_end_time[stai]).isot
 scat_copy.at[stbi,'sir_end_time']=parse_time(scat.sir_end_time[stbi]).isot
-scat_copy.at[wini,'hss_end_time']=parse_time(scat.hss_end_time[wini]).isot
+
 
 
 
 #change time format
 for i in np.arange(len(scat)):
 
-    dum=scat_copy.sir_start_time[i] 
-    scat_copy.at[i,'sir_start_time']=dum[0:16]+'Z'
+    dum=scat_copy.hss_start_time[i] 
+    scat_copy.at[i,'hss_start_time']=dum[0:16]+'Z'
+    
+    dum=scat_copy.hss_end_time[i] 
+    scat_copy.at[i,'hss_end_time']=dum[0:16]+'Z'
+
+    dum=scat_copy.hss_vtmax_time[i] 
+    scat_copy.at[i,'hss_vtmax_time']=dum[0:16]+'Z'
+
+
+
      
 
 for i in stbi:
@@ -581,31 +644,27 @@ for i in stai:
     dum=scat_copy.sir_end_time[i] 
     scat_copy.at[i,'sir_end_time']=dum[0:16]+'Z'
     
-    
-for i in wini:
-    dum=scat_copy.hss_end_time[i] 
-    scat_copy.at[i,'hss_end_time']=dum[0:16]+'Z'
 
 
 
 
 #save as Excel
-file='sircat/HELCATS_SIRCAT_v10.xlsx'
+file='sircat/HELIO4CAST_SIRCAT_v10.xlsx'
 scat_copy.to_excel(file,sheet_name='SIRCATv1.0')
 print('SIRCAT saved as '+file)
 
 #save as json
-file='sircat/HELCATS_SIRCAT_v10.json'
+file='sircat/HELIO4CAST_SIRCAT_v10.json'
 scat_copy.to_json(file)
 print('SIRCAT saved as '+file)
 
 #save as csv
-file='sircat/HELCATS_SIRCAT_v10.csv'
+file='sircat/HELIO4CAST_SIRCAT_v10.csv'
 scat_copy.to_csv(file)
 print('SIRCAT saved as '+file)
 
 #save as txt
-file='sircat/HELCATS_SIRCAT_v10.txt'
+file='sircat/HELIO4CAST_SIRCAT_v10.txt'
 np.savetxt(file, scat_copy.values.astype(str), fmt='%s' )
 print('SIRCAT saved as '+file)
 
@@ -620,7 +679,7 @@ print('SIRCAT saved as '+file)
 # #########save into hdf5 format , use S for strings http://docs.h5py.org/en/stable/strings.html#what-about-numpy-s-u-type
 # dtype2=[('index','i8'),('icmecat_id', 'S30'),('sc_insitu', 'S20')] +[(i, '<f8') for i in ic.keys()[2:len(ic.keys())]]
 # ich5=np.array(scat_num_rec,dtype=dtype2)
-# file='icmecat/HELCATS_ICMECAT_v20.h5'
+# file='icmecat/HELIO4CAST_ICMECAT_v20.h5'
 # f=h5py.File(file,mode='w')
 # f["icmecat"]= ich5
 # #add attributes
@@ -631,7 +690,7 @@ print('SIRCAT saved as '+file)
 # f.close()
 
 # #reading h5py files http://docs.h5py.org/en/latest/quick.html
-# #fr = h5py.File('icmecat/HELCATS_ICMECAT_v20.h5', 'r')
+# #fr = h5py.File('icmecat/HELIO4CAST_ICMECAT_v20.h5', 'r')
 # #list(fr.keys())
 # #ich5=fr['icmecat']
 # #ich5['mo_bstd']
@@ -641,7 +700,7 @@ print('SIRCAT saved as '+file)
 
 
 # #save as .npy without pickle
-# file='icmecat/HELCATS_ICMECAT_v20_numpy.npy'
+# file='icmecat/HELIO4CAST_ICMECAT_v20_numpy.npy'
 # np.save(file,ich5, allow_pickle=False)
 # print('ICMECAT saved as '+file)
 
@@ -651,20 +710,31 @@ print('SIRCAT saved as '+file)
 # #icnpy['icmecat_id'][0].decode()
 
 
-#copy pandas dataframe first to change time format consistent with HELCATS
+#copy pandas dataframe first to change time format consistent with HELIO4CAST
 scat_copy2=copy.deepcopy(scat)  
-scat_copy2.sir_start_time=parse_time(scat.sir_start_time).iso
+scat_copy2.hss_start_time=parse_time(scat.hss_start_time).iso
+scat_copy2.hss_end_time=parse_time(scat.hss_end_time).iso
+scat_copy2.hss_vtmax_time=parse_time(scat.hss_vtmax_time).iso
+
+
 scat_copy2.at[stai,'sir_end_time']=parse_time(scat.sir_end_time[stai]).iso
 scat_copy2.at[stbi,'sir_end_time']=parse_time(scat.sir_end_time[stbi]).iso
-scat_copy2.at[wini,'hss_end_time']=parse_time(scat.hss_end_time[wini]).iso
 
 
 
 #change time format
 for i in np.arange(len(scat)):
 
-    dum=scat_copy2.sir_start_time[i] 
-    scat_copy2.at[i,'sir_start_time']=dum[0:16]
+    dum=scat_copy2.hss_start_time[i] 
+    scat_copy2.at[i,'hss_start_time']=dum[0:16]
+    
+    dum=scat_copy2.hss_end_time[i] 
+    scat_copy2.at[i,'hss_end_time']=dum[0:16]
+            
+    dum=scat_copy2.hss_vtmax_time[i] 
+    scat_copy2.at[i,'hss_vtmax_time']=dum[0:16]
+
+
      
 
 for i in stbi:
@@ -675,30 +745,26 @@ for i in stai:
     dum=scat_copy2.sir_end_time[i] 
     scat_copy2.at[i,'sir_end_time']=dum[0:16]
     
-    
-for i in wini:
-    dum=scat_copy2.hss_end_time[i] 
-    scat_copy2.at[i,'hss_end_time']=dum[0:16]+'Z'
 
 
 
 
 #save as json for webpage with different time format
-file='sircat/HELCATS_SIRCAT_v10_isot.json'
+file='sircat/HELIO4CAST_SIRCAT_v10_isot.json'
 scat_copy2.to_json(file)
 print('SIRCAT saved as '+file)
 
 
 
 #save as html no header
-file='sircat/HELCATS_SIRCAT_v10_simple.html'
+file='sircat/HELIO4CAST_SIRCAT_v10_simple.html'
 scat_copy.to_html(file)
 print('SIRCAT saved as '+file)
 
 
 ############ save as html file with header
 #save as html
-file='sircat/HELCATS_SIRCAT_v10.html'
+file='sircat/HELIO4CAST_SIRCAT_v10.html'
 #ic.to_html(file,justify='center')
 
 #ichtml='{% extends "_base.html" %} \n \n {% block content %} \n \n \n '
@@ -715,17 +781,6 @@ with open(file,'w') as f:
 print('SIRCAT saved as '+file)    
 
 
-
-
-
-
-
-
-
-
-
-
-
 # ## 4c load ICMECAT pickle files
 
 # In[7]:
@@ -733,13 +788,13 @@ print('SIRCAT saved as '+file)
 
 
 #load sircat as pandas dataframe
-file='sircat/HELCATS_SIRCAT_v10_pandas.p'
+file='sircat/HELIO4CAST_SIRCAT_v10_pandas.p'
 [scat_pandas,h,p]=pickle.load( open(file, 'rb'))   
 scat.keys()
 scat
 
 #load icmecat as numpy array
-# file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
+# file='icmecat/HELIO4CAST_ICMECAT_v20_numpy.p'
 # [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 

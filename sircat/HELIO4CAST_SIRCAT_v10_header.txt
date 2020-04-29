@@ -1,0 +1,76 @@
+SIR CATALOGUE v1.0 
+
+This is the HELIO4CAST stream interaction region (SIR) and high speed stream (HSS) catalog,
+based on in situ magnetic field and bulk plasma observations in the heliosphere. 
+It is a merged catalog created from individual ones made by Lan Jian et al. and Maxim Grandin et al. (see references).
+
+This is version 1.0, released 2020-**-**. DOI: 10.6084/m9.**** 
+
+The catalog is available as  python pandas dataframe (pickle), json, csv, xlsx, txt, html at 
+https://helioforecast.space/sircat 
+
+Number of events in SIRCAT: 931 
+ICME observatories: Wind, STEREO-A, STEREO-B.   
+Time range: January 2007 - December 2017 (Wind), January 2007 - July 2018 (STEREO). 
+
+Authors: Christian Moestl, Andreas Weiss, R. L. Bailey, Space Research Institute, Austrian Academy of Sciences, Graz, Austria. 
+Lan Jian, NASA, USA, Maxim Grandin, University of Helsinki, Finland. 
+
+Rules: If results are produced with this catalog for peer-reviewed scientific publications, 
+please contact christian.moestl@oeaw.ac.at for possible co-authorships. 
+
+This catalog has been made by getting the start and end times of each high speed stream from the 
+individual catalogs, and then calculating all parameters again consistently from the data by us. 
+The in situ data that were used for the creating catalog, with a size of 8 GB in total, including extra data 
+files with magnetic field components in RTN coordinates and other spacecrat that are not used for producing this catalog, 
+can be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693.v7 
+The python code for producing this catalog is available at https://github.com/cmoestl/heliocats/sircat.ipynb 
+
+Each sircat_id has a tag in it that indicates from which catalog the ICME times were taken: 
+
+Wind:       Grandin et al. (2018), tag: GRANDIN 
+STEREO-A:   Jian et al. (2019), tag: JIAN. 
+STEREO-B:   Jian et al. (2019), tag: JIAN. 
+
+References 
+Grandin, M. et al. (2018), https://doi.org/10.1029/2018JA026396. 
+Jian, L. et al. (2019), https://doi.org/10.1007/s11207-019-1416-8. 
+
+Comments: 
+- The STEREO catalog contains the SIR start and end times. We use their SIR start time as our hss_start_time, 
+and create our hss_end_time by setting it as the first time when the total bulk speed drops below 450 km/s 
+after the SIR end time given in the Jian catalog. 
+Thus, for the Jian catalog there exists 3 times: hss_start_time, sir_end_time, hss_end_time.
+- Earth SIR/HSS list: This catalog directly gives the hss_start_time and the hss_end_time,  
+with a similar definition as the hss_end_time that we use for the STEREO catalog. 
+- The times in the Earth SIR/HSS list have been modified to 1 hour earlier as these times were 
+originally given for the magnetopause, but the Wind spacecraft is located at the L1 point. 
+One hour is practically equivalent to the propagation time of a 400 km/s slow solar wind 
+from the L1 point to the magnetopause.
+- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. 
+- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth). 
+        Definition of SpaceCraft Equatorial Coordinates (SCEQ): 
+        Z is the solar rotation axis. 
+        Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.
+        X completes the right handed triad (and points away from the Sun). 
+This system is thus like HEEQ but centered on the respective in situ spacecraft, so the SCEQ X and Y 
+base vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.
+The Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors 
+are rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within 
+a few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).
+We choose SCEQ because it has the advantage that a comparison between multipoint CME events 
+and for comparison to simulations there is always a similar reference plane (the solar equatorial plane). 
+
+ Parameters:
+00: sircat_id: The unique identifier for the observed ICME. unit: string. 
+01: sc insitu: The name of the in situ observing spacecraft. unit: string. 
+02: hss_start_time: High speed stream start time. unit: UTC. 
+03: sir_end_time: End time of the stream interaction region. unit: UTC. 
+04: hss_end_time: High speed stream end time, speed < 450 km/s. unit: UTC. 
+05: hss_vtmax_time: High speed stream maxmimum speed time. unit: UTC. 
+06: sc_heliodistance: Heliocentric distance of the spacecraft at hss_start_time. unit: AU.
+07: sc_long_heeq: Heliospheric longitude of the spacecraft at hss_start_time, range [-180,180]. unit: degree (HEEQ).
+08: sc_lat_heeq: Heliospheric latitude of the spacecraft at hss_start_time, range [-90,90]. unit: degree (HEEQ).
+09: hss_vt_max: Maximum proton speed from hss_start_time to hss_end_time. unit: km/s.
+\.
+'
