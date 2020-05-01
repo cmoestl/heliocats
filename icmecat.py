@@ -20,10 +20,11 @@
 # **current status: work in progress**
 # 
 # features to be added: 
-# - MAVEN ICME verification with RAD and HI    
+# - MAVEN ICME verification with RAD and HI   
+# - change HELCATs to HELIO4CAST
 # 
 
-# In[14]:
+# In[1]:
 
 
 import numpy as np
@@ -90,6 +91,44 @@ if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir)
 #Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
 os.system('jupyter nbconvert --to script icmecat.ipynb')    
 
+
+# In[26]:
+
+
+from heliocats import cats as hc
+importlib.reload(hc) #reload again while debugging
+
+
+#load HIGEOCAT
+higeocat=hc.load_higeocat_vot('data/HCME_WP3_V06.vot')
+
+#generate mars position 
+[mars_time,mars_r,mars_lat,mars_lon]=hc.get_mars_position()
+
+
+# In[36]:
+
+
+higeocat_time=parse_time(higeocat['Date']).datetime    
+print(higeocat_time)    
+
+print(mars_time)
+
+
+    #    "columns" : [ "ID", "Date [UTC]", "SC", "L-N", "PA-N [deg]", "L-S", "PA-S [deg]", "Quality" 
+    #       , "PA-fit [deg]"
+    #       , "FP Speed [kms-1]", "FP Speed Err [kms-1]", "FP Phi [deg]", "FP Phi Err [deg]","FP HEEQ Long [deg]",  "FP HEEQ Lat [deg]",  "FP Carr Long [deg]", "FP Launch [UTC]"
+    #       , "SSE Speed [kms-1]", "SSE Speed Err [kms-1]", "SSE Phi [deg]", "SSE Phi Err [deg]", "SSE HEEQ Long [deg]", "SSE HEEQ Lat [deg]",  "SSE Carr Long [deg]","SSE Launch [UTC]"
+    #       , "HM Speed [kms-1]", "HM Speed Err [kms-1]", "HM Phi [deg]", "HM Phi Err [deg]", "HM HEEQ Long [deg]", "HM HEEQ Lat [deg]", "HM Carr Long [deg]", "HM Launch [UTC]"
+    #  ],
+    #higeocat['Date']=parse_time(higeocat['Date'][10]).datetime
+
+    #access data
+    #a=table.array['HM HEEQ Long'][10]
+    
+
+
+#ta=t0+Ri/Visse
 
     
 
@@ -406,7 +445,7 @@ if load_data > 0:
     
 
 #HIGEOCAT
-higeocat=hc.load_higeocat()
+higeocat=hc.load_higeocat('data/HCME_WP3_V06.vot')
 higeocat_time=parse_time(higeocat['Date']).datetime    
     
 

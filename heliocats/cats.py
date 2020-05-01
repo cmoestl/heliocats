@@ -18,11 +18,14 @@ import pdb
 import scipy.io
 import pickle
 import sys
+import astropy
 import importlib
 import cdflib
 import matplotlib.pyplot as plt
 import heliosat
 
+import heliopy.data.spice as spicedata
+import heliopy.spice as spice
 
 from astropy.io.votable import parse_single_table
 
@@ -34,6 +37,76 @@ importlib.reload(hd) #reload again while debugging
 
 
 
+
+
+################################ HI arrival catalog operations
+
+
+def load_higeocat_vot(file):
+    #read HIGEOCAT from https://www.helcats-fp7.eu/catalogues/wp3_cat.html
+    #https://docs.astropy.org/en/stable/io/votable/
+    
+    
+
+    #    "columns" : [ "ID", "Date [UTC]", "SC", "L-N", "PA-N [deg]", "L-S", "PA-S [deg]", "Quality" 
+    #       , "PA-fit [deg]"
+    #       , "FP Speed [kms-1]", "FP Speed Err [kms-1]", "FP Phi [deg]", "FP Phi Err [deg]","FP HEEQ Long [deg]",  "FP HEEQ Lat [deg]",  "FP Carr Long [deg]", "FP Launch [UTC]"
+    #       , "SSE Speed [kms-1]", "SSE Speed Err [kms-1]", "SSE Phi [deg]", "SSE Phi Err [deg]", "SSE HEEQ Long [deg]", "SSE HEEQ Lat [deg]",  "SSE Carr Long [deg]","SSE Launch [UTC]"
+    #       , "HM Speed [kms-1]", "HM Speed Err [kms-1]", "HM Phi [deg]", "HM Phi Err [deg]", "HM HEEQ Long [deg]", "HM HEEQ Lat [deg]", "HM Carr Long [deg]", "HM Launch [UTC]"
+    #  ],
+
+   
+    table = parse_single_table('data/HCME_WP3_V06.vot')
+    higeocat = table.array
+    #higeocat['Date']=parse_time(higeocat['Date'][10]).datetime
+
+    #access data
+    #a=table.array['HM HEEQ Long'][10]
+    
+    return higeocat
+
+
+def get_mars_position():
+    
+    ############### Mars position
+
+    planet_kernel=spicedata.get_kernel('planet_trajectories')
+    starttime = datetime.datetime(2007, 1, 1)
+    endtime = datetime.datetime(2020, 12, 31)
+    res_in_hours=1
+    mars_time = []
+    while starttime < endtime:
+        mars_time.append(starttime)
+        starttime += datetime.timedelta(hours=res_in_hours)
+    mars_time_num=parse_time(mars_time)     
+    mars=spice.Trajectory('4')  
+    frame='HEEQ'
+    mars.generate_positions(mars_time,'Sun',frame)  
+    mars.change_units(astropy.units.AU)  
+    [mars_r, mars_lat, mars_lon]=hd.cart2sphere(mars.x,mars.y,mars.z)
+    print('mars position done') 
+    
+    mars_time=np.array(mars_time)
+    mars_r=np.array(mars_r)
+    mars_lat=np.array(mars_lat)
+    mars_lon=np.array(mars_lon)
+
+    return [mars_time,mars_r,np.degrees(mars_lat),np.degrees(mars_lon)]
+
+
+
+
+def arrival_catalogue_mars(data):
+    
+    h=hd.load_higeocat()
+    
+    
+    
+    
+    
+    
+    
+    return 0
 
 
 
@@ -248,47 +321,6 @@ def get_sircat_parameters(sc, sci, scat, name):
 
 
 
-
-def load_higeocat():
-
-    #read HIGEOCAT from https://www.helcats-fp7.eu/catalogues/wp3_cat.html
-    #https://docs.astropy.org/en/stable/io/votable/
-    
-    
-
-    #    "columns" : [ "ID", "Date [UTC]", "SC", "L-N", "PA-N [deg]", "L-S", "PA-S [deg]", "Quality" 
-    #       , "PA-fit [deg]"
-    #       , "FP Speed [kms-1]", "FP Speed Err [kms-1]", "FP Phi [deg]", "FP Phi Err [deg]","FP HEEQ Long [deg]",  "FP HEEQ Lat [deg]",  "FP Carr Long [deg]", "FP Launch [UTC]"
-    #       , "SSE Speed [kms-1]", "SSE Speed Err [kms-1]", "SSE Phi [deg]", "SSE Phi Err [deg]", "SSE HEEQ Long [deg]", "SSE HEEQ Lat [deg]",  "SSE Carr Long [deg]","SSE Launch [UTC]"
-    #       , "HM Speed [kms-1]", "HM Speed Err [kms-1]", "HM Phi [deg]", "HM Phi Err [deg]", "HM HEEQ Long [deg]", "HM HEEQ Lat [deg]", "HM Carr Long [deg]", "HM Launch [UTC]"
-    #  ],
-
-   
-    table = parse_single_table('data/HCME_WP3_V06.vot')
-    higeocat = table.array
-    #higeocat['Date']=parse_time(higeocat['Date'][10]).datetime
-
-    #access data
-    #a=table.array['HM HEEQ Long'][10]
-    
-    return higeocat
-
-
-
-
-
-
-def arrival_catalogue_mars(data):
-    
-    h=hd.load_higeocat()
-    
-    
-    
-    
-    
-    
-    
-    return 0
 
 
 
