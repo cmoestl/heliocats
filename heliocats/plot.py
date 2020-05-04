@@ -24,12 +24,24 @@ import heliosat
 from numba import njit
 from astropy.time import Time
 import astropy
+import importlib
 
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 
 from config import data_path
 
+from heliocats import data as hd
+importlib.reload(hd) #reload again while debugging
+
+
+from heliocats import cats as hc
+importlib.reload(hc) #reload again while debugging
+
+
+
+
+    
 
 
 ####################################### 
@@ -355,56 +367,14 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      
      
      
+  
             
-    
+            
+################################## ICMECAT  ############################################################
+  
       
    
   
-
-def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
-
-  
-    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
-
-    #get indices of events for this spacecrat
-    [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
-    
-    #plasma available?
-    if name=='Wind': plasma=True
-    if name=='STEREO-A': plasma=True
-    if name=='STEREO-B': plasma=True
-    if name=='ULYSSES': plasma=True
-    if name=='MAVEN': plasma=True
-    if name=='PSP': plasma=True
-    if name=='VEX': plasma=False
-    if name=='MESSENGER': plasma=False
-    
-    for i in np.arange(np.size(sci)):    
-    #for i in np.arange(1):     
-        if plasma == True:
-            print(i)
-            
-            if name!='MAVEN':
-                plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-90*24:mo_end_ind[i]+90*24],\
-                             ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
-                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i])
-            if name == 'MAVEN':    
-                plot_insitu_icmecat_maven(sc[icme_start_ind[i]-12:mo_end_ind[i]+12],\
-                             ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
-                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i])
-                
-            plt.close('all')
-        else:
-            plot_insitu_icmecat_mag(sc[icme_start_ind[i]-90*24:mo_end_ind[i]+90*24], \
-                                    ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
-                                    ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i])
-            plt.close('all')
-    
-   
-   
-     
-    
-     
      
 
 def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs):
@@ -586,137 +556,204 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, **kwargs):
      
      
      
-     
-     
-     
-     
-
-def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, **kwargs):
-     '''
-     sc ... data
-    
-     '''
-        
-        
     
 
-     rad=hd.load_msl_rad()   
+def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
 
-     
-     start=parse_time(start).datetime
-     end=parse_time(end).datetime
-     #print(start)
-     #print(end)
-     
-     sns.set_style('darkgrid')
-     sns.set_context('paper')
-
-     fig=plt.figure(figsize=(9,6), dpi=150)
-     
-     #sharex means that zooming in works with all subplots
-     ax1 = plt.subplot(411) 
-
-     ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
-     ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
-     ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
-     ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
-        
-     #plot vertical lines
-     ax1.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[-500,500],'-k',linewidth=1)            
-     ax1.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[-500,500],'-k',linewidth=1)            
-     ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-500,500],'-k',linewidth=1)            
-
-    
-     plt.ylabel('B [nT]')
-     plt.legend(loc=3,ncol=4,fontsize=8)
-     ax1.set_xlim(start,end)
-     #if np.isnan(np.nanmin(sc.bt))==False:
-     ax1.set_ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)   
-        
-     ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
-     #plt.ylim((-20, 20))
-     #ax1.set_xticklabels([]) does not work with sharex
-     #plt.setp(ax1.get_xticklabels(), fontsize=6)
-     plt.setp(ax1.get_xticklabels(), visible=False)
-
-     plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
-     
-
-     ax2 = plt.subplot(412,sharex=ax1) 
-     ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
-    
-
-     #plot vertical lines
-     ax2.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,3000],'-k',linewidth=1)            
-     ax2.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,3000],'-k',linewidth=1)            
-     ax2.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,3000],'-k',linewidth=1)            
-
-
-
-     plt.ylabel('V [km/s]')
-     ax2.set_xlim(start,end)
-     #check plasma data exists
-     if np.isnan(np.nanmin(sc.vt))==False:
-         ax2.set_ylim(np.nanmin(sc.vt)-20,np.nanmax(sc.vt)+100)   
-
-
-     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     #plt.ylim((250, 800))
-     #ax2.set_xticklabels([])
-     plt.setp(ax2.get_xticklabels(), visible=False)
-
-
-     ax3 = plt.subplot(413,sharex=ax1) 
-     ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
-     
-     #plot vertical lines
-     ax3.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,1000],'-k',linewidth=1)            
-     ax3.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,1000],'-k',linewidth=1)            
-     ax3.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,1000],'-k',linewidth=1)            
-
-
-     plt.ylabel('N [ccm-3]')
-     ax3.set_xlim(start,end)
-     if np.isnan(np.nanmin(sc.np))==False:
-         ax3.set_ylim(0,np.nanmax(sc.np)+10)   
-
-
-     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     #plt.ylim((0, 50))
-     #ax3.set_xticklabels([])
-     plt.setp(ax3.get_xticklabels(), visible=False)
-
-
-     ax4 = plt.subplot(414,sharex=ax1) 
-     ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
-    
-     #plot vertical lines
-     ax4.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,10],'-k',linewidth=1)            
-     ax4.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,10],'-k',linewidth=1)            
-     ax4.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,10],'-k',linewidth=1)            
-
-
-
-     plt.ylabel('T [MK]')
-     ax4.set_xlim(start,end)
-     if np.isnan(np.nanmin(sc.tp))==False:
-         ax4.set_ylim(0,np.nanmax(sc.tp/1e6)+0.2)   
-
-     ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     #plt.ylim((0, 0.5))
-     
-     plt.tight_layout()
-     #plt.show()
-
-     #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
-
-     plotfile=path+ic.icmecat_id[i]+'.png'
   
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
 
-     plt.savefig(plotfile)
-     print('saved as ',plotfile)
+    #get indices of events for this spacecrat
+    [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+    
+    #plasma available?
+    if name=='Wind': plasma=True
+    if name=='STEREO-A': plasma=True
+    if name=='STEREO-B': plasma=True
+    if name=='ULYSSES': plasma=True
+    if name=='MAVEN': 
+        plasma=True
+        #load MSL rad data
+        rad=hd.load_msl_rad()   
+        #load HIGEOCAT
+        higeocat=hc.load_higeocat_vot('data/HCME_WP3_V06.vot')
+        #Make Mars arrival catalog from HIGEOCAT
+        arrcat_mars=hc.make_arrival_catalog_mars_ssef30(higeocat)
+   
+    if name=='PSP': plasma=True
+    if name=='VEX': plasma=False
+    if name=='MESSENGER': plasma=False
+        
+        
+    
+    for i in np.arange(np.size(sci)):    
+    #for i in np.arange(1):     
+        if plasma == True:
+            print(i)
+            
+            if name!='MAVEN':
+                plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-90*24:mo_end_ind[i]+90*24],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i])
+            if name == 'MAVEN':                 
+                plot_insitu_icmecat_maven(sc[icme_start_ind[i]-7*6:mo_end_ind[i]+7*6],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(days=7), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=7),name, icplotsdir,ic,sci[i],rad,arrcat_mars)
+                
+            plt.close('all')
+        else:
+            plot_insitu_icmecat_mag(sc[icme_start_ind[i]-90*24:mo_end_ind[i]+90*24], \
+                                    ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
+                                    ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i])
+            plt.close('all')
+    
+   
    
      
+    
+      
+     
+     
+     
+
+def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat_mars,**kwargs):
+    '''
+    sc ... data
+    '''
+
+    #print(rad[0])
+    #print(arrcat_mars[0])
+     
+
+    start=parse_time(start).datetime
+    end=parse_time(end).datetime
+    #print(start)
+    #print(end)
+        
+    #slice msl rad data
+    msl_start_ind=np.where(rad.time > start)[0][0]
+    msl_end_ind=np.where(rad.time > end)[0][0]
+    rad_slice=rad[msl_start_ind:msl_end_ind]
+
+
+    sns.set_style('darkgrid')
+    sns.set_context('paper')
+
+    fig=plt.figure(figsize=(9,8), dpi=150)
+    
+    plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
+
+
+    #sharex means that zooming in works with all subplots
+    ax1 = plt.subplot(511) 
+    ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
+    ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
+    ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
+    ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
+    #plot vertical lines
+    ax1.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[-500,500],'-k',linewidth=1)            
+    ax1.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[-500,500],'-k',linewidth=1)            
+    ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-500,500],'-k',linewidth=1)            
+    plt.ylabel('B [nT]')
+    plt.legend(loc=3,ncol=4,fontsize=6)
+    ax1.set_xlim(start,end)
+    #if np.isnan(np.nanmin(sc.bt))==False:
+    ax1.set_ylim(-np.nanmax(sc.bt)-3,np.nanmax(sc.bt)+3)   
+    ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
+    #plt.ylim((-20, 20))
+    #ax1.set_xticklabels([]) does not work with sharex
+    #plt.setp(ax1.get_xticklabels(), fontsize=6)
+    plt.setp(ax1.get_xticklabels(), visible=False)
+
+
+    ax2 = plt.subplot(512,sharex=ax1) 
+    ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
+    #plot vertical lines
+    ax2.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,3000],'-k',linewidth=1)            
+    ax2.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,3000],'-k',linewidth=1)            
+    ax2.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,3000],'-k',linewidth=1)            
+    plt.ylabel('V [km/s]')
+    ax2.set_xlim(start,end)
+    #check plasma data exists
+    #if np.isnan(np.nanmin(sc.vt))==False:
+    ax2.set_ylim(np.nanmin(sc.vt)-20,np.nanmax(sc.vt)+100)   
+    ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+    #plt.ylim((250, 800))
+    #ax2.set_xticklabels([])
+    plt.setp(ax2.get_xticklabels(), visible=False)
+
+
+    ax3 = plt.subplot(513,sharex=ax1) 
+    ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
+    ax3.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,1000],'-k',linewidth=1)            
+    ax3.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,1000],'-k',linewidth=1)            
+    ax3.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,1000],'-k',linewidth=1)            
+    plt.ylabel('N [ccm-3]')
+    ax3.set_xlim(start,end)
+    #if np.isnan(np.nanmin(sc.np))==False:
+    ax3.set_ylim(0,np.nanmax(sc.np)+5)   
+    ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+    #plt.ylim((0, 50))
+    #ax3.set_xticklabels([])
+    plt.setp(ax3.get_xticklabels(), visible=False)
+
+
+    ax4 = plt.subplot(514,sharex=ax1) 
+    ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
+    #plot vertical lines
+    ax4.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,10],'-k',linewidth=1)            
+    ax4.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,10],'-k',linewidth=1)            
+    ax4.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,10],'-k',linewidth=1)    
+    plt.ylabel('T [MK]')
+    ax4.set_xlim(start,end)
+    #if np.isnan(np.nanmin(sc.tp))==False:   
+    ax4.set_ylim(0,np.nanmax(sc.tp/1e6)+0.2)   
+    plt.setp(ax4.get_xticklabels(), visible=False)
+
+    #plot MSL RAD
+    ax5 = plt.subplot(515,sharex=ax1) 
+    ax5.plot_date(rad_slice.time,rad_slice.dose_sol,'-k',label='MSL/RAD dose_sol',linewidth=0.7)
+    ax5.plot_date(rad_slice.time,rad_slice.dose_hour,'-r',label='MSL/RAD dose_hour',linewidth=0.7)
+    #plot vertical lines
+    ax5.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,1000],'-k',linewidth=1)            
+    ax5.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,1000],'-k',linewidth=1)            
+    ax5.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,1000],'-k',linewidth=1)    
+ 
+    
+    
+    #ARRCAT HI    
+    ax5.plot_date([arrcat_mars[:,5],arrcat_mars[:,5]],[0,1000],'-b',linewidth=2) 
+    #use this fake data for labeling CME arrivals as blue as otherwise there are too many blue vertical lines
+    ax5.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-100,-90],'-b',linewidth=1,label='HI CME arrivals')    
+    
+    ax5.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+    ax5.set_ylim(np.min(rad_slice.dose_sol)-15,np.max(rad_slice.dose_sol)+15)
+    plt.legend(loc=1,ncol=3,fontsize=6)
+    
+
+    
+    
+
+    plt.tight_layout()
+    #plt.show()
+
+    #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
+
+    plotfile=path+ic.icmecat_id[i]+'.png'
+
+
+    plt.savefig(plotfile)
+    print('saved as ',plotfile)
+
+
+
+
+
+
+
+
+
+
      
      
      
@@ -838,7 +875,149 @@ def plot_insitu_measure(sc, start, end, sc_label, path, **kwargs):
      #print('saved as ',plotfile)
    
     
-       
+   
+         
+
+def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat_mars,**kwargs):
+    '''
+    sc ... data
+    '''
+
+    #print(rad[0])
+    #print(arrcat_mars[0])
+     
+
+    start=parse_time(start).datetime
+    end=parse_time(end).datetime
+    #print(start)
+    #print(end)
+        
+    #slice msl rad data
+    msl_start_ind=np.where(rad.time > start)[0][0]
+    msl_end_ind=np.where(rad.time > end)[0][0]
+    rad_slice=rad[msl_start_ind:msl_end_ind]
+
+
+    sns.set_style('darkgrid')
+    sns.set_context('paper')
+
+    fig=plt.figure(figsize=(9,8), dpi=150)
+    
+    plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
+
+
+    #sharex means that zooming in works with all subplots
+    ax1 = plt.subplot(511) 
+    ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
+    ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
+    ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
+    ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
+    #plot vertical lines
+    plt.ylabel('B [nT]')
+    plt.legend(loc=3,ncol=4,fontsize=6)
+    ax1.set_xlim(start,end)
+    #if np.isnan(np.nanmin(sc.bt))==False:
+    ax1.set_ylim(-np.nanmax(sc.bt)-3,np.nanmax(sc.bt)+3)   
+    ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
+    #plt.ylim((-20, 20))
+    #ax1.set_xticklabels([]) does not work with sharex
+    #plt.setp(ax1.get_xticklabels(), fontsize=6)
+    plt.setp(ax1.get_xticklabels(), visible=False)
+
+
+    ax2 = plt.subplot(512,sharex=ax1) 
+    ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
+    #plot vertical lines
+    plt.ylabel('V [km/s]')
+    ax2.set_xlim(start,end)
+    #check plasma data exists
+    #if np.isnan(np.nanmin(sc.vt))==False:
+    ax2.set_ylim(np.nanmin(sc.vt)-20,np.nanmax(sc.vt)+100)   
+    ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+    #plt.ylim((250, 800))
+    #ax2.set_xticklabels([])
+    plt.setp(ax2.get_xticklabels(), visible=False)
+
+
+    ax3 = plt.subplot(513,sharex=ax1) 
+    ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
+    plt.ylabel('N [ccm-3]')
+    ax3.set_xlim(start,end)
+    #if np.isnan(np.nanmin(sc.np))==False:
+    ax3.set_ylim(0,np.nanmax(sc.np)+5)   
+    ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+    #plt.ylim((0, 50))
+    #ax3.set_xticklabels([])
+    plt.setp(ax3.get_xticklabels(), visible=False)
+
+
+    ax4 = plt.subplot(514,sharex=ax1) 
+    ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
+    #plot vertical lines
+    plt.ylabel('T [MK]')
+    ax4.set_xlim(start,end)
+    #if np.isnan(np.nanmin(sc.tp))==False:   
+    ax4.set_ylim(0,np.nanmax(sc.tp/1e6)+0.2)   
+    plt.setp(ax4.get_xticklabels(), visible=False)
+
+    #plot MSL RAD
+    ax5 = plt.subplot(515,sharex=ax1) 
+    ax5.plot_date(rad_slice.time,rad_slice.dose_sol,'-k',label='MSL/RAD dose_sol',linewidth=0.7)
+    #ax5.plot_date(rad_slice.time,rad_slice.dose_hour,'-r',label='MSL/RAD dose_hour',linewidth=0.7)
+    #plot vertical lines
+ 
+    
+    
+    #ARRCAT HI    
+    ax5.plot_date([arrcat_mars[:,5],arrcat_mars[:,5]],[0,1000],'-b',linewidth=1) 
+    #use this fake data for labeling CME arrivals as blue as otherwise there are too many blue vertical lines
+
+    
+    ax5.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+    ax5.set_ylim(np.min(rad_slice.dose_sol)-15,np.max(rad_slice.dose_sol)+15)
+    plt.legend(loc=1,ncol=3,fontsize=6)
+    
+
+    
+    
+
+    plt.tight_layout()
+    #plt.show()
+
+    #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
+
+    #plotfile=path+ic.icmecat_id[i]+'.png'
+
+
+    #plt.savefig(plotfile)
+    #print('saved as ',plotfile)
+
+
+
+  
+    def onclick(event):
+
+        #global stepout
+        #print('button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
+           #   (event.button, event.x, event.y, event.xdata, event.ydata))
+        #print('time',str(mdates.num2date(event.xdata)))
+        nearestm1=np.argmin(abs(parse_time(sc.time).plot_date-event.xdata))
+        seltime=str(parse_time(sc.time[nearestm1]).iso)
+        print(seltime[0:10]+'T'+seltime[11:16]+'Z',event.ydata )  
+        #if event.button == 3: stepout=True
+
+
+  
+    cid = fig.canvas.mpl_connect('button_press_event', onclick)
+
+    
+     
+
+     #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
+     #plt.savefig(plotfile)
+     #print('saved as ',plotfile)
+   
+        
      
      
      

@@ -24,7 +24,7 @@
 # - change HELCATs to HELIO4CAST
 # 
 
-# In[1]:
+# In[16]:
 
 
 import numpy as np
@@ -92,46 +92,7 @@ if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir)
 os.system('jupyter nbconvert --to script icmecat.ipynb')    
 
 
-# In[26]:
-
-
-from heliocats import cats as hc
-importlib.reload(hc) #reload again while debugging
-
-
-#load HIGEOCAT
-higeocat=hc.load_higeocat_vot('data/HCME_WP3_V06.vot')
-
-#generate mars position 
-[mars_time,mars_r,mars_lat,mars_lon]=hc.get_mars_position()
-
-
-# In[36]:
-
-
-higeocat_time=parse_time(higeocat['Date']).datetime    
-print(higeocat_time)    
-
-print(mars_time)
-
-
-    #    "columns" : [ "ID", "Date [UTC]", "SC", "L-N", "PA-N [deg]", "L-S", "PA-S [deg]", "Quality" 
-    #       , "PA-fit [deg]"
-    #       , "FP Speed [kms-1]", "FP Speed Err [kms-1]", "FP Phi [deg]", "FP Phi Err [deg]","FP HEEQ Long [deg]",  "FP HEEQ Lat [deg]",  "FP Carr Long [deg]", "FP Launch [UTC]"
-    #       , "SSE Speed [kms-1]", "SSE Speed Err [kms-1]", "SSE Phi [deg]", "SSE Phi Err [deg]", "SSE HEEQ Long [deg]", "SSE HEEQ Lat [deg]",  "SSE Carr Long [deg]","SSE Launch [UTC]"
-    #       , "HM Speed [kms-1]", "HM Speed Err [kms-1]", "HM Phi [deg]", "HM Phi Err [deg]", "HM HEEQ Long [deg]", "HM HEEQ Lat [deg]", "HM Carr Long [deg]", "HM Launch [UTC]"
-    #  ],
-    #higeocat['Date']=parse_time(higeocat['Date'][10]).datetime
-
-    #access data
-    #a=table.array['HM HEEQ Long'][10]
-    
-
-
-#ta=t0+Ri/Visse
-
-    
-
+# ## Make HI SSEF30 arrival catalog for Mars
 
 # ## (0) process in situ data into similar format
 
@@ -321,7 +282,7 @@ print(mars_time)
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[15]:
+# In[11]:
 
 
 load_data=1
@@ -442,13 +403,18 @@ if load_data > 0:
 
     print('Wind merging done')
     
+
     
+#LOAD HELCATS catalogs if neeeded
 
 #HIGEOCAT
-higeocat=hc.load_higeocat('data/HCME_WP3_V06.vot')
+higeocat=hc.load_higeocat_vot('data/HCME_WP3_V06.vot')
 higeocat_time=parse_time(higeocat['Date']).datetime    
-    
+#Make Mars arrival catalog from HIGEOCAT
+arrcat_mars=hc.make_arrival_catalog_mars_ssef30(higeocat)
 
+
+    
      
          
 print()
@@ -480,7 +446,7 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning if needed
 
-# In[5]:
+# In[ ]:
 
 
 # save data as numpy structured arrays for machine learning
@@ -556,7 +522,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[32]:
+# In[ ]:
 
 
 #for measuring new events use this function from heliocats.plot 
@@ -585,7 +551,7 @@ if data_to_numpy > 0:
 
 # ## (3) make ICMECAT 
 
-# In[7]:
+# In[17]:
 
 
 print('data loaded')
@@ -621,7 +587,12 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 
 
 # ###### 3c make all plots if wanted
-# matplotlib.use('Agg')
+matplotlib.use('Agg')
+
+hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+
+
+
 # hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
 # hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 # hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
@@ -646,7 +617,7 @@ print('done')
 
 # ### 4a save header
 
-# In[8]:
+# In[ ]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -682,7 +653,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[70]:
+# In[ ]:
 
 
 ########## python formats
@@ -858,7 +829,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[10]:
+# In[ ]:
 
 
 #load icmecat as pandas dataframe
@@ -870,26 +841,26 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[11]:
+# In[ ]:
 
 
 ic_pandas
 ic_pandas.keys()
 
 
-# In[12]:
+# In[ ]:
 
 
 ic_nprec
 
 
-# In[13]:
+# In[ ]:
 
 
 ic_nprec
 
 
-# In[14]:
+# In[ ]:
 
 
 ic_nprec.icmecat_id

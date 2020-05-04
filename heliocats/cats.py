@@ -19,6 +19,7 @@ import scipy.io
 import pickle
 import sys
 import astropy
+from astropy.constants import au
 import importlib
 import cdflib
 import matplotlib.pyplot as plt
@@ -37,6 +38,10 @@ importlib.reload(hd) #reload again while debugging
 
 
 
+#define AU in km
+AU=au.value/1e3
+
+
 
 
 ################################ HI arrival catalog operations
@@ -45,28 +50,122 @@ importlib.reload(hd) #reload again while debugging
 def load_higeocat_vot(file):
     #read HIGEOCAT from https://www.helcats-fp7.eu/catalogues/wp3_cat.html
     #https://docs.astropy.org/en/stable/io/votable/
-    
-    
-
-    #    "columns" : [ "ID", "Date [UTC]", "SC", "L-N", "PA-N [deg]", "L-S", "PA-S [deg]", "Quality" 
-    #       , "PA-fit [deg]"
-    #       , "FP Speed [kms-1]", "FP Speed Err [kms-1]", "FP Phi [deg]", "FP Phi Err [deg]","FP HEEQ Long [deg]",  "FP HEEQ Lat [deg]",  "FP Carr Long [deg]", "FP Launch [UTC]"
-    #       , "SSE Speed [kms-1]", "SSE Speed Err [kms-1]", "SSE Phi [deg]", "SSE Phi Err [deg]", "SSE HEEQ Long [deg]", "SSE HEEQ Lat [deg]",  "SSE Carr Long [deg]","SSE Launch [UTC]"
-    #       , "HM Speed [kms-1]", "HM Speed Err [kms-1]", "HM Phi [deg]", "HM Phi Err [deg]", "HM HEEQ Long [deg]", "HM HEEQ Lat [deg]", "HM Carr Long [deg]", "HM Launch [UTC]"
-    #  ],
-
    
     table = parse_single_table('data/HCME_WP3_V06.vot')
     higeocat = table.array
+    #usage e.g.
     #higeocat['Date']=parse_time(higeocat['Date'][10]).datetime
-
     #access data
     #a=table.array['HM HEEQ Long'][10]
     
     return higeocat
 
 
-def get_mars_position():
+
+def get_mars_position_time(time1):
+    
+    ############### Mars position
+
+    planet_kernel=spicedata.get_kernel('planet_trajectories')
+    mars_time=[parse_time(time1).datetime,parse_time(time1).datetime]
+    mars=spice.Trajectory('4')  
+    frame='HEEQ'
+    mars.generate_positions(mars_time,'Sun',frame)  
+    mars.change_units(astropy.units.AU)  
+    [mars_r, mars_lat, mars_lon]=hd.cart2sphere(mars.x,mars.y,mars.z)
+    
+    mars_time=np.array(mars_time)[0]
+    mars_r=np.array(mars_r)[0]
+    mars_lat=np.array(mars_lat)[0]
+    mars_lon=np.array(mars_lon)[0]
+
+    return [mars_time,mars_r,np.degrees(mars_lat),np.degrees(mars_lon)]
+
+
+
+def calculate_arrival(vsse,delta,lamda,rdist,t0_num):
+   
+    #calculate arrival time after Möstl and Davies 2013 but using ta=t0+Ri/Visse equivalent to ta=t0+Risse/Vsse    
+   
+    visse=vsse * (  np.cos(np.radians(delta))   \
+                  + np.sqrt(  np.sin(np.radians(lamda))**2-np.sin(np.radians(delta))**2 ) ) \
+                    /(1+np.sin(np.radians(lamda)) )      
+                              
+    
+    #arrival time: convert AU to km  and seconds to days                
+    ta=t0_num+(rdist*AU/visse)/(3600*24)        
+                              
+    return [mdates.num2date(ta),visse]
+
+
+def make_arrival_catalog_mars_ssef30(higeocat):
+    
+    #get parameters from HIGEOCAT for arrival catalog
+
+    higeocat_time=parse_time(higeocat['Date']).datetime    #first HI observation
+    higeocat_t0=parse_time(higeocat['SSE Launch']).datetime   #backprojected launch time
+    higeocat_t0_num=parse_time(higeocat_t0).plot_date
+    higeocat_vsse=np.array(higeocat['SSE Speed'])
+    higeocat_sse_lon=np.array(higeocat['SSE HEEQ Long' ])
+    higeocat_sc=np.array(higeocat['SC'])
+
+    #half width for SSEF30
+    lamda=30.0
+
+    arrcat_mars_list = []
+
+    #go through all HIGEOCAT CME events and check for hit at Mars, with 4 iterations in total
+    for i in np.arange(len(higeocat_time)):
+
+        #get mars position for launch time t0    
+        [mars_time,mars_r,mars_lat,mars_lon]=get_mars_position_time(higeocat_t0[i])            
+        delta=abs(higeocat_sse_lon[i]-mars_lon)
+
+        if delta < 30:               
+
+            #calculate arrival time
+            #print(delta,lamda,mars_r)
+            [ta,visse]=calculate_arrival(higeocat_vsse[i],delta, lamda, mars_r,higeocat_t0_num[i])                
+
+            [mars_time2,mars_r2,mars_lat2,mars_lon2]=get_mars_position_time(ta)       
+            #print(mars_lon-mars_lon2)               
+            delta2=abs(higeocat_sse_lon[i]-mars_lon2)
+            if delta2 <30:
+
+                [ta2,visse2]=calculate_arrival(higeocat_vsse[i],delta2, lamda, mars_r2,higeocat_t0_num[i])
+                #print(int((parse_time(ta2).plot_date-parse_time(ta).plot_date)*24))
+
+                [mars_time3,mars_r3,mars_lat3,mars_lon3]=get_mars_position_time(ta2)       
+                delta3=abs(higeocat_sse_lon[i]-mars_lon3)
+
+                if delta3 <30:
+                    [ta3,visse3]=calculate_arrival(higeocat_vsse[i],delta3, lamda, mars_r3,higeocat_t0_num[i])
+                    #print(np.round((parse_time(ta3).plot_date-parse_time(ta2).plot_date)*24,1),int(delta3))
+
+                    [mars_time4,mars_r4,mars_lat3,mars_lon4]=get_mars_position_time(ta3)       
+                    delta4=abs(higeocat_sse_lon[i]-mars_lon4)
+
+                    if delta4 <30:
+                        [ta4,visse4]=calculate_arrival(higeocat_vsse[i],delta4, lamda, mars_r4,higeocat_t0_num[i])
+                        #print(np.round((parse_time(ta4).plot_date-parse_time(ta3).plot_date)*24,1),int(delta4))
+                        #print(int(delta4-delta))                    
+
+                        list1=[higeocat_sc[i],delta4,higeocat_vsse[i],visse4,higeocat_t0[i],ta4]
+                        arrcat_mars_list.append(list1)
+
+
+    arrcat_mars=np.array(arrcat_mars_list)
+    print('SSEF30 events hitting Mars: ',len(arrcat_mars_list)   ) 
+    print('Mars SSEF30 arrival catalog finished.')
+   
+    
+    
+    return arrcat_mars
+
+
+
+
+def get_mars_position_array():
     
     ############### Mars position
 
@@ -78,7 +177,6 @@ def get_mars_position():
     while starttime < endtime:
         mars_time.append(starttime)
         starttime += datetime.timedelta(hours=res_in_hours)
-    mars_time_num=parse_time(mars_time)     
     mars=spice.Trajectory('4')  
     frame='HEEQ'
     mars.generate_positions(mars_time,'Sun',frame)  
@@ -92,23 +190,6 @@ def get_mars_position():
     mars_lon=np.array(mars_lon)
 
     return [mars_time,mars_r,np.degrees(mars_lat),np.degrees(mars_lon)]
-
-
-
-
-def arrival_catalogue_mars(data):
-    
-    h=hd.load_higeocat()
-    
-    
-    
-    
-    
-    
-    
-    return 0
-
-
 
 
 
