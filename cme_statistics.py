@@ -44,7 +44,7 @@
 #     jupyter nbconvert --to script cme_statistics.ipynb
 # 
 
-# In[10]:
+# In[1]:
 
 
 from scipy import stats
@@ -70,6 +70,7 @@ import importlib
 #where the 6 in situ data files are located is read from input.py
 #as data_path=....
 from config import data_path
+#reload again while debugging
 
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
@@ -94,7 +95,7 @@ os.system('jupyter nbconvert --to script cme_statistics.ipynb')
 # 
 # 
 
-# In[19]:
+# In[83]:
 
 
 plt.close('all')
@@ -131,14 +132,56 @@ if load_data > 0:
     filemav='maven_2014_2018_removed_smoothed.p'
     [mav,hmav]=pickle.load(open(data_path+filemav, 'rb' ) )
 
+    print('load and merge Wind data HEEQ') 
+    #from HELCATS HEEQ until 2018 1 1 + new self-processed data with heliosat and hd.save_wind_data
     filewin="wind_2007_2018_heeq_helcats.p" 
-    [win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+    [win1,hwin1]=pickle.load(open(data_path+filewin, "rb" ) )  
+    
+    #or use: filewin2="wind_2018_now_heeq.p" 
+    filewin2="wind_2018_2019_heeq.p" 
+    [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
+
+    #merge Wind old and new data 
+    #cut off HELCATS data at end of 2017, win2 begins exactly after this
+    win1=win1[np.where(win1.time < parse_time('2018-Jan-01 00:00').datetime)[0]]
+    #make array
+    win=np.zeros(np.size(win1.time)+np.size(win2.time),dtype=[('time',object),('bx', float),('by', float),                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),                ('x', float),('y', float),('z', float),                ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    win = win.view(np.recarray)  
+    win.time=np.hstack((win1.time,win2.time))
+    win.bx=np.hstack((win1.bx,win2.bx))
+    win.by=np.hstack((win1.by,win2.by))
+    win.bz=np.hstack((win1.bz,win2.bz))
+    win.bt=np.hstack((win1.bt,win2.bt))
+    win.vt=np.hstack((win1.vt,win2.vt))
+    win.np=np.hstack((win1.np,win2.np))
+    win.tp=np.hstack((win1.tp,win2.tp))
+    win.x=np.hstack((win1.x,win2.x))
+    win.y=np.hstack((win1.y,win2.y))
+    win.z=np.hstack((win1.z,win2.z))
+    win.r=np.hstack((win1.r,win2.r))
+    win.lon=np.hstack((win1.lon,win2.lon))
+    win.lat=np.hstack((win1.lat,win2.lat))
+
+    print('Wind merging done')
+    
+
+
 
     filevex='vex_2007_2014_sceq_removed.p'
     [vex,hvex]=pickle.load(open(data_path+filevex, 'rb' ) )
+    
+    filevex='vex_2007_2014_sceq.p'
+    [vexnon,hvexnon]=pickle.load(open(data_path+filevex, 'rb' ) )
+    
 
     filemes='messenger_2007_2015_sceq_removed.p'
     [mes,hmes]=pickle.load(open(data_path+filemes, 'rb' ) )
+
+    filemes='messenger_2007_2015_sceq.p'
+    [mesnon,hmesnon]=pickle.load(open(data_path+filemes, 'rb' ) )
+
  
     filestb='stereob_2007_2014_sceq.p'
     [stb,hstb]=pickle.load(open(data_path+filestb, "rb" ) )      
@@ -154,10 +197,10 @@ if load_data > 0:
     
     
     ####################################### OMNI2
-    fileomni="omni_1963_now.p"
-    #overwrite=1
-    #hd.save_omni_data(data_path,fileomni,overwrite)
-    [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
+    #fileomni="omni_1963_now.p"
+    ##overwrite=1
+    ##hd.save_omni_data(data_path,fileomni,overwrite)
+    #[o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
     
     
     
@@ -278,7 +321,7 @@ ic
 
 # ### 1a Check data days available each year for each planet or spacecraft
 
-# In[ ]:
+# In[84]:
 
 
 #make bin for each year for yearly histograms
@@ -331,10 +374,10 @@ total_data_days_yearly_mav.fill(np.nan)
 #go through all years
 for i in range(np.size(yearly_mid_times)):
     
-  print(i)  
+  print(yearly_start_times[i])
 
   #get indices of Wind time for the current year
-  thisyear=np.where(np.logical_and((win.time > yearly_start_times[i]),(win.time < yearly_end_times[i])))
+  thisyear=np.where(np.logical_and((win.time > yearly_start_times[i]),(win.time < yearly_end_times[i])))[0]
   #get np.size of available data for each year
   datas=np.size(np.where(np.isnan(win.bt[thisyear])==False))
   #wind is  in 1 minute resolution
@@ -345,12 +388,12 @@ for i in range(np.size(yearly_mid_times)):
   if datas >0: total_data_days_yearly_win[i]=datas*min_in_days
 
   #same for STEREO-A
-  thisyear=np.where(np.logical_and((sta.time > yearly_start_times[i]),(sta.time < yearly_end_times[i])))
+  thisyear=np.where(np.logical_and((sta.time > yearly_start_times[i]),(sta.time < yearly_end_times[i])))[0]
   datas=np.size(np.where(np.isnan(sta.bt[thisyear])==False))
   if datas >0: total_data_days_yearly_sta[i]=datas*min_in_days
 
   #same for STEREO-B
-  thisyear=np.where(np.logical_and((stb.time > yearly_start_times[i]),(stb.time < yearly_end_times[i])))
+  thisyear=np.where(np.logical_and((stb.time > yearly_start_times[i]),(stb.time < yearly_end_times[i])))[0]
   datas=np.size(np.where(np.isnan(stb.bt[thisyear])==False))
   if datas >0: total_data_days_yearly_stb[i]=datas*min_in_days
 
@@ -359,26 +402,26 @@ for i in range(np.size(yearly_mid_times)):
   #datas=np.size(np.where(np.isnan(mes.bt[thisyear])==False))
   #if datas >0: total_data_days_yearly_mes[i]=datas*min_in_days
 
-  #same for Mercury alone
+  #same for Mercury alone with non-removed dataset
   #start with 2011
   if i == 4: 
-   thisyear=np.where(np.logical_and((mes.time > mercury_orbit_insertion_time),(mes.time < yearly_end_times[i])))
-   datas=np.size(np.where(np.isnan(mes.bt[thisyear])==False))
+   thisyear=np.where(np.logical_and((mesnon.time > mercury_orbit_insertion_time),(mesnon.time < yearly_end_times[i])))[0]
+   datas=np.size(np.where(np.isnan(mesnon.bt[thisyear])==False))
    if datas >0: total_data_days_yearly_merc[i]=datas*min_in_days
   #2012 onwards 
   if i > 4: 
-   thisyear=np.where(np.logical_and((mes.time > yearly_start_times[i]),(mes.time < yearly_end_times[i])))
-   datas=np.size(np.where(np.isnan(mes.bt[thisyear])==False))
+   thisyear=np.where(np.logical_and((mesnon.time > yearly_start_times[i]),(mesnon.time < yearly_end_times[i])))
+   datas=np.size(np.where(np.isnan(mesnon.bt[thisyear])==False))
    if datas >0: total_data_days_yearly_merc[i]=datas*min_in_days
       
 
   #same for VEX
-  thisyear=np.where(np.logical_and((vex.time > yearly_start_times[i]),(vex.time < yearly_end_times[i])))
-  datas=np.size(np.where(np.isnan(vex.bt[thisyear])==False))
+  thisyear=np.where(np.logical_and((vexnon.time > yearly_start_times[i]),(vexnon.time < yearly_end_times[i])))[0]
+  datas=np.size(np.where(np.isnan(vexnon.bt[thisyear])==False))
   if datas >0: total_data_days_yearly_vex[i]=datas*min_in_days
 
   #for MAVEN different time resolution
-  thisyear=np.where(np.logical_and((mav.time > yearly_start_times[i]),(mav.time < yearly_end_times[i])))
+  thisyear=np.where(np.logical_and((mav.time > yearly_start_times[i]),(mav.time < yearly_end_times[i])))[0]
   datas=np.size(np.where(np.isnan(mav.bt[thisyear])==False))
   datas_ind=np.where(np.isnan(mav.bt[thisyear])==False)
   #sum all time intervals for existing data points, but avoid counting gaps where diff is > 1 orbit (0.25 days)
@@ -389,19 +432,27 @@ for i in range(np.size(yearly_mid_times)):
 print('Data days each year:')
 
 print()
+
+print('MESSENGER at Mercury')
+print(np.round(total_data_days_yearly_merc,1))
+#print('MES')
+#print(np.round(total_data_days_yearly_mes,1))
+print('VEX at Venus')
+print(np.round(total_data_days_yearly_vex,1))
+
+print()
+print('Earth and solar wind')
 print('Wind')
 print(np.round(total_data_days_yearly_win,1))
 print('STA')
 print(np.round(total_data_days_yearly_sta,1))
 print('STB')
 print(np.round(total_data_days_yearly_stb,1))
-print('MERCURY')
-print(np.round(total_data_days_yearly_merc,1))
-#print('MES')
-#print(np.round(total_data_days_yearly_mes,1))
-print('VEX')
-print(np.round(total_data_days_yearly_vex,1))
-print('MAV')
+print()
+
+
+
+print('MAVEN at Mars')
 print(np.round(total_data_days_yearly_mav,1))
 
 print('done')
@@ -409,13 +460,12 @@ print('done')
 
 # ### 1b plot ICME frequency
 
-# In[5]:
+# In[82]:
 
 
 #define dates of January 1 from 2007 to 2017
-years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,2019) ] 
+years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,last_year+1) ] 
 yearly_bin_edges=parse_time(years_jan_1_str).plot_date
-
 #bin width in days         
 binweite=360/8
 
@@ -425,44 +475,49 @@ fsize=15
 
 fig=plt.figure(4,figsize=(12,10	))
 
-#Fig 1a
+######################## Fig 1a
 ax1 = plt.subplot(211) 
-plt.plot_date(ic.icme_start_time[wini],ic.mo_sc_heliodistance[wini],fmt='o',color='mediumseagreen',markersize=5)
-plt.plot_date(ic.icme_start_time[mesi],ic.mo_sc_heliodistance[mesi],fmt='o',color='darkgrey',markersize=5)
+plt.plot_date(ic.icme_start_time[merci],ic.mo_sc_heliodistance[merci],fmt='o',color='darkgrey',markersize=5)
 plt.plot_date(ic.icme_start_time[vexi],ic.mo_sc_heliodistance[vexi],fmt='o',color='orange',markersize=5)
+
+plt.plot_date(ic.icme_start_time[wini],ic.mo_sc_heliodistance[wini],fmt='o',color='mediumseagreen',markersize=5)
+plt.plot_date(ic.icme_start_time[mavi],ic.mo_sc_heliodistance[mavi],fmt='o',color='steelblue',markersize=5)
+
 plt.plot_date(ic.icme_start_time[stbi],ic.mo_sc_heliodistance[stbi],fmt='o',color='royalblue',markersize=5)
 plt.plot_date(ic.icme_start_time[stai],ic.mo_sc_heliodistance[stai],fmt='o',color='red',markersize=5)
-plt.plot_date(ic.icme_start_time[ulyi],ic.mo_sc_heliodistance[ulyi],fmt='o',color='brown',markersize=5)
-plt.plot_date(ic.icme_start_time[mavi],ic.mo_sc_heliodistance[mavi],fmt='o',color='steelblue',markersize=5)
+#plt.plot_date(ic.icme_start_time[ulyi],ic.mo_sc_heliodistance[ulyi],fmt='o',color='brown',markersize=5)
 
 plt.ylabel('Heliocentric distance R [AU]',fontsize=fsize)
 plt.xlabel('Year',fontsize=fsize)
 plt.yticks(fontsize=fsize) 
 plt.xticks(fontsize=fsize) 
 
-plt.xlim(yearly_bin_edges[0],yearly_bin_edges[10])
+plt.xlim(yearly_bin_edges[0],yearly_bin_edges[-1])
 ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 
 
-# Fig 1b
-
-(histwin, bin_edgeswin) = np.histogram(mdates.date2num(ic.icme_start_time[wini]), yearly_bin_edges)
+#################### Fig 1b
+(histmerc, bin_edgesmerc) = np.histogram(mdates.date2num(ic.icme_start_time[merci]), yearly_bin_edges)
 (histvex, bin_edgesvex) = np.histogram(mdates.date2num(ic.icme_start_time[vexi]), yearly_bin_edges)
-(histmes, bin_edgesmes) = np.histogram(mdates.date2num(ic.icme_start_time[mesi]), yearly_bin_edges)
+(histwin, bin_edgeswin) = np.histogram(mdates.date2num(ic.icme_start_time[wini]), yearly_bin_edges)
+(histmav, bin_edgesmav) = np.histogram(mdates.date2num(ic.icme_start_time[mavi]), yearly_bin_edges)
+
 (histstb, bin_edgesstb) = np.histogram(mdates.date2num(ic.icme_start_time[stbi]), yearly_bin_edges)
 (histsta, bin_edgessta) = np.histogram(mdates.date2num(ic.icme_start_time[stai]), yearly_bin_edges)
-(histmav, bin_edgesmav) = np.histogram(mdates.date2num(ic.icme_start_time[mavi]), yearly_bin_edges)
 
 #normalize each dataset for data gaps
 
-histwin=histwin/total_data_days_yearly_win*365
-histvex=histvex/total_data_days_yearly_vex*365
-histmes=histmes/total_data_days_yearly_mes*365
-histsta=histsta/total_data_days_yearly_sta*365
-histstb=histstb/total_data_days_yearly_stb*365
-histmav=histmav/total_data_days_yearly_mav*365
+#*** check longer gaps at VEX and Mercury; otherwise these data arise from the bow shock gaps for each orbit
+histvex=histvex/total_data_days_yearly_vex*365.24
+histmerc=histmes/total_data_days_yearly_merc*365.24
+
+#ok for these spacecraft as continously in the solar wind and the MAVEN data set is without orbit gaps
+histsta=histsta/total_data_days_yearly_sta*365.24
+histstb=histstb/total_data_days_yearly_stb*365.24
+histwin=histwin/total_data_days_yearly_win*365.24
+histmav=histmav/total_data_days_yearly_mav*365.24
 
 binedges=bin_edgeswin
 #pickle.dump([binedges,histwin,histvex,histmes,histsta,histstb,histmav], \
@@ -472,29 +527,29 @@ binedges=bin_edgeswin
 ax2 = plt.subplot(212) 
 
 #binweite=45
-ax2.bar(bin_edgeswin[:-1]+30,histwin, width=binweite,color='mediumseagreen', alpha=0.5)
-ax2.bar(bin_edgesvex[:-1]+30+binweite,histvex, width=binweite,color='orange', alpha=0.5)
-ax2.bar(bin_edgesmes[:-1]+30+ binweite*2,histmes, width=binweite,color='darkgrey', alpha=0.5)
-ax2.bar(bin_edgesstb[:-1]+30+binweite*3,histstb, width=binweite,color='royalblue', alpha=0.5)
-ax2.bar(bin_edgessta[:-1]+30+binweite*4,histsta, width=binweite,color='red', alpha=0.5)
+ax2.bar(bin_edgesmerc[:-1]+30+binweite,histmerc, width=binweite,color='darkgrey', alpha=0.5)
+ax2.bar(bin_edgesvex[:-1]+30+binweite*2,histvex, width=binweite,color='orange', alpha=0.5)
+ax2.bar(bin_edgeswin[:-1]+30+binweite*3,histwin, width=binweite,color='mediumseagreen', alpha=0.5)
+ax2.bar(bin_edgesstb[:-1]+30+binweite*4,histstb, width=binweite,color='royalblue', alpha=0.5)
+ax2.bar(bin_edgessta[:-1]+30+binweite*5,histsta, width=binweite,color='red', alpha=0.5)
 #ax2.bar(bin_edgessta[:-1]+30+binweite*5,histuly, width=binweite,color='brown', alpha=0.5)
 ax2.bar(bin_edgesmav[:-1]+30+binweite*6,histmav, width=binweite,color='steelblue', alpha=0.5)
 
-plt.xlim(yearly_bin_edges[0],yearly_bin_edges[10])
+plt.xlim(yearly_bin_edges[0],yearly_bin_edges[-1])
 ax2.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax2.xaxis.set_major_formatter(myformat)
 #sets planet / spacecraft labels
-xoff=0.85 
+xoff=0.75 
 yoff=0.45
 fsize=12
-plt.figtext(xoff,yoff,'Earth L1',color='mediumseagreen', fontsize=fsize, ha='left')
-plt.figtext(xoff,yoff-0.03*1,'VEX',color='orange', fontsize=fsize, ha='left')
-plt.figtext(xoff,yoff-0.03*2,'MESSENGER',color='dimgrey', fontsize=fsize, ha='left')
-plt.figtext(xoff,yoff-0.03*3,'STEREO-A',color='red', fontsize=fsize, ha='left')
-plt.figtext(xoff,yoff-0.03*4,'STEREO-B',color='royalblue', fontsize=fsize, ha='left')
+plt.figtext(xoff,yoff-0.03*1,'MESSENGER at Mercury',color='dimgrey', fontsize=fsize, ha='left')
+plt.figtext(xoff,yoff-0.03*2,'VEX at Venus',color='orange', fontsize=fsize, ha='left')
+plt.figtext(xoff,yoff-0.03*3,'Wind at Earth',color='mediumseagreen', fontsize=fsize, ha='left')
+plt.figtext(xoff,yoff-0.03*4,'STEREO-A',color='red', fontsize=fsize, ha='left')
+plt.figtext(xoff,yoff-0.03*5,'STEREO-B',color='royalblue', fontsize=fsize, ha='left')
 #plt.figtext(xoff,yoff-0.03*5,'Ulysses',color='brown', fontsize=fsize, ha='left')
-plt.figtext(xoff,yoff-0.03*5,'MAVEN',color='steelblue', fontsize=fsize, ha='left')
+plt.figtext(xoff,yoff-0.03*6,'MAVEN at Mars',color='steelblue', fontsize=fsize, ha='left')
 #panel labels
 plt.figtext(0.02,0.98,'(a)',color='black', fontsize=fsize+5, ha='left')
 plt.figtext(0.02,0.48,'(b)',color='black', fontsize=fsize+5, ha='left')
@@ -506,26 +561,27 @@ fsize=13
 plt.axvspan(minstart_num,minend_num, color='green', alpha=0.1)
 plt.annotate('solar minimum',xy=(minstart_num+(minend_num-minstart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
 
-plt.axvspan(risestart_num,riseend_num, color='yellow', alpha=0.1)
-plt.annotate('rising phase',xy=(risestart_num+(riseend_num-risestart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
+plt.axvspan(maxstart_num,maxend_num, color='red', alpha=0.1)
+plt.annotate('solar maximum',xy=(maxstart_num+(maxend_num-maxstart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
 
-plt.axvspan(maxstart_num,maxstart_num, color='red', alpha=0.1)
-plt.annotate('solar maximum',xy=(maxstart_num+(maxstart_num-maxstart_num)/2,vlevel),color='black', ha='left', fontsize=fsize)
+
+#plt.axvspan(risestart_num,riseend_num, color='yellow', alpha=0.1)
+#plt.annotate('rising phase',xy=(risestart_num+(riseend_num-risestart_num)/2,vlevel),color='black', ha='center', fontsize=fsize)
 
 fsize=15
-plt.ylabel('ICMEs per year',fontsize=fsize)
+plt.ylabel('estimated ICMEs per year',fontsize=fsize)
 plt.xlabel('Year',fontsize=fsize)
 plt.yticks(fontsize=fsize) 
 plt.xticks(fontsize=fsize) 
 plt.tight_layout()
 
 
-#++++++++++++++++++ Sunspot number in back with right axis
+#************ addSunspot number in back with right axis
 
 #sns.despine()
 
-plt.savefig('results/plots_stats/ICME_frequency_paper.pdf', dpi=300)
-plt.savefig('results/plots_stats/ICME_frequency_paper.png', dpi=300)
+plt.savefig('results/plots_stats/ICME_frequency_1.pdf', dpi=300)
+plt.savefig('results/plots_stats/ICME_frequency_1.png', dpi=300)
 
 
 #calculate general parameters
@@ -536,10 +592,10 @@ mean08=np.mean([histwin[1],histvex[1],histsta[1],histstb[1],histmes[1]])
 mean09=np.mean([histwin[2],histvex[2],histsta[2],histstb[2],histmes[2]])
 print(np.nanmean([mean07,mean08,mean09]))
 
-print('for 2010 2011')
-mean10=np.mean([histwin[3],histvex[3],histsta[3],histstb[3],histmes[3]])
-mean11=np.mean([histwin[4],histvex[4],histsta[4],histstb[4],histmes[4]])
-print(np.mean([mean10,mean11]))
+#print('for 2010 2011')
+#mean10=np.mean([histwin[3],histvex[3],histsta[3],histstb[3],histmes[3]])
+#mean11=np.mean([histwin[4],histvex[4],histsta[4],histstb[4],histmes[4]])
+#print(np.mean([mean10,mean11]))
 
 
 print('for 2012 2013 2014')
