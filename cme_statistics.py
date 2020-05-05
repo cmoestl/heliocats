@@ -9,35 +9,42 @@
 # 
 # Author: C. Moestl, IWF Graz, Austria
 # twitter @chrisoutofspace, https://github.com/cmoestl
-# last update March 2020
+# last update April 2020
 # 
-# for installation of a conda environment to run this code, see instructions in README.md.
+# For installation of a conda environment to run this code and how to download the data, see instructions in README.md.
 # 
 # Conda dependencies are listed under environment.yml, and pip in requirements.txt.
 # 
+# ICMEs cover January 2007-December 2019.
+# 
+# ---
+# 
 # structure of this code:
 # 
-# 0. Settings and load data
+# ### 0. Settings and load data
 # 
-# 1. ICME arrival frequencies
+# check minimum maximum time ranges for solar cycle 24
 # 
-# 2. ICME duration 
+# ### 1. ICME arrival frequencies
 # 
-# 3. Magnetic field 
+# ### 2. ICME duration 
 # 
-# 4. Times the planets spend inside ICMEs total, yearly and per solar cycle phase
+# ### 3. Magnetic field 
+# 
+# ### 4. Times the planets spend inside ICMEs total, yearly and per solar cycle phase
 # 
 # 
+# 
+# ---
 # plots are saved in results/plots_stats/ as png and pdf
 # 
-# analysis results files are written to data/
 # 
 # convert to script with 
 # 
 #     jupyter nbconvert --to script cme_statistics.ipynb
 # 
 
-# In[1]:
+# In[10]:
 
 
 from scipy import stats
@@ -64,16 +71,8 @@ import importlib
 #as data_path=....
 from config import data_path
 
-
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
-
-#%matplotlib inline
-#matplotlib.use('Qt5Agg')
-#matplotlib.use('Agg')
-
-#warnings.filterwarnings('ignore') # some numpy mean-of-empty-slice runtime warnings
-
 
 from heliocats import stats as hs
 importlib.reload(hs) #reload again while debugging
@@ -85,25 +84,32 @@ importlib.reload(hd) #reload again while debugging
 #Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
 os.system('jupyter nbconvert --to script cme_statistics.ipynb')    
 
+#%matplotlib inline
+#matplotlib.use('Qt5Agg')
+#matplotlib.use('Agg')
+#warnings.filterwarnings('ignore') # some numpy mean-of-empty-slice runtime warnings
+
 
 # ## 0. Settings and load data
 # 
 # 
 
-# In[2]:
-
+# In[19]:
 
 
 plt.close('all')
 
 print('cme_statistics main program.')
 print('ICME parameters at all 4 terrestrial planets.')
-print('Christian Moestl et al., IWF Graz, Austria, last update March 2020')
-
+print('Christian Moestl et al., IWF Graz, Austria')
 
 #constants 
 #solar radius
 Rs_in_AU=float(const.R_sun/const.au)
+#define AU in km
+AU_in_km=const.au.value/1e3
+
+
 
 
 ########### make directories first time
@@ -145,6 +151,16 @@ if load_data > 0:
     
     fileuly='ulysses_1990_2009_rtn.p'
     [uly,huly]=pickle.load(open(data_path+fileuly, "rb" ) ) 
+    
+    
+    ####################################### OMNI2
+    fileomni="omni_1963_now.p"
+    #overwrite=1
+    #hd.save_omni_data(data_path,fileomni,overwrite)
+    [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
+    
+    
+    
 
 
     # ADD BepiColombo  
@@ -164,7 +180,7 @@ pos_time_num=parse_time(pos_time).plot_date
 print('positions done')
 
 
-########### load ICMECAT v2.0, made with icmecat.py/ipynb
+########### load ICMECAT v2.0, made with icmecat.py or ipynb
 file='icmecat/HELCATS_ICMECAT_v20_pandas.p'
 print()
 print('loaded ', file)
@@ -175,73 +191,78 @@ print('Keys (parameters) in this pandas data frame are:')
 print(ic.keys())
 print()
 
-#get indices of events for each spacecraft
-wini=np.where(ic.sc_insitu == 'Wind')[:][0] 
+################### get indices of events for each spacecraft
+
+mercury_orbit_insertion_time= parse_time('2011-03-18').datetime
+
+#spacecraft near the 4 terrestrial planets
+#get indices for Mercury after orbit insertion in March 2011
+merci=np.where(np.logical_and(ic.sc_insitu =='MESSENGER', ic.icme_start_time > mercury_orbit_insertion_time))[0]
 vexi=np.where(ic.sc_insitu == 'VEX')[:][0]  
+wini=np.where(ic.sc_insitu == 'Wind')[:][0] 
+mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
+
+#other spacecraft
+#all MESSENGER events including cruise phase
 mesi=np.where(ic.sc_insitu == 'MESSENGER')[:][0]   
+pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
 stai=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
 stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
-mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
 ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]   
-pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
-#get indices for Mercury after orbit insertion in March 2011
-merci=np.where(np.logical_and(ic.sc_insitu =='MESSENGER', ic.icme_start_time > parse_time('2011-03-18').datetime))[0]
-
 
 ############### set limits of solar minimum, rising/declining phase and solar maximum
+
+# ************ check these dates
 
 minstart=parse_time('2007-01-01').datetime
 minend=parse_time('2009-12-31').datetime
 minstart_num=parse_time('2007-01-01').plot_date
 minend_num=parse_time('2009-12-31').plot_date
 
-risestart=parse_time('2010-01-01').datetime
-riseend=parse_time('2011-06-30').datetime
-risestart_num=parse_time('2010-01-01').plot_date
-riseend_num=parse_time('2011-06-30').plot_date
-
 maxstart=parse_time('2011-07-01').datetime
 maxend=parse_time('2014-12-31').datetime
 maxstart_num=parse_time('2011-07-01').plot_date
 maxend_num=parse_time('2014-12-31').plot_date
 
-declstart=parse_time('2015-01-01').datetime
-declend=parse_time('2017-12-31').datetime
-declstart_num=parse_time('2015-01-01').plot_date
-declend_num=parse_time('2017-12-31').plot_date
+# risestart=parse_time('2010-01-01').datetime
+# riseend=parse_time('2011-06-30').datetime
+# risestart_num=parse_time('2010-01-01').plot_date
+# riseend_num=parse_time('2011-06-30').plot_date
+
+# declstart=parse_time('2015-01-01').datetime
+# declend=parse_time('2018-12-31').datetime
+# declstart_num=parse_time('2015-01-01').plot_date
+# declend_num=parse_time('2018-12-31').plot_date
 
 
-############### extract events by limits of solar min, 
-############### rising, max -> too few events for MAVEN and Ulysses
-
-#get all events for minimum
+############### extract events by limits of solar minimum and  maximum
 iall_min=np.where(np.logical_and(ic.icme_start_time > minstart,ic.icme_start_time < minend))[0]
-iall_rise=np.where(np.logical_and(ic.icme_start_time > risestart,ic.icme_start_time < riseend))[0]
+#iall_rise=np.where(np.logical_and(ic.icme_start_time > risestart,ic.icme_start_time < riseend))[0]
 iall_max=np.where(np.logical_and(ic.icme_start_time > maxstart,ic.icme_start_time < maxend))[0]
 
 wini_min=iall_min[np.where(ic.sc_insitu[iall_min]=='Wind')]
-wini_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='Wind')]
+#wini_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='Wind')]
 wini_max=iall_max[np.where(ic.sc_insitu[iall_max]=='Wind')]
 
 vexi_min=iall_min[np.where(ic.sc_insitu[iall_min]=='VEX')]
-vexi_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='VEX')]
+#vexi_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='VEX')]
 vexi_max=iall_max[np.where(ic.sc_insitu[iall_max]=='VEX')]
 
 mesi_min=iall_min[np.where(ic.sc_insitu[iall_min]=='MESSENGER')]
-mesi_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='MESSENGER')]
+#mesi_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='MESSENGER')]
 mesi_max=iall_max[np.where(ic.sc_insitu[iall_max]=='MESSENGER')]
 
 stai_min=iall_min[np.where(ic.sc_insitu[iall_min]=='STEREO-A')]
-stai_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='STEREO-A')]
+#stai_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='STEREO-A')]
 stai_max=iall_max[np.where(ic.sc_insitu[iall_max]=='STEREO-A')]
 
 stbi_min=iall_min[np.where(ic.sc_insitu[iall_min]=='STEREO-B')]
-stbi_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='STEREO-B')]
+#stbi_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='STEREO-B')]
 stbi_max=iall_max[np.where(ic.sc_insitu[iall_max]=='STEREO-B')]
 
 # select the events at Mercury extra after orbit insertion, note that no events available for solar minimum
 merci_min=iall_min[np.where(np.logical_and(ic.sc_insitu[iall_min] =='MESSENGER',ic.icme_start_time[iall_min] > parse_time('2011-03-18').datetime))]
-merci_rise=iall_rise[np.where(np.logical_and(ic.sc_insitu[iall_rise] =='MESSENGER',ic.icme_start_time[iall_rise] > parse_time('2011-03-18').datetime))]
+#merci_rise=iall_rise[np.where(np.logical_and(ic.sc_insitu[iall_rise] =='MESSENGER',ic.icme_start_time[iall_rise] > parse_time('2011-03-18').datetime))]
 merci_max=iall_max[np.where(np.logical_and(ic.sc_insitu[iall_max] =='MESSENGER',ic.icme_start_time[iall_max] > parse_time('2011-03-18').datetime))]
 
 print('done')
@@ -255,35 +276,32 @@ ic
 
 # ## 1. arrival frequencies in ICMECAT 
 
-# ### 1a Data days available each year for each planet
+# ### 1a Check data days available each year for each planet or spacecraft
 
-# In[4]:
+# In[ ]:
 
 
 #make bin for each year for yearly histograms
-#define dates of January 1 from 2007 to 2017
-years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,2018) ] 
-yearly_start_times=parse_time(years_jan_1_str).plot_date
-yearly_start_times_d=parse_time(years_jan_1_str).datetime
+#define dates of January 1 from 2007 to end year
+
+last_year=2019 #2020 means last date is 2019 Dec 31
+
+years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,last_year) ] 
+yearly_start_times=parse_time(years_jan_1_str).datetime
+yearly_start_times_num=parse_time(years_jan_1_str).plot_date
+
+#same for July 1 as middle of the year
+years_jul_1_str=[str(i)+'-07-01' for i in np.arange(2007,last_year) ] 
+yearly_mid_times=parse_time(years_jul_1_str).datetime
+yearly_mid_times_num=parse_time(years_jul_1_str).plot_date
+
+#same for december 31
+years_dec_31_str=[str(i)+'-12-31' for i in np.arange(2007,last_year) ] 
+yearly_end_times=parse_time(years_dec_31_str).datetime
+yearly_end_times_num=parse_time(years_dec_31_str).plot_date
 
 
-#same for July
-years_jul_1_str=[str(i)+'-07-01' for i in np.arange(2007,2018) ] 
-yearly_mid_times=parse_time(years_jul_1_str).plot_date
-yearly_mid_times_d=parse_time(years_jul_1_str).datetime
-
-
-#same for december
-years_dec_31_str=[str(i)+'-12-31' for i in np.arange(2007,2018) ] 
-yearly_end_times=parse_time(years_dec_31_str).plot_date
-yearly_end_times_d=parse_time(years_dec_31_str).datetime
-
-
-
-########### 2a Determine for SOLAR WIND ONLY MISSIONS STA, STB, Wind
-########### all are available in 1 minute time resolution 
-
-#define arrays and fill with nan
+#define arrays for total data days and fill with nan
 total_data_days_yearly_win=np.zeros(np.size(yearly_mid_times))
 total_data_days_yearly_win.fill(np.nan)
 
@@ -308,12 +326,15 @@ total_data_days_yearly_mav.fill(np.nan)
 
 #go through each year and search for available data
 #time is available for all dates, so no NaNs in time
-#all NaNs in Btotal variable
+#search for all not NaNs in Btotal variable
 
+#go through all years
 for i in range(np.size(yearly_mid_times)):
+    
+  print(i)  
 
-  #Wind index for this year  
-  thisyear=np.where(np.logical_and((win.time > yearly_start_times_d[i]),(win.time < yearly_end_times_d[i])))
+  #get indices of Wind time for the current year
+  thisyear=np.where(np.logical_and((win.time > yearly_start_times[i]),(win.time < yearly_end_times[i])))
   #get np.size of available data for each year
   datas=np.size(np.where(np.isnan(win.bt[thisyear])==False))
   #wind is  in 1 minute resolution
@@ -324,40 +345,40 @@ for i in range(np.size(yearly_mid_times)):
   if datas >0: total_data_days_yearly_win[i]=datas*min_in_days
 
   #same for STEREO-A
-  thisyear=np.where(np.logical_and((sta.time > yearly_start_times_d[i]),(sta.time < yearly_end_times_d[i])))
+  thisyear=np.where(np.logical_and((sta.time > yearly_start_times[i]),(sta.time < yearly_end_times[i])))
   datas=np.size(np.where(np.isnan(sta.bt[thisyear])==False))
   if datas >0: total_data_days_yearly_sta[i]=datas*min_in_days
 
   #same for STEREO-B
-  thisyear=np.where(np.logical_and((stb.time > yearly_start_times_d[i]),(stb.time < yearly_end_times_d[i])))
+  thisyear=np.where(np.logical_and((stb.time > yearly_start_times[i]),(stb.time < yearly_end_times[i])))
   datas=np.size(np.where(np.isnan(stb.bt[thisyear])==False))
   if datas >0: total_data_days_yearly_stb[i]=datas*min_in_days
 
   #same for MESSENGER
-  thisyear=np.where(np.logical_and((mes.time > yearly_start_times_d[i]),(mes.time < yearly_end_times_d[i])))
-  datas=np.size(np.where(np.isnan(mes.bt[thisyear])==False))
-  if datas >0: total_data_days_yearly_mes[i]=datas*min_in_days
+  #thisyear=np.where(np.logical_and((mes.time > yearly_start_times_d[i]),(mes.time < yearly_end_times_d[i])))
+  #datas=np.size(np.where(np.isnan(mes.bt[thisyear])==False))
+  #if datas >0: total_data_days_yearly_mes[i]=datas*min_in_days
 
   #same for Mercury alone
   #start with 2011
   if i == 4: 
-   thisyear=np.where(np.logical_and((mes.time > parse_time('2011-03-18').datetime),(mes.time < yearly_end_times_d[i])))
+   thisyear=np.where(np.logical_and((mes.time > mercury_orbit_insertion_time),(mes.time < yearly_end_times[i])))
    datas=np.size(np.where(np.isnan(mes.bt[thisyear])==False))
    if datas >0: total_data_days_yearly_merc[i]=datas*min_in_days
   #2012 onwards 
   if i > 4: 
-   thisyear=np.where(np.logical_and((mes.time > yearly_start_times_d[i]),(mes.time < yearly_end_times_d[i])))
+   thisyear=np.where(np.logical_and((mes.time > yearly_start_times[i]),(mes.time < yearly_end_times[i])))
    datas=np.size(np.where(np.isnan(mes.bt[thisyear])==False))
    if datas >0: total_data_days_yearly_merc[i]=datas*min_in_days
       
 
   #same for VEX
-  thisyear=np.where(np.logical_and((vex.time > yearly_start_times_d[i]),(vex.time < yearly_end_times_d[i])))
+  thisyear=np.where(np.logical_and((vex.time > yearly_start_times[i]),(vex.time < yearly_end_times[i])))
   datas=np.size(np.where(np.isnan(vex.bt[thisyear])==False))
   if datas >0: total_data_days_yearly_vex[i]=datas*min_in_days
 
   #for MAVEN different time resolution
-  thisyear=np.where(np.logical_and((mav.time > yearly_start_times_d[i]),(mav.time < yearly_end_times_d[i])))
+  thisyear=np.where(np.logical_and((mav.time > yearly_start_times[i]),(mav.time < yearly_end_times[i])))
   datas=np.size(np.where(np.isnan(mav.bt[thisyear])==False))
   datas_ind=np.where(np.isnan(mav.bt[thisyear])==False)
   #sum all time intervals for existing data points, but avoid counting gaps where diff is > 1 orbit (0.25 days)
@@ -376,12 +397,14 @@ print('STB')
 print(np.round(total_data_days_yearly_stb,1))
 print('MERCURY')
 print(np.round(total_data_days_yearly_merc,1))
-print('MES')
-print(np.round(total_data_days_yearly_mes,1))
+#print('MES')
+#print(np.round(total_data_days_yearly_mes,1))
 print('VEX')
 print(np.round(total_data_days_yearly_vex,1))
 print('MAV')
 print(np.round(total_data_days_yearly_mav,1))
+
+print('done')
 
 
 # ### 1b plot ICME frequency
