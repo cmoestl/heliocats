@@ -44,7 +44,7 @@ AU=au.value/1e3
 
 
 
-################################ HI arrival catalog operations
+################################ HI arrival catalog ARRCAT operations ##############################
 
 
 def load_higeocat_vot(file):
@@ -62,24 +62,98 @@ def load_higeocat_vot(file):
 
 
 
-def get_mars_position_time(time1):
+def get_insitu_position_time(time1,insitu):
     
-    ############### Mars position
-
-    planet_kernel=spicedata.get_kernel('planet_trajectories')
-    mars_time=[parse_time(time1).datetime,parse_time(time1).datetime]
-    mars=spice.Trajectory('4')  
-    frame='HEEQ'
-    mars.generate_positions(mars_time,'Sun',frame)  
-    mars.change_units(astropy.units.AU)  
-    [mars_r, mars_lat, mars_lon]=hd.cart2sphere(mars.x,mars.y,mars.z)
     
-    mars_time=np.array(mars_time)[0]
-    mars_r=np.array(mars_r)[0]
-    mars_lat=np.array(mars_lat)[0]
-    mars_lon=np.array(mars_lon)[0]
+    insitu_exist=True
+    
+    if insitu=='Mercury': 
+        insitu_str='1'
+        insitu_kernel=spicedata.get_kernel('planet_trajectories')
+        
+    if insitu=='Venus': 
+        insitu_str='2'
+        insitu_kernel=spicedata.get_kernel('planet_trajectories')
+        
+    if insitu=='Earth': 
+        insitu_str='3'
+        insitu_kernel=spicedata.get_kernel('planet_trajectories')
+        
+    if insitu=='Mars': 
+        insitu_str='4'
+        insitu_kernel=spicedata.get_kernel('planet_trajectories')
 
-    return [mars_time,mars_r,np.degrees(mars_lat),np.degrees(mars_lon)]
+    if insitu=='PSP': 
+        #exclude if time before launch time
+        if parse_time(time1).plot_date < parse_time(datetime.datetime(2018, 8, 13)).plot_date:
+            insitu_exist=False
+        else:    
+            insitu_str='-96'
+            insitu_kernel=spicedata.get_kernel('psp_pred')
+            spice.furnish(insitu_kernel)
+   
+
+    if insitu=='STA': 
+        #exclude if time before launch time
+            insitu_str='-234'
+            insitu_kernel=spicedata.get_kernel('stereo_a')
+            spice.furnish(insitu_kernel)
+
+
+    if insitu=='STB': 
+        #exclude if time before launch time
+            insitu_str='-235'
+            insitu_kernel=spicedata.get_kernel('stereo_b')
+            spice.furnish(insitu_kernel)
+
+
+
+
+    if insitu=='Solo': 
+        if parse_time(time1).plot_date < parse_time(datetime.datetime(2020, 3, 1)).plot_date:
+            insitu_exist=False
+        else:
+            insitu_str='Solar Orbiter'
+            insitu_kernel=spicedata.get_kernel('solo_2020')   
+            spice.furnish(insitu_kernel)
+
+
+        
+    if insitu=='Bepi': 
+        if parse_time(time1).plot_date < parse_time(datetime.datetime(2018, 10, 24)).plot_date:
+            insitu_exist=False
+        else:    
+            insitu_str='BEPICOLOMBO MPO'
+            insitu_kernel=spicedata.get_kernel('bepi_pred')
+            spice.furnish(insitu_kernel)
+
+    
+
+            
+    if insitu_exist == True:
+        #insitu_kernel=spicedata.get_kernel('insitu_trajectories')
+
+        #this needs to be an array, so make two similar times and take the first entry later
+        insitu_time=[parse_time(time1).datetime,parse_time(time1).datetime]
+        insitu=spice.Trajectory(insitu_str)  
+        frame='HEEQ'
+        insitu.generate_positions(insitu_time,'Sun',frame)  
+        insitu.change_units(astropy.units.AU)  
+        [insitu_r, insitu_lat, insitu_lon]=hd.cart2sphere(insitu.x,insitu.y,insitu.z)
+
+        insitu_time=np.array(insitu_time)[0]
+        insitu_r=np.array(insitu_r)[0]
+        insitu_lat=np.array(insitu_lat)[0]
+        insitu_lon=np.array(insitu_lon)[0]
+        
+    else:
+        insitu_time=np.nan
+        insitu_r=np.nan
+        insitu_lat=np.nan
+        insitu_lon=np.nan    
+
+    return [insitu_time,insitu_r,np.degrees(insitu_lat),np.degrees(insitu_lon)]
+
 
 
 
@@ -98,7 +172,7 @@ def calculate_arrival(vsse,delta,lamda,rdist,t0_num):
     return [mdates.num2date(ta),visse]
 
 
-def make_arrival_catalog_mars_ssef30(higeocat):
+def make_arrival_catalog_insitu_ssef30(higeocat,insitu_location_string):
     
     #get parameters from HIGEOCAT for arrival catalog
 
@@ -108,88 +182,93 @@ def make_arrival_catalog_mars_ssef30(higeocat):
     higeocat_vsse=np.array(higeocat['SSE Speed'])
     higeocat_sse_lon=np.array(higeocat['SSE HEEQ Long' ])
     higeocat_sc=np.array(higeocat['SC'])
+    
+    
+    
+    #load spice here once for each spacecraft
 
     #half width for SSEF30
     lamda=30.0
 
-    arrcat_mars_list = []
+    arrcat_insitu_list = []
 
-    #go through all HIGEOCAT CME events and check for hit at Mars, with 4 iterations in total
+    #go through all HIGEOCAT CME events and check for hit at insitu, with 4 iterations in total
     for i in np.arange(len(higeocat_time)):
 
-        #get mars position for launch time t0    
-        [mars_time,mars_r,mars_lat,mars_lon]=get_mars_position_time(higeocat_t0[i])            
-        delta=abs(higeocat_sse_lon[i]-mars_lon)
+        #get insitu position for launch time t0    
+        [insitu_time,insitu_r,insitu_lat,insitu_lon]=get_insitu_position_time(higeocat_t0[i], insitu_location_string)            
+        delta=abs(higeocat_sse_lon[i]-insitu_lon)
 
         if delta < 30:               
 
             #calculate arrival time
-            #print(delta,lamda,mars_r)
-            [ta,visse]=calculate_arrival(higeocat_vsse[i],delta, lamda, mars_r,higeocat_t0_num[i])                
+            #print(delta,lamda,insitu_r)
+            [ta,visse]=calculate_arrival(higeocat_vsse[i],delta, lamda, insitu_r,higeocat_t0_num[i])                
 
-            [mars_time2,mars_r2,mars_lat2,mars_lon2]=get_mars_position_time(ta)       
-            #print(mars_lon-mars_lon2)               
-            delta2=abs(higeocat_sse_lon[i]-mars_lon2)
+            [insitu_time2,insitu_r2,insitu_lat2,insitu_lon2]=get_insitu_position_time(ta,insitu_location_string)       
+            #print(insitu_lon-insitu_lon2)               
+            delta2=abs(higeocat_sse_lon[i]-insitu_lon2)
             if delta2 <30:
 
-                [ta2,visse2]=calculate_arrival(higeocat_vsse[i],delta2, lamda, mars_r2,higeocat_t0_num[i])
+                [ta2,visse2]=calculate_arrival(higeocat_vsse[i],delta2, lamda, insitu_r2,higeocat_t0_num[i])
                 #print(int((parse_time(ta2).plot_date-parse_time(ta).plot_date)*24))
 
-                [mars_time3,mars_r3,mars_lat3,mars_lon3]=get_mars_position_time(ta2)       
-                delta3=abs(higeocat_sse_lon[i]-mars_lon3)
+                [insitu_time3,insitu_r3,insitu_lat3,insitu_lon3]=get_insitu_position_time(ta2,insitu_location_string)       
+                delta3=abs(higeocat_sse_lon[i]-insitu_lon3)
 
                 if delta3 <30:
-                    [ta3,visse3]=calculate_arrival(higeocat_vsse[i],delta3, lamda, mars_r3,higeocat_t0_num[i])
+                    [ta3,visse3]=calculate_arrival(higeocat_vsse[i],delta3, lamda, insitu_r3,higeocat_t0_num[i])
                     #print(np.round((parse_time(ta3).plot_date-parse_time(ta2).plot_date)*24,1),int(delta3))
 
-                    [mars_time4,mars_r4,mars_lat3,mars_lon4]=get_mars_position_time(ta3)       
-                    delta4=abs(higeocat_sse_lon[i]-mars_lon4)
+                    [insitu_time4,insitu_r4,insitu_lat3,insitu_lon4]=get_insitu_position_time(ta3,insitu_location_string)       
+                    delta4=abs(higeocat_sse_lon[i]-insitu_lon4)
 
                     if delta4 <30:
-                        [ta4,visse4]=calculate_arrival(higeocat_vsse[i],delta4, lamda, mars_r4,higeocat_t0_num[i])
+                        [ta4,visse4]=calculate_arrival(higeocat_vsse[i],delta4, lamda, insitu_r4,higeocat_t0_num[i])
                         #print(np.round((parse_time(ta4).plot_date-parse_time(ta3).plot_date)*24,1),int(delta4))
                         #print(int(delta4-delta))                    
 
                         list1=[higeocat_sc[i],delta4,higeocat_vsse[i],visse4,higeocat_t0[i],ta4]
-                        arrcat_mars_list.append(list1)
+                        arrcat_insitu_list.append(list1)
 
 
-    arrcat_mars=np.array(arrcat_mars_list)
-    print('SSEF30 events hitting Mars: ',len(arrcat_mars_list)   ) 
-    print('Mars SSEF30 arrival catalog finished.')
+    arrcat_insitu=np.array(arrcat_insitu_list)
+    print('SSEF30 events: ',len(arrcat_insitu_list)   ) 
+    print(insitu_location_string,' SSEF30 arrival catalog finished.')
+    print()
    
     
     
-    return arrcat_mars
+    return arrcat_insitu
 
 
 
 
-def get_mars_position_array():
+# def get_mars_position_array():
     
-    ############### Mars position
+#     ############### Mars position
 
-    planet_kernel=spicedata.get_kernel('planet_trajectories')
-    starttime = datetime.datetime(2007, 1, 1)
-    endtime = datetime.datetime(2020, 12, 31)
-    res_in_hours=1
-    mars_time = []
-    while starttime < endtime:
-        mars_time.append(starttime)
-        starttime += datetime.timedelta(hours=res_in_hours)
-    mars=spice.Trajectory('4')  
-    frame='HEEQ'
-    mars.generate_positions(mars_time,'Sun',frame)  
-    mars.change_units(astropy.units.AU)  
-    [mars_r, mars_lat, mars_lon]=hd.cart2sphere(mars.x,mars.y,mars.z)
-    print('mars position done') 
+#     planet_kernel=spicedata.get_kernel('planet_trajectories')
+#     starttime = datetime.datetime(2007, 1, 1)
+#     endtime = datetime.datetime(2020, 12, 31)
+#     res_in_hours=1
+#     mars_time = []
+#     while starttime < endtime:
+#         mars_time.append(starttime)
+#         starttime += datetime.timedelta(hours=res_in_hours)
+#     mars=spice.Trajectory('4')  
+#     frame='HEEQ'
+#     mars.generate_positions(mars_time,'Sun',frame)  
+#     mars.change_units(astropy.units.AU)  
+#     [mars_r, mars_lat, mars_lon]=hd.cart2sphere(mars.x,mars.y,mars.z)
+#     print('mars position done') 
     
-    mars_time=np.array(mars_time)
-    mars_r=np.array(mars_r)
-    mars_lat=np.array(mars_lat)
-    mars_lon=np.array(mars_lon)
+#     mars_time=np.array(mars_time)
+#     mars_r=np.array(mars_r)
+#     mars_lat=np.array(mars_lat)
+#     mars_lon=np.array(mars_lon)
 
-    return [mars_time,mars_r,np.degrees(mars_lat),np.degrees(mars_lon)]
+#     return [mars_time,mars_r,np.degrees(mars_lat),np.degrees(mars_lon)]
 
 
 
