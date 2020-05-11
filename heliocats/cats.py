@@ -62,72 +62,27 @@ def load_higeocat_vot(file):
 
 
 
-def get_insitu_position_time(time1,insitu):
+def get_insitu_position_time(time1,insitu_location_string,insitu_str,insitu_kernel):
     
     
     insitu_exist=True
     
-    if insitu=='Mercury': 
-        insitu_str='1'
-        insitu_kernel=spicedata.get_kernel('planet_trajectories')
-        
-    if insitu=='Venus': 
-        insitu_str='2'
-        insitu_kernel=spicedata.get_kernel('planet_trajectories')
-        
-    if insitu=='Earth': 
-        insitu_str='3'
-        insitu_kernel=spicedata.get_kernel('planet_trajectories')
-        
-    if insitu=='Mars': 
-        insitu_str='4'
-        insitu_kernel=spicedata.get_kernel('planet_trajectories')
-
-    if insitu=='PSP': 
+    if insitu_location_string=='PSP': 
         #exclude if time before launch time
         if parse_time(time1).plot_date < parse_time(datetime.datetime(2018, 8, 13)).plot_date:
-            insitu_exist=False
-        else:    
-            insitu_str='-96'
-            insitu_kernel=spicedata.get_kernel('psp_pred')
-            spice.furnish(insitu_kernel)
-   
+            insitu_exist=False 
 
-    if insitu=='STA': 
-        #exclude if time before launch time
-            insitu_str='-234'
-            insitu_kernel=spicedata.get_kernel('stereo_a')
-            spice.furnish(insitu_kernel)
-
-
-    if insitu=='STB': 
-        #exclude if time before launch time
-            insitu_str='-235'
-            insitu_kernel=spicedata.get_kernel('stereo_b')
-            spice.furnish(insitu_kernel)
-
-
-
-
-    if insitu=='Solo': 
+    if insitu_location_string=='Solo': 
         if parse_time(time1).plot_date < parse_time(datetime.datetime(2020, 3, 1)).plot_date:
-            insitu_exist=False
-        else:
-            insitu_str='Solar Orbiter'
-            insitu_kernel=spicedata.get_kernel('solo_2020')   
-            spice.furnish(insitu_kernel)
-
-
+            insitu_exist=False 
         
-    if insitu=='Bepi': 
+    if insitu_location_string=='Bepi': 
         if parse_time(time1).plot_date < parse_time(datetime.datetime(2018, 10, 24)).plot_date:
             insitu_exist=False
-        else:    
-            insitu_str='BEPICOLOMBO MPO'
-            insitu_kernel=spicedata.get_kernel('bepi_pred')
-            spice.furnish(insitu_kernel)
-
-    
+                    
+    if insitu_location_string=='STB': 
+        if parse_time(time1).plot_date > parse_time(datetime.datetime(2014, 9, 27)).plot_date:
+            insitu_exist=False    
 
             
     if insitu_exist == True:
@@ -140,6 +95,10 @@ def get_insitu_position_time(time1,insitu):
         insitu.generate_positions(insitu_time,'Sun',frame)  
         insitu.change_units(astropy.units.AU)  
         [insitu_r, insitu_lat, insitu_lon]=hd.cart2sphere(insitu.x,insitu.y,insitu.z)
+        
+        #Earth position to Earth L1
+        if insitu_str=='3': insitu_r[0]=insitu_r[0]-1.5*1e6/AU
+       
 
         insitu_time=np.array(insitu_time)[0]
         insitu_r=np.array(insitu_r)[0]
@@ -172,7 +131,10 @@ def calculate_arrival(vsse,delta,lamda,rdist,t0_num):
     return [mdates.num2date(ta),visse]
 
 
-def make_arrival_catalog_insitu_ssef30(higeocat,insitu_location_string):
+
+
+
+def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, insitu_location_string):
     
     #get parameters from HIGEOCAT for arrival catalog
 
@@ -186,6 +148,46 @@ def make_arrival_catalog_insitu_ssef30(higeocat,insitu_location_string):
     
     
     #load spice here once for each spacecraft
+        
+    if insitu_location_string=='STB': 
+        insitu_str='-235'
+        insitu_kernel=spicedata.get_kernel('stereo_b')    
+    
+    if insitu_location_string=='STA': 
+        insitu_str='-234'
+        insitu_kernel=spicedata.get_kernel('stereo_a')
+        
+    if insitu_location_string=='Mercury': 
+        insitu_str='1'
+        insitu_kernel=spicedata.get_kernel('planet_trajectories')
+        
+    if insitu_location_string=='Venus': 
+        insitu_str='2'
+        insitu_kernel=spicedata.get_kernel('planet_trajectories')
+        
+    if insitu_location_string=='Earth': 
+        insitu_str='3'
+        insitu_kernel=spicedata.get_kernel('planet_trajectories')
+        
+    if insitu_location_string=='Mars': 
+        insitu_str='4'
+        insitu_kernel=spicedata.get_kernel('planet_trajectories')        
+        
+    if insitu_location_string=='PSP': 
+        insitu_str='-96'
+        insitu_kernel=spicedata.get_kernel('psp_pred')
+
+    if insitu_location_string=='Solo': 
+        insitu_str='Solar Orbiter'
+        insitu_kernel=spicedata.get_kernel('solo_2020')   
+        
+    if insitu_location_string=='Bepi': 
+        insitu_str='BEPICOLOMBO MPO'
+        insitu_kernel=spicedata.get_kernel('bepi_pred')
+
+    spice.furnish(insitu_kernel)
+ 
+           
 
     #half width for SSEF30
     lamda=30.0
@@ -196,8 +198,9 @@ def make_arrival_catalog_insitu_ssef30(higeocat,insitu_location_string):
     for i in np.arange(len(higeocat_time)):
 
         #get insitu position for launch time t0    
-        [insitu_time,insitu_r,insitu_lat,insitu_lon]=get_insitu_position_time(higeocat_t0[i], insitu_location_string)            
+        [insitu_time,insitu_r,insitu_lat,insitu_lon]=get_insitu_position_time(higeocat_t0[i], insitu_location_string,insitu_str, insitu_kernel)            
         delta=abs(higeocat_sse_lon[i]-insitu_lon)
+        #print([insitu_time,insitu_r,insitu_lat,insitu_lon])
 
         if delta < 30:               
 
@@ -205,7 +208,7 @@ def make_arrival_catalog_insitu_ssef30(higeocat,insitu_location_string):
             #print(delta,lamda,insitu_r)
             [ta,visse]=calculate_arrival(higeocat_vsse[i],delta, lamda, insitu_r,higeocat_t0_num[i])                
 
-            [insitu_time2,insitu_r2,insitu_lat2,insitu_lon2]=get_insitu_position_time(ta,insitu_location_string)       
+            [insitu_time2,insitu_r2,insitu_lat2,insitu_lon2]=get_insitu_position_time(ta, insitu_location_string,insitu_str, insitu_kernel)       
             #print(insitu_lon-insitu_lon2)               
             delta2=abs(higeocat_sse_lon[i]-insitu_lon2)
             if delta2 <30:
@@ -213,33 +216,49 @@ def make_arrival_catalog_insitu_ssef30(higeocat,insitu_location_string):
                 [ta2,visse2]=calculate_arrival(higeocat_vsse[i],delta2, lamda, insitu_r2,higeocat_t0_num[i])
                 #print(int((parse_time(ta2).plot_date-parse_time(ta).plot_date)*24))
 
-                [insitu_time3,insitu_r3,insitu_lat3,insitu_lon3]=get_insitu_position_time(ta2,insitu_location_string)       
+                [insitu_time3,insitu_r3,insitu_lat3,insitu_lon3]=get_insitu_position_time(ta2, insitu_location_string,insitu_str, insitu_kernel)       
                 delta3=abs(higeocat_sse_lon[i]-insitu_lon3)
 
                 if delta3 <30:
                     [ta3,visse3]=calculate_arrival(higeocat_vsse[i],delta3, lamda, insitu_r3,higeocat_t0_num[i])
                     #print(np.round((parse_time(ta3).plot_date-parse_time(ta2).plot_date)*24,1),int(delta3))
 
-                    [insitu_time4,insitu_r4,insitu_lat3,insitu_lon4]=get_insitu_position_time(ta3,insitu_location_string)       
+                    [insitu_time4,insitu_r4,insitu_lat4,insitu_lon4]=get_insitu_position_time(ta3, insitu_location_string,insitu_str, insitu_kernel)       
                     delta4=abs(higeocat_sse_lon[i]-insitu_lon4)
 
                     if delta4 <30:
                         [ta4,visse4]=calculate_arrival(higeocat_vsse[i],delta4, lamda, insitu_r4,higeocat_t0_num[i])
                         #print(np.round((parse_time(ta4).plot_date-parse_time(ta3).plot_date)*24,1),int(delta4))
                         #print(int(delta4-delta))                    
-
-                        list1=[higeocat_sc[i],delta4,higeocat_vsse[i],visse4,higeocat_t0[i],ta4]
+    
+                        
+                        list1=[0,higeocat_sc[i].decode(),parse_time(higeocat_t0[i]).iso[:-7],insitu_location_string,\
+                               higeocat_sse_lon[i], np.round(delta4,1),higeocat_vsse[i],\
+                               int(np.rint(visse4)),parse_time(ta4).iso[:-7], np.round(insitu_r4,3), \
+                               np.round(insitu_lat4,2), np.round(insitu_lon4,2),0,0,0,0,0]
+                        #print(list1)
                         arrcat_insitu_list.append(list1)
 
 
-    arrcat_insitu=np.array(arrcat_insitu_list)
+    #arrcat_insitu=np.array(arrcat_insitu_list)    
+    #print(arrcat_insitu_list)
+    
+    
+    #make dataframe out of list
+    ac1 = pd.DataFrame(arrcat_insitu_list, columns = ['id', 'sc','sse_launch_time','target_name','sse_heeq_long',\
+                                 'target_delta','sse_speed','target_speed','target_arrival_time',\
+                                 'target_distance','target_heeq_lat','target_heeq_lon',\
+                                 'target_pa','pa_fit','pa_n','pa_s','pa_center'])
+    
+    arrcat=arrcat.append(ac1)   
+    
+    
     print('SSEF30 events: ',len(arrcat_insitu_list)   ) 
     print(insitu_location_string,' SSEF30 arrival catalog finished.')
     print()
-   
+        
     
-    
-    return arrcat_insitu
+    return arrcat
 
 
 
