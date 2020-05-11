@@ -87,7 +87,7 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 
 # ## Make HI SSEF30 arrival catalog
 
-# In[103]:
+# In[2]:
 
 
 from heliocats import cats as hc
@@ -172,7 +172,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[108]:
+# In[109]:
 
 
 ########## python formats

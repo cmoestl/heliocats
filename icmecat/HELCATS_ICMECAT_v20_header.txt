@@ -20,7 +20,7 @@ Parameters:
     6: target_detla: Difference in HEEQ longitude between central CME direction and target location, positive values: spacecraft is west of CME apex. unit: degree.
     7: sse_speed: From HIGeoCAT, speed of CME apex, unit: km/s.
     8: target_speed: CME arrival speed at target location, corrected for SSE shape. unit: km/s.
-    9: target_arrival: CME arrival time at target location, corrected for SSE shape. unit: UTC.
+    9: target_arrival_time: CME arrival time at target location, corrected for SSE shape. unit: UTC.
     10: target_distance: Target distance from Sun, at CME launch time. unit: AU.
     11: target_heeq_lat: Target latitude in HEEQ, at CME launch time. unit: degree.
     12: target_heeq_lon: Target longitude in HEEQ, at CME launch time. unit: degree.
