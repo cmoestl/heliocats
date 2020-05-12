@@ -1,0 +1,60 @@
+ARRIVAL CATALOGUE 2.0 
+
+In this ARRival CATalog (ARRCAT), the arrivals of solar coronal mass ejections as 
+tracked in the STEREO heliospheric imagers are calculated. This was a part of the EU HELCATS project, 
+but is now continously updated. 
+It lists predicted arrivals of CMEs at various spacecraft and planets, 
+between April 2007 - April 2020, based on the HIGeoCAT catalog of CMEs 
+established at RAL Space, UK (R. A. Harrison, J. A. Davies, D. Barnes). 
+
+This is version 2.0, released 2020-05-12. DOI: 10.6084/m9.figshare.12271292
+
+It is based on this HIGeoCAT version: https://www.helcats-fp7.eu/catalogues/data/HCME_WP3_V06.vot
+
+The catalog is available as python pandas dataframe (pickle), 
+python numpy arrays (pickle, as recarray and structured array), 
+npy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at 
+https://helioforecast.space/arrcat and https://www.helcats-fp7.eu
+
+Number of events in ARRCAT: 1548
+Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.
+
+Parameters: 
+
+    0: id: From HIGeoCAT, the unique identifier for the observed CME.
+    1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)
+    2: target_name: Name of in situ target.
+    3: sse_launch_time: From HIGeoCAT, launch time of the CME at Sun center, unit: UTC.
+    4: target_arrival_time: CME arrival time at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: UTC.
+    5: target_arrival_time_err: Error of CME arrival time at target location, solely based on error in parameter sse_speed_err. unit: UTC.
+    6: target_distance: Target distance from Sun, at CME arrival time. unit: AU.
+    7: target_heeq_lon: Target longitude in HEEQ, at CME arrival time. unit: degree.
+    8: target_heeq_lat: Target latitude in HEEQ, at CME arrival time. unit: degree.
+    9: target_delta: Difference in HEEQ longitude between central CME direction and target location at CME arrival time, 
+       positive values: spacecraft is west of CME apex. unit: degree.
+    10: sse_heeq_lon: From HIGeoCAT, the HEEQ longitude of the CME apex propagation direction, unit: degree.
+    11: sse_heeq_lat: From HIGeoCAT, the HEEQ latitude of the CME apex propagation direction, unit: degree.
+    12: sse_speed: From HIGeoCAT, speed of the CME apex, unit: km/s.
+    13: sse_speed_err: From HIGeoCAT, error in the speed of the CME apex, unit: km/s.
+    14: target_speed: CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.
+    15: target_speed_err: Error in CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.
+    16: pa_fit: From HIGeoCAT, PA along which time-elongation profile is extracted, unit: degree.
+    17: pa_n: From HIGeoCAT, northern position angle of CME, unit: degree.
+    18: pa_s: From HIGeoCAT, southernmost position angle of CME, unit: degree.
+    19: pa_center: average of pa_n and pa_s, unit: degree.
+
+Notes:
+
+    - We have modified the calculation of CME arrival time here by a new iterative method compared to Möstl et al. (2014, 2017). 
+      In the first iteration, the sse_launch_time is used to calculate the target HEEQ position, and in subsequent three iterations the 
+      newly calculated arrival time is employed each time for the target HEEQ position at the newly calculated arrival time. 
+      In this way we avoid an error of a few degrees in the arrival target location (see also Möstl et al. 2017). 
+    - The analytical formulas for calculating the speeds and arrival times of the CMEs modeled with SSEF30, 
+      corrected for the SSEF30 circular shape, can be found in Möstl & Davies (2013). 
+
+
+References 
+
+Möstl & Davies (2013) https://doi.org/10.1007/s11207-012-9978-8 
+Möstl et al. (2014)   https://doi.org/10.1088/0004-637X/787/2/119 
+Möstl et al. (2017)   https://doi.org/10.1002/2017SW001614 

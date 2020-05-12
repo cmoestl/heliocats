@@ -8,16 +8,11 @@
 # Author: C. Möstl, IWF Graz, Austria
 # twitter @chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# last update April 2020
+# last update 12 May 2020, current version ARRCAT 2.0
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
-# 
-# Convert this notebook to a script with jupyter nbconvert --to script arrcat.ipynb
-# 
-# **current status: work in progress**
-# 
-# features to be added: 
+# Convert this notebook to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell
 # 
 
 # In[1]:
@@ -85,9 +80,9 @@ if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir)
 os.system('jupyter nbconvert --to script arrcat.ipynb')    
 
 
-# ## Make HI SSEF30 arrival catalog
+# ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[2]:
+# In[24]:
 
 
 from heliocats import cats as hc
@@ -95,7 +90,6 @@ importlib.reload(hc) #reload again while debugging
 
 
 #https://www.helcats-fp7.eu/
-
 #LOAD HELCATS HIGeoCAT
 url_higeocat='https://www.helcats-fp7.eu/catalogues/data/HCME_WP3_V06.vot'
 
@@ -107,55 +101,54 @@ higeocat=hc.load_higeocat_vot('data/HCME_WP3_V06.vot')
 higeocat_time=parse_time(higeocat['Date']).datetime    
 higeocat_t0=parse_time(higeocat['SSE Launch']).datetime   #backprojected launch time
 
-
 #define empty pandas dataframe for arrival catalog with column names
 
-ac = pd.DataFrame([], columns = ['id', 'sc','sse_launch_time','target_name','sse_heeq_long',                                 'target_delta','sse_speed','target_speed','target_arrival_time',                                 'target_distance','target_heeq_lat','target_heeq_lon',                                 'target_pa','pa_fit','pa_n','pa_s','pa_center'])
+column_list=['id', 'sc','target_name','sse_launch_time','target_arrival_time','target_arrival_time_err',                                 'target_distance','target_heeq_lon','target_heeq_lat',                                 'target_delta','sse_heeq_lon','sse_heeq_lat',                                 'sse_speed','sse_speed_err','target_speed','target_speed_err',                                 'pa_fit','pa_n','pa_s','pa_center']
+             
+#pandas dataframe for current version with iteration in calculating arrival time
+ac = pd.DataFrame([], columns = column_list)
 
+#pandas dataframe for old method of arrival time prediction without iteration
+ac_old = pd.DataFrame([], columns = column_list)
 
+#Make arrival catalog from HIGEOCAT for each spacecraft
 
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'PSP')
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac,'Solo')
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac,'Bepi')
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'PSP',column_list)
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Solo',column_list)
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Bepi',column_list)
    
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'STA',column_list)
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'STB',column_list)
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Earth',column_list)
 
-
-#Make arrival catalog from HIGEOCAT
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STA')
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STB')
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat,ac, 'Earth')
-
-
-
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac,'Mercury')
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac,'Venus')
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac,'Mars')
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Ulysses',column_list)
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Mercury',column_list)
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Venus',column_list)
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Mars',column_list)
 
 
 ac = ac.reset_index(drop=True)
+ac_old = ac_old.reset_index(drop=True)
 
-# #ac.reset_index(drop=True,inplace=True)
 
 ac
 
 
-# ## save ARRCAT
+# ## 2 save ARRCAT
 # 
 
 # #### save header
 
-# In[101]:
+# In[27]:
 
 
 #save header and parameters as text file and prepare for html website
-header='ARRIVAL CATALOGUE v2.0 \n\nThis ARRival CATalog (ARRCAT) models the arrivals of CMEs tracked in the STEREO heliospheric imagers EU HELCATS project (2014-2017). \nIt lists predicted arrivals of solar coronal mass ejections at various spacecraft and planets with the STEREO heliospheric imager \ninstruments, between April 2007 - April 2020, based on the HIGeoCAT catalog of CMEs established at RAL Space, UK (Harrison, Davies, Barnes). \nThis is version 2.0, released 2020-**-**. DOI: 10.6084/m9.figshare.6356420 \n\nBased on HIGeoCAT version ***\nThe catalog is available as  python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at \nhttps://helioforecast.space/arrcat \nNumber of events in ARRCAT: '+str(len(ac))+'\nTargets: Earth L1, STEREO-A, STEREO-B,  Solar Orbiter, Parker Solar Probe, Bepi Colombo, Venus, Mercury, Mars.\n\nParameters: \n    1: id: From HIGeoCAT, the unique identifier for the observed CME.\n    2: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)\n    3: sse_launch_time: From HIGeoCAT, launch time of the CME on the Sun, unit: UTC.\n    4: target_name: Name of in situ target.\n    5: sse_heeq_long: From HIGeoCAT, the HEEQ longitude of the CME apex propagation direction, unit: degree.\n    6: target_detla: Difference in HEEQ longitude between central CME direction and target location, positive values: spacecraft is west of CME apex. unit: degree.\n    7: sse_speed: From HIGeoCAT, speed of CME apex, unit: km/s.\n    8: target_speed: CME arrival speed at target location, corrected for SSE shape. unit: km/s.\n    9: target_arrival_time: CME arrival time at target location, corrected for SSE shape. unit: UTC.\n    10: target_distance: Target distance from Sun, at CME launch time. unit: AU.\n    11: target_heeq_lat: Target latitude in HEEQ, at CME launch time. unit: degree.\n    12: target_heeq_lon: Target longitude in HEEQ, at CME launch time. unit: degree.\n    13: target_pa: PA of target from HI observing STEREO spacecraft, unit: degree.\n    14: pa_fit: From HICAT, PA along which time-elongation profile is extracted, unit: degree.\n    15: pa_n: From HICAT, northern position angle of CME, unit: degree.\n    16: pa_s: From HICAT, southernmost position angle of CME, unit: degree.\n    17: pa_center: average of pa_n and pa_s, unit: degree.\n\nNotes:\n\n- We have applied modified method from Möstl & Davies (2013, Solar Physics) for calculating speeds \nand arrival times of the CMEs modeled with SSEF30 to all CMEs in the HELCATS HIGeoCAT catalog \n(see website helcats-fp7.eu, and Möstl et al. 2014, ApJ, for more details). \nIf the SSEF30 circle hits a spacecraft or planet, an entry in ARRCAT is produced. \n\n- A new iterative method was used ***\nReferences \nMöstl et al. (2017),  https://doi.org/************* \n'
-
-
+header='ARRIVAL CATALOGUE 2.0 \n\nIn this ARRival CATalog (ARRCAT), the arrivals of solar coronal mass ejections as \ntracked in the STEREO heliospheric imagers are calculated. This was a part of the EU HELCATS project, \nbut is now continously updated. \nIt lists predicted arrivals of CMEs at various spacecraft and planets, \nbetween April 2007 - April 2020, based on the HIGeoCAT catalog of CMEs \nestablished at RAL Space, UK (R. A. Harrison, J. A. Davies, D. Barnes). \n\nThis is version 2.0, released 2020-05-12. DOI: 10.6084/m9.figshare.12271292\n\nIt is based on this HIGeoCAT version: '+url_higeocat+'\n\nThe catalog is available as python pandas dataframe (pickle), \npython numpy arrays (pickle, as recarray and structured array), \nnpy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at \nhttps://helioforecast.space/arrcat and https://www.helcats-fp7.eu\n\nNumber of events in ARRCAT: '+str(len(ac))+'\nTargets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.\n\nParameters: \n\n    0: id: From HIGeoCAT, the unique identifier for the observed CME.\n    1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)\n    2: target_name: Name of in situ target.\n    3: sse_launch_time: From HIGeoCAT, launch time of the CME at Sun center, unit: UTC.\n    4: target_arrival_time: CME arrival time at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: UTC.\n    5: target_arrival_time_err: Error of CME arrival time at target location, solely based on error in parameter sse_speed_err. unit: UTC.\n    6: target_distance: Target distance from Sun, at CME arrival time. unit: AU.\n    7: target_heeq_lon: Target longitude in HEEQ, at CME arrival time. unit: degree.\n    8: target_heeq_lat: Target latitude in HEEQ, at CME arrival time. unit: degree.\n    9: target_delta: Difference in HEEQ longitude between central CME direction and target location at CME arrival time, \n       positive values: spacecraft is west of CME apex. unit: degree.\n    10: sse_heeq_lon: From HIGeoCAT, the HEEQ longitude of the CME apex propagation direction, unit: degree.\n    11: sse_heeq_lat: From HIGeoCAT, the HEEQ latitude of the CME apex propagation direction, unit: degree.\n    12: sse_speed: From HIGeoCAT, speed of the CME apex, unit: km/s.\n    13: sse_speed_err: From HIGeoCAT, error in the speed of the CME apex, unit: km/s.\n    14: target_speed: CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.\n    15: target_speed_err: Error in CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.\n    16: pa_fit: From HIGeoCAT, PA along which time-elongation profile is extracted, unit: degree.\n    17: pa_n: From HIGeoCAT, northern position angle of CME, unit: degree.\n    18: pa_s: From HIGeoCAT, southernmost position angle of CME, unit: degree.\n    19: pa_center: average of pa_n and pa_s, unit: degree.\n\nNotes:\n\n    - We have modified the calculation of CME arrival time here by a new iterative method compared to Möstl et al. (2014, 2017). \n      In the first iteration, the sse_launch_time is used to calculate the target HEEQ position, and in subsequent three iterations the \n      newly calculated arrival time is employed each time for the target HEEQ position at the newly calculated arrival time. \n      In this way we avoid an error of a few degrees in the arrival target location (see also Möstl et al. 2017). \n    - The analytical formulas for calculating the speeds and arrival times of the CMEs modeled with SSEF30, \n      corrected for the SSEF30 circular shape, can be found in Möstl & Davies (2013). \n\n\nReferences \n\nMöstl & Davies (2013) https://doi.org/10.1007/s11207-012-9978-8 \nMöstl et al. (2014)   https://doi.org/10.1088/0004-637X/787/2/119 \nMöstl et al. (2017)   https://doi.org/10.1002/2017SW001614 \n'
 
 print(header)
 
 #make header file
-file='icmecat/HELCATS_ICMECAT_v20_header.txt'
+file='arrcat/HELCATS_ARRCAT_v20_header.txt'
 with open(file, "w") as text_file:
     text_file.write(header)
 print()    
@@ -170,31 +163,32 @@ print()
 print()    
 
 
-# ### 4b save into different formats
+# #### save into different formats
 
-# In[109]:
+# In[28]:
 
 
 ########## python formats
 
-# save ICMECAT as pandas dataframe with times as datetime objects as pickle
+# save ARRCAT as pandas dataframe with times as datetime objects as pickle
 file='arrcat/HELCATS_ARRCAT_v20_pandas.p'
 pickle.dump([ac,header], open(file, 'wb'))
 print('ARRCAT saved as '+file)
 
-# # save ICMECAT as numpy array with times as matplotlib datetime as pickle
-# ac_num=copy.deepcopy(ac) 
-# ac_num.icme_start_time=parse_time(ac_num.sse_launch_time).plot_date
-# ac_num.mo_start_time=parse_time(ac_num.target_arrival_time).plot_date
-# #convert to recarray
-# ac_num_rec=ac_num.to_records()
-# #create structured array ******************
-# dtype1=[('index','i8'),('icmecat_id', '<U30'),('sc_insitu', '<U20')] +[(i, '<f8') for i in ac.keys()[2:len(ac.keys())]]
-# ac_num_struct=np.array(ic_num_rec,dtype=dtype1)
+# save ARRCAT as numpy array with times as matplotlib datetime as pickle
+ac_num=copy.deepcopy(ac) 
+ac_num.sse_launch_time=parse_time(ac_num.sse_launch_time).plot_date
+ac_num.target_arrival_time=parse_time(ac_num.target_arrival_time).plot_date
+#convert to recarray
+ac_num_rec=ac_num.to_records()
+#create structured array 
+dtype1=[('index','i8'),('id', '<U30'),('sc', '<U20'),('target_name', '<U20')] +[(i, '<f8') for i in ac.keys()[3:len(ac.keys())]]
+ac_num_struct=np.array(ac_num_rec,dtype=dtype1)
 
-# file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
-# pickle.dump([ac_num,ic_num_struct,header], open(file, 'wb'))
-# print('ARRCAT saved as '+file)
+file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
+pickle.dump([ac_num,ac_num_struct,header], open(file, 'wb'))
+print('ARRCAT saved as '+file)
+
 
 
 
@@ -202,11 +196,10 @@ print('ARRCAT saved as '+file)
 
 #copy pandas dataframe first to change time format consistent with HELCATS
 ac_copy=copy.deepcopy(ac)  
+#change time format and add Z
 ac_copy.sse_launch_time=parse_time(ac.sse_launch_time).isot
 ac_copy.target_arrival_time=parse_time(ac.target_arrival_time).isot
 
-
-#change time format
 for i in np.arange(len(ac)):
 
     dum=ac_copy.sse_launch_time[i] 
@@ -218,7 +211,7 @@ for i in np.arange(len(ac)):
 
 #save as Excel
 file='arrcat/HELCATS_ARRCAT_v20.xlsx'
-ac_copy.to_excel(file,sheet_name='acMECATv2.0')
+ac_copy.to_excel(file,sheet_name='ARRCATv2.0')
 print('ARRCAT saved as '+file)
 
 #save as json
@@ -231,7 +224,6 @@ file='arrcat/HELCATS_ARRCAT_v20.csv'
 ac_copy.to_csv(file)
 print('ARRCAT saved as '+file)
 
-
 #save as txt
 file='arrcat/HELCATS_ARRCAT_v20.txt'
 np.savetxt(file, ac_copy.values.astype(str), fmt='%s' )
@@ -239,10 +231,27 @@ print('ARRCAT saved as '+file)
 
 
 
-sys.exit()
+#**************************########### save old version for comparison
+
+#copy pandas dataframe first to change time format consistent with HELCATS
+ac_copy_old=copy.deepcopy(ac_old)  
+#change time format and add Z
+ac_copy_old.sse_launch_time=parse_time(ac_old.sse_launch_time).isot
+ac_copy_old.target_arrival_time=parse_time(ac_old.target_arrival_time).isot
+
+for i in np.arange(len(ac_old)):
+
+    dum=ac_copy_old.sse_launch_time[i] 
+    ac_copy_old.at[i,'sse_launch_time']=dum[0:16]+'Z'
+     
+    dum=ac_copy_old.target_arrival_time[i] 
+    ac_copy_old.at[i,'target_arrival_time']=dum[0:16]+'Z'
 
 
-
+#save as Excel
+file='arrcat/HELCATS_ARRCAT_v10_old.xlsx'
+ac_old.to_excel(file,sheet_name='ARRCATv2.0')
+print('ARRCAT saved as '+file)
 
 
 
@@ -250,18 +259,18 @@ sys.exit()
 
 #########################
 
-
 #########save into hdf5 format , use S for strings http://docs.h5py.org/en/stable/strings.html#what-about-numpy-s-u-type
-dtype2=[('index','i8'),('icmecat_id', 'S30'),('sc_insitu', 'S20')] +[(i, '<f8') for i in ic.keys()[2:len(ic.keys())]]
-ich5=np.array(ic_num_rec,dtype=dtype2)
-file='icmecat/HELCATS_ICMECAT_v20.h5'
+dtype2=[('index','i8'),('id', 'S30'),('sc', 'S20'),('target_name', 'S20')] +[(i, '<f8') for i in ac.keys()[3:len(ac.keys())]]
+ach5=np.array(ac_num_rec,dtype=dtype2)
+file='arrcat/HELCATS_ARRCAT_v20.h5'
 f=h5py.File(file,mode='w')
-f["icmecat"]= ich5
+f["arrcat"]= ach5
+
 #add attributes
 #************************
 #***********************
 
-print('ICMECAT saved as '+file)
+print('ARRCAT saved as '+file)
 f.close()
 
 #reading h5py files http://docs.h5py.org/en/latest/quick.html
@@ -275,9 +284,9 @@ f.close()
 
 
 #save as .npy without pickle
-file='icmecat/HELCATS_ICMECAT_v20_numpy.npy'
-np.save(file,ich5, allow_pickle=False)
-print('ICMECAT saved as '+file)
+file='arrcat/HELCATS_ARRCAT_v20_numpy.npy'
+np.save(file,ach5, allow_pickle=False)
+print('ARRCAT saved as '+file)
 
 #for loading do:
 #icnpy=np.load(file)
@@ -286,94 +295,100 @@ print('ICMECAT saved as '+file)
 
 
 
-
-
-
 ############ other formats
 
 #copy pandas dataframe first to change time format 
-ic_copy2=copy.deepcopy(ic)  
-ic_copy2.sse_launch_time=parse_time(ac.sse_launch_time).iso
-ic_copy2.mo_start_time=parse_time(ac.target_arrival_time).iso
+ac_copy2=copy.deepcopy(ac)  
+ac_copy2.sse_launch_time=parse_time(ac.sse_launch_time).iso
+ac_copy2.target_arrival_time=parse_time(ac.target_arrival_time).iso
 
 #change time format
-for i in np.arange(len(ic)):
+for i in np.arange(len(ac)):
 
-    dum=ic_copy2.icme_start_time[i] 
-    ic_copy2.at[i,'icme_start_time']=dum[0:16]
+    dum=ac_copy2.sse_launch_time[i] 
+    ac_copy2.at[i,'sse_launch_time']=dum[0:16]
      
-    dum=ic_copy2.mo_end_time[i] 
-    ic_copy2.at[i,'mo_end_time']=dum[0:16]
+    dum=ac_copy2.target_arrival_time[i] 
+    ac_copy2.at[i,'target_arrival_time']=dum[0:16]
 
 
 #save as json for webpage with different time format
-file='icmecat/HELCATS_ICMECAT_v20_isot.json'
-ic_copy2.to_json(file)
-print('ICMECAT saved as '+file)
-
+file='arrcat/HELCATS_ARRCAT_v20_iso.json'
+ac_copy2.to_json(file)
+print('ARRCAT saved as '+file)
 
 #save as html no header
-file='icmecat/HELCATS_ICMECAT_v20_simple.html'
-ic_copy.to_html(file)
-print('ICMECAT saved as '+file)
-
+file='arrcat/HELCATS_ARRCAT_v20_simple.html'
+ac_copy.to_html(file)
+print('ARRCAT saved as '+file)
 
 ############ save as html file with header
 #save as html
-file='icmecat/HELCATS_ICMECAT_v20.html'
+file='arrcat/HELCATS_ARRCAT_v20.html'
 #ic.to_html(file,justify='center')
 
 #ichtml='{% extends "_base.html" %} \n \n {% block content %} \n \n \n '
-ichtml = header_html
-ichtml += parameters_html
-ichtml += ic_copy.to_html()
+achtml = header_html
+achtml += ac_copy.to_html()
 #ichtml +='\n \n {% endblock %}'
 
 
 with open(file,'w') as f:
-    f.write(ichtml)
+    f.write(achtml)
     f.close()
     
-print('ICMECAT saved as '+file)    
+print('ARRCAT saved as '+file)    
 
 
-# ## 4c load ICMECAT pickle files
+# ## 3 load ARRCAT examples
 
-# In[ ]:
+# In[14]:
 
 
 #load icmecat as pandas dataframe
-file='icmecat/HELCATS_ICMECAT_v20_pandas.p'
-[ic_pandas,h,p]=pickle.load( open(file, 'rb'))   
+file='arrcat/HELCATS_ARRCAT_v20_pandas.p'
+[ac_pandas,h]=pickle.load( open(file, 'rb'))   
 
 #load icmecat as numpy array
-file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
-[ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
+file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
+[ac_rec,ac_struct,h]=pickle.load( open(file, 'rb'))   
 
 
-# In[ ]:
+# In[65]:
 
 
-ic_pandas
-ic_pandas.keys()
+ac_pandas
+ac_pandas.keys()
 
 
-# In[ ]:
+# In[66]:
 
 
-ic_nprec
+ac
 
 
-# In[ ]:
+# In[67]:
 
 
-ic_nprec
+ac_rec.id
+ac_rec.target_name[5]
 
 
-# In[ ]:
+# In[68]:
 
 
-ic_nprec.icmecat_id
+ac_struct
+
+
+# In[69]:
+
+
+ac_struct['id']
+ac_struct['id'][100]
+
+#comparison old and new method for arrival time prediction
+deltata=(parse_time(ac.target_arrival_time[0:100]).plot_date-parse_time(ac_old.target_arrival_time).plot_date[0:100])*24
+print(deltata)
 
 
 # In[ ]:

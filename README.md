@@ -112,6 +112,19 @@ use either (depending on your preference for jupyter lab, notebook or a script):
 These codes make CME statistics to get the results and plots for the paper Möstl et al. (2020, in preparation). 
 
 
+### HI CME arrival catalog 
+
+use either (depending on your preference for jupyter lab, notebook or a script):
+
+    jupyter lab arrcat.ipynb
+  
+    jupyter notebook arrcat.ipynb
+
+    python arrcat.py
+    
+These codes makes the HELCATS CME arrival catalog, see e.g. Möstl et al. (2017, Space Weather).
+
+
 ### Spacecraft positions and data
 
     python sc_positions_insitu.py

@@ -140,7 +140,7 @@ def calculate_arrival(vsse,delta,lamda,rdist,t0_num):
 
 
 
-def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, insitu_location_string, column_list):
+def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_string, column_list):
     
     #get parameters from HIGEOCAT for arrival catalog
 
@@ -148,11 +148,11 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, insitu_location_string, 
     higeocat_t0=parse_time(higeocat['SSE Launch']).datetime   #backprojected launch time
     higeocat_t0_num=parse_time(higeocat_t0).plot_date
     higeocat_vsse=np.array(higeocat['SSE Speed'])
+    higeocat_vsse_err=np.array(higeocat['SSE Speed Err'])
     higeocat_sse_lon=np.array(higeocat['SSE HEEQ Long' ])
     higeocat_sse_lat=np.array(higeocat['SSE HEEQ Lat' ])
     higeocat_id=np.array(higeocat['ID'])
     higeocat_sc=np.array(higeocat['SC'])
-    higeocat_vsse_err=np.array(higeocat['SSE Speed Err'])
     higeocat_pan=np.array(higeocat['PA-N'])
     higeocat_pas=np.array(higeocat['PA-S'])
     higeocat_pafit=np.array(higeocat['PA-fit'])
@@ -221,7 +221,12 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, insitu_location_string, 
     #half width for SSEF30
     lamda=30.0
 
+    #new version of ARRCAT with iteration
     arrcat_insitu_list = []
+    #old version without iteration
+    arrcat_insitu_list_old = []
+
+
 
     #go through all HIGEOCAT CME events and check for hit at insitu, with 4 iterations in total
     for i in np.arange(len(higeocat_time)):
@@ -236,6 +241,17 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, insitu_location_string, 
             #calculate arrival time 
             #print(delta,lamda,insitu_r)
             [ta,visse]=calculate_arrival(higeocat_vsse[i],delta, lamda, insitu_r,higeocat_t0_num[i])                
+            
+            #make old version of ARRCAT without iteration and errors
+            list_old=[higeocat_id[i].decode(),higeocat_sc[i].decode(),target_name,\
+                   parse_time(higeocat_t0[i]).iso[:-7],parse_time(ta).iso[:-7],0,\
+                   np.round(insitu_r,3), np.round(insitu_lon,2), np.round(insitu_lat,2),np.round(insitu_lon-higeocat_sse_lon[i],1),\
+                   higeocat_sse_lon[i],higeocat_sse_lat[i],higeocat_vsse[i],\
+                   higeocat_vsse_err[i], int(np.rint(visse)),0,higeocat_pafit[i],higeocat_pan[i],higeocat_pas[i],higeocat_pacenter[i]]
+                   #print(list1)
+            arrcat_insitu_list_old.append(list_old)
+            
+        
 
             [insitu_time2,insitu_r2,insitu_lat2,insitu_lon2]=get_insitu_position_time(ta, insitu_location_string,insitu_str, insitu_kernel)       
             #print(insitu_lon-insitu_lon2)               
@@ -256,16 +272,36 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, insitu_location_string, 
                     delta4=abs(higeocat_sse_lon[i]-insitu_lon4)
 
                     if delta4 <30:
+                        
+                        #calculate finally iterated arrival time
                         [ta4,visse4]=calculate_arrival(higeocat_vsse[i],delta4, lamda, insitu_r4,higeocat_t0_num[i])
-                        #print(np.round((parse_time(ta4).plot_date-parse_time(ta3).plot_date)*24,1),int(delta4))
-                        #print(int(delta4-delta))                    
-    
+                        #print(np.round((parse_time(ta4).plot_date-parse_time(ta3).plot_date)*24,1),int(delta4))                                               
+                        #print(int(delta4-delta))                                            
+                                                
+                        #estimate error bar on arrival time adding or subtracting the error in the Vsse speed
+                        [ta4_low,visse4_low]=calculate_arrival(higeocat_vsse[i]-higeocat_vsse_err[i],delta4, lamda, insitu_r4,higeocat_t0_num[i])
+                        [ta4_high,visse4_high]=calculate_arrival(higeocat_vsse[i]+higeocat_vsse_err[i],delta4, lamda, insitu_r4,higeocat_t0_num[i])
+                        
+                        #calculate difference in ours high / low to original arrival time and convert to hours
+                        ta4_err_low=abs(parse_time(ta4).plot_date-parse_time(ta4_low).plot_date)*24
+                        ta4_err_high=abs(parse_time(ta4).plot_date-parse_time(ta4_high).plot_date)*24
+                        ta4_err=np.round(np.mean([ta4_err_high,ta4_err_low]),1)
+                        #print(ta4_err_low,ta4_err_high,ta4_err)
+                 
+                  
+                        #same for arrival speed error
+                        visse4_err_low=abs(visse4_low-visse4)
+                        visse4_err_high=abs(visse4_high-visse4)
+                        visse4_err=int(np.rint(np.mean([visse4_err_high,visse4_err_low])))
+                        #print(visse4_err_low,visse4_err_high,visse4_err,higeocat_vsse_err[i])
+                        #print()
+
                         
                         list1=[higeocat_id[i].decode(),higeocat_sc[i].decode(),target_name,\
-                                parse_time(higeocat_t0[i]).iso[:-7],parse_time(ta4).iso[:-7],\
-                                np.round(insitu_r4,3), np.round(insitu_lon4,2), np.round(insitu_lat4,2),np.round(delta4,1),\
+                                parse_time(higeocat_t0[i]).iso[:-7],parse_time(ta4).iso[:-7],ta4_err,\
+                                np.round(insitu_r4,3), np.round(insitu_lon4,2), np.round(insitu_lat4,2),np.round(insitu_lon4-higeocat_sse_lon[i],1),\
                                 higeocat_sse_lon[i],higeocat_sse_lat[i],higeocat_vsse[i],\
-                                higeocat_vsse_err[i], int(np.rint(visse4)),higeocat_pafit[i],higeocat_pan[i],higeocat_pas[i],higeocat_pacenter[i]]
+                                higeocat_vsse_err[i], int(np.rint(visse4)),visse4_err,higeocat_pafit[i],higeocat_pan[i],higeocat_pas[i],higeocat_pacenter[i]]
                         #print(list1)
                         arrcat_insitu_list.append(list1)
 
@@ -275,11 +311,15 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, insitu_location_string, 
 
     #arrcat_insitu=np.array(arrcat_insitu_list)    
     #print(arrcat_insitu_list)
-    
+
     
     #make dataframe out of list
-    ac1 = pd.DataFrame(arrcat_insitu_list, columns = column_list)
+    ac_old1 = pd.DataFrame(arrcat_insitu_list_old, columns = column_list)    
+    ac_old=ac_old.append(ac_old1)   
+
     
+    #make dataframe out of list
+    ac1 = pd.DataFrame(arrcat_insitu_list, columns = column_list)    
     arrcat=arrcat.append(ac1)   
     
     
@@ -288,7 +328,7 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, insitu_location_string, 
     print()
         
     
-    return arrcat
+    return [arrcat,ac_old]
 
 
 
