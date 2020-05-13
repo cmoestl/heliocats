@@ -82,7 +82,7 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[24]:
+# In[2]:
 
 
 from heliocats import cats as hc
@@ -139,11 +139,11 @@ ac
 
 # #### save header
 
-# In[27]:
+# In[88]:
 
 
 #save header and parameters as text file and prepare for html website
-header='ARRIVAL CATALOGUE 2.0 \n\nIn this ARRival CATalog (ARRCAT), the arrivals of solar coronal mass ejections as \ntracked in the STEREO heliospheric imagers are calculated. This was a part of the EU HELCATS project, \nbut is now continously updated. \nIt lists predicted arrivals of CMEs at various spacecraft and planets, \nbetween April 2007 - April 2020, based on the HIGeoCAT catalog of CMEs \nestablished at RAL Space, UK (R. A. Harrison, J. A. Davies, D. Barnes). \n\nThis is version 2.0, released 2020-05-12. DOI: 10.6084/m9.figshare.12271292\n\nIt is based on this HIGeoCAT version: '+url_higeocat+'\n\nThe catalog is available as python pandas dataframe (pickle), \npython numpy arrays (pickle, as recarray and structured array), \nnpy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at \nhttps://helioforecast.space/arrcat and https://www.helcats-fp7.eu\n\nNumber of events in ARRCAT: '+str(len(ac))+'\nTargets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.\n\nParameters: \n\n    0: id: From HIGeoCAT, the unique identifier for the observed CME.\n    1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)\n    2: target_name: Name of in situ target.\n    3: sse_launch_time: From HIGeoCAT, launch time of the CME at Sun center, unit: UTC.\n    4: target_arrival_time: CME arrival time at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: UTC.\n    5: target_arrival_time_err: Error of CME arrival time at target location, solely based on error in parameter sse_speed_err. unit: UTC.\n    6: target_distance: Target distance from Sun, at CME arrival time. unit: AU.\n    7: target_heeq_lon: Target longitude in HEEQ, at CME arrival time. unit: degree.\n    8: target_heeq_lat: Target latitude in HEEQ, at CME arrival time. unit: degree.\n    9: target_delta: Difference in HEEQ longitude between central CME direction and target location at CME arrival time, \n       positive values: spacecraft is west of CME apex. unit: degree.\n    10: sse_heeq_lon: From HIGeoCAT, the HEEQ longitude of the CME apex propagation direction, unit: degree.\n    11: sse_heeq_lat: From HIGeoCAT, the HEEQ latitude of the CME apex propagation direction, unit: degree.\n    12: sse_speed: From HIGeoCAT, speed of the CME apex, unit: km/s.\n    13: sse_speed_err: From HIGeoCAT, error in the speed of the CME apex, unit: km/s.\n    14: target_speed: CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.\n    15: target_speed_err: Error in CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.\n    16: pa_fit: From HIGeoCAT, PA along which time-elongation profile is extracted, unit: degree.\n    17: pa_n: From HIGeoCAT, northern position angle of CME, unit: degree.\n    18: pa_s: From HIGeoCAT, southernmost position angle of CME, unit: degree.\n    19: pa_center: average of pa_n and pa_s, unit: degree.\n\nNotes:\n\n    - We have modified the calculation of CME arrival time here by a new iterative method compared to Möstl et al. (2014, 2017). \n      In the first iteration, the sse_launch_time is used to calculate the target HEEQ position, and in subsequent three iterations the \n      newly calculated arrival time is employed each time for the target HEEQ position at the newly calculated arrival time. \n      In this way we avoid an error of a few degrees in the arrival target location (see also Möstl et al. 2017). \n    - The analytical formulas for calculating the speeds and arrival times of the CMEs modeled with SSEF30, \n      corrected for the SSEF30 circular shape, can be found in Möstl & Davies (2013). \n\n\nReferences \n\nMöstl & Davies (2013) https://doi.org/10.1007/s11207-012-9978-8 \nMöstl et al. (2014)   https://doi.org/10.1088/0004-637X/787/2/119 \nMöstl et al. (2017)   https://doi.org/10.1002/2017SW001614 \n'
+header='ARRIVAL CATALOGUE 2.0 \n\nIn this ARRival CATalog (ARRCAT), the arrivals of solar coronal mass ejections that were \ntracked in the STEREO heliospheric imagers in the HELCATS project are calculated.\nARRCAT lists modeled arrivals of CMEs at various spacecraft and planets, \nbetween April 2007 - April 2020, based on the HIGeoCAT catalog of CMEs \nestablished at RAL Space, UK (R. A. Harrison, J. A. Davies, D. Barnes). \n\nThis is version 2.0, released 2020-05-12. https://doi.org/10.6084/m9.figshare.12271292\n\nIt is based on this HIGeoCAT version: '+url_higeocat+' using the SSEF30 model.\n\nThe catalog is available as python pandas dataframe (pickle), \npython numpy arrays (pickle, as recarray and structured array), \nnpy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at \nhttps://helioforecast.space/arrcat and https://www.helcats-fp7.eu\n\nNumber of events in ARRCAT: '+str(len(ac))+'\nTargets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.\n\nParameters: \n\n    0: id: From HIGeoCAT, the unique identifier for the observed CME.\n    1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)\n    2: target_name: Name of in situ target.\n    3: sse_launch_time: From HIGeoCAT, launch time of the CME at Sun center, unit: UTC.\n    4: target_arrival_time: CME arrival time at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: UTC.\n    5: target_arrival_time_err: Error of CME arrival time at target location, solely based on error in parameter sse_speed_err. unit: hours.\n    6: target_distance: Target distance from Sun, at CME arrival time. unit: AU.\n    7: target_heeq_lon: Target longitude in HEEQ, at CME arrival time. unit: degree.\n    8: target_heeq_lat: Target latitude in HEEQ, at CME arrival time. unit: degree.\n    9: target_delta: Difference in HEEQ longitude between central CME direction and target location at CME arrival time, \n       positive values: spacecraft is west of CME apex. unit: degree.\n    10: sse_heeq_lon: From HIGeoCAT, the HEEQ longitude of the CME apex propagation direction, unit: degree.\n    11: sse_heeq_lat: From HIGeoCAT, the HEEQ latitude of the CME apex propagation direction, unit: degree.\n    12: sse_speed: From HIGeoCAT, speed of the CME apex, unit: km/s.\n    13: sse_speed_err: From HIGeoCAT, error in the speed of the CME apex, unit: km/s.\n    14: target_speed: CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.\n    15: target_speed_err: Error in CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.\n    16: pa_fit: From HIGeoCAT, PA along which time-elongation profile is extracted, unit: degree.\n    17: pa_n: From HIGeoCAT, northern position angle of CME, unit: degree.\n    18: pa_s: From HIGeoCAT, southernmost position angle of CME, unit: degree.\n    19: pa_center: average of pa_n and pa_s, unit: degree.\n\nNotes:\n\n    - We have modified the calculation of CME arrival time here by a new iterative method compared to Möstl et al. (2014, 2017). \n      In the first iteration, the sse_launch_time is used to calculate the target HEEQ position, and in subsequent three iterations the \n      newly calculated arrival time is employed each time for the target HEEQ position at the newly calculated arrival time. \n      In this way we avoid an error of a few degrees in the arrival target location (see also Möstl et al. 2017). \n    - The analytical formulas for calculating the speeds and arrival times of the CMEs modeled with SSEF30, \n      corrected for the SSEF30 circular shape, can be found in Möstl & Davies (2013). \n\n\nReferences \n\nMöstl & Davies (2013) https://doi.org/10.1007/s11207-012-9978-8 \nMöstl et al. (2014)   https://doi.org/10.1088/0004-637X/787/2/119 \nMöstl et al. (2017)   https://doi.org/10.1002/2017SW001614 \n'
 
 print(header)
 
@@ -165,7 +165,7 @@ print()
 
 # #### save into different formats
 
-# In[28]:
+# In[4]:
 
 
 ########## python formats
@@ -342,7 +342,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[14]:
+# In[5]:
 
 
 #load icmecat as pandas dataframe
@@ -354,33 +354,33 @@ file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
 [ac_rec,ac_struct,h]=pickle.load( open(file, 'rb'))   
 
 
-# In[65]:
+# In[6]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[66]:
+# In[7]:
 
 
 ac
 
 
-# In[67]:
+# In[8]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[68]:
+# In[9]:
 
 
 ac_struct
 
 
-# In[69]:
+# In[10]:
 
 
 ac_struct['id']
@@ -389,6 +389,107 @@ ac_struct['id'][100]
 #comparison old and new method for arrival time prediction
 deltata=(parse_time(ac.target_arrival_time[0:100]).plot_date-parse_time(ac_old.target_arrival_time).plot_date[0:100])*24
 print(deltata)
+
+
+# ### plot directions and targets
+
+# In[82]:
+
+
+get_ipython().run_line_magic('matplotlib', 'inline')
+
+plt.rcParams["figure.figsize"] = (19,11)
+
+sns.set_context('talk')
+sns.set_style('darkgrid')
+
+
+
+fig=plt.figure(1, figsize=(18,10), dpi=100) 
+ax = plt.subplot(121,projection='polar') 
+
+plt.title('ARRCAT CME arrivals at targets [HEEQ longitude]')
+
+#get indices for each target
+merci=np.where(ac.target_name=='Mercury')[0]
+venusi=np.where(ac.target_name=='Venus')[0]
+earthi=np.where(ac.target_name=='Earth_L1')[0]
+marsi=np.where(ac.target_name=='Mars')[0]
+
+stai=np.where(ac.target_name=='STEREO-A')[0]
+stbi=np.where(ac.target_name=='STEREO-B')[0]
+pspi=np.where(ac.target_name=='PSP')[0]
+soloi=np.where(ac.target_name=='SolarOrbiter')[0]
+bepii=np.where(ac.target_name=='BepiColombo')[0]
+ulyi=np.where(ac.target_name=='Ulysses')[0]
+
+#markersize
+ms=15
+#alpha
+al=0.6
+
+ax.scatter(np.radians(ac.target_heeq_lon[merci]),ac.target_distance[merci],s=ms,c='dimgrey', alpha=al)
+ax.scatter(np.radians(ac.target_heeq_lon[venusi]),ac.target_distance[venusi],s=ms,c='orange', alpha=al)
+ax.scatter(np.radians(ac.target_heeq_lon[earthi]),ac.target_distance[earthi],s=ms,c='mediumseagreen', alpha=al)
+ax.scatter(np.radians(ac.target_heeq_lon[marsi]),ac.target_distance[marsi],s=ms,c='orangered', alpha=al)
+
+ax.scatter(np.radians(ac.target_heeq_lon[stai]),ac.target_distance[stai],s=ms,c='red', alpha=al)
+ax.scatter(np.radians(ac.target_heeq_lon[stbi]),ac.target_distance[stbi],s=ms,c='blue', alpha=al)
+
+ax.scatter(np.radians(ac.target_heeq_lon[pspi]),ac.target_distance[pspi],s=ms,c='black', alpha=al)
+ax.scatter(np.radians(ac.target_heeq_lon[soloi]),ac.target_distance[soloi],s=ms,c='green', alpha=al)
+ax.scatter(np.radians(ac.target_heeq_lon[bepii]),ac.target_distance[bepii],s=ms,c='violet', alpha=al)
+ax.scatter(np.radians(ac.target_heeq_lon[ulyi]),ac.target_distance[ulyi],s=ms,c='brown', alpha=al)
+
+plt.ylim([0,np.max(ac.target_distance)+0.03])
+
+
+
+ax = plt.subplot(122,projection='polar')
+plt.title('HIGeoCAT SSE speed')
+hiai=np.where(ac.sc=='A')[0]
+hibi=np.where(ac.sc=='B')[0]
+
+ax.scatter(np.radians(ac.sse_heeq_lon[hiai].astype(float)),ac.sse_speed[hiai],s=ms,c='red', alpha=al)
+ax.scatter(np.radians(ac.sse_heeq_lon[hibi].astype(float)),ac.sse_speed[hibi],s=ms,c='blue', alpha=al)
+
+plt.ylim([0,2000])
+
+plt.tight_layout()
+
+plotfile='arrcat/plots_arrcat/arrcat_targets.png'
+plt.savefig(plotfile)
+print('saved as ',plotfile)
+
+
+# ### plot error distributions
+
+# In[86]:
+
+
+fig=plt.figure(2, figsize=(18,8), dpi=100)
+
+ax = plt.subplot(121) 
+sns.distplot(ac.sse_speed_err,bins=200,kde=False,rug=True)
+plt.xlim(0,200)
+plt.ylabel('events')
+plt.xlabel('sse_speed_err [km/s]')
+plt.title('HIGeoCAT SSE speed error distribution')
+print('mean sse_speed error',np.mean(ac.sse_speed_err).astype(int),'+/-',np.std(ac.sse_speed_err).astype(int),' km/s' )
+
+ax2 = plt.subplot(122) 
+sns.distplot(ac.target_arrival_time_err,bins=800,kde=False,rug=True)
+plt.xlim(0,70)
+plt.title('ARRCAT target arrival time error distribution')
+plt.ylabel('events')
+plt.xlabel('target_arrival_time_err [hours]')
+print('mean target arrival time error from sse_speed error',np.mean(ac.target_arrival_time_err).astype(int),'+/-',np.std(ac.target_arrival_time_err).astype(int),'hours' )
+
+plt.tight_layout()
+
+plotfile='arrcat/plots_arrcat/arrcat_errors_dist.png'
+plt.savefig(plotfile)
+print('saved as ',plotfile)
 
 
 # In[ ]:
