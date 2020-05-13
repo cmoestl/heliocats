@@ -3,8 +3,7 @@ ARRIVAL CATALOGUE 2.0
 In this ARRival CATalog (ARRCAT), the arrivals of solar coronal mass ejections that were 
 tracked in the STEREO heliospheric imagers in the HELCATS project are calculated.
 ARRCAT lists modeled arrivals of CMEs at various spacecraft and planets, 
-between April 2007 - April 2020, based on the HIGeoCAT catalog of CMEs 
-established at RAL Space, UK (R. A. Harrison, J. A. Davies, D. Barnes). 
+based on the HIGeoCAT catalog of CMEs established at RAL Space, UK (R. A. Harrison, J. A. Davies, D. Barnes). 
 
 This is version 2.0, released 2020-05-13. https://doi.org/10.6084/m9.figshare.12271292
 
@@ -18,7 +17,13 @@ https://helioforecast.space/arrcat and https://www.helcats-fp7.eu
 Number of events in ARRCAT: 1548
 Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.
 
-Parameters: 
+Authors: Christian Möstl, D. Barnes, R. A. Harrison, J. A. Davies, Andreas J. Weiss, David Stansby;
+Space Research Institute (IWF), Austrian Academy of Sciences, Graz, Austria; RAL Space, UK; Mullard Space Science Laboratory, UK.
+
+Rules: If results are produced with this catalog for peer-reviewed scientific publications,
+please contact christian.moestl@oeaw.ac.at for co-authorships.
+
+Parameters 
 
     0: id: From HIGeoCAT, the unique identifier for the observed CME.
     1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)
@@ -42,11 +47,12 @@ Parameters:
     18: pa_s: From HIGeoCAT, southernmost position angle of CME, unit: degree.
     19: pa_center: average of pa_n and pa_s, unit: degree.
 
-Notes:
+Comments
 
     - We have modified the calculation of CME arrival time here by a new iterative method compared to Möstl et al. (2014, 2017). 
-      In the first iteration, the sse_launch_time is used to calculate the target HEEQ position, and in subsequent three iterations the 
-      newly calculated arrival time is employed each time for the target HEEQ position at the newly calculated arrival time. 
+      In the first iteration, the sse_launch_time is used to calculate the target HEEQ position. 
+      In subsequent three iterations, we use the arrival time from the previous iteration (instead of sse_launch time) 
+      to calculate the target HEEQ position. 
       In this way we avoid an error of a few degrees in the arrival target location (see also Möstl et al. 2017). 
     - The analytical formulas for calculating the speeds and arrival times of the CMEs modeled with SSEF30, 
       corrected for the SSEF30 circular shape, can be found in Möstl & Davies (2013). 
@@ -54,6 +60,6 @@ Notes:
 
 References 
 
-Möstl & Davies (2013) https://doi.org/10.1007/s11207-012-9978-8 
-Möstl et al. (2014)   https://doi.org/10.1088/0004-637X/787/2/119 
-Möstl et al. (2017)   https://doi.org/10.1002/2017SW001614 
+Möstl & Davies (2013) https://doi.org/10.1007/s11207-012-9978-8 arxiv: https://arxiv.org/abs/1202.1299
+Möstl et al. (2014)   https://doi.org/10.1088/0004-637X/787/2/119 (open access) 
+Möstl et al. (2017)   https://doi.org/10.1002/2017SW001614 (open access)
