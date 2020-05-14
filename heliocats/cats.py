@@ -43,6 +43,39 @@ AU=au.value/1e3
 
 
 
+######################## general position functions
+
+
+# def get_mars_position_array():
+    
+#     ############### Mars position
+
+#     planet_kernel=spicedata.get_kernel('planet_trajectories')
+#     starttime = datetime.datetime(2007, 1, 1)
+#     endtime = datetime.datetime(2020, 12, 31)
+#     res_in_hours=1
+#     mars_time = []
+#     while starttime < endtime:
+#         mars_time.append(starttime)
+#         starttime += datetime.timedelta(hours=res_in_hours)
+#     mars=spice.Trajectory('4')  
+#     frame='HEEQ'
+#     mars.generate_positions(mars_time,'Sun',frame)  
+#     mars.change_units(astropy.units.AU)  
+#     [mars_r, mars_lat, mars_lon]=hd.cart2sphere(mars.x,mars.y,mars.z)
+#     print('mars position done') 
+    
+#     mars_time=np.array(mars_time)
+#     mars_r=np.array(mars_r)
+#     mars_lat=np.array(mars_lat)
+#     mars_lon=np.array(mars_lon)
+
+#     return [mars_time,mars_r,np.degrees(mars_lat),np.degrees(mars_lon)]
+
+
+
+
+
 
 ################################ HI arrival catalog ARRCAT operations ##############################
 
@@ -331,33 +364,6 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
     return [arrcat,ac_old]
 
 
-
-
-# def get_mars_position_array():
-    
-#     ############### Mars position
-
-#     planet_kernel=spicedata.get_kernel('planet_trajectories')
-#     starttime = datetime.datetime(2007, 1, 1)
-#     endtime = datetime.datetime(2020, 12, 31)
-#     res_in_hours=1
-#     mars_time = []
-#     while starttime < endtime:
-#         mars_time.append(starttime)
-#         starttime += datetime.timedelta(hours=res_in_hours)
-#     mars=spice.Trajectory('4')  
-#     frame='HEEQ'
-#     mars.generate_positions(mars_time,'Sun',frame)  
-#     mars.change_units(astropy.units.AU)  
-#     [mars_r, mars_lat, mars_lon]=hd.cart2sphere(mars.x,mars.y,mars.z)
-#     print('mars position done') 
-    
-#     mars_time=np.array(mars_time)
-#     mars_r=np.array(mars_r)
-#     mars_lat=np.array(mars_lat)
-#     mars_lon=np.array(mars_lon)
-
-#     return [mars_time,mars_r,np.degrees(mars_lat),np.degrees(mars_lon)]
 
 
 

@@ -5,12 +5,10 @@
 # 
 # makes a catalog of solar wind stream interaction regions (SIRs) for the Wind and STEREO spacecraft since 2007
 # 
-# Authors: [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/) (twitter @chrisoutofspace), A. J. Weiss, R. L. Bailey, IWF Graz, Austria; Lan Jian, NASA, USA.
+# Authors: [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/) (twitter @chrisoutofspace), A. J. Weiss, R. L. Bailey, IWF Graz, Austria; Lan Jian, NASA, USA, Maxim Grandin, University of Helsinki, Finland.
 # 
 # 
 # **current status: work in progress** 
-# 
-# to do: merge the times of the Wind and STEREO catalogs: STEREO needs HSS end time (definition: vt < 450 km/s), calculate HSS max time, calculate parameters for STEREO HSS 
 # 
 # If you want to use parts of this code for generating results for peer-reviewed scientific publications, please contact me per email (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace for co-authorships.
 # 
@@ -69,7 +67,7 @@
 
 # start with importing packages, get paths from config.py file and make directories 
 
-# In[12]:
+# In[1]:
 
 
 import numpy as np
@@ -146,7 +144,7 @@ os.system('jupyter nbconvert --to script sircat.ipynb')
 # load data from STEREO-B, STEREO-A and Wind, from HELCATS, or made with HelioSat and heliocats.data
 # 
 
-# In[13]:
+# In[2]:
 
 
 load_data=1
@@ -296,7 +294,7 @@ print('done')
 
 # read raw STEREO SIR and Earth SIR catalogs from Lan Jian and Maxim Grandin, and convert to master catalog xlsx file
 
-# In[15]:
+# In[38]:
 
 
 ###################### read raw STEREO SIR catalog
@@ -307,25 +305,18 @@ sraw=pd.read_excel(file)
 
 #2 times: HSS start (equivalent to SIR start as defined in the L. Jian catalog), HSS end (where speed again < 450km/s)
 
-
 print('Events in STEREO SIR cat:', sraw.shape[0])
 
 sc=sraw.loc[:,'spacecraft']
-
 year_start=sraw.loc[:,'year_start']
 stime=sraw.loc[:,'start_time']
-
 year_end=sraw.loc[:,'year_end']
 etime=sraw.loc[:,'end_time']
-
 year_pt=sraw.loc[:,'year_pt']
 ptime=sraw.loc[:,'pt_time']
 
-print('convert times to datetime objects')
-
 #make list for all basic times, ids etc. for master file
 rows_list = []
-
 
 for i in np.arange(0,sraw.shape[0]):
     
@@ -369,7 +360,9 @@ for i in np.arange(0,sraw.shape[0]):
 
 #Grandin et al. 2018 - OMNI
 #removed 2 SIRs due to data gap of Wind in oct 2014
-wraw=np.loadtxt('sircat/sources/grandin_2018_list_modified.txt',skiprows=9)
+filewin='sircat/sources/grandin_2018_list_modified.txt'
+wraw=np.loadtxt(filewin,skiprows=9)
+print('load Grandin Earth HSS catalog from:', filewin)
 
 print('Events in Wind SIR/HSS cat:', wraw.shape[0])
 
@@ -388,7 +381,6 @@ for i in np.arange(begin2007,len(wraw),1):
     wend=datetime.datetime(wraw[i,11].astype(int),wraw[i,12].astype(int),                              wraw[i,13].astype(int),wraw[i,14].astype(int),                              0)-datetime.timedelta(hours=1)
 
 
-
     sc_idstring='SIR_WIND_GRANDIN_'
     id_time=parse_time(wstart).isot
     sircat_id=sc_idstring+id_time[0:4]+id_time[5:7]+id_time[8:10]+'_01'
@@ -400,11 +392,10 @@ for i in np.arange(begin2007,len(wraw),1):
 
     rows_list.append(list2)
 
+   
 
     
-
-    
-###################################  add new events
+###################################  add new events **** to be done
 #for measuring new events use this function from heliocats.plot 
 #plt.close('all')
 #works in jupyter notebooks
@@ -434,10 +425,9 @@ parameters =['sircat_id','sc_insitu','hss_start_time','sir_end_time',           
 master=pd.DataFrame(rows_list,columns=parameters)
 
 
-#sort by spacecraft indicator
+#sort by spacecraft indicator and start time
 master=master.sort_values(['sc_insitu','hss_start_time'])
-master = master.reset_index(drop=True)
-
+master = master.reset_index(drop=True) #drop extra index value
 
 master
    
@@ -448,12 +438,13 @@ file='sircat/HELIO4CAST_SIRCAT_v10_master.xlsx'
 master.to_excel(file,sheet_name='SIRCATv1.0')
 print()
 print('SIRCAT master saved as '+file)
+print('total events', master.shape[0])
 print('done')
 
 
 # ## (3) make SIRCAT 
 
-# In[16]:
+# In[58]:
 
 
 
@@ -467,8 +458,6 @@ importlib.reload(hp) #reload again while debugging
 scat=hc.load_helio4cast_sircat_master_from_excel('sircat/HELIO4CAST_SIRCAT_v10_master.xlsx')
 scat
 
-
-
 ####### 3a get indices for all spacecraft
 stai=np.where(scat.sc_insitu == 'STEREO-A')[:][0]    
 stbi=np.where(scat.sc_insitu == 'STEREO-B')[:][0]    
@@ -477,12 +466,10 @@ wini=np.where(scat.sc_insitu == 'Wind')[:][0]
 print('done')
 
 ####### 3b get parameters for all spacecraft one after another
-
 # remove indices if the  events in the master file have changed
 #os.system('rm sircat/indices_sircat/SIRCAT_indices_Wind.p')
 #os.system('rm sircat/indices_sircat/SIRCAT_indices_STEREO-A.p')
 #os.system('rm sircat/indices_sircat/SIRCAT_indices_STEREO-B.p')
-
 
 scat=hc.get_sircat_parameters(sta,stai,scat,'STEREO-A')
 scat=hc.get_sircat_parameters(stb,stbi,scat,'STEREO-B')
@@ -490,10 +477,10 @@ scat=hc.get_sircat_parameters(win,wini,scat,'Wind')
 
 
 # ###### 3c make all plots if wanted
-#matplotlib.use('Agg')
-#hp.plot_sircat_events(sta,stai,scat,'STEREO-A',sirplotsdir)
-#hp.plot_sircat_events(stb,stbi,scat,'STEREO-B',sirplotsdir)
-#hp.plot_sircat_events(win,wini,scat,'Wind',sirplotsdir)
+# matplotlib.use('Agg')
+# hp.plot_sircat_events(sta,stai,scat,'STEREO-A',sirplotsdir)
+# hp.plot_sircat_events(stb,stbi,scat,'STEREO-B',sirplotsdir)
+# hp.plot_sircat_events(win,wini,scat,'Wind',sirplotsdir)
 
 
 
@@ -504,11 +491,11 @@ print('done')
 
 # ### 4a save header
 
-# In[53]:
+# In[59]:
 
 
 #save header and parameters as text file and prepare for html website
-header='SIR CATALOGUE v1.0 \n\nThis is the HELIO4CAST stream interaction region (SIR) and high speed stream (HSS) catalog,\nbased on in situ magnetic field and bulk plasma observations in the heliosphere. \nIt is a merged catalog created from individual ones made by Lan Jian et al. and Maxim Grandin et al. (see references).\n\nThis is version 1.0, released 2020-**-**. DOI: 10.6084/m9.**** \n\nThe catalog is available as  python pandas dataframe (pickle), json, csv, xlsx, txt, html at \nhttps://helioforecast.space/sircat \n\nNumber of events in SIRCAT: '+str(len(scat))+' \nICME observatories: Wind, STEREO-A, STEREO-B.   \nTime range: January 2007 - December 2017 (Wind), January 2007 - July 2018 (STEREO). \n\nAuthors: Christian Moestl, Andreas Weiss, R. L. Bailey, Space Research Institute, Austrian Academy of Sciences, Graz, Austria. \nLan Jian, NASA, USA, Maxim Grandin, University of Helsinki, Finland. \n\nRules: If results are produced with this catalog for peer-reviewed scientific publications, \nplease contact christian.moestl@oeaw.ac.at for possible co-authorships. \n\nThis catalog has been made by getting the start and end times of each high speed stream from the \nindividual catalogs, and then calculating all parameters again consistently from the data by us. \nThe in situ data that were used for the creating catalog, with a size of 8 GB in total, including extra data \nfiles with magnetic field components in RTN coordinates and other spacecrat that are not used for producing this catalog, \ncan be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693.v7 \nThe python code for producing this catalog is available at https://github.com/cmoestl/heliocats/sircat.ipynb \n\nEach sircat_id has a tag in it that indicates from which catalog the ICME times were taken: \n\nWind:       Grandin et al. (2018), tag: GRANDIN \nSTEREO-A:   Jian et al. (2019), tag: JIAN. \nSTEREO-B:   Jian et al. (2019), tag: JIAN. \n\nReferences \nGrandin, M. et al. (2018), https://doi.org/10.1029/2018JA026396, 2019. \nJian, L. et al. (2019), https://doi.org/10.1007/s11207-019-1416-8, 2019. \n\nComments: \n- The STEREO catalog contains the SIR start and end times. We use their SIR start time as our hss_start_time, \nand create our hss_end_time by setting it as the first time when the total bulk speed drops below 450 km/s \nafter the SIR end time given in the Jian catalog. \nThus, for the Jian catalog there exists 3 times: hss_start_time, sir_end_time, hss_end_time.\n- Earth SIR/HSS list: This catalog directly gives the hss_start_time and the hss_end_time,  \nwith a similar definition as the hss_end_time that we use for the STEREO catalog. \n- The times in the Earth SIR/HSS list have been modified to 1 hour earlier as these times were \noriginally given for the magnetopause, but the Wind spacecraft is located at the L1 point. \nOne hour is practically equivalent to the propagation time of a 400 km/s slow solar wind \nfrom the L1 point to the magnetopause.\n- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth). \n        Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n        Z is the solar rotation axis. \n        Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.\n        X completes the right handed triad (and points away from the Sun). \nThis system is thus like HEEQ but centered on the respective in situ spacecraft, so the SCEQ X and Y \nbase vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\nThe Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \nare rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \na few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).\nWe choose SCEQ because it has the advantage that a comparison between multipoint CME events \nand for comparison to simulations there is always a similar reference plane (the solar equatorial plane). \n\n '     
+header='SIR CATALOGUE v1.0 \n\nThis is the HELIO4CAST stream interaction region (SIR) and high speed stream (HSS) catalog,\nbased on in situ magnetic field and bulk plasma observations in the heliosphere. \nIt is a merged catalog created from individual ones made by Lan Jian et al. and Maxim Grandin et al. (see references).\n\nThis is version 1.0, released 2020-**-**. DOI: 10.6084/m9.**** \n\nThe catalog is available as  python pandas dataframe (pickle), json, csv, xlsx, txt, html at \nhttps://helioforecast.space/sircat \n\nNumber of events in SIRCAT: '+str(len(scat))+' \nICME observatories: Wind, STEREO-A, STEREO-B.   \nTime range: January 2007 - December 2017 (Wind), January 2007 - July 2018 (STEREO). \n\nAuthors: Christian Moestl, Andreas Weiss, R. L. Bailey, Space Research Institute, Austrian Academy of Sciences, Graz, Austria. \nLan Jian, NASA, USA, Maxim Grandin, University of Helsinki, Finland. \n\nRules: If results are produced with this catalog for peer-reviewed scientific publications, \nplease contact christian.moestl@oeaw.ac.at for possible co-authorships. \n\nThis catalog has been made by getting the start and end times of each high speed stream from the \nindividual catalogs, and then calculating all parameters again consistently from the data by us. \nThe in situ data that were used for the creating catalog, with a size of 8 GB in total, including extra data \nfiles with magnetic field components in RTN coordinates and other spacecrat that are not used for producing this catalog, \ncan be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693.v7 \nThe python code for producing this catalog is available at https://github.com/cmoestl/heliocats/sircat.ipynb \n\nEach sircat_id has a tag in it that indicates from which catalog the ICME times were taken: \n\nWind:       Grandin et al. (2018), tag: GRANDIN \nSTEREO-A:   Jian et al. (2019), tag: JIAN. \nSTEREO-B:   Jian et al. (2019), tag: JIAN. \n\nReferences \nGrandin, M. et al. (2018), https://doi.org/10.1029/2018JA026396. \nJian, L. et al. (2019), https://doi.org/10.1007/s11207-019-1416-8. \n\nComments: \n- The STEREO catalog contains the SIR start and end times. We use their SIR start time as our hss_start_time, \nand create our hss_end_time by setting it as the first time when the total bulk speed drops below 450 km/s \nafter the SIR end time given in the Jian catalog. \nThus, for the Jian catalog there exists 3 times: hss_start_time, sir_end_time, hss_end_time.\n- Earth SIR/HSS list: This catalog directly gives the hss_start_time and the hss_end_time,  \nwith a similar definition as the hss_end_time that we use for the STEREO catalog. \n- The times in the Earth SIR/HSS list have been modified to 1 hour earlier as these times were \noriginally given for the magnetopause, but the Wind spacecraft is located at the L1 point. \nOne hour is practically equivalent to the propagation time of a 400 km/s slow solar wind \nfrom the L1 point to the magnetopause.\n- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth). \n        Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n        Z is the solar rotation axis. \n        Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.\n        X completes the right handed triad (and points away from the Sun). \nThis system is thus like HEEQ but centered on the respective in situ spacecraft, so the SCEQ X and Y \nbase vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\nThe Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \nare rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \na few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).\nWe choose SCEQ because it has the advantage that a comparison between multipoint CME events \nand for comparison to simulations there is always a similar reference plane (the solar equatorial plane). \n\n '     
 
 
 
@@ -558,7 +545,7 @@ print()
 #Convert to html regarding line breaks, paragraph beginning and spaces
 header_spaces=header.replace(" ", "&nbsp;")
 header_html= "<p>" +header_spaces.replace('\n', '<br>')+ "</p>" 
-parameters_spaces=parameters.replace(" ", "&nbsp;")
+parameters_spaces=parameters_text.replace(" ", "&nbsp;")
 parameters_html= "<p>" +parameters_text.replace('\n', '<br>')+ "</p>"
 print('header converted to HTML')
 print()    
@@ -567,7 +554,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[54]:
+# In[60]:
 
 
 ########## python formats
@@ -783,7 +770,7 @@ print('SIRCAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[7]:
+# In[61]:
 
 
 
@@ -798,7 +785,7 @@ scat
 # [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[8]:
+# In[ ]:
 
 
 ic_pandas
