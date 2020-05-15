@@ -197,12 +197,12 @@ if load_data > 0:
     fileuly='ulysses_1990_2009_rtn.p'
     [uly,huly]=pickle.load(open(data_path+fileuly, "rb" ) ) 
     
+    fileomni='omni_1963_2020.p'
+    [omni,homni]=pickle.load(open(data_path+fileomni, "rb" ) ) 
+
     
-    ####################################### OMNI2
-    #fileomni="omni_1963_now.p"
-    ##overwrite=1
-    ##hd.save_omni_data(data_path,fileomni,overwrite)
-    #[o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
+    
+    
     
        
     print('load all data done')
@@ -250,7 +250,10 @@ ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]
 
 ############### set limits of solar minimum, rising/declining phase and solar maximum
 
-# ************ check these dates
+# minimim maximum
+#http://www.sidc.be/silso/cyclesmm
+#24    2008   12    2.2   2014 04   116.4  
+
 
 minstart=parse_time('2007-01-01').datetime
 minend=parse_time('2009-12-31').datetime
@@ -306,7 +309,7 @@ merci_max=iall_max[np.where(np.logical_and(ic.sc_insitu[iall_max] =='MESSENGER',
 print('done')
 
 
-# In[ ]:
+# In[3]:
 
 
 ic
@@ -316,7 +319,7 @@ ic
 
 # ### 1a Check data days available each year for each planet or spacecraft
 
-# In[ ]:
+# In[4]:
 
 
 #make bin for each year for yearly histograms
@@ -459,7 +462,7 @@ print('done')
 
 # ### 1b plot ICME frequency
 
-# In[ ]:
+# In[5]:
 
 
 #define dates of January 1 from 2007 to 2017
@@ -613,7 +616,7 @@ print(np.mean([mean12,mean13,mean14]))
 # 
 # 
 
-# In[ ]:
+# In[6]:
 
 
 print('2a Duration vs distance')
@@ -657,7 +660,7 @@ print('minimum:    D[h]={:.2f} R[AU]^{:.2f} '.format(param_min[0][0],param_min[0
 print('maximum:    D[h]={:.2f} R[AU]^{:.2f} '.format(param_max[0][0],param_max[0][1]))
 
 
-# In[ ]:
+# In[7]:
 
 
 print('2b ICME DURATION VS TIME')
@@ -685,7 +688,7 @@ xgfit=xgfit+wt[0]+2000
 
 
 
-# In[ ]:
+# In[8]:
 
 
 #plot results
@@ -824,7 +827,7 @@ plt.savefig('results/plots_stats/icme_duration_distance_time_1.png', dpi=300)
 
 # ### 3a power law fits
 
-# In[ ]:
+# In[9]:
 
 
 # xfit starts here at 2 Rs  because there should not be a 0 for the power law fits

@@ -24,7 +24,7 @@
 # - change HELCATs to HELIO4CAST
 # 
 
-# In[16]:
+# In[18]:
 
 
 import numpy as np
@@ -522,7 +522,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[ ]:
+# In[59]:
 
 
 #for measuring new events use this function from heliocats.plot 
@@ -549,9 +549,24 @@ if data_to_numpy > 0:
 #hp.plot_insitu(psp, ic.icme,'2018-Nov-15', 'PSP', icplotsdir)
 
 
+from heliocats import plot as hp
+importlib.reload(hp) #reload again while debugging
+
+
+
+#MAVEN
+rad=hd.load_msl_rad()   
+#load HIGEOCAT
+higeocat=hc.load_higeocat_vot('data/HCME_WP3_V06.vot')
+#Make Mars arrival catalog from HIGEOCAT
+arrcat_mars=hc.make_arrival_catalog_mars_ssef30(higeocat)
+
+hp.plot_insitu_measure_maven(mav, '2016-Dec-1','2017-Jan-01', 'MAVEN', icplotsdir,rad,arrcat_mars)
+
+
 # ## (3) make ICMECAT 
 
-# In[17]:
+# In[46]:
 
 
 print('data loaded')
@@ -587,29 +602,19 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 
 
 # ###### 3c make all plots if wanted
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 
-hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
-
-
-
+#hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 # hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
 # hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 # hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
-
-
-
-
-
-#hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+# hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 
 # hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
 # hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
 # hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
 # hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
-
-
 print('done')
 
 

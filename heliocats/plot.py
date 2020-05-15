@@ -575,11 +575,10 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
         plasma=True
         #load MSL rad data
         rad=hd.load_msl_rad()   
-        #load HIGEOCAT
-        higeocat=hc.load_higeocat_vot('data/HCME_WP3_V06.vot')
-        #Make Mars arrival catalog from HIGEOCAT
-        arrcat_mars=hc.make_arrival_catalog_mars_ssef30(higeocat)
-   
+        #load HI ARRCAT
+        file='arrcat/HELCATS_ARRCAT_v20_pandas.p'
+        [arrcat,arrcat_header]=pickle.load( open(file, 'rb'))   
+
     if name=='PSP': plasma=True
     if name=='VEX': plasma=False
     if name=='MESSENGER': plasma=False
@@ -598,7 +597,7 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
             if name == 'MAVEN':                 
                 plot_insitu_icmecat_maven(sc[icme_start_ind[i]-7*6:mo_end_ind[i]+7*6],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(days=7), \
-                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=7),name, icplotsdir,ic,sci[i],rad,arrcat_mars)
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=7),name, icplotsdir,ic,sci[i],rad,arrcat)
                 
             plt.close('all')
         else:
@@ -616,7 +615,7 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
      
      
 
-def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat_mars,**kwargs):
+def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,**kwargs):
     '''
     sc ... data
     '''
@@ -634,6 +633,15 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat_
     msl_start_ind=np.where(rad.time > start)[0][0]
     msl_end_ind=np.where(rad.time > end)[0][0]
     rad_slice=rad[msl_start_ind:msl_end_ind]
+    
+        
+    #locate all mars events in HI arrcat 
+    ac_mars=arrcat.loc[arrcat['target_name'] == 'Mars']
+    #get arrival times
+    arr=parse_time(ac_mars['target_arrival_time']).plot_date
+    #get error in HI arrival time derived from HI speed in hours, convert to days
+    err=ac_mars['target_arrival_time_err'].values/24
+
 
 
     sns.set_style('darkgrid')
@@ -653,7 +661,13 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat_
     #plot vertical lines
     ax1.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[-500,500],'-k',linewidth=1)            
     ax1.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[-500,500],'-k',linewidth=1)            
-    ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-500,500],'-k',linewidth=1)            
+    ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-500,500],'-k',linewidth=1)  
+    
+    ax1.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    #go through all events to plot error bar as shade
+    for k  in np.arange(ac_mars.shape[0]):
+        ax1.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.3, color='blue')
+    
     plt.ylabel('B [nT]')
     plt.legend(loc=3,ncol=4,fontsize=6)
     ax1.set_xlim(start,end)
@@ -672,6 +686,9 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat_
     ax2.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,3000],'-k',linewidth=1)            
     ax2.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,3000],'-k',linewidth=1)            
     ax2.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,3000],'-k',linewidth=1)            
+    ax2.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    for k  in np.arange(ac_mars.shape[0]):
+        ax2.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.3, color='blue')
     plt.ylabel('V [km/s]')
     ax2.set_xlim(start,end)
     #check plasma data exists
@@ -688,6 +705,10 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat_
     ax3.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,1000],'-k',linewidth=1)            
     ax3.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,1000],'-k',linewidth=1)            
     ax3.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,1000],'-k',linewidth=1)            
+    ax3.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    for k  in np.arange(ac_mars.shape[0]):
+        ax3.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.3, color='blue')
+
     plt.ylabel('N [ccm-3]')
     ax3.set_xlim(start,end)
     #if np.isnan(np.nanmin(sc.np))==False:
@@ -704,6 +725,9 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat_
     ax4.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,10],'-k',linewidth=1)            
     ax4.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,10],'-k',linewidth=1)            
     ax4.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,10],'-k',linewidth=1)    
+    ax4.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    for k  in np.arange(ac_mars.shape[0]):
+        ax4.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.3, color='blue')
     plt.ylabel('T [MK]')
     ax4.set_xlim(start,end)
     #if np.isnan(np.nanmin(sc.tp))==False:   
@@ -713,17 +737,17 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat_
     #plot MSL RAD
     ax5 = plt.subplot(515,sharex=ax1) 
     ax5.plot_date(rad_slice.time,rad_slice.dose_sol,'-k',label='MSL/RAD dose_sol',linewidth=0.7)
-    ax5.plot_date(rad_slice.time,rad_slice.dose_hour,'-r',label='MSL/RAD dose_hour',linewidth=0.7)
+    #ax5.plot_date(rad_slice.time,rad_slice.dose_hour,'-r',label='MSL/RAD dose_hour',linewidth=0.7)
     #plot vertical lines
     ax5.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,1000],'-k',linewidth=1)            
     ax5.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,1000],'-k',linewidth=1)            
-    ax5.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,1000],'-k',linewidth=1)    
- 
-    
-    
-    #ARRCAT HI    
-    ax5.plot_date([arrcat_mars[:,5],arrcat_mars[:,5]],[0,1000],'-b',linewidth=2) 
-    #use this fake data for labeling CME arrivals as blue as otherwise there are too many blue vertical lines
+    ax5.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,1000],'-k',linewidth=1)
+    ax5.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    for k  in np.arange(ac_mars.shape[0]):
+        ax5.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.3, color='blue')
+
+    #use this fake data for one event for labeling CME arrivals as blue as otherwise there are too many blue vertical lines 
+    #from plotting all arrcat events in the legend
     ax5.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-100,-90],'-b',linewidth=1,label='HI CME arrivals')    
     
     ax5.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
@@ -878,7 +902,7 @@ def plot_insitu_measure(sc, start, end, sc_label, path, **kwargs):
    
          
 
-def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat_mars,**kwargs):
+def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat,**kwargs):
     '''
     sc ... data
     '''
@@ -896,6 +920,13 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat_mars,*
     msl_start_ind=np.where(rad.time > start)[0][0]
     msl_end_ind=np.where(rad.time > end)[0][0]
     rad_slice=rad[msl_start_ind:msl_end_ind]
+    
+    #locate all mars events in HI arrcat 
+    ac_mars=arrcat.loc[arrcat['target_name'] == 'Mars']
+    #get arrival times
+    arr=parse_time(ac_mars['target_arrival_time']).plot_date
+    #get error in HI arrival time derived from HI speed in hours, convert to days
+    err=ac_mars['target_arrival_time_err'].values/24
 
 
     sns.set_style('darkgrid')
@@ -912,6 +943,12 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat_mars,*
     ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
     ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
     ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
+    
+    ax1.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    #go through all events to plot error bar as shade
+    for i  in np.arange(ac_mars.shape[0]):
+        ax1.axvspan(arr[i]-err[i],arr[i]+err[i], alpha=0.3, color='blue')
+    
     #plot vertical lines
     plt.ylabel('B [nT]')
     plt.legend(loc=3,ncol=4,fontsize=6)
@@ -923,11 +960,17 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat_mars,*
     #ax1.set_xticklabels([]) does not work with sharex
     #plt.setp(ax1.get_xticklabels(), fontsize=6)
     plt.setp(ax1.get_xticklabels(), visible=False)
+    
+    
 
 
     ax2 = plt.subplot(512,sharex=ax1) 
     ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
-    #plot vertical lines
+    
+    ax2.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    for i  in np.arange(ac_mars.shape[0]):
+        ax2.axvspan(arr[i]-err[i],arr[i]+err[i], alpha=0.3, color='blue')
+
     plt.ylabel('V [km/s]')
     ax2.set_xlim(start,end)
     #check plasma data exists
@@ -939,8 +982,13 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat_mars,*
     plt.setp(ax2.get_xticklabels(), visible=False)
 
 
+    
+
     ax3 = plt.subplot(513,sharex=ax1) 
     ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
+    ax3.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    for i  in np.arange(ac_mars.shape[0]):
+        ax3.axvspan(arr[i]-err[i],arr[i]+err[i], alpha=0.3, color='blue')
     plt.ylabel('N [ccm-3]')
     ax3.set_xlim(start,end)
     #if np.isnan(np.nanmin(sc.np))==False:
@@ -949,30 +997,32 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat_mars,*
     #plt.ylim((0, 50))
     #ax3.set_xticklabels([])
     plt.setp(ax3.get_xticklabels(), visible=False)
+    
+
 
 
     ax4 = plt.subplot(514,sharex=ax1) 
     ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
-    #plot vertical lines
+    ax4.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    for i  in np.arange(ac_mars.shape[0]):
+        ax4.axvspan(arr[i]-err[i],arr[i]+err[i], alpha=0.3, color='blue')
     plt.ylabel('T [MK]')
     ax4.set_xlim(start,end)
     #if np.isnan(np.nanmin(sc.tp))==False:   
     ax4.set_ylim(0,np.nanmax(sc.tp/1e6)+0.2)   
     plt.setp(ax4.get_xticklabels(), visible=False)
+    
 
     #plot MSL RAD
     ax5 = plt.subplot(515,sharex=ax1) 
     ax5.plot_date(rad_slice.time,rad_slice.dose_sol,'-k',label='MSL/RAD dose_sol',linewidth=0.7)
-    #ax5.plot_date(rad_slice.time,rad_slice.dose_hour,'-r',label='MSL/RAD dose_hour',linewidth=0.7)
-    #plot vertical lines
- 
-    
-    
-    #ARRCAT HI    
-    ax5.plot_date([arrcat_mars[:,5],arrcat_mars[:,5]],[0,1000],'-b',linewidth=1) 
-    #use this fake data for labeling CME arrivals as blue as otherwise there are too many blue vertical lines
+    ax5.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    for i  in np.arange(ac_mars.shape[0]):
+        ax1.axvspan(arr[i]-err[i],arr[i]+err[i], alpha=0.3, color='blue')
 
     
+    #ax5.plot_date(rad_slice.time,rad_slice.dose_hour,'-r',label='MSL/RAD dose_hour',linewidth=0.7)
+  
     ax5.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
     ax5.set_ylim(np.min(rad_slice.dose_sol)-15,np.max(rad_slice.dose_sol)+15)
     plt.legend(loc=1,ncol=3,fontsize=6)
@@ -985,10 +1035,7 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat_mars,*
     #plt.show()
 
     #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
-
     #plotfile=path+ic.icmecat_id[i]+'.png'
-
-
     #plt.savefig(plotfile)
     #print('saved as ',plotfile)
 
