@@ -8,6 +8,7 @@ import scipy.io
 import urllib
 import os
 from config import data_path
+from sunpy.time import parse_time
 
 
 '''
@@ -58,8 +59,24 @@ def gaussian(x, a, x0, sigma):
 
 
 
-def hathaway(x, amp, mu, sig):
-    return a*np.exp(-(x-x0)**2/(2*sigma**2))
+
+def hathaway(x,x0, a, b, c):
+    #Hathaway 2015 equation 6 page 40
+    #average cycle sunspot number 
+    #A=100 #amplitude ##195 for sunspot
+    #b=100*12 #56*12 for months to days
+    #c=0.8
+    #4 free parameters A, b, c, t0
+    
+    #b=b*12 #months to days
+    x1=(parse_time(x).plot_date-parse_time(x0).plot_date)/30.42 #days
+    #print(len(x1),len(x))
+    
+    print('max ssn',np.rint(np.max(a*(((x1)/b)**3) * 1/(np.exp((((x1)/b)**2))-c))))
+    
+    return a*(((x1)/b)**3) * 1/(np.exp((((x1)/b)**2))-c)
+    
+    #return a*np.exp(-(x-x0)**2/(2*sigma**2))
 
 
 

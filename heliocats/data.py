@@ -61,6 +61,38 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ####################################### get new data ####################################
 
 
+def save_wsa_hux(filein):
+    #load wsa hux 
+
+    windraw = np.loadtxt('data/wsa_hux_mars_aug2014_jan2018.txt', dtype=[('time','<U30'),('time2','<U30'),('time_mat', float),('vt', float)] )
+    windraw = windraw.view(np.recarray)  
+
+    wind=np.zeros(len(windraw),dtype=[('time',object),('vt', float)])   
+    wind=wind.view(np.recarray) 
+
+
+    for i in np.arange(len(windraw)):
+        wind_time_str=windraw.time[i][8:12]+'-'+windraw.time[i][4:7]+'-'+windraw.time[i][1:3]+' '+windraw.time2[i][0:8]
+        wind.time[i]=(parse_time(wind_time_str).datetime)
+
+    wind.vt=windraw.vt
+    
+    fileout='wsa_hux_mars_aug2014_jan2018.p'      
+    pickle.dump(wind, open(data_path+fileout, "wb"))
+    
+    return 0
+
+
+
+def load_mars_wsa_hux():
+
+    file='wsa_hux_mars_aug2014_jan2018.p'  
+    rad=pickle.load(open(data_path+file, "rb"))
+    
+    return rad
+
+
+
 
 def save_msl_rad():
 

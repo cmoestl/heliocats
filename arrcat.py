@@ -139,7 +139,7 @@ ac
 
 # #### save header
 
-# In[10]:
+# In[3]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -165,7 +165,7 @@ print()
 
 # #### save into different formats
 
-# In[11]:
+# In[4]:
 
 
 ########## python formats
@@ -342,7 +342,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[12]:
+# In[5]:
 
 
 #load icmecat as pandas dataframe
@@ -354,27 +354,27 @@ file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
 [ac_rec,ac_struct,h]=pickle.load( open(file, 'rb'))   
 
 
-# In[13]:
+# In[6]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[14]:
+# In[7]:
 
 
 ac
 
 
-# In[15]:
+# In[8]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[16]:
+# In[9]:
 
 
 ac_struct
