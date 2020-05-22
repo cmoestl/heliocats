@@ -68,16 +68,14 @@ def hathaway(x,x0, a, b, c):
     #c=0.8
     #4 free parameters A, b, c, t0
     
-    #b=b*12 #months to days
+    #b=b*12 #months to days    
     x1=(parse_time(x).plot_date-parse_time(x0).plot_date)/30.42 #days
     #print(len(x1),len(x))
     
-    print('max ssn',np.rint(np.max(a*(((x1)/b)**3) * 1/(np.exp((((x1)/b)**2))-c))))
+    hatfunc=a*(((x1)/b)**3) * 1/(np.exp((((x1)/b)**2))-c)
+        
+    return hatfunc
     
-    return a*(((x1)/b)**3) * 1/(np.exp((((x1)/b)**2))-c)
-    
-    #return a*np.exp(-(x-x0)**2/(2*sigma**2))
-
 
 
 
