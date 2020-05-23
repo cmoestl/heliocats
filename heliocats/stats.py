@@ -37,6 +37,17 @@ import heliopy.spice as spice
 
 ####################################### 
 
+
+
+def is_float(value):
+  try:
+    float(value)
+    return True
+  except:
+    return False
+
+
+
 def running_mean(x, N):
     return np.convolve(x, np.ones((N,))/N)[(N-1):]
 
