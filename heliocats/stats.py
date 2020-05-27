@@ -70,6 +70,14 @@ def gaussian(x, a, x0, sigma):
 
 
 
+def hathaway_fit(x,x0, a, b, c):
+    #for numerical fitting of hathaway function
+    #x1 is input in days, convert to months
+    x1=(x-x0)/30.42
+    #print(x1[0])
+    hatfunc=a*(((x1)/b)**3) * 1/(np.exp((((x1)/b)**2))-c)
+    return hatfunc
+
 
 def hathaway(x,x0, a, b, c):
     #Hathaway 2015 equation 6 page 40
