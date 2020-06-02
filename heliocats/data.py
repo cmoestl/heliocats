@@ -29,6 +29,7 @@ import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 import astropy
 import requests
+import math
 
 
 from config import data_path
@@ -90,6 +91,140 @@ def load_mars_wsa_hux():
     rad=pickle.load(open(data_path+file, "rb"))
     
     return rad
+
+
+
+
+
+def load_maven_sir_huang():
+    
+    
+    #Huang et al. 2019 APJ convert PDF to excel with https://pdftoxls.com
+    
+    mavensir='data/Huang_2019_SIR_MAVEN_table_1.xlsx'
+    ms=pd.read_excel(mavensir)
+    ms=ms.drop(index=[0,1,2])
+    ms_num=np.array(ms['No.'])
+    ms_start=np.array(ms['Start'])
+    ms_end=np.array(ms['End'])
+    ms_si=np.array(ms['SI'])
+    
+    
+    
+    ms=np.zeros(len(ms_num),dtype=[('start',object),('end',object),('si',object)])   
+    ms=ms.view(np.recarray) 
+        
+        
+    #make correct years for start time 
+    ms_num[np.where(ms_num< 7)[0]]=2014
+    ms_num[np.where(ms_num< 27)[0]]=2015
+    ms_num[np.where(ms_num< 64)[0]]=2016
+    ms_num[np.where(ms_num< 83)[0]]=2017
+    ms_num[np.where(ms_num< 127)[0]]=2018
+    
+    #make correct years for end and si time
+    ms_num2=copy.deepcopy(ms_num)
+    ms_num2[3]=2015
+    ms_num2[62]=2017
+
+    #transform date of start time
+    for t in np.arange(0,len(ms_start)):
+        #check for nans in between time strings
+        if pd.isna(ms_start[t])==False:                    
+            
+            
+            ####################### start time
+            #year
+            year=str(ms_num[t])
+            
+            #month
+            datetimestr=ms_start[t]    
+            datestr=datetimestr[0:2]
+            
+            monthfloat=float(datestr)
+            month=str(int(np.floor(monthfloat)))
+            
+            #day            
+            if int(month) < 10: day=datetimestr[2:4]
+            if int(month) > 9: day=datetimestr[3:5]           
+            
+            #time
+            timestr=datetimestr[-5:]                        
+            
+            #construct year month day
+            datetimestrfin=str(ms_num[t])+'-'+month+'-'+day                    
+            #remove white spaces at the end and add time
+            finaldatetime=datetimestrfin.strip()+' '+timestr
+            #print(ms_start[t])
+            #print(finaldatetime)            
+            ms.start[t]=parse_time(finaldatetime).datetime
+            
+            
+            
+            
+            ################### end time            
+
+            #year
+            year=str(ms_num2[t])
+
+            #month
+            datetimestr=ms_end[t]    
+            datestr=datetimestr[0:2]
+            
+            monthfloat=float(datestr)
+            month=str(int(np.floor(monthfloat)))
+            
+            #day            
+            if int(month) < 10: day=datetimestr[2:4]
+            if int(month) > 9: day=datetimestr[3:5]           
+            
+            #time
+            timestr=datetimestr[-5:]                        
+            
+            #construct year month day
+            datetimestrfin=str(ms_num2[t])+'-'+month+'-'+day                    
+            #remove white spaces at the end and add time
+            finaldatetime=datetimestrfin.strip()+' '+timestr
+            #print(ms_end[t])
+            #print(finaldatetime)            
+            ms.end[t]=parse_time(finaldatetime).datetime
+            
+            
+                        
+            ############# stream interface time            
+
+            #year
+            year=str(ms_num2[t])
+
+            #month
+            datetimestr=ms_si[t]    
+            datestr=datetimestr[0:2]
+            
+            monthfloat=float(datestr)
+            month=str(int(np.floor(monthfloat)))
+            
+            #day            
+            if int(month) < 10: day=datetimestr[2:4]
+            if int(month) > 9: day=datetimestr[3:5]           
+            
+            #time
+            timestr=datetimestr[-5:]                        
+            
+            #construct year month day
+            datetimestrfin=str(ms_num2[t])+'-'+month+'-'+day                    
+            #remove white spaces at the end and add time
+            finaldatetime=datetimestrfin.strip()+' '+timestr
+            #print(ms_si[t])
+            #print(finaldatetime)            
+            ms.si[t]=parse_time(finaldatetime).datetime
+            #print()
+
+
+    #get rid of zeros where the years where stated in the original data        
+    ms2 = ms[np.argwhere(ms)]
+
+    return ms2
+
 
 
 

@@ -902,7 +902,7 @@ def plot_insitu_measure(sc, start, end, sc_label, path, **kwargs):
    
          
 
-def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat,**kwargs):
+def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat,wsa,msir,**kwargs):
     '''
     sc ... data
     '''
@@ -916,7 +916,7 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat,**kwar
     #print(start)
     #print(end)
         
-    #slice msl rad data
+    #slice msl rad data 
     msl_start_ind=np.where(rad.time > start)[0][0]
     msl_end_ind=np.where(rad.time > end)[0][0]
     rad_slice=rad[msl_start_ind:msl_end_ind]
@@ -928,11 +928,13 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat,**kwar
     #get error in HI arrival time derived from HI speed in hours, convert to days
     err=ac_mars['target_arrival_time_err'].values/24
 
+    
+    #################### make figure
 
     sns.set_style('darkgrid')
     sns.set_context('paper')
 
-    fig=plt.figure(figsize=(9,8), dpi=150)
+    fig=plt.figure(figsize=(8,8), dpi=150)
     
     plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
 
@@ -944,19 +946,27 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat,**kwar
     ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
     ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
     
-    ax1.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    ax1.plot_date([arr,arr],[-100,100],'-b',linewidth=1) 
     #go through all events to plot error bar as shade
     for i  in np.arange(ac_mars.shape[0]):
         ax1.axvspan(arr[i]-err[i],arr[i]+err[i], alpha=0.3, color='blue')
-    
-    #plot vertical lines
+        
+        
+        
+    #plot Huang SIR MAVEN catalog start end times
+    for i  in np.arange(msir.shape[0]):
+        ax1.axvspan(msir.start[i],msir.end[i], alpha=0.2, color='coral')        
+    #plot Huang SIR MAVEN catalog stream interface
+    for i  in np.arange(msir.shape[0]):
+        ax1.plot([msir.si[i],msir.si[i]],[-100,100], alpha=0.2, color='black')
+
     plt.ylabel('B [nT]')
-    plt.legend(loc=3,ncol=4,fontsize=6)
+    plt.legend(loc=3,ncol=4,fontsize=8)
     ax1.set_xlim(start,end)
     #if np.isnan(np.nanmin(sc.bt))==False:
     ax1.set_ylim(-np.nanmax(sc.bt)-3,np.nanmax(sc.bt)+3)   
     ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
-    #plt.ylim((-20, 20))
+    plt.ylim((-20, 20))
     #ax1.set_xticklabels([]) does not work with sharex
     #plt.setp(ax1.get_xticklabels(), fontsize=6)
     plt.setp(ax1.get_xticklabels(), visible=False)
@@ -965,17 +975,28 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat,**kwar
 
 
     ax2 = plt.subplot(512,sharex=ax1) 
-    ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
-    
+    ax2.plot_date(sc.time,sc.vt,'-k',label='V MAVEN',linewidth=0.7)
+    #over plot wsa model from Martin Reiss
+    ax2.plot_date(wsa.time,wsa.vt,'-g',label='V WSA',linewidth=0.7)
+
+    #plot ARRCAT
     ax2.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
     for i  in np.arange(ac_mars.shape[0]):
         ax2.axvspan(arr[i]-err[i],arr[i]+err[i], alpha=0.3, color='blue')
+        
+    #plot Huang SIR MAVEN catalog start end times
+    for i  in np.arange(msir.shape[0]):
+        ax2.axvspan(msir.start[i],msir.end[i], alpha=0.2, color='coral')        
+    #plot Huang SIR MAVEN catalog stream interface
+    for i  in np.arange(msir.shape[0]):
+        ax2.plot([msir.si[i],msir.si[i]],[0,1000], alpha=0.2, color='black')
 
     plt.ylabel('V [km/s]')
+    plt.legend(loc=3,ncol=2,fontsize=8)
     ax2.set_xlim(start,end)
     #check plasma data exists
     #if np.isnan(np.nanmin(sc.vt))==False:
-    ax2.set_ylim(np.nanmin(sc.vt)-20,np.nanmax(sc.vt)+100)   
+    ax2.set_ylim(250,750)   
     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
     #plt.ylim((250, 800))
     #ax2.set_xticklabels([])
@@ -996,9 +1017,15 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat,**kwar
     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
     #plt.ylim((0, 50))
     #ax3.set_xticklabels([])
-    plt.setp(ax3.get_xticklabels(), visible=False)
-    
 
+    #plot Huang SIR MAVEN catalog start end times
+    for i  in np.arange(msir.shape[0]):
+        ax3.axvspan(msir.start[i],msir.end[i], alpha=0.2, color='coral')        
+    #plot Huang SIR MAVEN catalog stream interface
+    for i  in np.arange(msir.shape[0]):
+        ax3.plot([msir.si[i],msir.si[i]],[0,1000], alpha=0.2, color='black')
+
+    plt.setp(ax3.get_xticklabels(), visible=False)
 
 
     ax4 = plt.subplot(514,sharex=ax1) 
@@ -1009,26 +1036,46 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat,**kwar
     plt.ylabel('T [MK]')
     ax4.set_xlim(start,end)
     #if np.isnan(np.nanmin(sc.tp))==False:   
-    ax4.set_ylim(0,np.nanmax(sc.tp/1e6)+0.2)   
+    ax4.set_ylim(0,1)   
     plt.setp(ax4.get_xticklabels(), visible=False)
     
+    #plot Huang SIR MAVEN catalog start end times
+    for i  in np.arange(msir.shape[0]):
+        ax4.axvspan(msir.start[i],msir.end[i], alpha=0.2, color='coral')        
+    #plot Huang SIR MAVEN catalog stream interface
+    for i  in np.arange(msir.shape[0]):
+        ax4.plot([msir.si[i],msir.si[i]],[0,1000], alpha=0.2, color='black')
+   
+    
+    
+    
+    
 
-    #plot MSL RAD
+    #plot MSL RAD and ARRCAT
     ax5 = plt.subplot(515,sharex=ax1) 
-    ax5.plot_date(rad_slice.time,rad_slice.dose_sol,'-k',label='MSL/RAD dose_sol',linewidth=0.7)
+    ax5.plot_date(rad.time,rad.dose_sol,'-k',label='MSL/RAD dose_sol',linewidth=0.7)
+    #ax5.plot_date(rad_slice.time,rad_slice.dose_sol,'-k',label='MSL/RAD dose_sol',linewidth=0.7)
+    
     ax5.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
     for i  in np.arange(ac_mars.shape[0]):
-        ax1.axvspan(arr[i]-err[i],arr[i]+err[i], alpha=0.3, color='blue')
+        ax5.axvspan(arr[i]-err[i],arr[i]+err[i], alpha=0.3, color='blue')
+        
+        
+    #plot Huang SIR MAVEN catalog start end times
+    for i  in np.arange(msir.shape[0]):
+        ax5.axvspan(msir.start[i],msir.end[i], alpha=0.2, color='coral')        
+    #plot Huang SIR MAVEN catalog stream interface
+    for i  in np.arange(msir.shape[0]):
+        ax5.plot([msir.si[i],msir.si[i]],[0,1000], alpha=0.2, color='black')
+
 
     
     #ax5.plot_date(rad_slice.time,rad_slice.dose_hour,'-r',label='MSL/RAD dose_hour',linewidth=0.7)
-  
+    plt.ylabel('RAD dose_sol [uGy/day]')
     ax5.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
     ax5.set_ylim(np.min(rad_slice.dose_sol)-15,np.max(rad_slice.dose_sol)+15)
-    plt.legend(loc=1,ncol=3,fontsize=6)
-    
-
-    
+    #plt.legend(loc=1,ncol=3,fontsize=6)
+       
     
 
     plt.tight_layout()

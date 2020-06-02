@@ -26,7 +26,7 @@
 # 
 # 
 
-# In[3]:
+# In[1]:
 
 
 import numpy as np
@@ -282,7 +282,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[21]:
+# In[4]:
 
 
 load_data=1
@@ -449,7 +449,7 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning if needed
 
-# In[ ]:
+# In[5]:
 
 
 # save data as numpy structured arrays for machine learning
@@ -525,22 +525,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[10]:
-
-
-
-file='wsa_hux_mars_aug2014_jan2018.txt'
-hd.save_wsa_hux(file)
-
-w1=hd.load_wsa_hux()
-
-
-
-plt.rcParams["figure.figsize"] = (20,10)
-plt.plot_date(w1.time,w1.vt,'-k')
-
-
-# In[5]:
+# In[16]:
 
 
 #for measuring new events use this function from heliocats.plot 
@@ -570,20 +555,43 @@ plt.plot_date(w1.time,w1.vt,'-k')
 from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
+from heliocats import data as hd
+importlib.reload(hd) #reload again while debugging
+
+
+
 #MAVEN
-#load RAD data
+#load RAD data from Jingnan Guo
 rad=hd.load_msl_rad()   
 #load ARRCAT as numpy recarray
 file='arrcat/HELCATS_ARRCAT_v20_pandas.p'
 [arrcat,arrcat_header]=pickle.load( open(file, 'rb'))   
 
 
-hp.plot_insitu_measure_maven(mav, '2016-Dec-1','2017-Jan-01', 'MAVEN', icplotsdir,rad,arrcat)
+#save wsa hux file if new
+#file='wsa_hux_mars_aug2014_jan2018.txt'
+#hd.save_wsa_hux(file)
+
+#get mars wsa hux
+#Reiss et al., 2019 (DOI: https://doi.org/10.3847/1538-4365/aaf8b3
+w1=hd.load_mars_wsa_hux()
+
+get_ipython().run_line_magic('matplotlib', '')
+
+plt.rcParams["figure.figsize"] = (20,10)
+plt.plot_date(w1.time,w1.vt,'-k')
+plt.plot_date(rad.time,rad.dose_sol,'-b')
+plt.plot_date(mav.time,mav.vt,'-r')
+
+
+
+
+hp.plot_insitu_measure_maven(mav, '2014-Dec-1','2015-Jan-01', 'MAVEN', icplotsdir,rad,arrcat)
 
 
 # ## (3) make ICMECAT 
 
-# In[115]:
+# In[7]:
 
 
 print('data loaded')
@@ -641,7 +649,7 @@ print('done')
 
 # ### 4a save header
 
-# In[117]:
+# In[8]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -677,7 +685,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[118]:
+# In[9]:
 
 
 ########## python formats
@@ -853,7 +861,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[119]:
+# In[10]:
 
 
 #load icmecat as pandas dataframe
@@ -865,26 +873,26 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[120]:
+# In[11]:
 
 
 ic_pandas
 ic_pandas.keys()
 
 
-# In[121]:
+# In[12]:
 
 
 ic_nprec
 
 
-# In[122]:
+# In[13]:
 
 
 ic_nprec
 
 
-# In[123]:
+# In[14]:
 
 
 ic_nprec.icmecat_id
