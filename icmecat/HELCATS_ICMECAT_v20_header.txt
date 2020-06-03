@@ -2,18 +2,17 @@ ICME CATALOGUE v2.0
 
 This is the HELCATS interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 
-This is version 2.0, released 2020-05-**. DOI: 10.6084/m9.figshare.6356420 
+This is version 2.0, released 2020-06-03. doi: 10.6084/m9.figshare.6356420 
 
-The catalog is available as  python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at 
-https://helioforecast.space/icmecat 
-https://www.helcats-fp7.eu/catalogues/wp4_icmecat.html 
+The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at 
+https://helioforecast.space/icmecat and https://www.helcats-fp7.eu/catalogues/wp4_icmecat.html 
 
-Number of events in ICMECAT: 743 
+Number of events in ICMECAT: 735 
 ICME observatories: Parker Solar Probe (PSP), Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   
 Time range: January 2007 - December 2019. 
  
-Authors: Christian Moestl, Andreas Weiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria.
-Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, Mateja Dumbovic, Benoit Lavraud.  
+Authors: Christian Moestl, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria.
+Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, Johan von Forstner, Mateja Dumbovic, Benoit Lavraud.  
 
 Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact christian.moestl@oeaw.ac.at for possible co-authorship. 
 
@@ -21,31 +20,32 @@ This catalog has been made by getting the 3 times of each ICME (shock or disturb
 The in situ data that were used for the catalog, with a size of 8 GB in total, including extra data files with magnetic field components in RTN coordinates that are not used for producing the catalog, can be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693 
 The python code for producing this catalog is available as part of https://github.com/cmoestl/heliocats 
 
-Each icmecat_id has a tag in it that indicates from which catalog the ICME times were taken: 
+Each event has unique identifier - the icmecat_id - which has a tag in it that indicates from which catalog the ICME times were taken: 
 
 Wind:       Nieves-Chinchilla et al. (2018), tag: NASA. 
 STEREO-A:   Jian et al. (2018), tag: JIAN. 
 STEREO-B:   Jian et al. (2018), tag: JIAN. 
 VEX:        Good et al. (2018), tag: SGOOD 
 MESSENGER:  Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW. 
-MAVEN:      Möstl et al. (2020, in prep.), tag: MOESTL.
+MAVEN:      Made by us according to the method in the comments, tag: MOESTL.
 Ulysses:    Added by us, tag: MOESTL. 
 PSP:        Added by us, tag: MOESTL. 
 
 We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL in icmecat_id).
 
-References 
+References: 
 Nieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z 
                                       https://wind.nasa.gov/fullcatalogue.php 
 Jian, L. et al. (2018), https://doi.org/10.3847/1538-4357/aab189 
                         https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/ 
 Good, S. et al. (2018) https://doi.org/10.1007/s11207-015-0828-3 
 Winslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 
-Möstl, C. et al. (2020) in preparation 
 
 
 Comments: 
+
 - Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. 
+
 - The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth) and Ulysses (RTN, because of high latitude positions) and MAVEN (MSO). 
         Definition of SpaceCraft Equatorial Coordinates (SCEQ): 
         Z is the solar rotation axis. 
@@ -56,16 +56,21 @@ base vectors are rotated by the HEEQ longitude of the in situ spacecraft from HE
 The Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors 
 are rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within 
 a few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).
-We choose SCEQ because it has the advantage that a comparison between multipoint CME events 
-and for comparison to simulations there is always a similar reference plane (the solar equatorial plane).
+We choose SCEQ for the advantage that a comparison of the data of multipoint CME events 
+and comparisons to simulations are simpler because there is always a similar reference plane (the solar equatorial plane).
 
 - Venus Express and MESSENGER do not have plasma parameters available. 
 - If there is no sheath or density pileup region, so the ICME starts immediately with a magnetic obstacle, the icme_start_time is similar to mo_start_time.
+
 - At MESSENGER and VEX, for events cataloged by Simon Good, icme_start_time has been added by V. Krupar (Imperial College) and C. Möstl (IWF Graz). 
+
 - For the calculation of the parameters at MESSENGER during the orbit around Mercury, all data points inside the bowshock of Mercury have been removed, according to a list thankfully provided to us by by R. Winslow, UNH, B. Anderson, APL, and Lydia Philpott, UBC. 
-- Calculation of the magnetic obstacle parameters at VEX is done after approximate removal of the induced magnetosphere, with a modified equation 
-in Zhang et al. 2008 (doi: 10.1016/j.pss.2007.09.012), with a constant of 3.5 instead of 2.14/2.364,in order to account for a larger bowshock distance during solar maximum than studied in this paper. 
-- For MAVEN, all data inside the bow shock were removed with the model from Gruesbeck et al. (2018, https://doi.org/10.1029/2018JA025366) by C. Simon Wedlund (IWF Graz, Austria). From the remaining data, the median for each orbit is taken as 1 data point, resulting in a solar wind dataset at Mars with 4.5 hour time resolution. The identification of ICMEs for MAVEN is a mixture of methods using data from MSL/RAD, MAVEN and STEREO/HI (see Möstl et al. 2020, in prep.).
+
+- Calculation of the magnetic obstacle parameters at VEX is done after approximate removal of the induced magnetosphere, with a modified equation as in Zhang et al. 2008 (doi: 10.1016/j.pss.2007.09.012), with a constant of 3.5 instead of 2.14/2.364,in order to account for a larger bowshock distance during solar maximum than studied in the Zhang et al. (2008) paper. 
+
+- For MAVEN, all data inside the bow shock were removed with the model from Gruesbeck et al. (2018, doi:10.1029/2018JA025366) by C. Simon Wedlund (IWF Graz, Austria). From the remaining data, the median for each orbit is taken as 1 data point, resulting in a solar wind dataset at Mars with 4.5 hour time resolution. This is a far lower resolution than available at 1 AU, so the identification of ICMEs in the MAVEN data is not as straightforward as for data sets with higher time resolution.
+
+- The identification of ICMEs for MAVEN was done as follows: (1) We looked for typical profiles for ICMEs in magnetic field (B) and speed (V). (2) B needs to be elevated in ICMEs accompanied by a flat or declining profile in V. An elevation in B accompanied by a later gradual rise in V is a strong indicator for a high speed stream (HSS). (3) The discrimination between HSS and ICMEs was further strengthened with the help of a stream interaction region list for MAVEN by Huang et al. (2019, doi: 10.3847/1538-4357/ab25e9). (4) We additionally plotted the predicted CME arrivals with STEREO/HI (ARRCATv2.0), the dose rate measured on the Mars surface by MSL/RAD (e.g. Guo et al. (2018, doi: 10.1051/0004-6361/201732087)) and the speed of the WSA/HUX model for the background solar wind (Reiss et al. 2019, doi: 10.3847/1538-4365/aaf8b3). General guidance on space weather observed by MAVEN can be found in Lee et al. (2018, doi:10.1002/2016JA023495).
 
 
 

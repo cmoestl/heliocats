@@ -1,4 +1,4 @@
-<p>ICME&nbsp;CATALOGUE&nbsp;v2.0&nbsp;<br><br>This&nbsp;is&nbsp;the&nbsp;HELCATS&nbsp;interplanetary&nbsp;coronal&nbsp;mass&nbsp;ejection&nbsp;(ICME)&nbsp;catalog,&nbsp;based&nbsp;on&nbsp;in&nbsp;situ&nbsp;magnetic&nbsp;field&nbsp;and&nbsp;bulk&nbsp;plasma&nbsp;observations&nbsp;in&nbsp;the&nbsp;heliosphere.&nbsp;<br><br>This&nbsp;is&nbsp;version&nbsp;2.0,&nbsp;released&nbsp;2020-05-**.&nbsp;DOI:&nbsp;10.6084/m9.figshare.6356420&nbsp;<br><br>The&nbsp;catalog&nbsp;is&nbsp;available&nbsp;as&nbsp;&nbsp;python&nbsp;pandas&nbsp;dataframe&nbsp;(pickle),&nbsp;python&nbsp;numpy&nbsp;structured&nbsp;array&nbsp;(pickle),&nbsp;json,&nbsp;csv,&nbsp;xlsx,&nbsp;txt,&nbsp;hdf5,&nbsp;at&nbsp;<br>https://helioforecast.space/icmecat&nbsp;<br>https://www.helcats-fp7.eu/catalogues/wp4_icmecat.html&nbsp;<br><br>Number&nbsp;of&nbsp;events&nbsp;in&nbsp;ICMECAT:&nbsp;743&nbsp;<br>ICME&nbsp;observatories:&nbsp;Parker&nbsp;Solar&nbsp;Probe&nbsp;(PSP),&nbsp;Wind,&nbsp;STEREO-A,&nbsp;MAVEN,&nbsp;STEREO-B,&nbsp;Venus&nbsp;Express&nbsp;(VEX),&nbsp;MESSENGER,&nbsp;Ulysses.&nbsp;&nbsp;&nbsp;<br>Time&nbsp;range:&nbsp;January&nbsp;2007&nbsp;-&nbsp;December&nbsp;2019.&nbsp;<br>&nbsp;<br>Authors:&nbsp;Christian&nbsp;Moestl,&nbsp;Andreas&nbsp;Weiss,&nbsp;Space&nbsp;Research&nbsp;Institute,&nbsp;Austrian&nbsp;Academy&nbsp;of&nbsp;Sciences,&nbsp;Graz,&nbsp;Austria.<br>Contributors:&nbsp;Peter&nbsp;Boakes,&nbsp;Alexey&nbsp;Isavnin,&nbsp;Emilia&nbsp;Kilpua,&nbsp;Reka&nbsp;Winslow,&nbsp;Brian&nbsp;Anderson,&nbsp;Lydia&nbsp;Philpott,&nbsp;Vratislav&nbsp;Krupar,&nbsp;Jonathan&nbsp;Eastwood,&nbsp;Simon&nbsp;Good,&nbsp;Lan&nbsp;Jian,&nbsp;Teresa&nbsp;Nieves-Chinchilla,&nbsp;Cyril&nbsp;Simon&nbsp;Wedlund,&nbsp;Jingnan&nbsp;Guo,&nbsp;Mateja&nbsp;Dumbovic,&nbsp;Benoit&nbsp;Lavraud.&nbsp;&nbsp;<br><br>Rules:&nbsp;If&nbsp;results&nbsp;are&nbsp;produced&nbsp;with&nbsp;this&nbsp;catalog&nbsp;for&nbsp;peer-reviewed&nbsp;scientific&nbsp;publications,&nbsp;please&nbsp;contact&nbsp;christian.moestl@oeaw.ac.at&nbsp;for&nbsp;possible&nbsp;co-authorship.&nbsp;<br><br>This&nbsp;catalog&nbsp;has&nbsp;been&nbsp;made&nbsp;by&nbsp;getting&nbsp;the&nbsp;3&nbsp;times&nbsp;of&nbsp;each&nbsp;ICME&nbsp;(shock&nbsp;or&nbsp;disturbance&nbsp;begin,&nbsp;magnetic&nbsp;obstacle&nbsp;start&nbsp;and&nbsp;end)&nbsp;from&nbsp;the&nbsp;individual&nbsp;catalogs&nbsp;below,&nbsp;and&nbsp;then&nbsp;calculating&nbsp;all&nbsp;parameters&nbsp;again&nbsp;consistently&nbsp;from&nbsp;the&nbsp;data&nbsp;by&nbsp;us.&nbsp;<br>The&nbsp;in&nbsp;situ&nbsp;data&nbsp;that&nbsp;were&nbsp;used&nbsp;for&nbsp;the&nbsp;catalog,&nbsp;with&nbsp;a&nbsp;size&nbsp;of&nbsp;8&nbsp;GB&nbsp;in&nbsp;total,&nbsp;including&nbsp;extra&nbsp;data&nbsp;files&nbsp;with&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;in&nbsp;RTN&nbsp;coordinates&nbsp;that&nbsp;are&nbsp;not&nbsp;used&nbsp;for&nbsp;producing&nbsp;the&nbsp;catalog,&nbsp;can&nbsp;be&nbsp;downloaded&nbsp;in&nbsp;python&nbsp;pickle&nbsp;format&nbsp;as&nbsp;recarrays&nbsp;from&nbsp;https://doi.org/10.6084/m9.figshare.11973693&nbsp;<br>The&nbsp;python&nbsp;code&nbsp;for&nbsp;producing&nbsp;this&nbsp;catalog&nbsp;is&nbsp;available&nbsp;as&nbsp;part&nbsp;of&nbsp;https://github.com/cmoestl/heliocats&nbsp;<br><br>Each&nbsp;icmecat_id&nbsp;has&nbsp;a&nbsp;tag&nbsp;in&nbsp;it&nbsp;that&nbsp;indicates&nbsp;from&nbsp;which&nbsp;catalog&nbsp;the&nbsp;ICME&nbsp;times&nbsp;were&nbsp;taken:&nbsp;<br><br>Wind:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nieves-Chinchilla&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;NASA.&nbsp;<br>STEREO-A:&nbsp;&nbsp;&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;JIAN.&nbsp;<br>STEREO-B:&nbsp;&nbsp;&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;JIAN.&nbsp;<br>VEX:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;SGOOD&nbsp;<br>MESSENGER:&nbsp;&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;Winslow&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;SGOOD,&nbsp;WINSLOW.&nbsp;<br>MAVEN:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Möstl&nbsp;et&nbsp;al.&nbsp;(2020,&nbsp;in&nbsp;prep.),&nbsp;tag:&nbsp;MOESTL.<br>Ulysses:&nbsp;&nbsp;&nbsp;&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br>PSP:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br><br>We&nbsp;have&nbsp;also&nbsp;added&nbsp;extra&nbsp;events&nbsp;at&nbsp;VEX,&nbsp;MESSENGER,&nbsp;Wind&nbsp;and&nbsp;STEREO-A&nbsp;(all&nbsp;tagged&nbsp;with&nbsp;MOESTL&nbsp;in&nbsp;icmecat_id).<br><br>References&nbsp;<br>Nieves-Chinchilla,&nbsp;T.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;&nbsp;https://doi.org/10.1007/s11207-018-1247-z&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://wind.nasa.gov/fullcatalogue.php&nbsp;<br>Jian,&nbsp;L.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;https://doi.org/10.3847/1538-4357/aab189&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/&nbsp;<br>Good,&nbsp;S.&nbsp;et&nbsp;al.&nbsp;(2018)&nbsp;https://doi.org/10.1007/s11207-015-0828-3&nbsp;<br>Winslow,&nbsp;R.&nbsp;et&nbsp;al.&nbsp;(2015),&nbsp;https://doi.org/10.1002/2015JA021200&nbsp;<br>Möstl,&nbsp;C.&nbsp;et&nbsp;al.&nbsp;(2020)&nbsp;in&nbsp;preparation&nbsp;<br><br><br>Comments:&nbsp;<br>-&nbsp;Spacecraft&nbsp;positions&nbsp;are&nbsp;given&nbsp;in&nbsp;Heliocentric&nbsp;Earth&nbsp;Equatorial&nbsp;Coordinates&nbsp;(HEEQ)&nbsp;coordinates.&nbsp;<br>-&nbsp;The&nbsp;coordinate&nbsp;system&nbsp;for&nbsp;all&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;is&nbsp;SCEQ,&nbsp;except&nbsp;for&nbsp;Wind&nbsp;(HEEQ,&nbsp;which&nbsp;is&nbsp;the&nbsp;equivalent&nbsp;for&nbsp;SCEQ&nbsp;for&nbsp;Earth)&nbsp;and&nbsp;Ulysses&nbsp;(RTN,&nbsp;because&nbsp;of&nbsp;high&nbsp;latitude&nbsp;positions)&nbsp;and&nbsp;MAVEN&nbsp;(MSO).&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Definition&nbsp;of&nbsp;SpaceCraft&nbsp;Equatorial&nbsp;Coordinates&nbsp;(SCEQ):&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z&nbsp;is&nbsp;the&nbsp;solar&nbsp;rotation&nbsp;axis.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y&nbsp;is&nbsp;the&nbsp;cross&nbsp;product&nbsp;of&nbsp;Z&nbsp;and&nbsp;R,&nbsp;with&nbsp;R&nbsp;being&nbsp;the&nbsp;vector&nbsp;that&nbsp;points&nbsp;from&nbsp;the&nbsp;Sun&nbsp;to&nbsp;the&nbsp;spacecraft.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;completes&nbsp;the&nbsp;right&nbsp;handed&nbsp;triad&nbsp;(and&nbsp;points&nbsp;away&nbsp;from&nbsp;the&nbsp;Sun).&nbsp;<br>This&nbsp;system&nbsp;is&nbsp;thus&nbsp;like&nbsp;HEEQ&nbsp;but&nbsp;centered&nbsp;on&nbsp;the&nbsp;respective&nbsp;in&nbsp;situ&nbsp;spacecraft,&nbsp;so&nbsp;the&nbsp;SCEQ&nbsp;X&nbsp;and&nbsp;Y&nbsp;<br>base&nbsp;vectors&nbsp;are&nbsp;rotated&nbsp;by&nbsp;the&nbsp;HEEQ&nbsp;longitude&nbsp;of&nbsp;the&nbsp;in&nbsp;situ&nbsp;spacecraft&nbsp;from&nbsp;HEEQ&nbsp;X&nbsp;and&nbsp;Y.<br>The&nbsp;Y&nbsp;vector&nbsp;is&nbsp;similar&nbsp;to&nbsp;the&nbsp;T&nbsp;vector&nbsp;in&nbsp;an&nbsp;RTN&nbsp;system&nbsp;for&nbsp;each&nbsp;spacecraft,&nbsp;but&nbsp;the&nbsp;X&nbsp;and&nbsp;Z&nbsp;vectors&nbsp;<br>are&nbsp;rotated&nbsp;around&nbsp;Y&nbsp;compared&nbsp;to&nbsp;an&nbsp;RTN&nbsp;system.&nbsp;The&nbsp;differences&nbsp;between&nbsp;RTN&nbsp;and&nbsp;SCEQ&nbsp;for&nbsp;spacecraft&nbsp;within&nbsp;<br>a&nbsp;few&nbsp;degrees&nbsp;of&nbsp;the&nbsp;solar&nbsp;equatorial&nbsp;plane&nbsp;are&nbsp;very&nbsp;small&nbsp;(within&nbsp;a&nbsp;few&nbsp;0.1&nbsp;nT&nbsp;usually).<br>We&nbsp;choose&nbsp;SCEQ&nbsp;because&nbsp;it&nbsp;has&nbsp;the&nbsp;advantage&nbsp;that&nbsp;a&nbsp;comparison&nbsp;between&nbsp;multipoint&nbsp;CME&nbsp;events&nbsp;<br>and&nbsp;for&nbsp;comparison&nbsp;to&nbsp;simulations&nbsp;there&nbsp;is&nbsp;always&nbsp;a&nbsp;similar&nbsp;reference&nbsp;plane&nbsp;(the&nbsp;solar&nbsp;equatorial&nbsp;plane).<br><br>-&nbsp;Venus&nbsp;Express&nbsp;and&nbsp;MESSENGER&nbsp;do&nbsp;not&nbsp;have&nbsp;plasma&nbsp;parameters&nbsp;available.&nbsp;<br>-&nbsp;If&nbsp;there&nbsp;is&nbsp;no&nbsp;sheath&nbsp;or&nbsp;density&nbsp;pileup&nbsp;region,&nbsp;so&nbsp;the&nbsp;ICME&nbsp;starts&nbsp;immediately&nbsp;with&nbsp;a&nbsp;magnetic&nbsp;obstacle,&nbsp;the&nbsp;icme_start_time&nbsp;is&nbsp;similar&nbsp;to&nbsp;mo_start_time.<br>-&nbsp;At&nbsp;MESSENGER&nbsp;and&nbsp;VEX,&nbsp;for&nbsp;events&nbsp;cataloged&nbsp;by&nbsp;Simon&nbsp;Good,&nbsp;icme_start_time&nbsp;has&nbsp;been&nbsp;added&nbsp;by&nbsp;V.&nbsp;Krupar&nbsp;(Imperial&nbsp;College)&nbsp;and&nbsp;C.&nbsp;Möstl&nbsp;(IWF&nbsp;Graz).&nbsp;<br>-&nbsp;For&nbsp;the&nbsp;calculation&nbsp;of&nbsp;the&nbsp;parameters&nbsp;at&nbsp;MESSENGER&nbsp;during&nbsp;the&nbsp;orbit&nbsp;around&nbsp;Mercury,&nbsp;all&nbsp;data&nbsp;points&nbsp;inside&nbsp;the&nbsp;bowshock&nbsp;of&nbsp;Mercury&nbsp;have&nbsp;been&nbsp;removed,&nbsp;according&nbsp;to&nbsp;a&nbsp;list&nbsp;thankfully&nbsp;provided&nbsp;to&nbsp;us&nbsp;by&nbsp;by&nbsp;R.&nbsp;Winslow,&nbsp;UNH,&nbsp;B.&nbsp;Anderson,&nbsp;APL,&nbsp;and&nbsp;Lydia&nbsp;Philpott,&nbsp;UBC.&nbsp;<br>-&nbsp;Calculation&nbsp;of&nbsp;the&nbsp;magnetic&nbsp;obstacle&nbsp;parameters&nbsp;at&nbsp;VEX&nbsp;is&nbsp;done&nbsp;after&nbsp;approximate&nbsp;removal&nbsp;of&nbsp;the&nbsp;induced&nbsp;magnetosphere,&nbsp;with&nbsp;a&nbsp;modified&nbsp;equation&nbsp;<br>in&nbsp;Zhang&nbsp;et&nbsp;al.&nbsp;2008&nbsp;(doi:&nbsp;10.1016/j.pss.2007.09.012),&nbsp;with&nbsp;a&nbsp;constant&nbsp;of&nbsp;3.5&nbsp;instead&nbsp;of&nbsp;2.14/2.364,in&nbsp;order&nbsp;to&nbsp;account&nbsp;for&nbsp;a&nbsp;larger&nbsp;bowshock&nbsp;distance&nbsp;during&nbsp;solar&nbsp;maximum&nbsp;than&nbsp;studied&nbsp;in&nbsp;this&nbsp;paper.&nbsp;<br>-&nbsp;For&nbsp;MAVEN,&nbsp;all&nbsp;data&nbsp;inside&nbsp;the&nbsp;bow&nbsp;shock&nbsp;were&nbsp;removed&nbsp;with&nbsp;the&nbsp;model&nbsp;from&nbsp;Gruesbeck&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;https://doi.org/10.1029/2018JA025366)&nbsp;by&nbsp;C.&nbsp;Simon&nbsp;Wedlund&nbsp;(IWF&nbsp;Graz,&nbsp;Austria).&nbsp;From&nbsp;the&nbsp;remaining&nbsp;data,&nbsp;the&nbsp;median&nbsp;for&nbsp;each&nbsp;orbit&nbsp;is&nbsp;taken&nbsp;as&nbsp;1&nbsp;data&nbsp;point,&nbsp;resulting&nbsp;in&nbsp;a&nbsp;solar&nbsp;wind&nbsp;dataset&nbsp;at&nbsp;Mars&nbsp;with&nbsp;4.5&nbsp;hour&nbsp;time&nbsp;resolution.&nbsp;The&nbsp;identification&nbsp;of&nbsp;ICMEs&nbsp;for&nbsp;MAVEN&nbsp;is&nbsp;a&nbsp;mixture&nbsp;of&nbsp;methods&nbsp;using&nbsp;data&nbsp;from&nbsp;MSL/RAD,&nbsp;MAVEN&nbsp;and&nbsp;STEREO/HI&nbsp;(see&nbsp;Möstl&nbsp;et&nbsp;al.&nbsp;2020,&nbsp;in&nbsp;prep.).<br><br><br><br></p><p>Parameters:<br>00: icmecat_id: The unique identifier for the observed ICME. unit: string. <br>01: sc insitu: The name of the in situ observing spacecraft. unit: string. <br>02: icme_start_time: Shock arrival or density enhancement time, can be similar to mo_start_time. unit: UTC. <br>03: mo_start_time: Start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. <br>04: mo_end_time: End time of the magnetic obstacle. unit: UTC. <br>05: mo_sc_heliodistance: Heliocentric distance of the spacecraft at mo_start_time. unit: AU.<br>06: mo_sc_long_heeq: Heliospheric longitude of the spacecraft at mo_start_time, range [-180,180]. unit: degree (HEEQ).<br>07: mo_sc_lat_heeq: Heliospheric latitude of the spacecraft at mo_start_time, range [-90,90]. unit: degree (HEEQ).<br>08: icme_duration: Duration of the interval between icme_start_time and mo_endtime. unit: hours.<br>09: icme_bmax: Maximum total magnetic field in the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>10: icme_bmean: Mean total magnetic field during the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>11: icme_bstd: Standard deviation of the total magnetic field from icme_start_time to mo_end_time. unit: nT.<br>12: icme_speed_mean: Mean proton speed from icme_start_time to mo_end_time. unit: km/s.<br>13: icme_speed_std: Standard deviation of proton speed from icme_start_time to mo_end_time. unit: km/s.<br>14: mo_duration: Duration of the interval between mo_start_time and mo_endtime. unit: hours.<br>15: mo_bmax: Maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.<br>16: mo_bmean: Mean total magnetic field in the magnetic obstacle. unit: nT.<br>17: mo_bstd: Standard deviation of the total magnetic field in the magnetic obstacle. unit: nT.<br>18: mo_bzmean: Mean magnetic field Bz component in the magnetic obstacle. unit: nT.<br>19: mo_bzmin: Minimum magnetic field Bz component in the magnetic obstacle. unit: nT.<br>20: mo_bzstd: Standard deviation of the magnetic field Bz component in the magnetic obstacle. unit: nT.<br>21: mo_bymean: Mean magnetic field By component in the magnetic obstacle. unit: nT.<br>22: mo_bystd: Standard deviation of the magnetic field By component in the magnetic obstacle. unit: nT.<br>23: mo_speed_mean: Mean proton speed from mo_start_time to mo_end_time. unit: km/s.<br>24: mo_speed_std: Standard deviation of proton speed from mo_start_time to mo_end_time. unit: km/s.<br>25: mo_expansion_speed: Difference between proton speed at mo_start_time to proton speed at mo_end_time. unit: km/s.<br>26: mo_pdyn_mean: Mean proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>27: mo_pdyn_std: Standard deviation of proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>28: mo_density_mean: Mean proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>29: mo_density_std: Standard deviation of proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>30: mo_temperature_mean: Mean proton temperature from mo_start_time to mo_start_time. unit: K.<br>31: mo_temperature_std: Standard deviation of proton temperature from mo_start_time to mo_end_time. unit: K.<br>32: sheath_speed_mean: Mean proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>33: sheath_speed_std: Standard deviation of proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>34: sheath_density_mean: Mean proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>35: sheath_density_std: Standard deviation of proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>36: sheath_pdyn_mean: Mean proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br>37: sheath_pdyn_std: Standard deviation of proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br><br><br></p><table border="1" class="dataframe">
+<p>ICME&nbsp;CATALOGUE&nbsp;v2.0&nbsp;<br><br>This&nbsp;is&nbsp;the&nbsp;HELCATS&nbsp;interplanetary&nbsp;coronal&nbsp;mass&nbsp;ejection&nbsp;(ICME)&nbsp;catalog,&nbsp;based&nbsp;on&nbsp;in&nbsp;situ&nbsp;magnetic&nbsp;field&nbsp;and&nbsp;bulk&nbsp;plasma&nbsp;observations&nbsp;in&nbsp;the&nbsp;heliosphere.&nbsp;<br><br>This&nbsp;is&nbsp;version&nbsp;2.0,&nbsp;released&nbsp;2020-06-03.&nbsp;doi:&nbsp;10.6084/m9.figshare.6356420&nbsp;<br><br>The&nbsp;catalog&nbsp;is&nbsp;available&nbsp;as&nbsp;a&nbsp;python&nbsp;pandas&nbsp;dataframe&nbsp;(pickle),&nbsp;python&nbsp;numpy&nbsp;structured&nbsp;array&nbsp;(pickle),&nbsp;json,&nbsp;csv,&nbsp;xlsx,&nbsp;txt,&nbsp;hdf5,&nbsp;at&nbsp;<br>https://helioforecast.space/icmecat&nbsp;and&nbsp;https://www.helcats-fp7.eu/catalogues/wp4_icmecat.html&nbsp;<br><br>Number&nbsp;of&nbsp;events&nbsp;in&nbsp;ICMECAT:&nbsp;735&nbsp;<br>ICME&nbsp;observatories:&nbsp;Parker&nbsp;Solar&nbsp;Probe&nbsp;(PSP),&nbsp;Wind,&nbsp;STEREO-A,&nbsp;MAVEN,&nbsp;STEREO-B,&nbsp;Venus&nbsp;Express&nbsp;(VEX),&nbsp;MESSENGER,&nbsp;Ulysses.&nbsp;&nbsp;&nbsp;<br>Time&nbsp;range:&nbsp;January&nbsp;2007&nbsp;-&nbsp;December&nbsp;2019.&nbsp;<br>&nbsp;<br>Authors:&nbsp;Christian&nbsp;Moestl,&nbsp;Andreas&nbsp;J.&nbsp;Weiss,&nbsp;Rachel&nbsp;L.&nbsp;Bailey,&nbsp;Martin&nbsp;A.&nbsp;Reiss,&nbsp;Space&nbsp;Research&nbsp;Institute,&nbsp;Austrian&nbsp;Academy&nbsp;of&nbsp;Sciences,&nbsp;Graz,&nbsp;Austria.<br>Contributors:&nbsp;Peter&nbsp;Boakes,&nbsp;Alexey&nbsp;Isavnin,&nbsp;Emilia&nbsp;Kilpua,&nbsp;David&nbsp;Stansby,&nbsp;Reka&nbsp;Winslow,&nbsp;Brian&nbsp;Anderson,&nbsp;Lydia&nbsp;Philpott,&nbsp;Vratislav&nbsp;Krupar,&nbsp;Jonathan&nbsp;Eastwood,&nbsp;Simon&nbsp;Good,&nbsp;Lan&nbsp;Jian,&nbsp;Teresa&nbsp;Nieves-Chinchilla,&nbsp;Cyril&nbsp;Simon&nbsp;Wedlund,&nbsp;Jingnan&nbsp;Guo,&nbsp;Johan&nbsp;von&nbsp;Forstner,&nbsp;Mateja&nbsp;Dumbovic,&nbsp;Benoit&nbsp;Lavraud.&nbsp;&nbsp;<br><br>Rules:&nbsp;If&nbsp;results&nbsp;are&nbsp;produced&nbsp;with&nbsp;this&nbsp;catalog&nbsp;for&nbsp;peer-reviewed&nbsp;scientific&nbsp;publications,&nbsp;please&nbsp;contact&nbsp;christian.moestl@oeaw.ac.at&nbsp;for&nbsp;possible&nbsp;co-authorship.&nbsp;<br><br>This&nbsp;catalog&nbsp;has&nbsp;been&nbsp;made&nbsp;by&nbsp;getting&nbsp;the&nbsp;3&nbsp;times&nbsp;of&nbsp;each&nbsp;ICME&nbsp;(shock&nbsp;or&nbsp;disturbance&nbsp;begin,&nbsp;magnetic&nbsp;obstacle&nbsp;start&nbsp;and&nbsp;end)&nbsp;from&nbsp;the&nbsp;individual&nbsp;catalogs&nbsp;below,&nbsp;and&nbsp;then&nbsp;calculating&nbsp;all&nbsp;parameters&nbsp;again&nbsp;consistently&nbsp;from&nbsp;the&nbsp;data&nbsp;by&nbsp;us.&nbsp;<br>The&nbsp;in&nbsp;situ&nbsp;data&nbsp;that&nbsp;were&nbsp;used&nbsp;for&nbsp;the&nbsp;catalog,&nbsp;with&nbsp;a&nbsp;size&nbsp;of&nbsp;8&nbsp;GB&nbsp;in&nbsp;total,&nbsp;including&nbsp;extra&nbsp;data&nbsp;files&nbsp;with&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;in&nbsp;RTN&nbsp;coordinates&nbsp;that&nbsp;are&nbsp;not&nbsp;used&nbsp;for&nbsp;producing&nbsp;the&nbsp;catalog,&nbsp;can&nbsp;be&nbsp;downloaded&nbsp;in&nbsp;python&nbsp;pickle&nbsp;format&nbsp;as&nbsp;recarrays&nbsp;from&nbsp;https://doi.org/10.6084/m9.figshare.11973693&nbsp;<br>The&nbsp;python&nbsp;code&nbsp;for&nbsp;producing&nbsp;this&nbsp;catalog&nbsp;is&nbsp;available&nbsp;as&nbsp;part&nbsp;of&nbsp;https://github.com/cmoestl/heliocats&nbsp;<br><br>Each&nbsp;event&nbsp;has&nbsp;unique&nbsp;identifier&nbsp;-&nbsp;the&nbsp;icmecat_id&nbsp;-&nbsp;which&nbsp;has&nbsp;a&nbsp;tag&nbsp;in&nbsp;it&nbsp;that&nbsp;indicates&nbsp;from&nbsp;which&nbsp;catalog&nbsp;the&nbsp;ICME&nbsp;times&nbsp;were&nbsp;taken:&nbsp;<br><br>Wind:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nieves-Chinchilla&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;NASA.&nbsp;<br>STEREO-A:&nbsp;&nbsp;&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;JIAN.&nbsp;<br>STEREO-B:&nbsp;&nbsp;&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;JIAN.&nbsp;<br>VEX:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;SGOOD&nbsp;<br>MESSENGER:&nbsp;&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;Winslow&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;SGOOD,&nbsp;WINSLOW.&nbsp;<br>MAVEN:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Made&nbsp;by&nbsp;us&nbsp;according&nbsp;to&nbsp;the&nbsp;method&nbsp;in&nbsp;the&nbsp;comments,&nbsp;tag:&nbsp;MOESTL.<br>Ulysses:&nbsp;&nbsp;&nbsp;&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br>PSP:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br><br>We&nbsp;have&nbsp;also&nbsp;added&nbsp;extra&nbsp;events&nbsp;at&nbsp;VEX,&nbsp;MESSENGER,&nbsp;Wind&nbsp;and&nbsp;STEREO-A&nbsp;(all&nbsp;tagged&nbsp;with&nbsp;MOESTL&nbsp;in&nbsp;icmecat_id).<br><br>References:&nbsp;<br>Nieves-Chinchilla,&nbsp;T.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;&nbsp;https://doi.org/10.1007/s11207-018-1247-z&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://wind.nasa.gov/fullcatalogue.php&nbsp;<br>Jian,&nbsp;L.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;https://doi.org/10.3847/1538-4357/aab189&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/&nbsp;<br>Good,&nbsp;S.&nbsp;et&nbsp;al.&nbsp;(2018)&nbsp;https://doi.org/10.1007/s11207-015-0828-3&nbsp;<br>Winslow,&nbsp;R.&nbsp;et&nbsp;al.&nbsp;(2015),&nbsp;https://doi.org/10.1002/2015JA021200&nbsp;<br><br><br>Comments:&nbsp;<br><br>-&nbsp;Spacecraft&nbsp;positions&nbsp;are&nbsp;given&nbsp;in&nbsp;Heliocentric&nbsp;Earth&nbsp;Equatorial&nbsp;Coordinates&nbsp;(HEEQ)&nbsp;coordinates.&nbsp;<br><br>-&nbsp;The&nbsp;coordinate&nbsp;system&nbsp;for&nbsp;all&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;is&nbsp;SCEQ,&nbsp;except&nbsp;for&nbsp;Wind&nbsp;(HEEQ,&nbsp;which&nbsp;is&nbsp;the&nbsp;equivalent&nbsp;for&nbsp;SCEQ&nbsp;for&nbsp;Earth)&nbsp;and&nbsp;Ulysses&nbsp;(RTN,&nbsp;because&nbsp;of&nbsp;high&nbsp;latitude&nbsp;positions)&nbsp;and&nbsp;MAVEN&nbsp;(MSO).&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Definition&nbsp;of&nbsp;SpaceCraft&nbsp;Equatorial&nbsp;Coordinates&nbsp;(SCEQ):&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z&nbsp;is&nbsp;the&nbsp;solar&nbsp;rotation&nbsp;axis.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y&nbsp;is&nbsp;the&nbsp;cross&nbsp;product&nbsp;of&nbsp;Z&nbsp;and&nbsp;R,&nbsp;with&nbsp;R&nbsp;being&nbsp;the&nbsp;vector&nbsp;that&nbsp;points&nbsp;from&nbsp;the&nbsp;Sun&nbsp;to&nbsp;the&nbsp;spacecraft.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;completes&nbsp;the&nbsp;right&nbsp;handed&nbsp;triad&nbsp;(and&nbsp;points&nbsp;away&nbsp;from&nbsp;the&nbsp;Sun).&nbsp;<br>This&nbsp;system&nbsp;is&nbsp;thus&nbsp;like&nbsp;HEEQ&nbsp;but&nbsp;centered&nbsp;on&nbsp;the&nbsp;respective&nbsp;in&nbsp;situ&nbsp;spacecraft,&nbsp;so&nbsp;the&nbsp;SCEQ&nbsp;X&nbsp;and&nbsp;Y&nbsp;<br>base&nbsp;vectors&nbsp;are&nbsp;rotated&nbsp;by&nbsp;the&nbsp;HEEQ&nbsp;longitude&nbsp;of&nbsp;the&nbsp;in&nbsp;situ&nbsp;spacecraft&nbsp;from&nbsp;HEEQ&nbsp;X&nbsp;and&nbsp;Y.<br>The&nbsp;Y&nbsp;vector&nbsp;is&nbsp;similar&nbsp;to&nbsp;the&nbsp;T&nbsp;vector&nbsp;in&nbsp;an&nbsp;RTN&nbsp;system&nbsp;for&nbsp;each&nbsp;spacecraft,&nbsp;but&nbsp;the&nbsp;X&nbsp;and&nbsp;Z&nbsp;vectors&nbsp;<br>are&nbsp;rotated&nbsp;around&nbsp;Y&nbsp;compared&nbsp;to&nbsp;an&nbsp;RTN&nbsp;system.&nbsp;The&nbsp;differences&nbsp;between&nbsp;RTN&nbsp;and&nbsp;SCEQ&nbsp;for&nbsp;spacecraft&nbsp;within&nbsp;<br>a&nbsp;few&nbsp;degrees&nbsp;of&nbsp;the&nbsp;solar&nbsp;equatorial&nbsp;plane&nbsp;are&nbsp;very&nbsp;small&nbsp;(within&nbsp;a&nbsp;few&nbsp;0.1&nbsp;nT&nbsp;usually).<br>We&nbsp;choose&nbsp;SCEQ&nbsp;for&nbsp;the&nbsp;advantage&nbsp;that&nbsp;a&nbsp;comparison&nbsp;of&nbsp;the&nbsp;data&nbsp;of&nbsp;multipoint&nbsp;CME&nbsp;events&nbsp;<br>and&nbsp;comparisons&nbsp;to&nbsp;simulations&nbsp;are&nbsp;simpler&nbsp;because&nbsp;there&nbsp;is&nbsp;always&nbsp;a&nbsp;similar&nbsp;reference&nbsp;plane&nbsp;(the&nbsp;solar&nbsp;equatorial&nbsp;plane).<br><br>-&nbsp;Venus&nbsp;Express&nbsp;and&nbsp;MESSENGER&nbsp;do&nbsp;not&nbsp;have&nbsp;plasma&nbsp;parameters&nbsp;available.&nbsp;<br>-&nbsp;If&nbsp;there&nbsp;is&nbsp;no&nbsp;sheath&nbsp;or&nbsp;density&nbsp;pileup&nbsp;region,&nbsp;so&nbsp;the&nbsp;ICME&nbsp;starts&nbsp;immediately&nbsp;with&nbsp;a&nbsp;magnetic&nbsp;obstacle,&nbsp;the&nbsp;icme_start_time&nbsp;is&nbsp;similar&nbsp;to&nbsp;mo_start_time.<br><br>-&nbsp;At&nbsp;MESSENGER&nbsp;and&nbsp;VEX,&nbsp;for&nbsp;events&nbsp;cataloged&nbsp;by&nbsp;Simon&nbsp;Good,&nbsp;icme_start_time&nbsp;has&nbsp;been&nbsp;added&nbsp;by&nbsp;V.&nbsp;Krupar&nbsp;(Imperial&nbsp;College)&nbsp;and&nbsp;C.&nbsp;Möstl&nbsp;(IWF&nbsp;Graz).&nbsp;<br><br>-&nbsp;For&nbsp;the&nbsp;calculation&nbsp;of&nbsp;the&nbsp;parameters&nbsp;at&nbsp;MESSENGER&nbsp;during&nbsp;the&nbsp;orbit&nbsp;around&nbsp;Mercury,&nbsp;all&nbsp;data&nbsp;points&nbsp;inside&nbsp;the&nbsp;bowshock&nbsp;of&nbsp;Mercury&nbsp;have&nbsp;been&nbsp;removed,&nbsp;according&nbsp;to&nbsp;a&nbsp;list&nbsp;thankfully&nbsp;provided&nbsp;to&nbsp;us&nbsp;by&nbsp;by&nbsp;R.&nbsp;Winslow,&nbsp;UNH,&nbsp;B.&nbsp;Anderson,&nbsp;APL,&nbsp;and&nbsp;Lydia&nbsp;Philpott,&nbsp;UBC.&nbsp;<br><br>-&nbsp;Calculation&nbsp;of&nbsp;the&nbsp;magnetic&nbsp;obstacle&nbsp;parameters&nbsp;at&nbsp;VEX&nbsp;is&nbsp;done&nbsp;after&nbsp;approximate&nbsp;removal&nbsp;of&nbsp;the&nbsp;induced&nbsp;magnetosphere,&nbsp;with&nbsp;a&nbsp;modified&nbsp;equation&nbsp;as&nbsp;in&nbsp;Zhang&nbsp;et&nbsp;al.&nbsp;2008&nbsp;(doi:&nbsp;10.1016/j.pss.2007.09.012),&nbsp;with&nbsp;a&nbsp;constant&nbsp;of&nbsp;3.5&nbsp;instead&nbsp;of&nbsp;2.14/2.364,in&nbsp;order&nbsp;to&nbsp;account&nbsp;for&nbsp;a&nbsp;larger&nbsp;bowshock&nbsp;distance&nbsp;during&nbsp;solar&nbsp;maximum&nbsp;than&nbsp;studied&nbsp;in&nbsp;the&nbsp;Zhang&nbsp;et&nbsp;al.&nbsp;(2008)&nbsp;paper.&nbsp;<br><br>-&nbsp;For&nbsp;MAVEN,&nbsp;all&nbsp;data&nbsp;inside&nbsp;the&nbsp;bow&nbsp;shock&nbsp;were&nbsp;removed&nbsp;with&nbsp;the&nbsp;model&nbsp;from&nbsp;Gruesbeck&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:10.1029/2018JA025366)&nbsp;by&nbsp;C.&nbsp;Simon&nbsp;Wedlund&nbsp;(IWF&nbsp;Graz,&nbsp;Austria).&nbsp;From&nbsp;the&nbsp;remaining&nbsp;data,&nbsp;the&nbsp;median&nbsp;for&nbsp;each&nbsp;orbit&nbsp;is&nbsp;taken&nbsp;as&nbsp;1&nbsp;data&nbsp;point,&nbsp;resulting&nbsp;in&nbsp;a&nbsp;solar&nbsp;wind&nbsp;dataset&nbsp;at&nbsp;Mars&nbsp;with&nbsp;4.5&nbsp;hour&nbsp;time&nbsp;resolution.&nbsp;This&nbsp;is&nbsp;a&nbsp;far&nbsp;lower&nbsp;resolution&nbsp;than&nbsp;available&nbsp;at&nbsp;1&nbsp;AU,&nbsp;so&nbsp;the&nbsp;identification&nbsp;of&nbsp;ICMEs&nbsp;in&nbsp;the&nbsp;MAVEN&nbsp;data&nbsp;is&nbsp;not&nbsp;as&nbsp;straightforward&nbsp;as&nbsp;for&nbsp;data&nbsp;sets&nbsp;with&nbsp;higher&nbsp;time&nbsp;resolution.<br><br>-&nbsp;The&nbsp;identification&nbsp;of&nbsp;ICMEs&nbsp;for&nbsp;MAVEN&nbsp;was&nbsp;done&nbsp;as&nbsp;follows:&nbsp;(1)&nbsp;We&nbsp;looked&nbsp;for&nbsp;typical&nbsp;profiles&nbsp;for&nbsp;ICMEs&nbsp;in&nbsp;magnetic&nbsp;field&nbsp;(B)&nbsp;and&nbsp;speed&nbsp;(V).&nbsp;(2)&nbsp;B&nbsp;needs&nbsp;to&nbsp;be&nbsp;elevated&nbsp;in&nbsp;ICMEs&nbsp;accompanied&nbsp;by&nbsp;a&nbsp;flat&nbsp;or&nbsp;declining&nbsp;profile&nbsp;in&nbsp;V.&nbsp;An&nbsp;elevation&nbsp;in&nbsp;B&nbsp;accompanied&nbsp;by&nbsp;a&nbsp;later&nbsp;gradual&nbsp;rise&nbsp;in&nbsp;V&nbsp;is&nbsp;a&nbsp;strong&nbsp;indicator&nbsp;for&nbsp;a&nbsp;high&nbsp;speed&nbsp;stream&nbsp;(HSS).&nbsp;(3)&nbsp;The&nbsp;discrimination&nbsp;between&nbsp;HSS&nbsp;and&nbsp;ICMEs&nbsp;was&nbsp;further&nbsp;strengthened&nbsp;with&nbsp;the&nbsp;help&nbsp;of&nbsp;a&nbsp;stream&nbsp;interaction&nbsp;region&nbsp;list&nbsp;for&nbsp;MAVEN&nbsp;by&nbsp;Huang&nbsp;et&nbsp;al.&nbsp;(2019,&nbsp;doi:&nbsp;10.3847/1538-4357/ab25e9).&nbsp;(4)&nbsp;We&nbsp;additionally&nbsp;plotted&nbsp;the&nbsp;predicted&nbsp;CME&nbsp;arrivals&nbsp;with&nbsp;STEREO/HI&nbsp;(ARRCATv2.0),&nbsp;the&nbsp;dose&nbsp;rate&nbsp;measured&nbsp;on&nbsp;the&nbsp;Mars&nbsp;surface&nbsp;by&nbsp;MSL/RAD&nbsp;(e.g.&nbsp;Guo&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:&nbsp;10.1051/0004-6361/201732087))&nbsp;and&nbsp;the&nbsp;speed&nbsp;of&nbsp;the&nbsp;WSA/HUX&nbsp;model&nbsp;for&nbsp;the&nbsp;background&nbsp;solar&nbsp;wind&nbsp;(Reiss&nbsp;et&nbsp;al.&nbsp;2019,&nbsp;doi:&nbsp;10.3847/1538-4365/aaf8b3).&nbsp;General&nbsp;guidance&nbsp;on&nbsp;space&nbsp;weather&nbsp;observed&nbsp;by&nbsp;MAVEN&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;Lee&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:10.1002/2016JA023495).<br><br><br><br></p><p>Parameters:<br>00: icmecat_id: The unique identifier for the observed ICME. unit: string. <br>01: sc insitu: The name of the in situ observing spacecraft. unit: string. <br>02: icme_start_time: Shock arrival or density enhancement time, can be similar to mo_start_time. unit: UTC. <br>03: mo_start_time: Start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. <br>04: mo_end_time: End time of the magnetic obstacle. unit: UTC. <br>05: mo_sc_heliodistance: Heliocentric distance of the spacecraft at mo_start_time. unit: AU.<br>06: mo_sc_long_heeq: Heliospheric longitude of the spacecraft at mo_start_time, range [-180,180]. unit: degree (HEEQ).<br>07: mo_sc_lat_heeq: Heliospheric latitude of the spacecraft at mo_start_time, range [-90,90]. unit: degree (HEEQ).<br>08: icme_duration: Duration of the interval between icme_start_time and mo_endtime. unit: hours.<br>09: icme_bmax: Maximum total magnetic field in the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>10: icme_bmean: Mean total magnetic field during the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>11: icme_bstd: Standard deviation of the total magnetic field from icme_start_time to mo_end_time. unit: nT.<br>12: icme_speed_mean: Mean proton speed from icme_start_time to mo_end_time. unit: km/s.<br>13: icme_speed_std: Standard deviation of proton speed from icme_start_time to mo_end_time. unit: km/s.<br>14: mo_duration: Duration of the interval between mo_start_time and mo_endtime. unit: hours.<br>15: mo_bmax: Maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.<br>16: mo_bmean: Mean total magnetic field in the magnetic obstacle. unit: nT.<br>17: mo_bstd: Standard deviation of the total magnetic field in the magnetic obstacle. unit: nT.<br>18: mo_bzmean: Mean magnetic field Bz component in the magnetic obstacle. unit: nT.<br>19: mo_bzmin: Minimum magnetic field Bz component in the magnetic obstacle. unit: nT.<br>20: mo_bzstd: Standard deviation of the magnetic field Bz component in the magnetic obstacle. unit: nT.<br>21: mo_bymean: Mean magnetic field By component in the magnetic obstacle. unit: nT.<br>22: mo_bystd: Standard deviation of the magnetic field By component in the magnetic obstacle. unit: nT.<br>23: mo_speed_mean: Mean proton speed from mo_start_time to mo_end_time. unit: km/s.<br>24: mo_speed_std: Standard deviation of proton speed from mo_start_time to mo_end_time. unit: km/s.<br>25: mo_expansion_speed: Difference between proton speed at mo_start_time to proton speed at mo_end_time. unit: km/s.<br>26: mo_pdyn_mean: Mean proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>27: mo_pdyn_std: Standard deviation of proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>28: mo_density_mean: Mean proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>29: mo_density_std: Standard deviation of proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>30: mo_temperature_mean: Mean proton temperature from mo_start_time to mo_start_time. unit: K.<br>31: mo_temperature_std: Standard deviation of proton temperature from mo_start_time to mo_end_time. unit: K.<br>32: sheath_speed_mean: Mean proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>33: sheath_speed_std: Standard deviation of proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>34: sheath_density_mean: Mean proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>35: sheath_density_std: Standard deviation of proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>36: sheath_pdyn_mean: Mean proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br>37: sheath_pdyn_std: Standard deviation of proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br><br><br></p><table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th></th>
@@ -29770,62 +29770,21 @@
     </tr>
     <tr>
       <th>725</th>
-      <td>ICME_MAVEN_MOESTL_20141217_01</td>
-      <td>MAVEN</td>
-      <td>2014-12-17T22:10Z</td>
-      <td>2014-12-19T10:50Z</td>
-      <td>2014-12-23T20:10Z</td>
-      <td>1.3816</td>
-      <td>-106.59</td>
-      <td>5.50</td>
-      <td>142.00</td>
-      <td>9.2</td>
-      <td>6.2</td>
-      <td>1.5</td>
-      <td>340.9</td>
-      <td>22.0</td>
-      <td>105.33</td>
-      <td>8.8</td>
-      <td>5.7</td>
-      <td>1.0</td>
-      <td>-0.7</td>
-      <td>-3.5</td>
-      <td>1.7</td>
-      <td>-4.3</td>
-      <td>1.0</td>
-      <td>341.2</td>
-      <td>23.6</td>
-      <td>22.1</td>
-      <td>1.0</td>
-      <td>0.3</td>
-      <td>5.1</td>
-      <td>1.9</td>
-      <td>125059.0</td>
-      <td>78052.7</td>
-      <td>340.0</td>
-      <td>16.8</td>
-      <td>7.1</td>
-      <td>2.0</td>
-      <td>1.4</td>
-      <td>0.4</td>
-    </tr>
-    <tr>
-      <th>726</th>
       <td>ICME_MAVEN_MOESTL_20150118_01</td>
       <td>MAVEN</td>
-      <td>2015-01-18T05:00Z</td>
-      <td>2015-01-18T05:00Z</td>
-      <td>2015-01-18T23:20Z</td>
+      <td>2015-01-18T05:05Z</td>
+      <td>2015-01-18T05:05Z</td>
+      <td>2015-01-18T23:24Z</td>
       <td>1.3908</td>
       <td>-117.82</td>
       <td>5.63</td>
-      <td>18.33</td>
+      <td>18.32</td>
       <td>9.7</td>
       <td>7.0</td>
       <td>2.4</td>
       <td>373.1</td>
       <td>18.8</td>
-      <td>18.33</td>
+      <td>18.32</td>
       <td>9.7</td>
       <td>7.0</td>
       <td>2.4</td>
@@ -29851,63 +29810,22 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>727</th>
-      <td>ICME_MAVEN_MOESTL_20150207_01</td>
-      <td>MAVEN</td>
-      <td>2015-02-07T10:30Z</td>
-      <td>2015-02-08T04:50Z</td>
-      <td>2015-02-09T12:50Z</td>
-      <td>1.4045</td>
-      <td>-126.18</td>
-      <td>5.37</td>
-      <td>50.33</td>
-      <td>8.2</td>
-      <td>5.9</td>
-      <td>1.0</td>
-      <td>322.1</td>
-      <td>9.5</td>
-      <td>32.00</td>
-      <td>8.2</td>
-      <td>6.1</td>
-      <td>1.0</td>
-      <td>1.6</td>
-      <td>-1.4</td>
-      <td>1.9</td>
-      <td>-4.9</td>
-      <td>1.2</td>
-      <td>322.6</td>
-      <td>11.2</td>
-      <td>-14.0</td>
-      <td>0.8</td>
-      <td>0.1</td>
-      <td>4.3</td>
-      <td>0.6</td>
-      <td>149348.5</td>
-      <td>24992.5</td>
-      <td>321.3</td>
-      <td>6.3</td>
-      <td>7.1</td>
-      <td>1.8</td>
-      <td>1.2</td>
-      <td>0.3</td>
-    </tr>
-    <tr>
-      <th>728</th>
+      <th>726</th>
       <td>ICME_MAVEN_MOESTL_20150213_01</td>
       <td>MAVEN</td>
-      <td>2015-02-13T03:40Z</td>
-      <td>2015-02-13T17:20Z</td>
+      <td>2015-02-13T03:43Z</td>
+      <td>2015-02-13T17:22Z</td>
       <td>2015-02-15T05:40Z</td>
       <td>1.4088</td>
       <td>-128.33</td>
       <td>5.25</td>
-      <td>50.00</td>
+      <td>49.95</td>
       <td>6.2</td>
       <td>5.1</td>
       <td>0.8</td>
       <td>313.9</td>
       <td>12.2</td>
-      <td>36.33</td>
+      <td>36.30</td>
       <td>6.2</td>
       <td>5.1</td>
       <td>0.6</td>
@@ -29933,162 +29851,80 @@
       <td>0.3</td>
     </tr>
     <tr>
-      <th>729</th>
-      <td>ICME_MAVEN_MOESTL_20150827_01</td>
+      <th>727</th>
+      <td>ICME_MAVEN_MOESTL_20150308_01</td>
       <td>MAVEN</td>
-      <td>2015-08-27T07:00Z</td>
-      <td>2015-08-28T06:10Z</td>
-      <td>2015-08-28T20:00Z</td>
-      <td>1.6314</td>
-      <td>144.22</td>
-      <td>-3.21</td>
-      <td>37.00</td>
-      <td>5.9</td>
-      <td>4.7</td>
-      <td>0.6</td>
-      <td>371.4</td>
-      <td>15.2</td>
-      <td>13.83</td>
-      <td>5.9</td>
-      <td>5.5</td>
-      <td>0.4</td>
-      <td>3.9</td>
-      <td>3.0</td>
-      <td>0.9</td>
-      <td>-2.1</td>
+      <td>2015-03-08T15:36Z</td>
+      <td>2015-03-09T00:40Z</td>
+      <td>2015-03-10T17:14Z</td>
+      <td>1.4309</td>
+      <td>-137.89</td>
+      <td>4.59</td>
+      <td>49.63</td>
+      <td>19.2</td>
+      <td>13.5</td>
+      <td>4.3</td>
+      <td>594.6</td>
+      <td>158.7</td>
+      <td>40.57</td>
+      <td>19.2</td>
+      <td>14.5</td>
+      <td>3.6</td>
+      <td>2.7</td>
+      <td>-6.0</td>
+      <td>6.9</td>
+      <td>-3.8</td>
+      <td>6.9</td>
+      <td>585.0</td>
+      <td>151.3</td>
+      <td>209.9</td>
       <td>2.9</td>
-      <td>351.8</td>
-      <td>1.3</td>
-      <td>1.4</td>
-      <td>1.4</td>
-      <td>0.2</td>
-      <td>6.6</td>
-      <td>1.1</td>
-      <td>56203.2</td>
-      <td>1819.4</td>
-      <td>379.3</td>
-      <td>10.4</td>
-      <td>6.6</td>
-      <td>3.6</td>
-      <td>1.5</td>
-      <td>0.8</td>
-    </tr>
-    <tr>
-      <th>730</th>
-      <td>ICME_MAVEN_MOESTL_20150922_01</td>
-      <td>MAVEN</td>
-      <td>2015-09-22T05:50Z</td>
-      <td>2015-09-22T10:30Z</td>
-      <td>2015-09-23T04:40Z</td>
-      <td>1.6487</td>
-      <td>130.89</td>
-      <td>-4.06</td>
-      <td>22.83</td>
-      <td>5.5</td>
-      <td>3.6</td>
-      <td>1.3</td>
-      <td>362.0</td>
-      <td>20.0</td>
-      <td>18.17</td>
-      <td>5.5</td>
       <td>4.4</td>
-      <td>0.8</td>
-      <td>-1.1</td>
-      <td>-2.1</td>
-      <td>1.1</td>
-      <td>3.0</td>
-      <td>1.0</td>
-      <td>370.3</td>
-      <td>7.4</td>
-      <td>9.8</td>
+      <td>3.6</td>
+      <td>3.5</td>
+      <td>1388123.0</td>
+      <td>1028668.6</td>
+      <td>637.4</td>
+      <td>182.5</td>
+      <td>2.5</td>
+      <td>0.5</td>
+      <td>2.0</td>
       <td>1.3</td>
-      <td>0.1</td>
-      <td>5.9</td>
-      <td>0.4</td>
-      <td>98951.3</td>
-      <td>8720.2</td>
-      <td>345.4</td>
-      <td>26.0</td>
-      <td>5.6</td>
-      <td>3.1</td>
-      <td>1.2</td>
-      <td>0.8</td>
     </tr>
     <tr>
-      <th>731</th>
-      <td>ICME_MAVEN_MOESTL_20150930_01</td>
-      <td>MAVEN</td>
-      <td>2015-09-30T05:10Z</td>
-      <td>2015-09-30T05:10Z</td>
-      <td>2015-09-30T23:20Z</td>
-      <td>1.6529</td>
-      <td>126.67</td>
-      <td>-4.29</td>
-      <td>18.17</td>
-      <td>13.6</td>
-      <td>9.3</td>
-      <td>3.2</td>
-      <td>278.3</td>
-      <td>19.6</td>
-      <td>18.17</td>
-      <td>13.6</td>
-      <td>9.3</td>
-      <td>3.2</td>
-      <td>-2.3</td>
-      <td>-8.2</td>
-      <td>4.0</td>
-      <td>7.2</td>
-      <td>3.1</td>
-      <td>278.3</td>
-      <td>19.6</td>
-      <td>-13.9</td>
-      <td>0.8</td>
-      <td>0.1</td>
-      <td>6.2</td>
-      <td>1.5</td>
-      <td>959131.9</td>
-      <td>150113.9</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>732</th>
+      <th>728</th>
       <td>ICME_MAVEN_MOESTL_20160105_01</td>
       <td>MAVEN</td>
-      <td>2016-01-05T17:20Z</td>
-      <td>2016-01-05T17:20Z</td>
-      <td>2016-01-06T20:30Z</td>
+      <td>2016-01-05T17:24Z</td>
+      <td>2016-01-05T17:24Z</td>
+      <td>2016-01-06T20:28Z</td>
       <td>1.6558</td>
       <td>71.97</td>
       <td>-5.65</td>
-      <td>27.17</td>
-      <td>13.7</td>
-      <td>8.7</td>
-      <td>3.1</td>
-      <td>551.9</td>
-      <td>42.1</td>
-      <td>27.17</td>
-      <td>13.7</td>
-      <td>8.7</td>
-      <td>3.1</td>
-      <td>-1.8</td>
-      <td>-9.3</td>
-      <td>5.4</td>
-      <td>0.1</td>
-      <td>5.5</td>
-      <td>551.9</td>
-      <td>42.1</td>
-      <td>-77.1</td>
-      <td>1.5</td>
-      <td>0.8</td>
-      <td>2.8</td>
+      <td>27.07</td>
+      <td>12.2</td>
+      <td>7.8</td>
+      <td>2.5</td>
+      <td>557.6</td>
+      <td>43.0</td>
+      <td>27.07</td>
+      <td>12.2</td>
+      <td>7.8</td>
+      <td>2.5</td>
+      <td>-0.6</td>
+      <td>-6.2</td>
+      <td>4.8</td>
       <td>1.3</td>
-      <td>556860.2</td>
-      <td>474653.9</td>
+      <td>5.1</td>
+      <td>557.6</td>
+      <td>43.0</td>
+      <td>-21.9</td>
+      <td>1.6</td>
+      <td>0.8</td>
+      <td>2.9</td>
+      <td>1.4</td>
+      <td>383954.3</td>
+      <td>231453.2</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -30097,121 +29933,80 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>733</th>
+      <th>729</th>
       <td>ICME_MAVEN_MOESTL_20160119_01</td>
       <td>MAVEN</td>
-      <td>2016-01-19T01:50Z</td>
-      <td>2016-01-19T01:50Z</td>
-      <td>2016-01-21T17:00Z</td>
-      <td>1.6489</td>
-      <td>64.24</td>
+      <td>2016-01-19T01:47Z</td>
+      <td>2016-01-19T01:47Z</td>
+      <td>2016-01-22T01:58Z</td>
+      <td>1.6490</td>
+      <td>64.35</td>
       <td>-5.60</td>
-      <td>63.17</td>
+      <td>72.18</td>
       <td>4.9</td>
       <td>3.8</td>
       <td>0.7</td>
-      <td>397.1</td>
-      <td>11.5</td>
-      <td>63.17</td>
+      <td>395.9</td>
+      <td>11.7</td>
+      <td>72.18</td>
       <td>4.9</td>
       <td>3.8</td>
       <td>0.7</td>
       <td>-0.4</td>
       <td>-1.8</td>
       <td>1.0</td>
-      <td>-1.8</td>
-      <td>2.0</td>
-      <td>397.1</td>
-      <td>11.5</td>
-      <td>6.7</td>
-      <td>0.6</td>
-      <td>0.2</td>
-      <td>2.1</td>
-      <td>0.9</td>
-      <td>148073.3</td>
-      <td>31923.5</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>734</th>
-      <td>ICME_MAVEN_MOESTL_20160214_01</td>
-      <td>MAVEN</td>
-      <td>2016-02-14T04:10Z</td>
-      <td>2016-02-14T13:10Z</td>
-      <td>2016-02-15T20:40Z</td>
-      <td>1.6308</td>
-      <td>49.37</td>
-      <td>-5.31</td>
-      <td>40.50</td>
-      <td>7.2</td>
-      <td>5.2</td>
-      <td>1.6</td>
-      <td>433.4</td>
-      <td>38.1</td>
-      <td>31.50</td>
-      <td>7.2</td>
-      <td>5.9</td>
-      <td>0.8</td>
-      <td>-2.2</td>
-      <td>-3.7</td>
-      <td>1.0</td>
-      <td>-3.2</td>
-      <td>2.0</td>
-      <td>446.0</td>
-      <td>33.0</td>
-      <td>-23.6</td>
-      <td>1.4</td>
-      <td>0.4</td>
-      <td>4.4</td>
+      <td>-1.6</td>
       <td>2.2</td>
-      <td>252130.7</td>
-      <td>86356.2</td>
-      <td>389.0</td>
-      <td>13.3</td>
-      <td>3.9</td>
+      <td>395.9</td>
+      <td>11.7</td>
+      <td>6.2</td>
+      <td>0.5</td>
+      <td>0.2</td>
       <td>2.0</td>
-      <td>1.0</td>
-      <td>0.6</td>
+      <td>0.9</td>
+      <td>141856.7</td>
+      <td>34221.3</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
     <tr>
-      <th>735</th>
-      <td>ICME_MAVEN_MOESTL_20160726_01</td>
+      <th>730</th>
+      <td>ICME_MAVEN_MOESTL_20160721_01</td>
       <td>MAVEN</td>
-      <td>2016-07-26T19:30Z</td>
-      <td>2016-07-26T19:30Z</td>
-      <td>2016-07-28T02:10Z</td>
-      <td>1.4399</td>
-      <td>-26.03</td>
-      <td>1.34</td>
-      <td>30.67</td>
-      <td>6.1</td>
-      <td>5.4</td>
-      <td>0.8</td>
-      <td>364.4</td>
-      <td>9.5</td>
-      <td>30.67</td>
-      <td>6.1</td>
-      <td>5.4</td>
-      <td>0.8</td>
+      <td>2016-07-21T15:48Z</td>
+      <td>2016-07-21T15:48Z</td>
+      <td>2016-07-23T07:34Z</td>
+      <td>1.4460</td>
+      <td>-24.03</td>
+      <td>1.04</td>
+      <td>39.77</td>
+      <td>7.3</td>
+      <td>5.7</td>
+      <td>1.5</td>
+      <td>543.7</td>
+      <td>42.3</td>
+      <td>39.77</td>
+      <td>7.3</td>
+      <td>5.7</td>
+      <td>1.5</td>
+      <td>2.7</td>
+      <td>-0.3</td>
+      <td>1.4</td>
+      <td>-0.8</td>
+      <td>2.0</td>
+      <td>543.7</td>
+      <td>42.3</td>
+      <td>62.1</td>
+      <td>0.5</td>
+      <td>0.3</td>
+      <td>1.0</td>
       <td>0.4</td>
-      <td>-3.0</td>
-      <td>2.8</td>
-      <td>-2.2</td>
-      <td>2.4</td>
-      <td>364.4</td>
-      <td>9.5</td>
-      <td>-0.7</td>
-      <td>1.6</td>
-      <td>0.4</td>
-      <td>7.2</td>
-      <td>1.7</td>
-      <td>111626.5</td>
-      <td>23727.7</td>
+      <td>558630.0</td>
+      <td>457819.5</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -30220,12 +30015,12 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>736</th>
+      <th>731</th>
       <td>ICME_MAVEN_MOESTL_20160907_01</td>
       <td>MAVEN</td>
-      <td>2016-09-07T18:00Z</td>
-      <td>2016-09-08T12:30Z</td>
-      <td>2016-09-09T11:40Z</td>
+      <td>2016-09-07T18:01Z</td>
+      <td>2016-09-08T12:31Z</td>
+      <td>2016-09-09T11:41Z</td>
       <td>1.3997</td>
       <td>-42.00</td>
       <td>3.62</td>
@@ -30261,203 +30056,39 @@
       <td>0.6</td>
     </tr>
     <tr>
-      <th>737</th>
-      <td>ICME_MAVEN_MOESTL_20160910_01</td>
-      <td>MAVEN</td>
-      <td>2016-09-10T15:30Z</td>
-      <td>2016-09-10T15:30Z</td>
-      <td>2016-09-11T14:30Z</td>
-      <td>1.3981</td>
-      <td>-42.84</td>
-      <td>3.73</td>
-      <td>23.00</td>
-      <td>7.4</td>
-      <td>5.5</td>
-      <td>1.8</td>
-      <td>376.5</td>
-      <td>10.6</td>
-      <td>23.00</td>
-      <td>7.4</td>
-      <td>5.5</td>
-      <td>1.8</td>
-      <td>-0.3</td>
-      <td>-1.5</td>
-      <td>1.2</td>
-      <td>-0.9</td>
-      <td>3.9</td>
-      <td>376.5</td>
-      <td>10.6</td>
-      <td>-16.3</td>
-      <td>1.5</td>
-      <td>0.6</td>
-      <td>6.1</td>
-      <td>2.1</td>
-      <td>82494.7</td>
-      <td>13334.4</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>738</th>
-      <td>ICME_MAVEN_MOESTL_20170112_01</td>
-      <td>MAVEN</td>
-      <td>2017-01-12T08:40Z</td>
-      <td>2017-01-13T03:00Z</td>
-      <td>2017-01-13T16:50Z</td>
-      <td>1.4198</td>
-      <td>-89.14</td>
-      <td>4.94</td>
-      <td>32.17</td>
-      <td>6.8</td>
-      <td>4.7</td>
-      <td>1.5</td>
-      <td>489.1</td>
-      <td>45.3</td>
-      <td>13.83</td>
-      <td>5.7</td>
-      <td>5.1</td>
-      <td>0.4</td>
-      <td>0.1</td>
-      <td>-3.3</td>
-      <td>2.6</td>
-      <td>-0.1</td>
-      <td>2.1</td>
-      <td>535.2</td>
-      <td>12.6</td>
-      <td>-13.2</td>
-      <td>1.9</td>
-      <td>0.5</td>
-      <td>4.0</td>
-      <td>1.2</td>
-      <td>367911.7</td>
-      <td>50256.0</td>
-      <td>454.5</td>
-      <td>26.2</td>
-      <td>3.6</td>
-      <td>1.2</td>
-      <td>1.3</td>
-      <td>0.5</td>
-    </tr>
-    <tr>
-      <th>739</th>
+      <th>732</th>
       <td>ICME_MAVEN_MOESTL_20170119_01</td>
       <td>MAVEN</td>
-      <td>2017-01-19T05:50Z</td>
-      <td>2017-01-19T15:00Z</td>
-      <td>2017-01-20T18:30Z</td>
-      <td>1.4262</td>
-      <td>-91.86</td>
-      <td>4.74</td>
-      <td>36.67</td>
+      <td>2017-01-19T05:53Z</td>
+      <td>2017-01-19T05:53Z</td>
+      <td>2017-01-20T23:08Z</td>
+      <td>1.4258</td>
+      <td>-91.69</td>
+      <td>4.75</td>
+      <td>41.25</td>
       <td>5.5</td>
-      <td>4.3</td>
+      <td>4.2</td>
       <td>1.0</td>
-      <td>347.4</td>
-      <td>22.5</td>
-      <td>27.50</td>
+      <td>345.7</td>
+      <td>21.8</td>
+      <td>41.25</td>
       <td>5.5</td>
-      <td>4.8</td>
-      <td>0.5</td>
-      <td>3.0</td>
-      <td>0.8</td>
-      <td>1.4</td>
+      <td>4.2</td>
       <td>1.0</td>
-      <td>2.8</td>
-      <td>344.1</td>
-      <td>24.6</td>
-      <td>18.7</td>
-      <td>0.5</td>
-      <td>0.2</td>
-      <td>2.6</td>
-      <td>0.8</td>
-      <td>287437.6</td>
-      <td>242820.6</td>
-      <td>357.1</td>
-      <td>9.7</td>
-      <td>2.8</td>
-      <td>0.7</td>
-      <td>0.6</td>
-      <td>0.2</td>
-    </tr>
-    <tr>
-      <th>740</th>
-      <td>ICME_MAVEN_MOESTL_20170703_01</td>
-      <td>MAVEN</td>
-      <td>2017-07-03T22:20Z</td>
-      <td>2017-07-04T21:00Z</td>
-      <td>2017-07-06T04:40Z</td>
-      <td>1.6225</td>
-      <td>-168.71</td>
-      <td>-2.80</td>
-      <td>54.33</td>
-      <td>7.8</td>
-      <td>4.4</td>
-      <td>2.2</td>
-      <td>386.7</td>
-      <td>23.2</td>
-      <td>31.67</td>
-      <td>7.8</td>
-      <td>6.0</td>
-      <td>1.5</td>
-      <td>2.4</td>
-      <td>0.9</td>
-      <td>0.9</td>
-      <td>-3.3</td>
-      <td>4.5</td>
-      <td>392.4</td>
-      <td>28.6</td>
-      <td>9.2</td>
-      <td>1.3</td>
-      <td>0.5</td>
-      <td>4.8</td>
-      <td>1.4</td>
-      <td>369548.7</td>
-      <td>456549.3</td>
-      <td>378.7</td>
-      <td>6.1</td>
-      <td>2.6</td>
-      <td>1.2</td>
-      <td>0.6</td>
-      <td>0.3</td>
-    </tr>
-    <tr>
-      <th>741</th>
-      <td>ICME_MAVEN_MOESTL_20170722_01</td>
-      <td>MAVEN</td>
-      <td>2017-07-22T14:30Z</td>
-      <td>2017-07-22T14:30Z</td>
-      <td>2017-07-24T11:50Z</td>
-      <td>1.6368</td>
-      <td>-177.51</td>
-      <td>-3.47</td>
-      <td>45.33</td>
-      <td>6.7</td>
-      <td>4.8</td>
-      <td>1.3</td>
-      <td>311.9</td>
-      <td>19.4</td>
-      <td>45.33</td>
-      <td>6.7</td>
-      <td>4.8</td>
-      <td>1.3</td>
-      <td>0.2</td>
-      <td>-2.4</td>
       <td>2.0</td>
-      <td>-0.2</td>
-      <td>3.3</td>
-      <td>311.9</td>
-      <td>19.4</td>
       <td>-0.5</td>
+      <td>1.8</td>
+      <td>0.5</td>
+      <td>2.6</td>
+      <td>345.7</td>
+      <td>21.8</td>
+      <td>21.1</td>
+      <td>0.5</td>
+      <td>0.2</td>
+      <td>2.6</td>
       <td>0.8</td>
-      <td>0.3</td>
-      <td>4.8</td>
-      <td>1.4</td>
-      <td>178292.6</td>
-      <td>220041.6</td>
+      <td>223914.2</td>
+      <td>217699.9</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -30466,45 +30097,86 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>742</th>
-      <td>ICME_MAVEN_MOESTL_20170726_01</td>
+      <th>733</th>
+      <td>ICME_MAVEN_MOESTL_20170303_01</td>
       <td>MAVEN</td>
-      <td>2017-07-26T04:30Z</td>
-      <td>2017-07-26T09:00Z</td>
-      <td>2017-07-27T12:10Z</td>
-      <td>1.6396</td>
-      <td>-179.41</td>
-      <td>-3.60</td>
-      <td>31.67</td>
-      <td>21.4</td>
-      <td>8.5</td>
-      <td>5.8</td>
-      <td>606.8</td>
-      <td>59.3</td>
-      <td>27.17</td>
-      <td>21.4</td>
-      <td>9.2</td>
-      <td>6.0</td>
-      <td>-2.3</td>
-      <td>-8.1</td>
-      <td>3.5</td>
-      <td>6.6</td>
-      <td>6.2</td>
-      <td>596.9</td>
-      <td>58.4</td>
-      <td>94.0</td>
-      <td>1.4</td>
-      <td>0.4</td>
-      <td>2.4</td>
-      <td>0.8</td>
-      <td>1167580.7</td>
-      <td>1128618.7</td>
-      <td>666.2</td>
-      <td>0.0</td>
+      <td>2017-03-03T17:46Z</td>
+      <td>2017-03-03T17:46Z</td>
+      <td>2017-03-05T10:57Z</td>
+      <td>1.4763</td>
+      <td>-110.84</td>
+      <td>3.01</td>
+      <td>41.18</td>
+      <td>14.9</td>
+      <td>10.9</td>
+      <td>4.1</td>
+      <td>345.5</td>
+      <td>66.0</td>
+      <td>41.18</td>
+      <td>14.9</td>
+      <td>10.9</td>
+      <td>4.1</td>
+      <td>-4.1</td>
+      <td>-11.4</td>
+      <td>3.3</td>
+      <td>6.4</td>
+      <td>3.8</td>
+      <td>345.5</td>
+      <td>66.0</td>
+      <td>97.4</td>
+      <td>0.7</td>
       <td>0.5</td>
-      <td>0.0</td>
-      <td>0.4</td>
-      <td>0.0</td>
+      <td>3.2</td>
+      <td>1.1</td>
+      <td>713452.5</td>
+      <td>322450.8</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>734</th>
+      <td>ICME_MAVEN_MOESTL_20170704_01</td>
+      <td>MAVEN</td>
+      <td>2017-07-04T02:53Z</td>
+      <td>2017-07-04T02:53Z</td>
+      <td>2017-07-06T09:14Z</td>
+      <td>1.6218</td>
+      <td>-168.34</td>
+      <td>-2.77</td>
+      <td>54.35</td>
+      <td>7.8</td>
+      <td>4.8</td>
+      <td>2.1</td>
+      <td>383.8</td>
+      <td>26.2</td>
+      <td>54.35</td>
+      <td>7.8</td>
+      <td>4.8</td>
+      <td>2.1</td>
+      <td>1.2</td>
+      <td>-2.9</td>
+      <td>1.9</td>
+      <td>-1.8</td>
+      <td>4.2</td>
+      <td>383.8</td>
+      <td>26.2</td>
+      <td>-19.4</td>
+      <td>1.0</td>
+      <td>0.5</td>
+      <td>4.0</td>
+      <td>1.5</td>
+      <td>306506.4</td>
+      <td>392683.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
   </tbody>
 </table>

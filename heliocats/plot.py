@@ -577,13 +577,17 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
         rad=hd.load_msl_rad()   
         #load HI ARRCAT
         file='arrcat/HELCATS_ARRCAT_v20_pandas.p'
-        [arrcat,arrcat_header]=pickle.load( open(file, 'rb'))   
+        [arrcat,arrcat_header]=pickle.load( open(file, 'rb'))           
+        #load WSA HUX
+        w1=hd.load_mars_wsa_hux()        
+        #load Huang SIRCAT
+        msir=hd.load_maven_sir_huang()
+        
 
     if name=='PSP': plasma=True
     if name=='VEX': plasma=False
     if name=='MESSENGER': plasma=False
-        
-        
+                
     
     for i in np.arange(np.size(sci)):    
     #for i in np.arange(1):     
@@ -597,7 +601,8 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
             if name == 'MAVEN':                 
                 plot_insitu_icmecat_maven(sc[icme_start_ind[i]-7*6:mo_end_ind[i]+7*6],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(days=7), \
-                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=7),name, icplotsdir,ic,sci[i],rad,arrcat)
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=7),\
+                             name,icplotsdir,ic,sci[i],rad,arrcat,msir,w1)
                 
             plt.close('all')
         else:
@@ -615,7 +620,7 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
      
      
 
-def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,**kwargs):
+def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat, msir, wsa, **kwargs):
     '''
     sc ... data
     '''
@@ -634,7 +639,11 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
     msl_end_ind=np.where(rad.time > end)[0][0]
     rad_slice=rad[msl_start_ind:msl_end_ind]
     
-        
+    #slice wsa data
+    #wsa_start_ind=np.where(wsa.time > start)[0][0]
+    #wsa_end_ind=np.where(wsa.time > end)[0][0]
+    #wsa_slice=wsa[wsa_start_ind:wsa_end_ind]
+            
     #locate all mars events in HI arrcat 
     ac_mars=arrcat.loc[arrcat['target_name'] == 'Mars']
     #get arrival times
@@ -642,7 +651,7 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
     #get error in HI arrival time derived from HI speed in hours, convert to days
     err=ac_mars['target_arrival_time_err'].values/24
 
-
+    
 
     sns.set_style('darkgrid')
     sns.set_context('paper')
@@ -653,11 +662,11 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
 
 
     #sharex means that zooming in works with all subplots
-    ax1 = plt.subplot(511) 
+    ax1 = plt.subplot(411) 
     ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
     ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
     ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
-    ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
+    ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.7)
     #plot vertical lines
     ax1.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[-500,500],'-k',linewidth=1)            
     ax1.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[-500,500],'-k',linewidth=1)            
@@ -666,10 +675,10 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
     ax1.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
     #go through all events to plot error bar as shade
     for k  in np.arange(ac_mars.shape[0]):
-        ax1.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.3, color='blue')
+        ax1.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.1, color='blue')
     
-    plt.ylabel('B [nT]')
-    plt.legend(loc=3,ncol=4,fontsize=6)
+    plt.ylabel('B [nT, MSO]')
+    plt.legend(loc=3,ncol=4,fontsize=7)
     ax1.set_xlim(start,end)
     #if np.isnan(np.nanmin(sc.bt))==False:
     ax1.set_ylim(-np.nanmax(sc.bt)-3,np.nanmax(sc.bt)+3)   
@@ -680,34 +689,51 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
     plt.setp(ax1.get_xticklabels(), visible=False)
 
 
-    ax2 = plt.subplot(512,sharex=ax1) 
-    ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
+    
+    
+    
+    ax2 = plt.subplot(412,sharex=ax1) 
+    ax2.plot_date(sc.time,sc.vt,'-k',label='MAVEN',linewidth=0.8)
     #plot vertical lines
     ax2.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,3000],'-k',linewidth=1)            
     ax2.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,3000],'-k',linewidth=1)            
-    ax2.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,3000],'-k',linewidth=1)            
+    ax2.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,3000],'-k',linewidth=1)                
+    
+    #over plot wsa model from Martin Reiss
+    ax2.plot_date(wsa.time,wsa.vt,'-g',label='WSA/HUX',linewidth=0.8)
+
+    #plot ARRCAT
     ax2.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
     for k  in np.arange(ac_mars.shape[0]):
-        ax2.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.3, color='blue')
+        ax2.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.1, color='blue')
+
+#     #plot Huang SIR MAVEN catalog start end times
+#     for i  in np.arange(msir.shape[0]):
+#         ax2.axvspan(msir.start[i],msir.end[i], alpha=0.2, color='coral')        
+#     #plot Huang SIR MAVEN catalog stream interface
+#     for i  in np.arange(msir.shape[0]):
+#         ax2.plot([msir.si[i],msir.si[i]],[0,1000], alpha=0.2, color='black')
+
+
+    plt.legend(loc=3,ncol=2,fontsize=7)        
     plt.ylabel('V [km/s]')
     ax2.set_xlim(start,end)
     #check plasma data exists
     #if np.isnan(np.nanmin(sc.vt))==False:
-    ax2.set_ylim(np.nanmin(sc.vt)-20,np.nanmax(sc.vt)+100)   
+    ax2.set_ylim(np.nanmin(sc.vt)-50,np.nanmax(sc.vt)+100)   
     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-    #plt.ylim((250, 800))
     #ax2.set_xticklabels([])
     plt.setp(ax2.get_xticklabels(), visible=False)
 
 
-    ax3 = plt.subplot(513,sharex=ax1) 
-    ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
+    ax3 = plt.subplot(413,sharex=ax1) 
+    ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.8)
     ax3.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,1000],'-k',linewidth=1)            
     ax3.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,1000],'-k',linewidth=1)            
     ax3.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,1000],'-k',linewidth=1)            
     ax3.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
     for k  in np.arange(ac_mars.shape[0]):
-        ax3.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.3, color='blue')
+        ax3.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.1, color='blue')
 
     plt.ylabel('N [ccm-3]')
     ax3.set_xlim(start,end)
@@ -719,24 +745,24 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
     plt.setp(ax3.get_xticklabels(), visible=False)
 
 
-    ax4 = plt.subplot(514,sharex=ax1) 
-    ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
-    #plot vertical lines
-    ax4.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,10],'-k',linewidth=1)            
-    ax4.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,10],'-k',linewidth=1)            
-    ax4.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,10],'-k',linewidth=1)    
-    ax4.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
-    for k  in np.arange(ac_mars.shape[0]):
-        ax4.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.3, color='blue')
-    plt.ylabel('T [MK]')
-    ax4.set_xlim(start,end)
-    #if np.isnan(np.nanmin(sc.tp))==False:   
-    ax4.set_ylim(0,np.nanmax(sc.tp/1e6)+0.2)   
-    plt.setp(ax4.get_xticklabels(), visible=False)
+    #     ax4 = plt.subplot(514,sharex=ax1) 
+    #     ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.8)
+    #     #plot vertical lines
+    #     ax4.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,10],'-k',linewidth=1)            
+    #     ax4.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,10],'-k',linewidth=1)            
+    #     ax4.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,10],'-k',linewidth=1)    
+    #     ax4.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
+    #     for k  in np.arange(ac_mars.shape[0]):
+    #         ax4.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.1, color='blue')
+    #     plt.ylabel('T [MK]')
+    #     ax4.set_xlim(start,end)
+    #     #if np.isnan(np.nanmin(sc.tp))==False:   
+    #     ax4.set_ylim(0,np.nanmax(sc.tp/1e6)+0.2)   
+    #     plt.setp(ax4.get_xticklabels(), visible=False)
 
     #plot MSL RAD
-    ax5 = plt.subplot(515,sharex=ax1) 
-    ax5.plot_date(rad_slice.time,rad_slice.dose_sol,'-k',label='MSL/RAD dose_sol',linewidth=0.7)
+    ax5 = plt.subplot(414,sharex=ax1) 
+    ax5.plot_date(rad_slice.time,rad_slice.dose_sol,'-k',label='MSL/RAD dose_sol',linewidth=0.8)
     #ax5.plot_date(rad_slice.time,rad_slice.dose_hour,'-r',label='MSL/RAD dose_hour',linewidth=0.7)
     #plot vertical lines
     ax5.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,1000],'-k',linewidth=1)            
@@ -744,7 +770,7 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
     ax5.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,1000],'-k',linewidth=1)
     ax5.plot_date([arr,arr],[-1000,1000],'-b',linewidth=1) 
     for k  in np.arange(ac_mars.shape[0]):
-        ax5.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.3, color='blue')
+        ax5.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.1, color='blue')
 
     #use this fake data for one event for labeling CME arrivals as blue as otherwise there are too many blue vertical lines 
     #from plotting all arrcat events in the legend
@@ -752,8 +778,8 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
     
     ax5.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
     ax5.set_ylim(np.min(rad_slice.dose_sol)-15,np.max(rad_slice.dose_sol)+15)
-    plt.legend(loc=1,ncol=3,fontsize=6)
-    
+    plt.legend(loc=3,ncol=2,fontsize=7)
+    plt.ylabel('RAD dose [uGy/day]')
 
     
     
