@@ -10,7 +10,7 @@
 # 
 # **current status: work in progress** 
 # 
-# If you want to use parts of this code for generating results for peer-reviewed scientific publications, please contact us per email (christian.moestl@oeaw.ac.at, ***********) or via https://twitter.com/chrisoutofspace for co-authorships.
+# If you want to use parts of this code for generating results for peer-reviewed scientific publications, please contact us per email (christian.moestl@oeaw.ac.at, lan.jian@nasa.gov, maxime.grandin@helsinki.fi) for co-authorships.
 # 
 # 
 # part of https://github.com/cmoestl/heliocats, last update June 2020
@@ -151,7 +151,7 @@ os.system('jupyter nbconvert --to script sircat.ipynb')
 # load data from STEREO-B, STEREO-A and Wind, from HELCATS, or made with HelioSat and heliocats.data
 # 
 
-# In[2]:
+# In[3]:
 
 
 load_data=1
@@ -177,13 +177,13 @@ if load_data > 0:
     # ADD Solar Orbiter
     
        
-    #print('load MAVEN data MSO') #removed magnetosphere by C. Simon Wedlund, 1 data point per orbit, MSO 
+    print('load MAVEN data MSO') #removed magnetosphere by C. Simon Wedlund, 1 data point per orbit, MSO 
     #filemav='maven_2014_2018.p'
     #[mav,hmav]=pickle.load(open(filemav, 'rb' ) )
     #filemav='maven_2014_2018_removed.p'
     #[mav,hmav]=pickle.load(open(filemav, 'rb' ) )    
-    #filemav='maven_2014_2018_removed_smoothed.p'
-    #[mav,hmav]=pickle.load(open(data_path+filemav, 'rb' ) )
+    filemav='maven_2014_2018_removed_smoothed.p'
+    [mav,hmav]=pickle.load(open(data_path+filemav, 'rb' ) )
     
     #print('load MSL RAD')
     #MSL RAD
@@ -301,7 +301,7 @@ print('done')
 
 # read raw STEREO SIR and Earth SIR catalogs from Lan Jian and Maxim Grandin, and convert to master catalog xlsx file
 
-# In[38]:
+# In[6]:
 
 
 ###################### read raw STEREO SIR catalog
@@ -399,6 +399,13 @@ for i in np.arange(begin2007,len(wraw),1):
 
     rows_list.append(list2)
 
+
+    
+    
+########################## read MAVEN catalog   
+    
+    
+mavsir=hd.load_maven_sir_huang()
    
 
     
@@ -498,11 +505,11 @@ print('done')
 
 # ### 4a save header
 
-# In[59]:
+# In[5]:
 
 
 #save header and parameters as text file and prepare for html website
-header='SIR CATALOGUE v1.0 \n\nThis is the HELIO4CAST stream interaction region (SIR) and high speed stream (HSS) catalog,\nbased on in situ magnetic field and bulk plasma observations in the heliosphere. \nIt is a merged catalog created from individual ones made by Lan Jian et al. and Maxim Grandin et al. (see references).\n\nThis is version 1.0, released 2020-**-**. DOI: 10.6084/m9.**** \n\nThe catalog is available as  python pandas dataframe (pickle), json, csv, xlsx, txt, html at \nhttps://helioforecast.space/sircat \n\nNumber of events in SIRCAT: '+str(len(scat))+' \nICME observatories: Wind, STEREO-A, STEREO-B.   \nTime range: January 2007 - December 2017 (Wind), January 2007 - July 2018 (STEREO). \n\nAuthors: Christian Moestl, Andreas Weiss, R. L. Bailey, Space Research Institute, Austrian Academy of Sciences, Graz, Austria. \nLan Jian, NASA, USA, Maxim Grandin, University of Helsinki, Finland. \n\nRules: If results are produced with this catalog for peer-reviewed scientific publications, \nplease contact christian.moestl@oeaw.ac.at for possible co-authorships. \n\nThis catalog has been made by getting the start and end times of each high speed stream from the \nindividual catalogs, and then calculating all parameters again consistently from the data by us. \nThe in situ data that were used for the creating catalog, with a size of 8 GB in total, including extra data \nfiles with magnetic field components in RTN coordinates and other spacecrat that are not used for producing this catalog, \ncan be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693.v7 \nThe python code for producing this catalog is available at https://github.com/cmoestl/heliocats/sircat.ipynb \n\nEach sircat_id has a tag in it that indicates from which catalog the ICME times were taken: \n\nWind:       Grandin et al. (2018), tag: GRANDIN \nSTEREO-A:   Jian et al. (2019), tag: JIAN. \nSTEREO-B:   Jian et al. (2019), tag: JIAN. \n\nReferences \nGrandin, M. et al. (2018), https://doi.org/10.1029/2018JA026396. \nJian, L. et al. (2019), https://doi.org/10.1007/s11207-019-1416-8. \n\nComments: \n- The STEREO catalog contains the SIR start and end times. We use their SIR start time as our hss_start_time, \nand create our hss_end_time by setting it as the first time when the total bulk speed drops below 450 km/s \nafter the SIR end time given in the Jian catalog. \nThus, for the Jian catalog there exists 3 times: hss_start_time, sir_end_time, hss_end_time.\n- Earth SIR/HSS list: This catalog directly gives the hss_start_time and the hss_end_time,  \nwith a similar definition as the hss_end_time that we use for the STEREO catalog. \n- The times in the Earth SIR/HSS list have been modified to 1 hour earlier as these times were \noriginally given for the magnetopause, but the Wind spacecraft is located at the L1 point. \nOne hour is practically equivalent to the propagation time of a 400 km/s slow solar wind \nfrom the L1 point to the magnetopause.\n- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth). \n        Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n        Z is the solar rotation axis. \n        Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.\n        X completes the right handed triad (and points away from the Sun). \nThis system is thus like HEEQ but centered on the respective in situ spacecraft, so the SCEQ X and Y \nbase vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\nThe Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \nare rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \na few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).\nWe choose SCEQ because it has the advantage that a comparison between multipoint CME events \nand for comparison to simulations there is always a similar reference plane (the solar equatorial plane). \n\n '     
+header='SIR CATALOGUE v1.0 \n\nThis is the HELIO4CAST stream interaction region (SIR) and high speed stream (HSS) catalog,\nbased on in situ magnetic field and bulk plasma observations in the heliosphere. \nIt is a merged catalog created from individual ones made by Lan Jian et al. and Maxim Grandin et al. (see references).\n\nThis is version 1.0, released 2020-**-**. DOI: ********* \n\nThe catalog is available as  python pandas dataframe (pickle), json, csv, xlsx, txt, html at \nhttps://helioforecast.space/sircat \n\nNumber of events in SIRCAT: '+str(len(scat))+' \nICME observatories: Wind, STEREO-A, STEREO-B.   \nTime range: January 2007 - December 2017 (Wind), January 2007 - July 2018 (STEREO). \n\nAuthors: Christian Moestl, Andreas J. Weiss, R. L. Bailey, Martin A. Reiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria. \nLan Jian, NASA, USA; Maxim Grandin, University of Helsinki, Finland; Hui Huang, Beijing University, China. \n\nRules: If results are produced with this catalog for peer-reviewed scientific publications, \nplease contact christian.moestl@oeaw.ac.at, lan.jian@nasa.gov,   for possible co-authorships. \n\nThis catalog has been made by getting the start and end times of each high speed stream from the \nindividual catalogs, and then calculating all parameters again consistently from the data by us. \nThe in situ data that were used for the creating catalog, with a size of 8 GB in total, including extra data \nfiles with magnetic field components in RTN coordinates and other spacecrat that are not used for producing this catalog, \ncan be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693.v7 \nThe python code for producing this catalog is available at https://github.com/cmoestl/heliocats sircat.ipynb \n\nEach sircat_id has a tag in it that indicates from which catalog the ICME times were taken: \n\nWind:       Grandin et al. (2018), tag: GRANDIN \nSTEREO-A:   Jian et al. (2019), tag: JIAN. \nSTEREO-B:   Jian et al. (2019), tag: JIAN. \n\nReferences \nGrandin, M. et al. (2018), https://doi.org/10.1029/2018JA026396. \nJian, L. et al. (2019), https://doi.org/10.1007/s11207-019-1416-8. \n\nComments: \n- The STEREO catalog contains the SIR start and end times. We use their SIR start time as our hss_start_time, \nand create our hss_end_time by setting it as the first time when the total bulk speed drops below 450 km/s \nafter the SIR end time given in the Jian catalog. \nThus, for the Jian catalog there exists 3 times: hss_start_time, sir_end_time, hss_end_time.\n- Earth SIR/HSS list: This catalog directly gives the hss_start_time and the hss_end_time,  \nwith a similar definition as the hss_end_time that we use for the STEREO catalog. \n- The times in the Earth SIR/HSS list have been modified to 1 hour earlier as these times were \noriginally given for the magnetopause, but the Wind spacecraft is located at the L1 point. \nOne hour is practically equivalent to the propagation time of a 400 km/s slow solar wind \nfrom the L1 point to the magnetopause.\n- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth). \n        Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n        Z is the solar rotation axis. \n        Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.\n        X completes the right handed triad (and points away from the Sun). \nThis system is thus like HEEQ but centered on the respective in situ spacecraft, so the SCEQ X and Y \nbase vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\nThe Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \nare rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \na few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).\nWe choose SCEQ because it has the advantage that a comparison between multipoint CME events \nand for comparison to simulations there is always a similar reference plane (the solar equatorial plane). \n\n '     
 
 
 

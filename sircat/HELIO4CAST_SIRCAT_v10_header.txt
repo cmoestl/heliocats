@@ -4,7 +4,7 @@ This is the HELIO4CAST stream interaction region (SIR) and high speed stream (HS
 based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 It is a merged catalog created from individual ones made by Lan Jian et al. and Maxim Grandin et al. (see references).
 
-This is version 1.0, released 2020-**-**. DOI: 10.6084/m9.**** 
+This is version 1.0, released 2020-**-**. DOI: ********* 
 
 The catalog is available as  python pandas dataframe (pickle), json, csv, xlsx, txt, html at 
 https://helioforecast.space/sircat 
@@ -13,28 +13,30 @@ Number of events in SIRCAT: 931
 ICME observatories: Wind, STEREO-A, STEREO-B.   
 Time range: January 2007 - December 2017 (Wind), January 2007 - July 2018 (STEREO). 
 
-Authors: Christian Moestl, Andreas Weiss, R. L. Bailey, Space Research Institute, Austrian Academy of Sciences, Graz, Austria. 
-Lan Jian, NASA, USA, Maxim Grandin, University of Helsinki, Finland. 
+Authors: Christian Moestl, Andreas J. Weiss, R. L. Bailey, Martin A. Reiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria. 
+Lan Jian, NASA, USA; Maxim Grandin, University of Helsinki, Finland; Hui Huang, Beijing University, China. 
 
 Rules: If results are produced with this catalog for peer-reviewed scientific publications, 
-please contact christian.moestl@oeaw.ac.at for possible co-authorships. 
+please contact christian.moestl@oeaw.ac.at, lan.jian@nasa.gov, maxime.grandin@helsinki.fi for possible co-authorships. 
 
 This catalog has been made by getting the start and end times of each high speed stream from the 
 individual catalogs, and then calculating all parameters again consistently from the data by us. 
 The in situ data that were used for the creating catalog, with a size of 8 GB in total, including extra data 
 files with magnetic field components in RTN coordinates and other spacecrat that are not used for producing this catalog, 
 can be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693.v7 
-The python code for producing this catalog is available at https://github.com/cmoestl/heliocats/sircat.ipynb 
+The python code for producing this catalog is available at https://github.com/cmoestl/heliocats sircat.ipynb 
 
 Each sircat_id has a tag in it that indicates from which catalog the ICME times were taken: 
 
 Wind:       Grandin et al. (2018), tag: GRANDIN 
 STEREO-A:   Jian et al. (2019), tag: JIAN. 
 STEREO-B:   Jian et al. (2019), tag: JIAN. 
+MAVEN:      Huang et al. (2019), tag: HUANG. 
 
 References 
 Grandin, M. et al. (2018), https://doi.org/10.1029/2018JA026396. 
 Jian, L. et al. (2019), https://doi.org/10.1007/s11207-019-1416-8. 
+Huang, H. et al. (2019), https://doi.org/10.3847/1538-4357/ab25e9. 
 
 Comments: 
 - The STEREO catalog contains the SIR start and end times. We use their SIR start time as our hss_start_time, 
