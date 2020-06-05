@@ -2,12 +2,12 @@ ICME CATALOGUE v2.0
 
 This is the HELCATS interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 
-This is version 2.0, released 2020-06-03. doi: 10.6084/m9.figshare.6356420 
+This is version 2.0, released 2020-06-03, updated 2020-06-05, doi: 10.6084/m9.figshare.6356420 
 
 The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at 
 https://helioforecast.space/icmecat and https://www.helcats-fp7.eu/catalogues/wp4_icmecat.html 
 
-Number of events in ICMECAT: 735 
+Number of events in ICMECAT: 739 
 ICME observatories: Parker Solar Probe (PSP), Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   
 Time range: January 2007 - December 2019. 
  
@@ -35,7 +35,7 @@ We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged
 
 References: 
 Nieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z 
-                                      https://wind.nasa.gov/fullcatalogue.php 
+                                      https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php 
 Jian, L. et al. (2018), https://doi.org/10.3847/1538-4357/aab189 
                         https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/ 
 Good, S. et al. (2018) https://doi.org/10.1007/s11207-015-0828-3 

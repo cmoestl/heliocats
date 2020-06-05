@@ -5,15 +5,15 @@
 # 
 # makes a catalog of solar wind stream interaction regions (SIRs) for the Wind and STEREO spacecraft since 2007
 # 
-# Authors: [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/) (twitter @chrisoutofspace), A. J. Weiss, R. L. Bailey, IWF Graz, Austria; Lan Jian, NASA, USA, Maxim Grandin, University of Helsinki, Finland.
+# Authors: [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/) (twitter @chrisoutofspace), A. J. Weiss, R. L. Bailey, IWF Graz, Austria; Lan Jian, NASA, USA, Maxim Grandin, University of Helsinki, Finland; Hui Huang, Beijing Normal University, China.
 # 
 # 
 # **current status: work in progress** 
 # 
-# If you want to use parts of this code for generating results for peer-reviewed scientific publications, please contact me per email (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace for co-authorships.
+# If you want to use parts of this code for generating results for peer-reviewed scientific publications, please contact us per email (christian.moestl@oeaw.ac.at, ***********) or via https://twitter.com/chrisoutofspace for co-authorships.
 # 
 # 
-# part of https://github.com/cmoestl/heliocats, last update April 2020
+# part of https://github.com/cmoestl/heliocats, last update June 2020
 # 
 # ---
 # 
@@ -22,7 +22,7 @@
 #     
 # Install a specific conda environment to run this code, see README at https://github.com/cmoestl/heliocats
 # 
-# Download the files from https://doi.org/10.6084/m9.figshare.11973693.v7 and place them in the /data folder.
+# Download the files from https://doi.org/10.6084/m9.figshare.11973693 and place them in the /data folder.
 # 
 # 
 # ### Updates
@@ -45,6 +45,13 @@
 # 
 # **Earth SIR/HSS list**: Maxim Grandin et al., 2018, https://doi.org/10.1029/2018JA026396
 # This catalog directly gives the *hss_start_time* and the *hss_end_time*, with a similar definition as the *hss_end_time* that we use for the STEREO catalog. (TO DO: Need to check definitions of the start times in both catalogs).
+# 
+# 
+# **MARS SIR/HSS list**: Hui Huang et al., 2019, ****
+# This catalog directly gives the *hss_start_time* and the *hss_end_time*, with a similar definition as the *hss_end_time* that we use for the STEREO catalog. (TO DO: Need to check definitions of the start times in both catalogs).
+# 
+# 
+# 
 # 
 # 
 # All other parameters are calculated from scratch from the spacecraft data via this notebook or script.

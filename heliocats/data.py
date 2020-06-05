@@ -101,7 +101,7 @@ def load_maven_sir_huang():
     
     #Huang et al. 2019 APJ convert PDF to excel with https://pdftoxls.com
     
-    mavensir='data/Huang_2019_SIR_MAVEN_table_1.xlsx'
+    mavensir='sircat/sources/Huang_2019_SIR_MAVEN_table_1.xlsx'
     ms=pd.read_excel(mavensir)
     ms=ms.drop(index=[0,1,2])
     ms_num=np.array(ms['No.'])

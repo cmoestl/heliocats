@@ -3,9 +3,9 @@ ARRIVAL CATALOGUE 2.0
 In this ARRival CATalog (ARRCAT), the arrivals of solar coronal mass ejections that were 
 tracked in the STEREO heliospheric imagers in the HELCATS project are calculated.
 ARRCAT lists modeled arrivals of CMEs at various spacecraft and planets, 
-based on the HIGeoCAT catalog of CMEs established at RAL Space, UK (R. A. Harrison, J. A. Davies, D. Barnes). 
+based on the HIGeoCAT catalog of CMEs established at RAL Space, UK (D. Barnes, J. A. Davies, R. A. Harrison). 
 
-This is version 2.0, released 2020-05-13. https://doi.org/10.6084/m9.figshare.12271292
+This is version 2.0, released 2020-05-13, updated 2020-06-05. https://doi.org/10.6084/m9.figshare.12271292
 
 It is based on this HIGeoCAT version: https://www.helcats-fp7.eu/catalogues/data/HCME_WP3_V06.vot using the SSEF30 model.
 
@@ -14,7 +14,7 @@ python numpy arrays (pickle, as recarray and structured array),
 npy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at 
 https://helioforecast.space/arrcat and https://www.helcats-fp7.eu
 
-Number of events in ARRCAT: 1548
+Number of events in ARRCAT: 1554
 Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.
 
 Authors: Christian Möstl, D. Barnes, R. A. Harrison, J. A. Davies, Andreas J. Weiss, David Stansby;
