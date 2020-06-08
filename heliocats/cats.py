@@ -381,14 +381,20 @@ def load_helio4cast_sircat_master_from_excel(file):
     sc=sc.drop(columns='Unnamed: 0')
 
     #convert all times to datetime objects
-    for i in np.arange(0,sc.shape[0]):    
+    for i in np.arange(0,sc.shape[0]):            
         
-        #remove leading and ending blank spaces if any and write datetime object into dataframe
-        sc.at[i,'hss_start_time']= parse_time(str(sc.hss_start_time[i]).strip()).datetime 
-        #for STEREO convert sir end time
-        if sc.sc_insitu[i] != 'Wind':   sc.at[i,'sir_end_time']=parse_time(str(sc.sir_end_time[i]).strip()).datetime       
-        #for STEREO convert hss end time            
-        if sc.sc_insitu[i] == 'Wind':   sc.at[i,'hss_end_time']=parse_time(str(sc.hss_end_time[i]).strip()).datetime       
+ 
+        #for STEREO and MAVEN same
+        if sc.sc_insitu[i] != 'Wind':
+            #remove leading and ending blank spaces if any and write datetime object into dataframe
+            sc.at[i,'sir_start_time']= parse_time(str(sc.sir_start_time[i]).strip()).datetime 
+            sc.at[i,'hss_start_time']= parse_time(str(sc.hss_start_time[i]).strip()).datetime       
+            sc.at[i,'sir_end_time']= parse_time(str(sc.sir_end_time[i]).strip()).datetime       
+
+        #for Wind convert different
+        if sc.sc_insitu[i] == 'Wind': 
+            sc.at[i,'hss_start_time']= parse_time(str(sc.hss_start_time[i]).strip()).datetime 
+            sc.at[i,'hss_end_time']=parse_time(str(sc.hss_end_time[i]).strip()).datetime     
             
     return sc
 
@@ -399,34 +405,43 @@ def get_sircat_parameters(sc, sci, scat, name):
     '''
     get parameters
     sc - spacecraft data recarray
-    sci - indscates for this spacecraft in scatmecat
+    sci - indscates for this spacecraft in sircat
     scat - scatmecat pandas dataframe
     '''
-    fileind='sircat/indices_sircat/SIRCAT_indices_'+name+'.p'
-    
+    fileind='sircat/indices_sircat/SIRCAT_indices_'+name+'.p'    
     
 
     ################ extract indices of ICMEs in the respective data (time consuming, so do it once and save)
     
     if os.path.isfile(fileind) == False:
     
-        print('extract indices of ICMEs in '+ name+ ' data')
+        print('extract indices of SIRs in '+ name+ ' data')
         #### get all ICMECAT times for this spacecraft as datenum
+        sc_sir_start=scat.sir_start_time[sci]
         sc_hss_start=scat.hss_start_time[sci]
         sc_sir_end=scat.sir_end_time[sci]
         sc_hss_end=scat.hss_end_time[sci]
 
 
-    
         ### arrays containing the indices of where the SIRs are in the data
+        sir_start_ind=np.zeros(len(sci),dtype=int)
         hss_start_ind=np.zeros(len(sci),dtype=int)
         sir_end_ind=np.zeros(len(sci),dtype=int)
         hss_end_ind=np.zeros(len(sci),dtype=int)
 
-        #check where vt is less 450 km/s
+        #check where vt is < or > 450 km/s
         vt_lt_450=np.where(sc.vt < 450)[0]
-   
-        #this takes some time, get indices in data for each SIRCAT
+        vt_gt_450=np.where(sc.vt > 450)[0]
+
+        
+        #check where vt is < or > 350 km/s
+        vt_lt_350=np.where(sc.vt < 350)[0]
+        vt_gt_350=np.where(sc.vt > 350)[0]
+
+
+
+        
+        #this takes some time, get indices in data for each SIRCAT time
         for i in np.arange(sci[0],sci[-1]+1):
         
             print(i-sci[0])
@@ -434,35 +449,68 @@ def get_sircat_parameters(sc, sci, scat, name):
             
             if (name== 'STEREO-A') or (name== 'STEREO-B'):
 
+                sir_start_ind[i-sci[0]]=np.where(sc.time > sc_sir_start[i])[0][0]-1   
                 hss_start_ind[i-sci[0]]=np.where(sc.time > sc_hss_start[i])[0][0]-1   
                 sir_end_ind[i-sci[0]]=np.where(sc.time   > sc_sir_end[i])[0][0]-1 
                 
-                #here the hss_end_time needs to be extracted - criteria similar to Grandin et al. 2018 
-                #where stream goes back to (< 450 km/s) after sir end time
-                #check the indices in the 450 array that are greater than the sir_end index and take the first one            
-                hss_end_ind[i-sci[0]]=vt_lt_450[np.where(vt_lt_450 > sir_end_ind[i-sci[0]])[0][0]    ]                  
                 
-                #print(hss_start_ind[i-sci[0]],sir_end_ind[i-sci[0]],hss_end_ind[i-sci[0]]   )               
+                #here the hss_end_time needs to be extracted - criteria similar to Grandin et al. 2018 
+                #where stream goes back to (< 450 km/s) after hss start time
+                #check the indices in the 450 array that are greater than the hss_start index +0.5 days           
+                #24*60 data points
+                #and take the first one           
+                
+                
+                #take next data point > 450 km/s after hss_start + 6 hours (for getting rid of rapid variations)
+                next450=np.where(vt_gt_450 > hss_start_ind[i-sci[0]])[0][0]+6*60
+                #print(hss_start_ind[i-sci[0]],vt_gt_450[next450])
+
+                #then take next data point below 450 after this 
+                hss_end_ind[i-sci[0]]=vt_lt_450[ np.where(vt_lt_450 > vt_gt_450[next450])[0][0]   ]              
                                 
+                print('hss duration in hours ',(hss_end_ind[i-sci[0]]-hss_start_ind[i-sci[0]])/60)           
+                print(hss_start_ind[i-sci[0]],hss_end_ind[i-sci[0]])           
+                                
+            if name== 'MAVEN':
+                
+                sir_start_ind[i-sci[0]]=np.where(sc.time > sc_sir_start[i])[0][0]-1   
+                hss_start_ind[i-sci[0]]=np.where(sc.time > sc_hss_start[i])[0][0]-1   
+                sir_end_ind[i-sci[0]]=np.where(sc.time   > sc_sir_end[i])[0][0]-1 
+                #hss_end_ind[i-sci[0]]=vt_lt_450[np.where(vt_lt_450 > sir_end_ind[i-sci[0]])[0][0]  ]    
+                
+                      
+                #take next data point > 450 km/s after hss_start + 2 orbits (for getting rid of rapid variations)
+                next350=np.where(vt_gt_350 > hss_start_ind[i-sci[0]])[0][0]+2
+                #print(hss_start_ind[i-sci[0]],vt_gt_450[next450])
+
+                #then take next data point below 450 after this 
+                hss_end_ind[i-sci[0]]=vt_lt_350[ np.where(vt_lt_350 > vt_gt_350[next350])[0][0]   ]              
+                                
+                print('hss duration in hours ',(hss_end_ind[i-sci[0]]-hss_start_ind[i-sci[0]])*4.5)           
+                print(hss_start_ind[i-sci[0]],hss_end_ind[i-sci[0]])                           
+                
+        
         
             if name=='Wind':      
                 
-                #here only sir start and hss end exist
+                #here only hss start and hss end exist
                 hss_start_ind[i-sci[0]]=np.where(sc.time > sc_hss_start[i])[0][0]-1   
-                hss_end_ind[i-sci[0]]=np.where(sc.time   > sc_hss_end[i])[0][0]-1                 
+                hss_end_ind[i-sci[0]]=np.where(sc.time   > sc_hss_end[i])[0][0]-1     
+                
+                #future update: set hss_start as sir_start, and add time for hss_start by pt max after sir_start
+                
             
             
 
-        pickle.dump([hss_start_ind,sir_end_ind,hss_end_ind], open(fileind, 'wb'))
+        pickle.dump([sir_start_ind,hss_start_ind,sir_end_ind,hss_end_ind], open(fileind, 'wb'))
     ############################################            
                 
-    [hss_start_ind,sir_end_ind,hss_end_ind]=pickle.load(open(fileind, 'rb'))           
+    [sir_start_ind, hss_start_ind,sir_end_ind,hss_end_ind]=pickle.load(open(fileind, 'rb'))           
     
-    
-    
+        
     #first make hss end time for STEREO-A/B from hss_end_ind index
     
-    if (name== 'STEREO-A') or (name== 'STEREO-B'):
+    if (name== 'STEREO-A') or (name== 'STEREO-B') or (name== 'MAVEN'):
         for i in np.arange(len(sci))-1:
             scat.at[sci[i],'hss_end_time']=sc.time[hss_end_ind[i]]
 
@@ -494,10 +542,15 @@ def get_sircat_parameters(sc, sci, scat, name):
 
 
     for i in np.arange(0,len(sci)):        
+
+        #print(i)
+        #print('hss duration in hours ',(hss_end_ind[i]-hss_start_ind[i])/60)
+
         
         #v_max
         scat.at[sci[i],'hss_vtmax']=np.round(np.nanmax(sc.vt[hss_start_ind[i]:hss_end_ind[i]]),1)
-        #vtmaxtime -search for index in sliced array and at beginning of array to see the index in the whole dataset
+        
+        #vtmaxtime - search for index in sliced array and at beginning of array to see the index in the whole dataset
         scat.at[sci[i],'hss_vtmax_time']=sc.time[np.nanargmax(sc.vt[hss_start_ind[i]:hss_end_ind[i]])+hss_start_ind[i]]        
         # v_mean
         scat.at[sci[i],'hss_vtmean']=np.round(np.nanmean(sc.vt[hss_start_ind[i]:hss_end_ind[i]]),1)
@@ -517,11 +570,11 @@ def get_sircat_parameters(sc, sci, scat, name):
  
         
     print('sir')
-    ###SIR parameters only for STEREO
+    ###SIR parameters only for STEREO and MAVEN
     
     ############ SIR duration
     
-    if (name== 'STEREO-A') or (name== 'STEREO-B'):
+    if (name== 'STEREO-A') or (name== 'STEREO-B') or (name== 'MAVEN'):
 
         sci_istart=mdates.date2num(scat.hss_start_time[sci])   
         sci_iend=mdates.date2num(scat.sir_end_time[sci])   
@@ -533,22 +586,22 @@ def get_sircat_parameters(sc, sci, scat, name):
         for i in np.arange(0,len(sci)):
 
             #v_max
-            scat.at[sci[i],'sir_vtmax']=np.round(np.nanmax(sc.vt[hss_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_vtmax']=np.round(np.nanmax(sc.vt[sir_start_ind[i]:sir_end_ind[i]]),1)
             # v_mean
-            scat.at[sci[i],'sir_vtmean']=np.round(np.nanmean(sc.vt[hss_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_vtmean']=np.round(np.nanmean(sc.vt[sir_start_ind[i]:sir_end_ind[i]]),1)
             #v_bstd
-            scat.at[sci[i],'sir_vtstd']=np.round(np.nanstd(sc.vt[hss_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_vtstd']=np.round(np.nanstd(sc.vt[sir_start_ind[i]:sir_end_ind[i]]),1)
 
             #B_max
-            scat.at[sci[i],'sir_btmax']=np.round(np.nanmax(sc.bt[hss_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_btmax']=np.round(np.nanmax(sc.bt[sir_start_ind[i]:sir_end_ind[i]]),1)
             # B_mean
-            scat.at[sci[i],'sir_btmean']=np.round(np.nanmean(sc.bt[hss_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_btmean']=np.round(np.nanmean(sc.bt[sir_start_ind[i]:sir_end_ind[i]]),1)
             #bstd
-            scat.at[sci[i],'sir_btstd']=np.round(np.nanstd(sc.bt[hss_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_btstd']=np.round(np.nanstd(sc.bt[sir_start_ind[i]:sir_end_ind[i]]),1)
             #bz
-            scat.at[sci[i],'sir_bzmin']=np.round(np.nanmin(sc.bz[hss_start_ind[i]:sir_end_ind[i]]),1)
-            scat.at[sci[i],'sir_bzmean']=np.round(np.nanmean(sc.bz[hss_start_ind[i]:sir_end_ind[i]]),1)
-            scat.at[sci[i],'sir_bzstd']=np.round(np.nanstd(sc.bz[hss_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_bzmin']=np.round(np.nanmin(sc.bz[sir_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_bzmean']=np.round(np.nanmean(sc.bz[sir_start_ind[i]:sir_end_ind[i]]),1)
+            scat.at[sci[i],'sir_bzstd']=np.round(np.nanstd(sc.bz[sir_start_ind[i]:sir_end_ind[i]]),1)
     
     return scat
 

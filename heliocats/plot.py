@@ -232,7 +232,7 @@ def plot_sircat_events(sc,sci,ic,name,icplotsdir):
     fileind='sircat/indices_sircat/SIRCAT_indices_'+name+'.p'
     
     #get indices of events for this spacecraft
-    [hss_start_ind, sir_end_ind,hss_end_ind]=pickle.load(open(fileind, 'rb'))     
+    [sir_start_ind,hss_start_ind, sir_end_ind,hss_end_ind]=pickle.load(open(fileind, 'rb'))     
     
     
     if name=='STEREO-A' or name=='STEREO-B':
