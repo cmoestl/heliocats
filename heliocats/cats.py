@@ -510,14 +510,11 @@ def get_sircat_parameters(sc, sci, scat, name):
     
         
     #first make hss end time for STEREO-A/B from hss_end_ind index
-    
-    if (name== 'STEREO-A') or (name== 'STEREO-B') or (name== 'MAVEN'):
-        for i in np.arange(len(sci))-1:
-            scat.at[sci[i],'hss_end_time']=sc.time[hss_end_ind[i]]
+    #if (name== 'STEREO-A') or (name== 'STEREO-B') or (name== 'MAVEN'):
+    #      for i in np.arange(len(sci))-1:
+    #         scat.at[sci[i],'hss_end_time']=sc.time[hss_end_ind[i]]
 
 
-    
-    
     print('Get parameters for ',name)
     
     ####### position
@@ -532,9 +529,7 @@ def get_sircat_parameters(sc, sci, scat, name):
         ##SIR latitude
         scat.at[sci[i],'sc_lat_heeq']=np.round(sc.lat[hss_start_ind[i]],2)
 
-
     print('hss')
-    
         
 
     if name== 'Wind':

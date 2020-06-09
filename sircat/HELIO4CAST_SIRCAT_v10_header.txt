@@ -2,15 +2,15 @@ SIR CATALOGUE v1.0
 
 This is the HELIO4CAST stream interaction region (SIR) and high speed stream (HSS) catalog,
 based on in situ magnetic field and bulk plasma observations in the heliosphere. 
-It is a merged catalog created from individual ones made by Lan Jian et al. and Maxim Grandin et al. (see references).
+It is a merged catalog created from individual ones made by Lan Jian et al., Maxim Grandin et al. and Hui Huang et al. (see references).
 
-This is version 1.0, released 2020-06-**. DOI: ********* 
+This is version 1.0, released 2020-06-10. DOI: 10.6084/m9.figshare.12416906 
 
 The catalog is available as  python pandas dataframe (pickle), json, csv, xlsx, txt, html at 
 https://helioforecast.space/sircat 
 
-Number of events in SIRCAT: 1008 
-ICME observatories: Wind, STEREO-A, STEREO-B.   
+Number of events in SIRCAT: 1018 
+ICME observatories: Wind, STEREO-A, STEREO-B, MAVEN   
 Time range: January 2007 - December 2017 (Wind), January 2007 - July 2018 (STEREO). December 2014 - January 2018 (MAVEN). 
 
 Authors: Christian Moestl, Andreas J. Weiss, R. L. Bailey, Martin A. Reiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria. 
@@ -39,12 +39,9 @@ Jian, L. et al. (2019), https://doi.org/10.1007/s11207-019-1416-8.
 Huang, H. et al. (2019), https://doi.org/10.3847/1538-4357/ab25e9. 
 
 Comments: 
-- The STEREO catalog contains the SIR start and end times. We use their SIR start time as our hss_start_time, 
-and create our hss_end_time by setting it as the first time when the total bulk speed drops below 450 km/s 
-after the SIR end time given in the Jian catalog. 
-Thus, for the Jian catalog there exists 3 times: hss_start_time, sir_end_time, hss_end_time.
-- Earth SIR/HSS list: This catalog directly gives the hss_start_time and the hss_end_time,  
-with a similar definition as the hss_end_time that we use for the STEREO catalog. 
+- The STEREO catalog contains the SIR start, stream interface and SIR end times. We use their stream interface time as our hss_start_time. 
+- The MAVEN catalog has similar times as the STEREO catalog.
+- Earth SIR/HSS list: This catalog directly gives the hss_start_time and the hss_end_time, but no SIR times.  
 - The times in the Earth SIR/HSS list have been modified to 1 hour earlier as these times were 
 originally given for the magnetopause, but the Wind spacecraft is located at the L1 point. 
 One hour is practically equivalent to the propagation time of a 400 km/s slow solar wind 
@@ -64,15 +61,35 @@ We choose SCEQ because it has the advantage that a comparison between multipoint
 and for comparison to simulations there is always a similar reference plane (the solar equatorial plane). 
 
  Parameters:
-00: sircat_id: The unique identifier for the observed ICME. unit: string. 
+00: sircat_id: The unique identifier for the observed stream interaction region (SIR). unit: string. 
 01: sc insitu: The name of the in situ observing spacecraft. unit: string. 
-02: hss_start_time: High speed stream start time. unit: UTC. 
-03: sir_end_time: End time of the stream interaction region. unit: UTC. 
-04: hss_end_time: High speed stream end time, speed < 450 km/s. unit: UTC. 
-05: hss_vtmax_time: High speed stream maxmimum speed time. unit: UTC. 
-06: sc_heliodistance: Heliocentric distance of the spacecraft at hss_start_time. unit: AU.
-07: sc_long_heeq: Heliospheric longitude of the spacecraft at hss_start_time, range [-180,180]. unit: degree (HEEQ).
-08: sc_lat_heeq: Heliospheric latitude of the spacecraft at hss_start_time, range [-90,90]. unit: degree (HEEQ).
-09: hss_vt_max: Maximum proton speed from hss_start_time to hss_end_time. unit: km/s.
-\.
-'
+02: sir_start_time: Stream interaction region start time. unit: UTC. 
+03: hss_start_time: High speed stream start time, equal to the stream interface time (for STEREO, MAVEN catalogs). unit: UTC. 
+04: sir_end_time: End time of the stream interaction region. unit: UTC. 
+05: hss_end_time: High speed stream end time, criterion at Wind: speed < 450 km/s. unit: UTC. 
+06: hss_vtmax_time: High speed stream maxmimum speed time. unit: UTC. 
+07: sc_heliodistance: Heliocentric distance of the spacecraft at hss_start_time. unit: AU.
+08: sc_long_heeq: Heliospheric longitude of the spacecraft at hss_start_time, range [-180,180]. unit: degree (HEEQ).
+09: sc_lat_heeq: Heliospheric latitude of the spacecraft at hss_start_time, range [-90,90]. unit: degree (HEEQ).
+10: hss_vt_max: Maximum proton speed from hss_start_time to hss_end_time. unit: km/s.
+11: hss_vt_mean: Mean proton speed from hss_start_time to hss_end_time. unit: km/s.
+12: hss_vt_std: Standard deviation of proton speed from hss_start_time to hss_end_time. unit: km/s.
+13: hss_vt_mean: Mean proton speed from hss_start_time to hss_end_time. unit: km/s.
+14: hss_bt_max: Maximum total magnetic field from hss_start_time to hss_end_time. unit: nT.
+15: hss_bt_mean: Mean total magnetic field from hss_start_time to hss_end_time. unit: nT.
+16: hss_bt_std: Standard deviation of total magnetic field from hss_start_time to hss_end_time. unit: nT.
+17: hss_bz_min: Minimum Bz component (SCEQ) from hss_start_time to hss_end_time. unit: nT.
+18: hss_bz_mean: Mean Bz component (SCEQ) from hss_start_time to hss_end_time. unit: nT.
+19: hss_bz_std: Standard deviation of Bz component (SCEQ) from hss_start_time to hss_end_time. unit: nT.
+20: hss_duration: Duration of high speed stream from hss_start_time to hss_end_time. unit: hours.
+21: sir_vt_mean: Mean proton speed from hss_start_time to sir_end_time. unit: km/s.
+22: sir_vt_std: Standard deviation of proton speed from sir_start_time to hss_end_time. unit: km/s.
+23: sir_vt_mean: Mean proton speed from hss_start_time to sir_end_time. unit: km/s.
+24: sir_bt_max: Maximum total magnetic field from sir_start_time to hss_end_time. unit: nT.
+25: sir_bt_mean: Mean total magnetic field from sir_start_time to sir_end_time. unit: nT.
+26: sir_bt_std: Standard deviation of total magnetic field from sir_start_time to sir_end_time. unit: nT.
+27: sir_bz_min: Minimum Bz component (SCEQ) from sir_start_time to sir_end_time. unit: nT.
+28: sir_bz_mean: Mean Bz component (SCEQ) from sir_start_time to sir_end_time. unit: nT.
+29: sir_bz_std: Standard deviation of Bz component (SCEQ) from sir_start_time to sir_end_time. unit: nT.
+30: sir_duration: Duration of stream interaction region from sir_start_time to sir_end_time. unit: hours.
+
