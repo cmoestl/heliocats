@@ -40,7 +40,7 @@
 # **STEREO SIR list**: Lan Jian, https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/
 # published in: L. K. Jian et al. https://doi.org/10.1007/s11207-019-1416-8, 2019.
 # 
-# This catalog contains the SIR start and end times, as well as the Pt max time for the stream interface. We use their SIR start and ends time as our *sir_start_time* and *sir_end_time*, set the *hss_start_time* with the Pt max time and create our own *hss_end_time* by setting it as the first time when the total bulk speed drops below 450 km/s after *sir_end_time*. For three Pt max times that were nan in the Jian et al. list, the *hss_start_time* has been set similar to the *sir_end_time*.
+# This catalog contains the SIR start and end times, as well as the Pt max time for the stream interface. We use their SIR start and ends time as our *sir_start_time* and *sir_end_time*, set the *hss_start_time* with the Pt max time and create our own *hss_end_time* by setting it as the first time when the total bulk speed drops below 450 km/s after *sir_end_time*. For 4 Pt max times that were nan in the Jian et al. list, the *hss_start_time* has been set similar to the *sir_end_time*.
 # 
 # 
 # 
@@ -92,7 +92,7 @@
 
 # start with importing packages, get paths from config.py file and make directories 
 
-# In[2]:
+# In[60]:
 
 
 import numpy as np
@@ -168,7 +168,7 @@ os.system('jupyter nbconvert --to script sircat.ipynb')
 # ## (1) load data from STEREO-B, STEREO-A, Wind, and MAVEN
 # 
 
-# In[3]:
+# In[61]:
 
 
 load_data=1
@@ -310,7 +310,7 @@ print('done')
 
 # Here we read raw STEREO SIR and Earth SIR catalogs from Lan Jian, Maxim Grandin, and Hui Huang et al. and convert to master catalog xlsx file that contains all times in a consistent way.
 
-# In[4]:
+# In[100]:
 
 
 ###################### read raw STEREO SIR catalog
@@ -340,6 +340,8 @@ rows_list = []
 
 for i in np.arange(0,sraw.shape[0]):
     
+    
+
     s=stime[i]    
     y=year_start[i]
     doy=int(s[0:3])
@@ -356,7 +358,9 @@ for i in np.arange(0,sraw.shape[0]):
     #print(y,doy,hour, min)
     sir_end_time=datetime.datetime(y,1,1)+timedelta(days=doy-1)+timedelta(hours=hour)+timedelta(minutes=minute)
 
+    #print(i)
     p=ptime[i]    
+    #print(ptime[i])
     y=year_pt[i]
     doy=int(p[0:3])
     hour=int(p[-5:-3])
@@ -430,8 +434,8 @@ importlib.reload(hd) #reload again while debugging
 #this is a recarray    
 mavsir_all=hd.load_maven_sir_huang()
 
-#check which events overlap with the available MAVEN data
-mavsir_ind=np.where(mavsir_all.start < mav.time[-1])[0]
+#check which events overlap with the available MAVEN data (cutoff at -10)
+mavsir_ind=np.where(mavsir_all.start < mav.time[-1])[0][0:-10]
 mavsir=mavsir_all[mavsir_ind]
    
 print('Events in MAVEN SIR/HSS cat:', mavsir.shape[0])
@@ -502,7 +506,7 @@ print('done')
 
 # ## (3) make SIRCAT 
 
-# In[56]:
+# In[102]:
 
 
 from heliocats import cats as hc
@@ -528,7 +532,7 @@ print('done')
 # remove indices if the  events in the master file have changed
 #os.system('rm sircat/indices_sircat/SIRCAT_indices_Wind.p')
 #os.system('rm sircat/indices_sircat/SIRCAT_indices_STEREO-A.p')
-#os.system('rm sircat/indices_sircat/SIRCAT_indices_STEREO-A.p')
+#os.system('rm sircat/indices_sircat/SIRCAT_indices_STEREO-B.p')
 #os.system('rm sircat/indices_sircat/SIRCAT_indices_MAVEN.p')
 
 scat=hc.get_sircat_parameters(win,wini,scat,'Wind')
@@ -538,10 +542,10 @@ scat=hc.get_sircat_parameters(mav,mavi,scat,'MAVEN')
 
 # ###### 3c make all plots if wanted
 matplotlib.use('Agg')
-hp.plot_sircat_events(sta,stai,scat,'STEREO-A',sirplotsdir)
-hp.plot_sircat_events(stb,stbi,scat,'STEREO-B',sirplotsdir)
-hp.plot_sircat_events(win,wini,scat,'Wind',sirplotsdir)
-hp.plot_sircat_events(mav,mavi,scat,'MAVEN',sirplotsdir)
+# hp.plot_sircat_events(sta,stai,scat,'STEREO-A',sirplotsdir)
+# hp.plot_sircat_events(stb,stbi,scat,'STEREO-B',sirplotsdir)
+# hp.plot_sircat_events(win,wini,scat,'Wind',sirplotsdir)
+# hp.plot_sircat_events(mav,mavi,scat,'MAVEN',sirplotsdir)
 
 
 
