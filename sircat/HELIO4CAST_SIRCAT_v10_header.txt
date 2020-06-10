@@ -4,7 +4,7 @@ This is the HELIO4CAST stream interaction region (SIR) and high speed stream (HS
 based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 It is a merged catalog created from individual ones made by Lan Jian et al., Maxim Grandin et al. and Hui Huang et al. (see references).
 
-This is version 1.0, released 2020-06-10. DOI: 10.6084/m9.figshare.12416906 
+This is version 1.0, released 2020-06-10, updated 2020-06-11 DOI: 10.6084/m9.figshare.12416906 
 
 The catalog is available as  python pandas dataframe (pickle), json, csv, xlsx, txt, html at 
 https://helioforecast.space/sircat 
@@ -28,15 +28,15 @@ The python code for producing this catalog is available at https://github.com/cm
 
 Each sircat_id has a tag in it that indicates from which catalog the ICME times were taken: 
 
-Wind:       Grandin et al. (2018), tag: GRANDIN 
+Wind:       Grandin et al. (2019), tag: GRANDIN 
 STEREO-A:   Jian et al. (2019), tag: JIAN. 
 STEREO-B:   Jian et al. (2019), tag: JIAN. 
 MAVEN:      Huang et al. (2019), tag: HUANG. 
 
 References 
-Grandin, M. et al. (2018), https://doi.org/10.1029/2018JA026396. 
-Jian, L. et al. (2019), https://doi.org/10.1007/s11207-019-1416-8. 
-Huang, H. et al. (2019), https://doi.org/10.3847/1538-4357/ab25e9. 
+Grandin, M. et al. (2019), https://doi.org/10.1029/2018JA026396 
+Jian, L. et al. (2019), https://doi.org/10.1007/s11207-019-1416-8 
+Huang, H. et al. (2019), https://doi.org/10.3847/1538-4357/ab25e9 
 
 Comments: 
 - The STEREO catalog contains the SIR start, stream interface and SIR end times. We use their stream interface time as our hss_start_time. 
@@ -92,4 +92,5 @@ and for comparison to simulations there is always a similar reference plane (the
 28: sir_bz_mean: Mean Bz component (SCEQ) from sir_start_time to sir_end_time. unit: nT.
 29: sir_bz_std: Standard deviation of Bz component (SCEQ) from sir_start_time to sir_end_time. unit: nT.
 30: sir_duration: Duration of stream interaction region from sir_start_time to sir_end_time. unit: hours.
+
 
