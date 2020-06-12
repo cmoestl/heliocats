@@ -24,7 +24,7 @@
 # 
 # 
 
-# In[15]:
+# In[1]:
 
 
 import numpy as np
@@ -94,7 +94,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (0) process in situ data into similar format
 
-# In[16]:
+# In[2]:
 
 
 # make data
@@ -154,7 +154,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 
 
-# In[17]:
+# In[3]:
 
 
 ############################# make Ulysses files
@@ -280,7 +280,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[18]:
+# In[4]:
 
 
 load_data=1
@@ -444,7 +444,7 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning if needed
 
-# In[19]:
+# In[5]:
 
 
 # save data as numpy structured arrays for machine learning
@@ -520,7 +520,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[44]:
+# In[6]:
 
 
 #for measuring new events use these functions from heliocats.plot 
@@ -536,8 +536,8 @@ plt.close('all')
 
 #works in scripts
 #matplotlib.use('qt5agg')  
-get_ipython().run_line_magic('matplotlib', '')
-plt.ion()
+#%matplotlib 
+#plt.ion()
 
 
 #PSP
@@ -552,7 +552,7 @@ plt.ion()
 #Wind
 #hp.plot_insitu_measure(win, '2019-Jan-29','2019-Feb-28', 'Wind', 'results/')
 
-hp.plot_insitu_measure(win, '2011-Feb-10','2011-Feb-25', 'Wind', 'results/')
+#hp.plot_insitu_measure(win, '2011-Feb-10','2011-Feb-25', 'Wind', 'results/')
 
 
 
@@ -604,7 +604,7 @@ hp.plot_insitu_measure(win, '2011-Feb-10','2011-Feb-25', 'Wind', 'results/')
 
 # ## (3) make ICMECAT 
 
-# In[59]:
+# In[21]:
 
 
 print('data loaded')
@@ -640,22 +640,22 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 
 
 # ###### 3c make all plots if wanted
-# matplotlib.use('Agg')
+matplotlib.use('Agg')
 
 #from heliocats import plot as hp
 #importlib.reload(hp) #reload again while debugging
 
-#misssions to be updated
+#missions to be updated
 # hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
 # hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 # hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 #finished missions
-hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
-hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
-hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
-hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
+# hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
+# hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
+# hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
+# hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
 print('done')
 
 
@@ -663,7 +663,7 @@ print('done')
 
 # ### 4a save header
 
-# In[57]:
+# In[72]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -699,7 +699,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[58]:
+# In[73]:
 
 
 ########## python formats
@@ -875,7 +875,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[54]:
+# In[74]:
 
 
 #load icmecat as pandas dataframe
@@ -887,7 +887,7 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[55]:
+# In[75]:
 
 
 print(ic_pandas.keys())
@@ -895,19 +895,19 @@ print(ic_pandas.keys())
 ic_pandas
 
 
-# In[56]:
+# In[76]:
 
 
 ic_nprec
 
 
-# In[41]:
+# In[77]:
 
 
 ic_nprec
 
 
-# In[42]:
+# In[78]:
 
 
 ic_nprec.icmecat_id

@@ -249,7 +249,8 @@ def save_msl_rad():
 
     #make datetime array from year and doy
     for i in np.arange(len(rad)):
-        rad[i].time=parse_time(str(int(raw[i,0]))+'-01-01 00:00').datetime+datetime.timedelta(days=raw[i,1])
+        rad[i].time=parse_time(str(int(raw[i,0]))+'-01-01 00:00').datetime+datetime.timedelta(days=raw[i,1]-1)
+        print(rad[i].time)
         
     file='msl_2012_2019_rad.p'  
     pickle.dump(rad, open(data_path+file, "wb"))
@@ -1957,7 +1958,8 @@ def convert_MAVEN_mat_original(data_path,filename):
     #convert to recarray
     mav = mav.view(np.recarray)  
     #convert time from matlab to python
-    t=mavraw['timeD'][:,0]
+    t=mavraw['timeD'][:,0]    
+    
     for p in np.arange(np.size(t)):
         mav.time[p]= datetime.datetime.fromordinal(t[p].astype(int) ) + \
         datetime.timedelta(days=t[p]%1) - datetime.timedelta(days = 366) 
