@@ -1,17 +1,21 @@
 # heliocats
 
 
-This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections and their analysis. 
+This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections and their analysis. [This is a link to a google colab notebook](https://colab.research.google.com/drive/1_zJMGJnX3XJx7FCHD04SC3Y0KCMdDGMz) for instructions how to read the catalogs produced with this package.
 
-by [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/), A. J. Weiss, R. L. Bailey, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow, D. Stansby
 
-Current status (April 2020): **work in progress** 
+**Authors**: [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/), A. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow, D. Stansby.
+
+Current status (July 2020): **work in progress** 
 
 This is a continuation of work done in the EU HELCATS project (2014-2017): 
 [https://www.helcats-fp7.eu](https://www.helcats-fp7.eu). This package is used for updates of the the Interplanetary Coronal Mass ejection CATalog (ICMECAT).
 
-If you want to use parts of this code for generating results for peer-reviewed scientific publications, 
-please contact me per email (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace for co-authorships.
+If you want to use parts of this code for generating results for **peer-reviewed scientific publications, 
+please contact me per email** (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace for co-authorships.
+
+
+
 
 ---
 ## Usage
@@ -20,18 +24,20 @@ For running the jupyter notebooks (files with .ipynb) or the python scripts (.py
 
     conda activate helio
 
-Folder *data/* contains all data files needed during the analysis. 
-Outputs can be found in the folder *results/* or subfolders, the files created for the ICMECAT are in folder *icmecat/*. Jupyter notebooks can be converted to scripts by e.g. for icmecat.ipynb to icmecat.py:
+A data folder location can be set in *config.py* (e.g. *data/*) that contains all data files needed during the analysis. Outputs can be found in the folder *results/* or subfolders therein, e.g. the files created for the ICMECAT are in folder *icmecat/*. Jupyter notebooks can be converted to scripts by e.g. for icmecat.ipynb to icmecat.py:
 
     jupyter nbconvert --to script icmecat.ipynb
     
 ---
+
+
+
+
 ### ICME catalog 
 
 Before running the icmecat scripts, you need to download 10 data files for 8 spacecraft the we made 
-(in total 8 GB, but not all files are needed) from this figshare repository: 
+(in total 7.5 GB) from this figshare repository: 
 [https://doi.org/10.6084/m9.figshare.11973693](https://doi.org/10.6084/m9.figshare.11973693)
-
 and place these files in the a folder e.g. named "data", 
 (the name of this folder is set by the variable *data_path* in file config.py):
 
@@ -47,7 +53,7 @@ and place these files in the a folder e.g. named "data",
     data/messenger_2007_2015_sceq_removed.p
  
 
-This creates the ICMECAT catalog (also a jupyter notebook *icmecat.ipynb* is available):
+This creates the ICMECAT catalog (also a jupyter notebook *icmecat.ipynb* is available, which can be run by using jupyter notebook or jupyter lab):
 
     python icmecat.py
 
@@ -98,6 +104,21 @@ converted into many other formats by (given you have sunpy installed):
     ...
 
 
+### HI CME arrival catalog 
+
+use either (depending on your preference for jupyter lab, notebook or a script):
+
+    jupyter lab arrcat.ipynb
+  
+    jupyter notebook arrcat.ipynb
+
+    python arrcat.py
+    
+These codes makes the HELCATS CME arrival catalog, see e.g. Möstl et al. (2017, Space Weather). The catalog is available in essentially the same formats as the ICMECAT, and can be used similarly to above.
+
+
+
+
 
 ### ICME statistics
 
@@ -109,27 +130,14 @@ use either (depending on your preference for jupyter lab, notebook or a script):
 
     python cme_statistics.py
     
-These codes make CME statistics to get the results and plots for the paper Möstl et al. (2020, in preparation). 
-
-
-### HI CME arrival catalog 
-
-use either (depending on your preference for jupyter lab, notebook or a script):
-
-    jupyter lab arrcat.ipynb
-  
-    jupyter notebook arrcat.ipynb
-
-    python arrcat.py
-    
-These codes makes the HELCATS CME arrival catalog, see e.g. Möstl et al. (2017, Space Weather).
+These codes make CME statistics to obtain results for planetary space weather studies.
 
 
 ### Spacecraft positions and data
 
     python sc_positions_insitu.py
 
-makes movies of spacecraft positions and in situ data, all configuration variables are in the script.
+makes movies of spacecraft positions and in situ data, all configuration variables are set in the script.
 
 
 ### Real-time data update
@@ -137,8 +145,6 @@ makes movies of spacecraft positions and in situ data, all configuration variabl
     python data_update.py
     
 makes real time downloads and plots of various data sources.
-
-
 
 
 ---
