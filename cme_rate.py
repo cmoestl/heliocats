@@ -548,6 +548,11 @@ histmes=np.round(histmes1/total_data_days_yearly_mes*365.24,1)
 
 #ok for these spacecraft as continously in the solar wind and the MAVEN data set is made without orbit gaps
 histsta=np.round(histsta1/total_data_days_yearly_sta*365.24,1)
+
+#STA beacon data used in 2019 - set manually
+histsta[-1]=13
+
+
 histstb=np.round(histstb1/total_data_days_yearly_stb*365.24,1)
 histwin=np.round(histwin1/total_data_days_yearly_win*365.24,1)
 histmav=np.round(histmav1/total_data_days_yearly_mav*365.24,1)
@@ -687,7 +692,9 @@ print(yearly_mid_times_rc)
 
 
 sns.set_context("talk")     
-sns.set_style('darkgrid')
+#sns.set_style('whitegrid',{'grid.linestyle': '--'})
+
+sns.set_style("ticks",{'grid.linestyle': '--'})
 fsize=15
 
 fig=plt.figure(1,figsize=(12,9),dpi=80)
@@ -701,7 +708,7 @@ plt.plot_date(ic.icme_start_time[wini],ic.mo_sc_heliodistance[wini],fmt='o',colo
 plt.plot_date(ic.icme_start_time[stai],ic.mo_sc_heliodistance[stai],fmt='o',color='red',markersize=msize,label='STEREO-A')
 plt.plot_date(ic.icme_start_time[stbi],ic.mo_sc_heliodistance[stbi],fmt='o',color='royalblue',markersize=msize,label='STEREO-B')
 plt.plot_date(ic.icme_start_time[mavi],ic.mo_sc_heliodistance[mavi],fmt='o',color='steelblue',markersize=msize,label='MAVEN')
-plt.legend(loc=4,fontsize=13)
+plt.legend(loc=4,fontsize=12)
 
 plt.ylabel('Heliocentric distance R [AU]',fontsize=fsize)
 plt.xticks(yearly_start_times,fontsize=fsize) 
@@ -713,6 +720,14 @@ ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 
+#grid for icme rate
+for i in np.arange(0,2.0,0.2):
+    ax1.plot([datetime.datetime(2007,1,1),datetime.datetime(2020,1,1)],np.zeros(2)+i,linestyle='--',color='grey',alpha=0.5,lw=0.8,zorder=0)
+    
+for i in np.arange(0,13):    
+    ax1.plot([yearly_start_times[i],yearly_start_times[i]],[0,2],linestyle='--',color='grey',alpha=0.5,lw=0.8,zorder=0)
+
+
 
 #################### Fig 1b
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -720,7 +735,7 @@ sns.set_style("ticks",{'grid.linestyle': '--'})
 ax2 = plt.subplot(212) 
 
 ax3=ax2.twinx()
-ax3.plot(ssn.time,ssn.spot_mean_12,'-k',alpha=0.5,linewidth=1.5,label='sunspot number')
+ax3.plot(ssn.time,ssn.spot_mean_12,'-k',alpha=0.5,linewidth=1.5,label='sunspot number',zorder=0)
 ax3.set_ylabel('Sunspot number SIDC')
 ax3.set_ylim(0,155)
 ax3.legend(loc=1,fontsize=12)
@@ -729,7 +744,7 @@ ax3.legend(loc=1,fontsize=12)
 for i in np.arange(0,50,10):
     ax2.plot([datetime.datetime(2007,1,1),datetime.datetime(2020,1,1)],np.zeros(2)+i,linestyle='--',color='k',alpha=0.4,lw=0.8,zorder=0)
 
-binweite=int(np.round(360/6))
+binweite=int(np.round(360/7))
 bin_edges=bin_edgeswin[:-1]
 alp=0.7
 ax2.bar(bin_edges+5+binweite,histmes, width=binweite,color='darkgrey', alpha=alp,label='MESSENGER')
@@ -748,10 +763,10 @@ ax2.bar(bin_edges+5+binweite*6,histmav, width=binweite,color='steelblue', alpha=
 
 #mean and standard deviation and min max
 ax2.plot([icrate.year,icrate.year],[icrate.mean1-icrate.std1,icrate.mean1+icrate.std1],'-k',lw=1.1)
-ax2.plot([icrate.year[1],icrate.year[1]],[icrate.mean1[1]-icrate.std1[1],icrate.mean1[1]+icrate.std1[1]],'--k',lw=1.1,label='yearly ICME rate std')
-#ax2.plot([icrate.year,icrate.year],[icrate.min1,icrate.max1],'--k',lw=1.1)
-ax2.plot(icrate.year,icrate.mean1,'ok',markerfacecolor='white',label='yearly ICME rate mean')
 
+#ax2.plot([icrate.year,icrate.year],[icrate.min1,icrate.max1],'--k',lw=1.1)
+ax2.plot(icrate.year,icrate.mean1,'ok',markerfacecolor='white',label='yearly ICME rate mean',zorder=3)
+ax2.plot([icrate.year[1],icrate.year[1]],[icrate.mean1[1]-icrate.std1[1],icrate.mean1[1]+icrate.std1[1]],'--k',lw=1.1,label='yearly ICME rate std')
 
 
 ax2.set_ylim(0,48)
@@ -978,7 +993,7 @@ plt.plot(spots24,rc_rate24,color='black',markerfacecolor='white',marker='o',line
 
 plt.xlim(0,320)
 plt.ylim(0,np.max(rc_rate_corr)+30)
-plt.xlabel("yearly mean SSN (from 12 month running mean)")
+plt.xlabel("yearly mean SSN (from 13 month running mean)")
 plt.ylabel("ICME rate per year (Richardson & Cane)")
 
 #errors
@@ -1356,7 +1371,7 @@ max_spot=350
 max_icme=80
 
 ####################### MC20 model
-ax1 = plt.subplot(211) 
+ax1 = plt.subplot(212) 
 
 ################## ICR 
 ax1.plot(yearly_mid_times_23,rc_rate23, color='black',marker='o',markerfacecolor='black',label='RC ICME rate SC23',linestyle='')
@@ -1390,7 +1405,7 @@ ax2.legend(loc='upper center',fontsize=12)
 
 
 ############################################################## PP19 panel
-ax3 = plt.subplot(212) 
+ax3 = plt.subplot(211) 
 
 ##########ICR axis
 ax3.plot(yearly_mid_times_23,rc_rate23, color='black',marker='o',markerfacecolor='black',label='RC ICME rate SC23',linestyle='')
@@ -1878,7 +1893,7 @@ plt.plot(times_25_daily_icrange_num,fmc_low(times_25_daily_icrange_num))
 #make position new in order to be of similar range with ICME rate spline fits
 frame='HEEQ'
 starttime =times_25_daily_icrange[0]
-endtime = datetime.datetime(2025, 8, 31)
+endtime = datetime.datetime(2025, 9, 1)
 pspt_time = []
 res_in_days=1
 while starttime < endtime:
@@ -1894,6 +1909,8 @@ pspt.change_units(astropy.units.AU)
 print('PSP pos')
 print()
 
+
+
 #all positions
 psp_l10=np.where(psp_r < 1.0)[0]
 #positions less 0.3 AU
@@ -1905,7 +1922,7 @@ psp_l01=np.where(psp_r < 0.1)[0]
 
 
 
-print('!!!!!! all results below calculated from 2020 July 1 !!!!!!!!!!!!!')
+print('!!!!!! all results below calculated from 2020 July 1 to 2025 August 31!!!!!!!!!!!!!')
 print('PSP spends ... ')
 print('days < 0.3 AU:',psp_l03.size)
 print('days < 0.2 AU:',psp_l02.size)
@@ -1933,6 +1950,7 @@ icmes_psp_predict_mc_daily_low=fmc_low(times_25_daily_icrange_num)/365.24
 icmes_psp_predict_mc_daily_high=fmc_high(times_25_daily_icrange_num)/365.24
 
 print('ICME events in situ at PSP total mission : ', int(np.rint(np.sum(icmes_psp_predict_mc_daily[psp_l10]))))
+print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_low[psp_l10]))),' / ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_high[psp_l10]))))
 print('ICME events in situ at PSP < 0.3 AU: ', int(np.rint(np.sum(icmes_psp_predict_mc_daily[psp_l03]))))
 print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_low[psp_l03]))),' / ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_high[psp_l03]))))
 print('ICME events in situ at PSP < 0.2 AU: ', int(np.rint(np.sum(icmes_psp_predict_mc_daily[psp_l02]))))
@@ -1972,6 +1990,7 @@ icmes_psp_predict_pp_daily_high=fpp_high(times_25_daily_icrange_num)/365.24
 # plt.plot_date(pspt_time_num[psp_l01],icmes_psp_predict_pp_daily[psp_l01],'sr')
 
 print('ICME events in situ at PSP total mission : ', int(np.rint(np.sum(icmes_psp_predict_pp_daily[psp_l10]))))
+print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_low[psp_l10]))),' / ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_high[psp_l10]))))
 print('ICME events in situ at PSP < 0.3 AU: ', int(np.rint(np.sum(icmes_psp_predict_pp_daily[psp_l03]))))
 print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_low[psp_l03]))),' / ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_high[psp_l03]))))
 print('ICME events in situ at PSP < 0.2 AU: ', int(np.rint(np.sum(icmes_psp_predict_pp_daily[psp_l02]))))
@@ -2103,7 +2122,7 @@ plt.savefig('results/plots_rate/fig4_psp_rate.png', dpi=300)
 
 # Here 3DCORE is used to model synthetic observations of expanding flux ropes close to the Sun
 
-# In[23]:
+# In[61]:
 
 
 #!pip install 3DCORE if not already in the environment
@@ -2125,7 +2144,7 @@ iparams_arr = np.array([[
     0.24,   # d_1au (frontal width at 1AU)
     1,   # delta (cross-section aspect ratio)
     5,      # r_0 (initialization distance in solar radii)
-    600,    # v_0 (initial velocty in)
+    400,    # v_0 (initial velocty in)
     -5,      # tau (magnetic field twist)
     1,      # b_s (magnetic field scaling parameter)
     12,     # b_1au (magnetic field strength at 1au)
@@ -2138,8 +2157,8 @@ model_obj = py3dcore.models.ThinTorusGH3DCOREModel(t_launch, runs=1, use_gpu=Fal
 model_obj.update_iparams(iparams_arr, seed=42)
 
 
-TP_A =  t_launch + datetime.timedelta(hours=3)
-TP_B =  t_launch + datetime.timedelta(hours=28)
+TP_A =  t_launch + datetime.timedelta(hours=4)
+TP_B =  t_launch + datetime.timedelta(hours=26)
 
 C_A = "xkcd:red"
 C_B = "xkcd:blue"
@@ -2163,7 +2182,7 @@ class PSP_FIXED(heliosat.PSP):
 setattr(heliosat, "PSP_FIXED", PSP_FIXED)
 
 
-# In[24]:
+# In[62]:
 
 
 def measure(obj, sat, t0, t1, frame="HEEQ", bframe="HEEQ", satparams=None):
@@ -2249,7 +2268,7 @@ def plot_traj(ax, sat, t_snap, frame="HEEQ", traj_pos=True, traj_major=4, traj_m
 # ## **Figure 5**
 # 
 
-# In[25]:
+# In[69]:
 
 
 sns.set_style('whitegrid')
@@ -2267,7 +2286,7 @@ plot_3dcore_field(ax, model_obj, color=C_A, steps=400, step_size=0.0005, lw=1.5,
 plot_traj(ax, "PSP", TP_A, frame="ECLIPJ2000", color=C_A)
 
 plot_3dcore(ax, model_obj, TP_B, color=C_B)
-plot_3dcore_field(ax, model_obj, color=C_B, steps=1200, step_size=0.001, lw=1.5, ls=":")
+plot_3dcore_field(ax, model_obj, color=C_B, steps=900, step_size=0.001, lw=1.5, ls=":")
 plot_traj(ax, "PSP", TP_B, frame="ECLIPJ2000", color=C_B,lw=1.5)
 
 plot_traj(ax, "PSP", TP_B, frame="ECLIPJ2000", color="k", traj_pos=False, traj_major=None, traj_minor=144,lw=1.5)
@@ -2278,7 +2297,7 @@ plt.savefig('results/plots_rate/fig5_3dcore_visual.pdf', dpi=300)
 plt.savefig('results/plots_rate/fig5_3dcore_visual.png', dpi=300)
 
 
-# In[26]:
+# In[64]:
 
 
 t1, btot1, bxyz1 = measure(model_obj, "PSP", TP_A - datetime.timedelta(hours=6), TP_A  + datetime.timedelta(hours=6), frame="ECLIPJ2000", bframe="SPP_RTN")
@@ -2287,7 +2306,7 @@ t2, btot2, bxyz2 = measure(model_obj, "PSP", TP_B - datetime.timedelta(hours=12)
 tf, btotf, bxyzf = measure(model_obj, "PSP_FIXED", TP_A - datetime.timedelta(hours=6), TP_A  + datetime.timedelta(hours=6), frame="ECLIPJ2000", bframe="SPP_RTN", satparams=TP_A)
 
 
-# In[27]:
+# In[65]:
 
 
 sns.set_context('talk')
@@ -2312,7 +2331,7 @@ ax1.legend(loc="lower right", fontsize=16,ncol=4)
 ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b %d %H:%M'))
 ax1.set_ylabel('B [nT]')
 plt.ylim(-1300,1300)
-plt.xlim(datetime.datetime(2022,6,1,22,0),datetime.datetime(2022,6,2,1,0))
+plt.xlim(datetime.datetime(2022,6,1,23,0),datetime.datetime(2022,6,2,4,0))
 
 
 
@@ -2329,7 +2348,7 @@ ax2.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b %d %H:%M'))
 ax2.set_xlabel('simulation time')
 ax2.set_ylabel('B [nT]')
 plt.ylim(-1300,1300)
-plt.xlim(datetime.datetime(2022,6,3,0,0),datetime.datetime(2022,6,3,3,0))
+plt.xlim(datetime.datetime(2022,6,2,21,0),datetime.datetime(2022,6,3,2,0))
 
 
 plt.tight_layout()
@@ -2342,7 +2361,7 @@ plt.savefig('results/plots_rate/fig6_3dcore_components.pdf', dpi=300)
 plt.savefig('results/plots_rate/fig6_3dcore_components.png', dpi=300)
 
 
-# In[28]:
+# In[66]:
 
 
 def plot_reconstruction(ax, obj, qs, **kwargs):
@@ -2385,14 +2404,14 @@ def reconstruct_path(obj, sat, t0, t1, frame="HEEQ", satparams=None):
     return qs
 
 
-# In[29]:
+# In[67]:
 
 
 QPATH_PSP = reconstruct_path(model_obj, "PSP", TP_A - datetime.timedelta(hours=3), TP_A  + datetime.timedelta(hours=3), frame="ECLIPJ2000")
 QPATH_PSP_FIXED = reconstruct_path(model_obj, "PSP_FIXED", TP_A - datetime.timedelta(hours=3), TP_A  + datetime.timedelta(hours=3), frame="ECLIPJ2000", satparams=TP_A)
 
 
-# In[30]:
+# In[68]:
 
 
 fig = plt.figure(figsize=(20, 20),dpi=50)
@@ -2411,11 +2430,11 @@ plt.tight_layout()
 
 # ### make animation
 
-# 
+# ***
 
 # ### Play with model settings
 
-# In[ ]:
+# In[38]:
 
 
 ############### Model Settings
@@ -2425,11 +2444,11 @@ iparams_arr = np.array([[
     0,      # time offset
     145,    # l_1 (longitude)
     2.5,    # l_2 (latitude)
-    0,      # o (inclination, orientation)
+    5,      # o (inclination, orientation)
     0.24,   # d_1au (frontal width at 1AU)
     1,   # delta (cross-section aspect ratio)
     5,      # r_0 (initialization distance in solar radii)
-    300,    # v_0 (initial velocty in)
+    250,    # v_0 (initial velocty in)
     -5,      # tau (magnetic field twist)
     1,      # b_s (magnetic field scaling parameter)
     12,     # b_1au (magnetic field strength at 1au)
@@ -2450,7 +2469,7 @@ t2, btot2, bxyz2 = measure(model_obj, "PSP", TP_B - datetime.timedelta(hours=12)
 tf, btotf, bxyzf = measure(model_obj, "PSP_FIXED", TP_A - datetime.timedelta(hours=6), TP_A  + datetime.timedelta(hours=6), frame="ECLIPJ2000", bframe="SPP_RTN", satparams=TP_A)
 
 
-# In[ ]:
+# In[39]:
 
 
 sns.set_style('whitegrid')
@@ -2498,7 +2517,7 @@ ax1.legend(loc="lower right", fontsize=16,ncol=4)
 ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b %d %H:%M'))
 ax1.set_ylabel('B [nT]')
 plt.ylim(-1300,1300)
-plt.xlim(datetime.datetime(2022,6,1,22,0),datetime.datetime(2022,6,2,10,0))
+#plt.xlim(datetime.datetime(2022,6,1,22,0),datetime.datetime(2022,6,2,10,0))
 
 
 
@@ -2515,7 +2534,7 @@ ax2.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b %d %H:%M'))
 ax2.set_xlabel('simulation time')
 ax2.set_ylabel('B [nT]')
 plt.ylim(-1300,1300)
-plt.xlim(datetime.datetime(2022,6,2,17,0),datetime.datetime(2022,6,3,5,0))
+#plt.xlim(datetime.datetime(2022,6,2,17,0),datetime.datetime(2022,6,3,5,0))
 
 
 plt.tight_layout()
@@ -2524,13 +2543,13 @@ plt.tight_layout()
 plt.annotate('(a)',[0.01,0.965],xycoords='figure fraction',weight='bold')
 plt.annotate('(b)',[0.01,0.475],xycoords='figure fraction',weight='bold')
 
-plt.savefig('results/plots_rate/fig6_3dcore_components_v0_300kms.png', dpi=300)
+plt.savefig('results/plots_rate/fig6_3dcore_components_v0_250kms.png', dpi=300)
 # plt.savefig('results/plots_rate/fig6_3dcore_components.png', dpi=300)
 
 
-# # 6 just for fun Dst distribution prediction and number of major geomagnetic storms
+# ## 6 not used in the paper: Dst distribution prediction and number of major geomagnetic storms
 
-# In[ ]:
+# In[34]:
 
 
 #distribution of sunspot number
