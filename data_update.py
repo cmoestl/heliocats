@@ -59,31 +59,27 @@ get_new_data=True
 #~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit2.py
 
 
-################################# PSP update
 
-# load PSP data
-# go to heliosat directory psp_fields_l2
-# wget "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2018/*.cdf"
+
+
+################################# PSP data update
+
+
+################################## USE THIS ################################
+# load PSP data from server on linux command line onto leo server
+# go to heliosat directory /nas/helio/data/heliosat/data/psp_fields_l2
 # wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2019/*.cdf"
 # psp_spc_l3
-# wget "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2018/*.cdf"
-# wget "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf"
+# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf"
+############################################################################
 
 # print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
-
 #change date in hd.save_psp_data
 #filepsp='psp_2018_2019_rtn.p'
 #hd.save_psp_data(data_path,filepsp, sceq=False)   
 
 #filepsp='psp_2018_2019_sceq.p'
 #hd.save_psp_data(data_path,filepsp, sceq=True)   
-
-
-
-#print('download PSP  files without overwriting existing files into ',data_path)
-#psp_data_path='/nas/helio/data/heliosat/data/psp_spc_l3'
-#os.system('wget -nc --directory-prefix='+psp_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf" ')
-#wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf")
 
 
 
