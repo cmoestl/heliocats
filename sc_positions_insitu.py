@@ -34,8 +34,8 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ffmpeg_path=''
 #where the in situ data are located
-data_path='/nas/helio/data/insitu_python/'
-#data_path='data/'
+#data_path='/nas/helio/data/insitu_python/'
+data_path='data/'
 
 
 #import scipy.io
@@ -604,9 +604,9 @@ def make_frame(k):
 
     #save figure
     framestr = '%05i' % (k)  
-    filename=outputdirectory+'/pos_anim_'+framestr+'.jpg'  
+    filename=outputdirectory+'/pos_anim_'+framestr+'.pdf'  
     if k==0: print(filename)
-    plt.savefig(filename,dpi=100,facecolor=fig.get_facecolor(), edgecolor='none')
+    plt.savefig(filename,dpi=300,facecolor=fig.get_facecolor(), edgecolor='none')
     #plt.clf()
     plt.close('all')
 
@@ -674,10 +674,10 @@ high_res_mode=False
 #t_end   ='2018-Dec-06'
 #orbit all
 
-outputdirectory='results/plots_wind_psp_sta_april2020_1'
-animdirectory='results/movie_wind_psp_sta_april2020_1'
-t_start ='2018-Oct-01'
-t_end   ='2019-Dec-28'
+outputdirectory='results/plots_weiss_2020'
+animdirectory='results/movie_weiss_2020'
+t_start ='2018-Nov-12'
+t_end   ='2018-Nov-20'
 
 
 #Time resolution
@@ -863,8 +863,8 @@ pool.close()
 print('time in min: ',np.round((time.time()-start_time)/60))
 print('plots done, frames saved in ',outputdirectory)
  
-os.system(ffmpeg_path+'ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k \
-    -r 25 '+str(animdirectory)+'/psp_sta_wind_oct_2018_dec_2019.mp4 -y -loglevel quiet')
+#os.system(ffmpeg_path+'ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k \
+#    -r 25 '+str(animdirectory)+'/psp_sta_wind_oct_2018_dec_2019.mp4 -y -loglevel quiet')
 
-print('movie done, saved in ',animdirectory)
+#print('movie done, saved in ',animdirectory)
 
