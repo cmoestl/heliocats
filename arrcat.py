@@ -8,14 +8,19 @@
 # Author: C. Möstl, IWF Graz, Austria
 # twitter @chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# current version ARRCAT 2.0, released 2020 May 13, updated 2020 July 23
+# current version ARRCAT 2.0, released 2020 May 13, updated 2020 September 14
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
 # Convert this notebook to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell
-# 
 
-# In[1]:
+# In[201]:
+
+
+last_update='2020 September 14'
+
+
+# In[4]:
 
 
 import numpy as np
@@ -82,12 +87,11 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[2]:
+# In[5]:
 
 
 from heliocats import cats as hc
 importlib.reload(hc) #reload again while debugging 
-
 
 #https://www.helcats-fp7.eu/
 #LOAD HELCATS HIGeoCAT
@@ -139,11 +143,11 @@ ac
 
 # #### save header
 
-# In[18]:
+# In[17]:
 
 
 #save header and parameters as text file and prepare for html website
-header='ARRIVAL CATALOGUE 2.0 \n\nIn this ARRival CATalog (ARRCAT), the arrivals of solar coronal mass ejections that were \ntracked in the STEREO heliospheric imagers in the HELCATS project are calculated.\nARRCAT lists modeled arrivals of CMEs at various spacecraft and planets, \nbased on the HIGeoCAT catalog of CMEs established at RAL Space, UK (D. Barnes, J. A. Davies, R. A. Harrison). \n\nThis is version 2.0, released 2020-05-13, updated 2020-07-23. https://doi.org/10.6084/m9.figshare.12271292\n\nIt is based on this HIGeoCAT version: '+url_higeocat+' using the SSEF30 model.\n\nThe catalog is available as python pandas dataframe (pickle), \npython numpy arrays (pickle, as recarray and structured array), \nnpy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at \nhttps://helioforecast.space/arrcat and https://www.helcats-fp7.eu\n\nNumber of events in ARRCAT: '+str(len(ac))+'\nTargets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.\n\nAuthors: Christian Möstl, D. Barnes, R. A. Harrison, J. A. Davies, Andreas J. Weiss, David Stansby;\nSpace Research Institute (IWF), Austrian Academy of Sciences, Graz, Austria; RAL Space, UK; Mullard Space Science Laboratory, UK.\n\nRules: If results are produced with this catalog for peer-reviewed scientific publications,\nplease contact christian.moestl@oeaw.ac.at for co-authorships.\n\nParameters \n\n    0: id: From HIGeoCAT, the unique identifier for the observed CME.\n    1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)\n    2: target_name: Name of in situ target.\n    3: sse_launch_time: From HIGeoCAT, launch time of the CME at Sun center, unit: UTC.\n    4: target_arrival_time: CME arrival time at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: UTC.\n    5: target_arrival_time_err: Error of CME arrival time at target location, solely based on error in parameter sse_speed_err. unit: hours.\n    6: target_distance: Target distance from Sun, at CME arrival time. unit: AU.\n    7: target_heeq_lon: Target longitude in HEEQ, at CME arrival time. unit: degree.\n    8: target_heeq_lat: Target latitude in HEEQ, at CME arrival time. unit: degree.\n    9: target_delta: Difference in HEEQ longitude between central CME direction and target location at CME arrival time, \n       positive values: spacecraft is west of CME apex. unit: degree.\n    10: sse_heeq_lon: From HIGeoCAT, the HEEQ longitude of the CME apex propagation direction, unit: degree.\n    11: sse_heeq_lat: From HIGeoCAT, the HEEQ latitude of the CME apex propagation direction, unit: degree.\n    12: sse_speed: From HIGeoCAT, speed of the CME apex, unit: km/s.\n    13: sse_speed_err: From HIGeoCAT, error in the speed of the CME apex, unit: km/s.\n    14: target_speed: CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.\n    15: target_speed_err: Error in CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.\n    16: pa_fit: From HIGeoCAT, PA along which time-elongation profile is extracted, unit: degree.\n    17: pa_n: From HIGeoCAT, northern position angle of CME, unit: degree.\n    18: pa_s: From HIGeoCAT, southernmost position angle of CME, unit: degree.\n    19: pa_center: average of pa_n and pa_s, unit: degree.\n\nComments\n\n    - We have modified the calculation of CME arrival time here by a new iterative method compared to Möstl et al. (2014, 2017). \n      In the first iteration, the sse_launch_time is used to calculate the target HEEQ position. \n      In subsequent three iterations, we use the arrival time from the previous iteration (instead of sse_launch time) \n      to calculate the target HEEQ position. \n      In this way we avoid an error of a few degrees in the arrival target location (see also Möstl et al. 2017). \n    - The analytical formulas for calculating the speeds and arrival times of the CMEs modeled with SSEF30, \n      corrected for the SSEF30 circular shape, can be found in Möstl & Davies (2013). \n\n\nReferences \n\nMöstl & Davies (2013) https://doi.org/10.1007/s11207-012-9978-8 arxiv: https://arxiv.org/abs/1202.1299\nMöstl et al. (2014)   https://doi.org/10.1088/0004-637X/787/2/119 (open access) \nMöstl et al. (2017)   https://doi.org/10.1002/2017SW001614 (open access)\n'
+header='ARRIVAL CATALOGUE 2.0 \n\nIn this ARRival CATalog (ARRCAT), the arrivals of solar coronal mass ejections that were \ntracked in the STEREO heliospheric imagers in the HELCATS project are calculated.\nARRCAT lists modeled arrivals of CMEs at various spacecraft and planets, \nbased on the HIGeoCAT catalog of CMEs established at RAL Space, UK (D. Barnes, J. A. Davies, R. A. Harrison). \n\nThis is version 2.0, released 2020-05-13, updated 2020-09-14. https://doi.org/10.6084/m9.figshare.12271292\n\nIt is based on this HIGeoCAT version: '+url_higeocat+' using the SSEF30 model.\n\nThe catalog is available as python pandas dataframe (pickle), \npython numpy arrays (pickle, as recarray and structured array), \nnpy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at \nhttps://helioforecast.space/arrcat and https://www.helcats-fp7.eu\n\nNumber of events in ARRCAT: '+str(len(ac))+'\nTargets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.\n\nAuthors: Christian Möstl, D. Barnes, R. A. Harrison, J. A. Davies, Andreas J. Weiss, David Stansby;\nSpace Research Institute (IWF), Austrian Academy of Sciences, Graz, Austria; RAL Space, UK; Mullard Space Science Laboratory, UK.\n\nRules: If results are produced with this catalog for peer-reviewed scientific publications,\nplease contact christian.moestl@oeaw.ac.at for co-authorships.\n\nParameters \n\n    0: id: From HIGeoCAT, the unique identifier for the observed CME.\n    1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)\n    2: target_name: Name of in situ target.\n    3: sse_launch_time: From HIGeoCAT, launch time of the CME at Sun center, unit: UTC.\n    4: target_arrival_time: CME arrival time at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: UTC.\n    5: target_arrival_time_err: Error of CME arrival time at target location, solely based on error in parameter sse_speed_err. unit: hours.\n    6: target_distance: Target distance from Sun, at CME arrival time. unit: AU.\n    7: target_heeq_lon: Target longitude in HEEQ, at CME arrival time. unit: degree.\n    8: target_heeq_lat: Target latitude in HEEQ, at CME arrival time. unit: degree.\n    9: target_delta: Difference in HEEQ longitude between central CME direction and target location at CME arrival time, \n       positive values: spacecraft is west of CME apex. unit: degree.\n    10: sse_heeq_lon: From HIGeoCAT, the HEEQ longitude of the CME apex propagation direction, unit: degree.\n    11: sse_heeq_lat: From HIGeoCAT, the HEEQ latitude of the CME apex propagation direction, unit: degree.\n    12: sse_speed: From HIGeoCAT, speed of the CME apex, unit: km/s.\n    13: sse_speed_err: From HIGeoCAT, error in the speed of the CME apex, unit: km/s.\n    14: target_speed: CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.\n    15: target_speed_err: Error in CME arrival speed at target location, corrected for SSE shape (Möstl and Davies, 2013). unit: km/s.\n    16: pa_fit: From HIGeoCAT, PA along which time-elongation profile is extracted, unit: degree.\n    17: pa_n: From HIGeoCAT, northern position angle of CME, unit: degree.\n    18: pa_s: From HIGeoCAT, southernmost position angle of CME, unit: degree.\n    19: pa_center: average of pa_n and pa_s, unit: degree.\n\nComments\n\n    - We have modified the calculation of CME arrival time here by a new iterative method compared to Möstl et al. (2014, 2017). \n      In the first iteration, the sse_launch_time is used to calculate the target HEEQ position. \n      In subsequent three iterations, we use the arrival time from the previous iteration (instead of sse_launch time) \n      to calculate the target HEEQ position. \n      In this way we avoid an error of a few degrees in the arrival target location (see also Möstl et al. 2017). \n    - The analytical formulas for calculating the speeds and arrival times of the CMEs modeled with SSEF30, \n      corrected for the SSEF30 circular shape, can be found in Möstl & Davies (2013). \n\n\nReferences \n\nMöstl & Davies (2013) https://doi.org/10.1007/s11207-012-9978-8 arxiv: https://arxiv.org/abs/1202.1299\nMöstl et al. (2014)   https://doi.org/10.1088/0004-637X/787/2/119 (open access) \nMöstl et al. (2017)   https://doi.org/10.1002/2017SW001614 (open access)\n'
 
 print(header)
 
@@ -169,7 +173,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[4]:
+# In[18]:
 
 
 ########## python formats
@@ -346,7 +350,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[5]:
+# In[9]:
 
 
 #load icmecat as pandas dataframe
@@ -358,33 +362,33 @@ file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
 [ac_rec,ac_struct,h]=pickle.load( open(file, 'rb'))   
 
 
-# In[6]:
+# In[10]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[7]:
+# In[11]:
 
 
 ac
 
 
-# In[8]:
+# In[12]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[9]:
+# In[13]:
 
 
 ac_struct
 
 
-# In[10]:
+# In[14]:
 
 
 ac_struct['id']
@@ -397,7 +401,7 @@ print(deltata)
 
 # ### plot directions and targets
 
-# In[11]:
+# In[19]:
 
 
 
@@ -408,7 +412,7 @@ sns.set_style('darkgrid')
 
 
 
-fig=plt.figure(1, figsize=(18,10), dpi=50) 
+fig=plt.figure(1, figsize=(18,10), dpi=100) 
 ax = plt.subplot(121,projection='polar') 
 
 plt.title('ARRCAT CME arrivals at targets [HEEQ longitude]')
@@ -461,16 +465,16 @@ plt.ylim([0,2000])
 plt.tight_layout()
 
 plotfile='arrcat/plots_arrcat/arrcat_targets.png'
-plt.savefig(plotfile)
+plt.savefig(plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
 # ### plot error distributions
 
-# In[12]:
+# In[21]:
 
 
-fig=plt.figure(2, figsize=(18,8), dpi=50)
+fig=plt.figure(2, figsize=(18,8), dpi=100)
 
 ax = plt.subplot(121) 
 sns.distplot(ac.sse_speed_err,bins=200,kde=False,rug=True)
@@ -491,7 +495,114 @@ print('mean target arrival time error from sse_speed error',np.mean(ac.target_ar
 plt.tight_layout()
 
 plotfile='arrcat/plots_arrcat/arrcat_errors_dist.png'
-plt.savefig(plotfile)
+plt.savefig(plotfile,dpi=100)
+print('saved as ',plotfile)
+
+
+# In[ ]:
+
+
+
+
+
+# ## HIGeoCAT CME rates plot
+# 
+# 
+# 
+# 
+# 
+
+# In[38]:
+
+
+'''
+(histmerc1, bin_edgesmerc) = np.histogram(parse_time(ac.sse_launch_time[merci]).jd, yearly_bin_edges)
+(histvenus1, bin_edgesvenus) = np.histogram(parse_time(ac.sse_launch_time[venusi]).jd, yearly_bin_edges)
+(histearth1, bin_edgesearth) = np.histogram(parse_time(ac.sse_launch_time[earthi]).jd, yearly_bin_edges)
+(histmars1, bin_edgesmars) = np.histogram(parse_time(ac.sse_launch_time[marsi]).jd, yearly_bin_edges)
+(histstb1, bin_edgesstb) = np.histogram(parse_time(ac.sse_launch_time[stbi]).jd, yearly_bin_edges)
+(histsta1, bin_edgessta) = np.histogram(parse_time(ac.sse_launch_time[stai]).jd, yearly_bin_edges)
+(histpsp1, bin_edgespsp) = np.histogram(parse_time(ac.sse_launch_time[pspi]).jd, yearly_bin_edges)
+(histbepi1, bin_edgesbepi) = np.histogram(parse_time(ac.sse_launch_time[bepi]).jd, yearly_bin_edges)
+(histsolo1, bin_edgessolo) = np.histogram(parse_time(ac.sse_launch_time[soloi]).jd, yearly_bin_edges)
+
+
+# these are for arrcat
+hiai=np.where(ac.sc=='A')[0]
+hibi=np.where(ac.sc=='B')[0]
+
+
+(hist_hia, binedges) = np.histogram(parse_time(ac.sse_launch_time[hiai]).plot_date, yearly_bin_edges)
+(hist_hib, binedges) = np.histogram(parse_time(ac.sse_launch_time[hibi]).plot_date, yearly_bin_edges)
+
+
+'''
+
+
+
+# In[233]:
+
+
+last_year=2021
+#define dates of January 1 from 2007 to 2020
+years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,last_year+1) ] 
+yearly_bin_edges=parse_time(years_jan_1_str).plot_date
+
+#
+hiai=np.where(higeocat['SC']==b'A')[0]
+hibi=np.where(higeocat['SC']==b'B')[0]
+
+
+hia_t0=higeocat['SSE Launch'][hiai]
+
+hib_t0=higeocat['SSE Launch'][hibi]
+
+
+(hist_hia, binedges) = np.histogram(parse_time(hia_t0).plot_date, yearly_bin_edges)
+(hist_hib, binedges) = np.histogram(parse_time(hib_t0).plot_date, yearly_bin_edges)
+
+#convert back to datetime and make shape consistent
+binedges1=binedges[:-1]+mdates.date2num(np.datetime64('0000-12-31'))
+
+#change matplotlib time before plotting
+yearly_bin_edges2=yearly_bin_edges + mdates.date2num(np.datetime64('0000-12-31'))
+
+
+#---------------------------------------------------------------
+sns.set_context("talk")     
+#sns.set_style('darkgrid')
+#sns.set_style('whitegrid',{'grid.linestyle': '--'})
+
+sns.set_style("ticks",{'grid.linestyle': '--'})
+fsize=15
+
+fig=plt.figure(1,figsize=(14,8),dpi=80)
+
+
+
+ax1 = plt.subplot(111) 
+ax1.set_title('Yearly CME rate observed by the STEREO heliospheric imagers',fontsize=15)
+
+ax1.xaxis_date()
+myformat = mdates.DateFormatter('%Y')
+ax1.xaxis.set_major_formatter(myformat)
+
+binweite=365/3
+alp=1.0
+ax1.bar(binedges1+binweite,hist_hia, width=binweite,color='tomato', alpha=alp,label='HI on STEREO-A')
+ax1.bar(binedges1+binweite*2,hist_hib, width=binweite,color='mediumslateblue', alpha=alp,label='HI on STEREO-B')
+
+ax1.set_xlim(yearly_bin_edges2[0],yearly_bin_edges2[-1])
+ax1.legend(loc=2,fontsize=14)
+ax1.grid(alpha=0.5)
+ax1.set_xticks(yearly_bin_edges2) 
+ax1.set_ylabel('CMEs observed per year')
+
+ax1.text(yearly_bin_edges2[11],165,'last update: '+last_update,fontsize=15,zorder=2,horizontalalignment='center')
+
+
+plotfile='arrcat/plots_arrcat/higeocat_rate.png'
+plt.savefig(plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
