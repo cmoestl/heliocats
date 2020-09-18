@@ -21,10 +21,12 @@
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 # 
+# see also https://github.com/helioforecast/Papers/blob/master/Moestl2020_PSP_rate/icme_rate.ipynb
+# 
 # 
 # 
 
-# In[19]:
+# In[24]:
 
 
 import numpy as np
@@ -94,7 +96,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # ## (0) process in situ data into similar format
 
-# In[2]:
+# In[25]:
 
 
 # make data
@@ -103,16 +105,28 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # # ################################# PSP
 
+
+################################## USE THIS ################################
+# load PSP data from server on linux command line onto leo server
+# go to heliosat directory /nas/helio/data/heliosat/data/psp_fields_l2
+# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2019/*.cdf"
+# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2020/*.cdf"
+# psp_spc_l3
+# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf"
+# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2020/*.cdf"
+############################################################################
+
+
 # print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
 
-# filepsp='psp_2018_2019_rtn_new.p'
-# hd.save_psp_data(data_path,filepsp, sceq=False)   
-# [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
-# print('done')
+#filepsp='psp_2018_2020_rtn.p'
+#hd.save_psp_data(data_path,filepsp, sceq=False)   
+#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
+#print('done')
 
-# filepsp='psp_2018_2019_sceq_new.p'
-# hd.save_psp_data(data_path,filepsp, sceq=True)   
-# [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
+#filepsp='psp_2018_2020_sceq.p'
+#hd.save_psp_data(data_path,filepsp, sceq=True)   
+#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
 # plt.xlim(parse_time('2007-08-15').plot_date,parse_time('2007-08-15 12:00').plot_date)
 
 
@@ -154,7 +168,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 
 
-# In[3]:
+# In[26]:
 
 
 ############################# make Ulysses files
@@ -330,7 +344,7 @@ if load_data > 0:
     
     
     print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
-    filepsp='psp_2018_2019_sceq.p'
+    filepsp='psp_2018_2020_sceq.p'
     [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
     
@@ -340,7 +354,8 @@ if load_data > 0:
     sta1=sta1[np.where(sta1.time < parse_time('2019-Sep-01 00:00').datetime)[0]]
 
     #beacon data
-    filesta2="stereoa_2019_2020_sceq_beacon.p"
+    #filesta2="stereoa_2019_2020_sceq_beacon.p"
+    filesta2='stereoa_2019_2020_sept_sceq_beacon.p'
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
     sta2=sta2[np.where(sta2.time >= parse_time('2019-Sep-01 00:00').datetime)[0]]
 
@@ -444,7 +459,7 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning if needed
 
-# In[5]:
+# In[8]:
 
 
 # save data as numpy structured arrays for machine learning
@@ -520,7 +535,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[6]:
+# In[9]:
 
 
 #for measuring new events use these functions from heliocats.plot 
@@ -604,7 +619,7 @@ plt.close('all')
 
 # ## (3) make ICMECAT 
 
-# In[21]:
+# In[28]:
 
 
 print('data loaded')
@@ -647,9 +662,9 @@ matplotlib.use('Agg')
 
 #missions to be updated
 # hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-# hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+#hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 # hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
-hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+#hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 #finished missions
 # hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
@@ -658,12 +673,14 @@ hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 # hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
 print('done')
 
+get_ipython().run_line_magic('matplotlib', 'inline')
+
 
 # ### (4) save ICMECAT 
 
 # ### 4a save header
 
-# In[72]:
+# In[29]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -699,7 +716,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[73]:
+# In[30]:
 
 
 ########## python formats
@@ -875,7 +892,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[74]:
+# In[31]:
 
 
 #load icmecat as pandas dataframe
@@ -887,36 +904,129 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[75]:
+# In[32]:
 
 
 print(ic_pandas.keys())
 
-ic_pandas
 
-
-# In[76]:
-
-
-ic_nprec
-
-
-# In[77]:
+# In[33]:
 
 
 ic_nprec
 
 
-# In[78]:
+# In[34]:
 
 
 ic_nprec.icmecat_id
 
 
-# In[ ]:
+# In[100]:
+
+
+ic=ic_pandas
+
+ic_mo_start_time_num=parse_time(ic.mo_start_time).plot_date
+
+#get indices for each target
+imes=np.where(ic.sc_insitu=='MESSENGER')[0]
+ivex=np.where(ic.sc_insitu=='VEX')[0]
+iwin=np.where(ic.sc_insitu=='Wind')[0]
+imav=np.where(ic.sc_insitu=='MAVEN')[0]
+
+ista=np.where(ic.sc_insitu=='STEREO-A')[0]
+istb=np.where(ic.sc_insitu=='STEREO-B')[0]
+ipsp=np.where(ic.sc_insitu=='PSP')[0]
+#soloi=np.where(ac.target_name=='SolarOrbiter')[0]
+#bepii=np.where(ac.target_name=='BepiColombo')[0]
+iuly=np.where(ic.sc_insitu=='Ulysses')[0]
 
 
 
+
+sns.set_context("talk")     
+sns.set_style('darkgrid')
+
+###############################################################################
+fig=plt.figure(3,figsize=(20,14),dpi=200)
+
+
+
+##############################################################################
+ax2 = plt.subplot(221,projection='polar') 
+
+#markersize
+ms=25
+#alpha
+al=0.7
+
+
+plt.title('ICMECAT events [HEEQ longitude, AU]')
+
+ax2.scatter(np.radians(ic.mo_sc_long_heeq[imes]),ic.mo_sc_heliodistance	[imes],s=ms,c='dimgrey', alpha=al)
+ax2.scatter(np.radians(ic.mo_sc_long_heeq[ivex]),ic.mo_sc_heliodistance	[ivex],s=ms,c='orange', alpha=al)
+ax2.scatter(np.radians(ic.mo_sc_long_heeq[iwin]),ic.mo_sc_heliodistance	[iwin],s=ms,c='mediumseagreen', alpha=al)
+ax2.scatter(np.radians(ic.mo_sc_long_heeq[imav]),ic.mo_sc_heliodistance	[imav],s=ms,c='orangered', alpha=al)
+
+ax2.scatter(np.radians(ic.mo_sc_long_heeq[ista]),ic.mo_sc_heliodistance[ista],s=ms,c='red', alpha=al)
+ax2.scatter(np.radians(ic.mo_sc_long_heeq[istb]),ic.mo_sc_heliodistance[istb],s=ms,c='blue', alpha=al)
+
+ax2.scatter(np.radians(ic.mo_sc_long_heeq[ipsp]),ic.mo_sc_heliodistance[ipsp],s=ms,c='black', alpha=al)
+#ax.scatter(np.radians(ac.target_heeq_lon[soloi]),ac.target_distance[soloi],s=ms,c='green', alpha=al)
+#ax.scatter(np.radians(ac.target_heeq_lon[bepii]),ac.target_distance[bepii],s=ms,c='violet', alpha=al)
+ax2.scatter(np.radians(ic.mo_sc_long_heeq[iuly]),ic.mo_sc_heliodistance[iuly],s=ms,c='brown', alpha=al)
+ax2.set_ylim([0,1.8])
+ax2.tick_params(labelsize=12,zorder=3)
+
+
+
+#########################################################################
+ax1=plt.subplot(222)
+plt.title('ICMECAT event times')
+
+#markersize
+ms=6
+#alpha
+al=0.7
+
+ax1.plot_date(ic_mo_start_time_num[imes],ic.mo_sc_heliodistance[imes],'ok',c='dimgrey', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ivex],ic.mo_sc_heliodistance[ivex],'ok',c='orange', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[iwin],ic.mo_sc_heliodistance[iwin],'ok',c='mediumseagreen', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[imav],ic.mo_sc_heliodistance[imav],'ok',c='orangered', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ista],ic.mo_sc_heliodistance[ista],'ok',c='red', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[istb],ic.mo_sc_heliodistance[istb],'ok',c='blue', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ipsp],ic.mo_sc_heliodistance[ipsp],'ok',c='black', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[iuly],ic.mo_sc_heliodistance[iuly],'ok',c='brown', alpha=al,ms=ms)
+
+
+ax1.set_ylabel('Heliocentric distance [AU]')
+ax1.set_xlabel('year')
+ax1.set_ylim([0,1.8])
+
+
+
+##############################################################################
+ax3=plt.subplot(223)
+plt.title('ICMECAT mean magnetic field in the magnetic obstacle')
+ax3.set_xlabel('Heliocentric distance [AU]')
+ax3.set_ylabel('<B> [nT]')
+
+
+ax3.plot(ic.mo_sc_heliodistance[imes],ic.mo_bmean[imes],'o',c='dimgrey', alpha=al,ms=ms,label='MESSENGER')
+ax3.plot(ic.mo_sc_heliodistance[ivex],ic.mo_bmean[ivex],'o',c='orange', alpha=al,ms=ms,label='Venus Express')
+ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c='mediumseagreen', alpha=al,ms=ms,label='Wind at L1')
+ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'o',c='orangered', alpha=al,ms=ms, label='MAVEN')
+ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c='red', alpha=al,ms=ms, label='STEREO-A')
+ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c='blue', alpha=al,ms=ms, label='STEREO-B')
+ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c='black', alpha=al,ms=ms, label='Parker Solar Probe')
+ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c='brown', alpha=al,ms=ms, label='Ulysses')
+ax3.legend(loc=1)
+ax3.set_xlim([0,1.8])
+
+
+plt.tight_layout()
+plt.savefig('icmecat/icmecat_overview.png', dpi=100,bbox_inches='tight')
 
 
 # In[ ]:

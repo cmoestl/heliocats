@@ -69,16 +69,19 @@ get_new_data=True
 # load PSP data from server on linux command line onto leo server
 # go to heliosat directory /nas/helio/data/heliosat/data/psp_fields_l2
 # wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2019/*.cdf"
+# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2020/*.cdf"
 # psp_spc_l3
 # wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf"
+# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2020/*.cdf"
 ############################################################################
 
 # print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
+#set time there
 #change date in hd.save_psp_data
-#filepsp='psp_2018_2019_rtn.p'
+#filepsp='psp_2018_2020_rtn.p'
 #hd.save_psp_data(data_path,filepsp, sceq=False)   
 
-#filepsp='psp_2018_2019_sceq.p'
+#filepsp='psp_2018_2020_sceq.p'
 #hd.save_psp_data(data_path,filepsp, sceq=True)   
 
 

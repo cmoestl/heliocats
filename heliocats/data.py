@@ -274,13 +274,11 @@ def load_msl_rad():
 
 
 def save_psp_data(path, file, sceq):
+    
+    
+    print('save PSP data')
 
     t_start = datetime.datetime(2018, 10, 6)
-
-    #t_start = datetime.datetime(2019, 4, 22)
-
-
-    #t_start = datetime.datetime(2019, 3, 1) # 
     t_end = datetime.datetime(2019, 4, 24) #  UNTIL ERROR on Apr 25
     psp1=get_psp_data(t_start,t_end)
 
@@ -288,7 +286,7 @@ def save_psp_data(path, file, sceq):
     #t_end = datetime.datetime(2019, 4, 30)    
     #t_end = datetime.datetime(2019, 10, 15)
     
-    t_end = datetime.datetime(2019, 12, 31)    
+    t_end = datetime.datetime(2020, 4, 30)    
     psp2=get_psp_data(t_start,t_end)
 
     #add both
