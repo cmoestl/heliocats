@@ -2959,12 +2959,15 @@ def sphere2cart(r,theta,phi):
     
 
    
+    
+    
+   
 def convert_GSE_to_HEEQ(sc):
     '''
     for Wind magnetic field components: convert GSE to HEE to HAE to HEEQ
     '''
 
-    print('conversion GSE to HEEQ start')                                
+    print('conversion GSE to HEEQ start ***')                                
 
     jd=np.zeros(len(sc))
     mjd=np.zeros(len(sc))
@@ -3006,16 +3009,15 @@ def convert_GSE_to_HEEQ(sc):
         omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
         theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
                       
+    
         #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
-        #get lambda-omega angle in degree mod 360   
-        
-        #************** CHECK
-                      
-        lambda_omega_deg=np.degrees(np.mod(np.degrees(lambda_sun)-np.degrees(omega),360))
-        ##get theta_node in deg
+        #get lambda-omega angle in degree mod 360 and theta in degrees
+        lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
         theta_node_deg=np.degrees(theta)
-        ##if in same quadrant, then theta_node = theta_node +pi   
-        if abs(lambda_omega_deg-theta_node_deg) < 180: theta=theta+np.pi                                                            
+
+
+        ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
+        if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                                                                          
         
         #rotation around Z by theta
         c, s = np.cos(theta), np.sin(theta)
@@ -3092,6 +3094,224 @@ def convert_RTN_to_SCEQ(sc,name):
 
 
 
-    
+  
+   
+def convert_GSE_to_HEEQ_testing(sc):
+    '''
+    for Wind magnetic field components: convert GSE to HEE to HAE to HEEQ
+    testing with plot
+    '''
+
+    print('conversion GSE to HEEQ start')                                
+
+    jd=np.zeros(len(sc))
+    mjd=np.zeros(len(sc))
+
+
+    angles1=[]
+
+    for i in np.arange(0,len(sc)):
+
+        jd[i]=parse_time(sc.time[i]).jd
+        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
+
+        #GSE to HEE
+        #Hapgood 1992 rotation by 180 degrees, or simply change sign in bx by    
+        #rotangle=np.radians(180)
+        #c, s = np.cos(rotangle), np.sin(rotangle)
+        #T1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        #[bx_hee,by_hee,bz_hee]=T1[sc.bx[i],sc.by[i],sc.bz[i]]        
+        b_hee=[-sc.bx[i],-sc.by[i],sc.bz[i]]
+
+        #HEE to HAE     - one rotation   
+
+        #define T00 and UT
+        T00=(mjd[i]-51544.5)/36525.0          
+        dobj=sc.time[i]
+        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
+
+        #lambda_sun in Hapgood, equation 5, here in rad
+        M=np.radians(357.528+35999.050*T00+0.04107*UT)
+        LAMBDA=280.460+36000.772*T00+0.04107*UT        
+        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
+
+        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle
+        c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
+        Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        b_hae=np.dot(Sm1,b_hee)
+
+
+        #HAE to HEEQ
+
+        iota=np.radians(7.25)
+        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
+        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))  
+
+
+        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
+        #get lambda-omega angle in degree mod 360 and theta in degrees
+        lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
+        theta_node_deg=np.degrees(theta)
+
+        ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
+        if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                            
+
+
+        #convert again for array to check    
+        theta_node_deg=np.degrees(theta)
+
+        angles1.append([i,np.round(theta_node_deg,1),np.round(lambda_omega_deg,1)])
+
+
+        #rotation around Z by theta
+        c, s = np.cos(theta), np.sin(theta)
+        S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+
+        #rotation around X by iota  
+        iota=np.radians(7.25)
+        c, s = np.cos(iota), np.sin(iota)
+        S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
+
+        #rotation around Z by Omega  
+        c, s = np.cos(omega), np.sin(omega)
+        S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
+
+        #matrix multiplication to go from HAE to HEEQ components                
+        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
+
+        sc.bx[i]=bx_heeq
+        sc.by[i]=by_heeq
+        sc.bz[i]=bz_heeq
+        
+        
+
+    ang=np.array(angles1)
+
+
+    plt.plot(wing.time,wing.bx,'-k',label='gse')
+    plt.plot(sc.time,sc.bx,'-g',label='heeq_new')
+    plt.plot(sc.time,ang[:,1],'-r',label='theta')
+    plt.plot(sc.time,ang[:,2],'-b',label='lambda - omega mod 360')
+
+    plt.legend()
+
+
+
+
+
+    print('conversion GSE to HEEQ done')      
+       
 
 ##########################################################################################################
+
+
+
+
+
+
+
+
+
+
+'''
+########### test Wind HEEQ conversion
+
+print('conversion GSE to HEEQ start')                                
+
+jd=np.zeros(len(sc))
+mjd=np.zeros(len(sc))
+
+
+angles1=[]
+
+for i in np.arange(0,len(sc)):
+
+    jd[i]=parse_time(sc.time[i]).jd
+    mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
+
+    #GSE to HEE
+    #Hapgood 1992 rotation by 180 degrees, or simply change sign in bx by    
+    #rotangle=np.radians(180)
+    #c, s = np.cos(rotangle), np.sin(rotangle)
+    #T1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+    #[bx_hee,by_hee,bz_hee]=T1[sc.bx[i],sc.by[i],sc.bz[i]]        
+    b_hee=[-sc.bx[i],-sc.by[i],sc.bz[i]]
+
+    #HEE to HAE     - one rotation   
+
+    #define T00 and UT
+    T00=(mjd[i]-51544.5)/36525.0          
+    dobj=sc.time[i]
+    UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
+
+    #lambda_sun in Hapgood, equation 5, here in rad
+    M=np.radians(357.528+35999.050*T00+0.04107*UT)
+    LAMBDA=280.460+36000.772*T00+0.04107*UT        
+    lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
+
+    #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle
+    c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
+    Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+    b_hae=np.dot(Sm1,b_hee)
+
+
+    #HAE to HEEQ
+
+    iota=np.radians(7.25)
+    omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
+    theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))  
+    
+    
+
+    #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
+    #get lambda-omega angle in degree mod 360 and theta in degrees
+    lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
+    theta_node_deg=np.degrees(theta)
+    
+       
+    ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
+    if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                            
+        
+
+    #convert again for array to check    
+    theta_node_deg=np.degrees(theta)
+    
+    angles1.append([i,np.round(theta_node_deg,1),np.round(lambda_omega_deg,1)])
+
+    
+    #rotation around Z by theta
+    c, s = np.cos(theta), np.sin(theta)
+    S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+
+    #rotation around X by iota  
+    iota=np.radians(7.25)
+    c, s = np.cos(iota), np.sin(iota)
+    S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
+
+    #rotation around Z by Omega  
+    c, s = np.cos(omega), np.sin(omega)
+    S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
+
+    #matrix multiplication to go from HAE to HEEQ components                
+    [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
+
+    sc.bx[i]=bx_heeq
+    sc.by[i]=by_heeq
+    sc.bz[i]=bz_heeq
+
+
+print('conversion GSE to HEEQ done')                                
+
+
+
+ang=np.array(angles1)
+
+    
+plt.plot(wing.time,wing.bx,'-k',label='gse')
+plt.plot(sc.time,sc.bx,'-g',label='heeq_new')
+plt.plot(sc.time,ang[:,1],'-r',label='theta')
+plt.plot(sc.time,ang[:,2],'-b',label='lambda - omega mod 360')
+
+plt.legend()
+
+'''
