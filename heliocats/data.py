@@ -2962,12 +2962,15 @@ def sphere2cart(r,theta,phi):
     
     
    
-def convert_GSE_to_HEEQ(sc):
+def convert_GSE_to_HEEQ(sc_in):
     '''
     for Wind magnetic field components: convert GSE to HEE to HAE to HEEQ
     '''
+    
+    
+    sc=copy.deepcopy(sc_in)
 
-    print('conversion GSE to HEEQ start ***')                                
+    print('conversion GSE to HEEQ start')                                
 
     jd=np.zeros(len(sc))
     mjd=np.zeros(len(sc))
@@ -2998,7 +3001,7 @@ def convert_GSE_to_HEEQ(sc):
         LAMBDA=280.460+36000.772*T00+0.04107*UT        
         lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
         
-        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle
+        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle for inversion HEE to HAE instead of HAE to HEE
         c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
         Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
         b_hae=np.dot(Sm1,b_hee)
@@ -3044,13 +3047,244 @@ def convert_GSE_to_HEEQ(sc):
     return sc
 
     
+
+    
+      
+   
+def convert_HEE_to_HEEQ(sc_in):
+    '''
+    for Wind magnetic field components: convert HEE to HAE to HEEQ
+    '''
+
+    print('conversion HEE to HEEQ')                                
+
+    
+    sc=copy.deepcopy(sc_in)
+    
+    jd=np.zeros(len(sc))
+    mjd=np.zeros(len(sc))
+        
+
+    for i in np.arange(0,len(sc)):
+
+        jd[i]=parse_time(sc.time[i]).jd
+        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
+        
+       
+        b_hee=[sc.bx[i],sc.by[i],sc.bz[i]]
+        
+        #HEE to HAE        
+        
+        #define T00 and UT
+        T00=(mjd[i]-51544.5)/36525.0          
+        dobj=sc.time[i]
+        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
+
+        #lambda_sun in Hapgood, equation 5, here in rad
+        M=np.radians(357.528+35999.050*T00+0.04107*UT)
+        LAMBDA=280.460+36000.772*T00+0.04107*UT        
+        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
+        
+        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle for inversion HEE to HAE instead of HAE to HEE
+        c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
+        Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        b_hae=np.dot(Sm1,b_hee)
+
+        #HAE to HEEQ
+        
+        iota=np.radians(7.25)
+        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
+        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
+                      
+    
+        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
+        #get lambda-omega angle in degree mod 360 and theta in degrees
+        lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
+        theta_node_deg=np.degrees(theta)
+
+
+        ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
+        if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                                                                          
+        
+        #rotation around Z by theta
+        c, s = np.cos(theta), np.sin(theta)
+        S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+
+        #rotation around X by iota  
+        iota=np.radians(7.25)
+        c, s = np.cos(iota), np.sin(iota)
+        S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
+                
+        #rotation around Z by Omega  
+        c, s = np.cos(omega), np.sin(omega)
+        S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
+        
+        #matrix multiplication to go from HAE to HEEQ components                
+        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
+        
+        sc.bx[i]=bx_heeq
+        sc.by[i]=by_heeq
+        sc.bz[i]=bz_heeq
+
+    
+    print('HEE to HEEQ done')                                
+    return sc
+
+    
+    
+
+   
+def convert_HEEQ_to_GSE(sc_in):
+    '''
+    for solar orbiter magnetic field components: convert HEEQ to HAE to HEE to GSE 
+    
+    hapgood 1992 https://ui.adsabs.harvard.edu/abs/1992P%26SS...40..711H/abstract
+    '''
+    
+    sc=copy.deepcopy(sc_in)
+
+    print('conversion HEEQ to GSE')                                
+
+    jd=np.zeros(len(sc))
+    mjd=np.zeros(len(sc))
+        
+
+    for i in np.arange(0,len(sc)):
+        
+        
+        jd[i]=parse_time(sc.time[i]).jd
+        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
+        
+        
+        #general parameters
+        
+        #define T00 and UT
+        T00=(mjd[i]-51544.5)/36525.0          
+        dobj=sc.time[i]
+        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
+
+        #lambda_sun in Hapgood, equation 5, here in rad
+        M=np.radians(357.528+35999.050*T00+0.04107*UT)
+        LAMBDA=280.460+36000.772*T00+0.04107*UT        
+        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
+        
+        
+
+        b_heeq=[sc.bx[i],sc.by[i],sc.bz[i]]
+
+        #HEEQ to HAE - Hapgood equation 13 inverted, angles are set to -angle
+        
+        iota=np.radians(7.25)
+        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
+        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
+                      
+    
+        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
+        #get lambda-omega angle in degree mod 360 and theta in degrees
+        lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
+        theta_node_deg=np.degrees(theta)
+
+
+        ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
+        if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                                                                          
+        
+        #rotation around Z by -theta
+        c, s = np.cos(-theta), np.sin(-theta)
+        Sm2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+
+        #rotation around X by -iota  
+        iota=np.radians(7.25)
+        c, s = np.cos(-iota), np.sin(-iota)
+        Sm2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
+                
+        #rotation around Z by -Omega  
+        c, s = np.cos(-omega), np.sin(-omega)
+        Sm2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
+        
+        #matrix multiplication to go from HAE to HEEQ components                
+        b_hae=np.dot(  np.dot(   np.dot(Sm2_1,Sm2_2),Sm2_3), b_heeq) 
+
+
+        
+        #HAE to HEE 
+        
+        
+        #S1 Matrix equation 12 hapgood 1992
+        c, s = np.cos((lambda_sun+np.radians(180))), np.sin((lambda_sun+np.radians(180)))
+        S1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        b_hee=np.dot(S1,b_hae)
+
+
+        
+        #HEE to GSE
+        #Hapgood 1992 rotation by 180 degrees, or simply change sign in bx by    
+        #rotangle=np.radians(180)
+        #c, s = np.cos(rotangle), np.sin(rotangle)
+        #T1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        #[bx_hee,by_hee,bz_hee]=T1[sc.bx[i],sc.by[i],sc.bz[i]]        
+        [bx_gse,by_gse,bz_gse]=[-b_hee[0],-b_hee[1],b_hee[2]]
+
+         
+        sc.bx[i]=bx_gse
+        sc.by[i]=by_gse
+        sc.bz[i]=bz_gse
+
+    
+    print('conversion HEEQ to GSE done')                                
+    return sc
+
+    
+ 
+
+
    
 
-def convert_RTN_to_SCEQ(sc,name):
+def convert_HEEQ_to_SCEQ(sc_in):
     '''
-    for STEREO-A, B and Parker Solar Probe   
     sc is the input recarray for the data, e.g. psp, sta    
     '''
+        
+    sc=copy.deepcopy(sc_in)
+    print('HEEQ to SCEQ')
+    
+    sc_len=len(sc)
+   
+    #HEEQ - make to SCEQ for each timestep,   solar rotation axis at 0, 0, 1 in HEEQ
+    X_heeq=[1,0,0]
+    Y_heeq=[0,1,0]
+    Z_heeq=[0,0,1]
+        
+    # go through all data points    
+    for i in np.arange(0,sc_len):        
+        
+        #rotation for HEEQ to SCEQ vectors, depending on current longitude (correct c, s)
+        rotangle=np.radians(sc.lon[i])
+        c, s = np.cos(rotangle), np.sin(rotangle)
+        #rotation matrix around Z
+        R = np.array(((c,-s, 0), (s, c, 0), (0, 0, 1)))
+        
+        #rotate X and Y  
+        X_sceq=np.dot(R,X_heeq)
+        Y_sceq=np.dot(R,Y_heeq)         
+       
+        #project into new system
+        sc.bx[i]=np.dot([sc.bx[i],sc.by[i],sc.bz[i]],X_sceq)
+        sc.by[i]=np.dot([sc.bx[i],sc.by[i],sc.bz[i]],Y_sceq)
+    
+    return sc
+
+
+    
+
+def convert_RTN_to_SCEQ(sc_in,name):
+    '''
+    for STEREO-A, B, Solar Orbiter and Parker Solar Probe   
+    sc is the input recarray for the data, e.g. psp, sta    
+    '''
+    
+    
+    sc=copy.deepcopy(sc_in)
+    print('RTN to SCEQ')
     
     sc_len=len(sc)
    
@@ -3093,14 +3327,70 @@ def convert_RTN_to_SCEQ(sc,name):
     return sc
 
 
-
   
+
+def convert_RTN_to_HEEQ(sc_in,name):
+    '''
+    for STEREO-A, B, Solar Orbiter and Parker Solar Probe   
+    sc is the input recarray for the data, e.g. psp, sta    
+    '''
+    
+    sc=copy.deepcopy(sc_in)
+    
+    sc_len=len(sc)
+    
+    print('RTN to HEEQ')
+    #HEEQ unit vectors (same as spacecraft xyz position)
+    X_heeq=[1,0,0]
+    Y_heeq=[0,1,0]
+    Z_heeq=[0,0,1]
+        
+    # go through all data points    
+    for i in np.arange(0,sc_len):                
+       
+        #make normalized RTN unit vectors from spacecraft position
+        Xrtn=[sc.x[i], sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i], sc.y[i],sc.z[i]])
+        Yrtn=np.cross(Z_heeq,Xrtn)/np.linalg.norm(np.cross(Z_heeq,Xrtn))
+        Zrtn=np.cross(Xrtn, Yrtn)/np.linalg.norm(np.cross(Xrtn, Yrtn))
+        
+        #project into new system (HEEQ)
+        sc.bx[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),X_heeq)
+        sc.by[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Y_heeq)
+        sc.bz[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Z_heeq)
+        
+        #project into new system (HEEQ) for speed
+        if name=='PSP':
+            sc.vx[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),X_heeq)
+            sc.vy[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),Y_heeq)
+            sc.vz[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),Z_heeq)
+
+    
+    return sc
+
+
+
+
+
+    
+       
+
+##########################################################################################################
+
+
+
+
+
+
+
+
+
+
+'''
+
+
+
    
 def convert_GSE_to_HEEQ_testing(sc):
-    '''
-    for Wind magnetic field components: convert GSE to HEE to HAE to HEEQ
-    testing with plot
-    '''
 
     print('conversion GSE to HEEQ start')                                
 
@@ -3199,21 +3489,7 @@ def convert_GSE_to_HEEQ_testing(sc):
 
 
 
-    print('conversion GSE to HEEQ done')      
-       
-
-##########################################################################################################
-
-
-
-
-
-
-
-
-
-
-'''
+    print('conversion GSE to HEEQ done')    
 ########### test Wind HEEQ conversion
 
 print('conversion GSE to HEEQ start')                                

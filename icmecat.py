@@ -26,7 +26,7 @@
 # 
 # 
 
-# In[6]:
+# In[4]:
 
 
 import numpy as np
@@ -100,14 +100,13 @@ if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir)
 #Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
 os.system('jupyter nbconvert --to script icmecat.ipynb')    
 
-
 import warnings
 warnings.filterwarnings('ignore')
 
 
 # ## (0) process in situ data into similar format
 
-# In[2]:
+# In[9]:
 
 
 # make data
@@ -179,7 +178,7 @@ warnings.filterwarnings('ignore')
 
 
 
-# In[5]:
+# In[16]:
 
 
 ############################# make Ulysses files
@@ -260,23 +259,15 @@ warnings.filterwarnings('ignore')
 #hd.save_wind_data(data_path,filewin,start,end,heeq=False)
 
 
-#test HEEQ conversion for Wind and new Wind data in general
-#plt.plot_date(win1.time, win1.bz,'-k')
-#plt.plot_date(win2.time, win2.bz,'-g')
-#plt.xlim(parse_time('2018-1-20').plot_date,parse_time('2018-1-25').plot_date)
-#plt.plot_date(win1.time, win1.vt,'-g',linewidth=5)
-#plt.plot_date(win2.time, win2.vt,'-k')
-#plt.xlim(parse_time('2018-1-1').plot_date,parse_time('2018-1-3').plot_date)
-#plt.ylim((300,500))
+########## check GSE to HEEQ conversion
 
+#save=1
 
-save=1
+#if save > 0:
 
-if save > 0:
-
-    filewin="wind_2018_2020_sept_heeq.p" 
-    start=datetime.datetime(2020, 5, 1)
-    end=datetime.datetime(2020, 7, 31)
+#    filewin="wind_2018_2020_sept_heeq.p" 
+#    start=datetime.datetime(2018, 1 , 1)
+#    end=datetime.datetime(2020, 8, 31)
 
     #filewin="wind_heeq_test.p" 
     #start=datetime.datetime(2019, 8, 1)
@@ -284,7 +275,7 @@ if save > 0:
 
 
     #end=datetime.datetime.utcnow()
-    hd.save_wind_data(data_path,filewin,start,end,heeq=True)
+#    hd.save_wind_data(data_path,filewin,start,end,heeq=True)
 
     
     #filewin="wind_2018_2020_sept_gse.p" 
@@ -301,198 +292,83 @@ if save > 0:
 
 
 
-filewin="wind_2018_now_gse.p" 
-[wing,hwing]=pickle.load(open(data_path+filewin, "rb" ) )  
+#filewin="wind_2018_now_gse.p" 
+#[wing,hwing]=pickle.load(open(data_path+filewin, "rb" ) )  
 
-filewin="wind_2018_2020_sept_heeq.p" 
-[winh,hwinh]=pickle.load(open(data_path+filewin, "rb" ) )  
-
-
+#filewin="wind_2018_2020_sept_heeq.p" 
+#[winh,hwinh]=pickle.load(open(data_path+filewin, "rb" ) )  
 
     
-plt.plot(wing.time,wing.bx,'-k',label='gse')
-plt.plot(winh.time,winh.bx,'-g',label='heeq')
+#plt.plot(wing.time,wing.bx,'-k',label='gse')
+#plt.plot(winh.time,winh.bx,'-g',label='heeq')
 #plt.plot(sc.time,ang[:,1],'-r',label='theta')
 #plt.plot(sc.time,ang[:,2],'-b',label='lambda - omega mod 360')
 
-plt.legend()
-
-
-# In[151]:
-
-
-########### test Wind HEEQ conversion
+#plt.legend()
 
 
 
+#check solar orbiter conversions
+#from heliocats import data as hd
+#importlib.reload(hd)
 
-save=0
+#print('load Solar Orbiter RTN')
+#filesolo='solo_april2020.p'
+#solo_rtn=pickle.load(open(data_path+filesolo, "rb" ) )   
+#solo_sceq=hd.convert_RTN_to_SCEQ(solo_rtn,'SolO')
+#solo_heeq=hd.convert_RTN_to_HEEQ(solo_rtn,'SolO')
 
-if save > 0:
-    filewin="wind_heeq_corr_test.p" 
-    start=datetime.datetime(2018, 1, 1)
-    end=datetime.datetime(2020, 7, 31)
-    #end=datetime.datetime.utcnow()
-    hd.save_wind_data(data_path,filewin,start,end,heeq=True)
+#fig=plt.figure(3,figsize=(15,10),dpi=70)
 
-    filewin="wind_gse_test.p" 
-    start=datetime.datetime(2018, 1, 1)
-    end=datetime.datetime(2020, 7, 31)
-
-
-    #end=datetime.datetime.utcnow()
-    hd.save_wind_data(data_path,filewin,start,end,heeq=False)
-
-
-load=0
-
-
-    filewin="wind_2018_2020_sept_gse.p" 
-    [wing,hwing]=pickle.load(open(data_path+filewin, "rb" ) )  
-
-  
-sc = copy.deepcopy(wing)  
-
-print('conversion GSE to HEEQ start')                                
-
-jd=np.zeros(len(sc))
-mjd=np.zeros(len(sc))
-
-
-angles1=[]
-
-for i in np.arange(0,len(sc)):
-
-    jd[i]=parse_time(sc.time[i]).jd
-    mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
-
-    #GSE to HEE
-    #Hapgood 1992 rotation by 180 degrees, or simply change sign in bx by    
-    #rotangle=np.radians(180)
-    #c, s = np.cos(rotangle), np.sin(rotangle)
-    #T1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-    #[bx_hee,by_hee,bz_hee]=T1[sc.bx[i],sc.by[i],sc.bz[i]]        
-    b_hee=[-sc.bx[i],-sc.by[i],sc.bz[i]]
-
-    #HEE to HAE     - one rotation   
-
-    #define T00 and UT
-    T00=(mjd[i]-51544.5)/36525.0          
-    dobj=sc.time[i]
-    UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
-
-    #lambda_sun in Hapgood, equation 5, here in rad
-    M=np.radians(357.528+35999.050*T00+0.04107*UT)
-    LAMBDA=280.460+36000.772*T00+0.04107*UT        
-    lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
-
-    #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle
-    c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
-    Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-    b_hae=np.dot(Sm1,b_hee)
-
-
-    #HAE to HEEQ
-
-    iota=np.radians(7.25)
-    omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
-    theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))  
-    
-    
-
-    #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
-    #get lambda-omega angle in degree mod 360 and theta in degrees
-    lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
-    theta_node_deg=np.degrees(theta)
-    
-       
-    ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
-    if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                            
-        
-
-    #convert again for array to check    
-    theta_node_deg=np.degrees(theta)
-    
-    angles1.append([i,np.round(theta_node_deg,1),np.round(lambda_omega_deg,1)])
-
-    
-    #rotation around Z by theta
-    c, s = np.cos(theta), np.sin(theta)
-    S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-
-    #rotation around X by iota  
-    iota=np.radians(7.25)
-    c, s = np.cos(iota), np.sin(iota)
-    S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
-
-    #rotation around Z by Omega  
-    c, s = np.cos(omega), np.sin(omega)
-    S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
-
-    #matrix multiplication to go from HAE to HEEQ components                
-    [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
-
-    sc.bx[i]=bx_heeq
-    sc.by[i]=by_heeq
-    sc.bz[i]=bz_heeq
-
-
-print('conversion GSE to HEEQ done')                                
-
-
-
-ang=np.array(angles1)
-
-    
-plt.plot(wing.time,wing.bx,'-k',label='gse')
-plt.plot(sc.time,sc.bx,'-g',label='heeq_new')
-plt.plot(sc.time,ang[:,1],'-r',label='theta')
-plt.plot(sc.time,ang[:,2],'-b',label='lambda - omega mod 360')
-
-plt.legend()
-
-
-#plt.plot(winh.time,winh.bx,label='heeq_old','')
+#plt.plot(solo_rtn.time,solo_rtn.bx,'-k')
+#plt.plot(solo_heeq.time,solo_heeq.bx,'-g')
 
 
 
 
 
-# filewin="wind_2018_2019_gse_test.p" 
-# start=datetime.datetime(2018, 1, 1)
-# end=datetime.datetime(2018, 2, 1)
-# hd.save_wind_data(data_path,filewin,start,end,heeq=False)
+
+######################## ---------------------------------Be
 
 
-# filewin="wind_2018_2019_heeq_test.p" 
-# start=datetime.datetime(2018, 1, 1)
-# end=datetime.datetime(2018, 2, 1)
-# hd.save_wind_data(data_path,filewin,start,end,heeq=True)
-
-# filewin1="wind_2007_2018_heeq_helcats.p" 
-# [win1,hwin1]=pickle.load(open(data_path+filewin1, "rb" ) )  
-# filewin2="wind_2018_2019_heeq.p" 
-# [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
-# filewin3="wind_2018_2019_gse.p" 
-# [win3,hwin3]=pickle.load(open(data_path+filewin3, "rb" ) )  
+print('load Bepi Colombo HEE')
+filebepi='bepi_2020_march_sept_hee.p'
+bepi_hee=pickle.load(open(data_path+filebepi, "rb" ) )      
+#convert other coordinate systems - SCEQ for ICMECAT in 2 steps
+bepi_hee=hd.convert_HEE_to_HEEQ(bepi_hee)
+#final in SCEQ
+bepi=hd.convert_HEEQ_to_SCEQ(bepi_heeq)
+#may add RTN for Bepi
 
 
-# print('done')
-# filewin="wind_2018_2019_heeq_test.p" 
-# #for updating data
-# start=datetime.datetime(2018, 6, 1)
-# end=datetime.datetime(2018, 9, 1)
-# hd.save_wind_data(data_path,filewin,start,end,heeq=True)
-# [win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+print('load Solar Orbiter RTN')
+filesolo='solo_april2020.p'
+solo_rtn=pickle.load(open(data_path+filesolo, "rb" ) ) 
+print('convert SolO to SCEQ')
+#convert other coordinate systems - SCEQ for ICMECAT
+solo=hd.convert_RTN_to_SCEQ(solo_rtn,'SolO')
+
+
+#filemag='data/solo_may2020.p'
+#pickle.dump(smag, open(filemag, "wb"))
 
 
 
-    
+#if needed for ICME prediction from < 1 AU
+#solo_heeq=hd.convert_RTN_to_HEEQ(solo_rtn,'SolO')
+#solo_gse=hd.convert_HEEQ_to_GSE(solo_heeq)
+
+#filemag='data/solo_may2020.p'
+#pickle.dump(smag, open(filemag, "wb"))
+
+
+#HEEQ if needed
+#solo=hd.convert_RTN_to_HEEQ(solo,'SolO')
 
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[4]:
+# In[6]:
 
 
 load_data=1
@@ -517,14 +393,42 @@ if load_data > 0:
  
 
     ########### CURRENT ACTIVE SPACECRAFT    
+    
+    print('load Bepi Colombo HEE')
+    filebepi='bepi_2020_march_sept_hee.p'
+    bepi_hee=pickle.load(open(data_path+filebepi, "rb" ) )      
+    #convert other coordinate systems - SCEQ for ICMECAT in 2 steps
+    bepi_hee=hd.convert_HEE_to_HEEQ(bepi_hee)
+    #final in SCEQ
+    bepi=hd.convert_HEEQ_to_SCEQ(bepi_heeq)
+    #may add RTN for Bepi
 
     
-    # ADD BepiColombo  
+    print('load Solar Orbiter RTN')
+    filesolo='solo_april2020.p'
+    solo_rtn=pickle.load(open(data_path+filesolo, "rb" ) ) 
+    print('convert SolO to SCEQ')
+    #convert other coordinate systems - SCEQ for ICMECAT
+    solo=hd.convert_RTN_to_SCEQ(solo_rtn,'SolO')
+    
+
+    #filemag='data/solo_may2020.p'
+    #pickle.dump(smag, open(filemag, "wb"))
     
     
-    # ADD Solar Orbiter
+
+    #if needed for ICME prediction from < 1 AU
+    #solo_heeq=hd.convert_RTN_to_HEEQ(solo_rtn,'SolO')
+    #solo_gse=hd.convert_HEEQ_to_GSE(solo_heeq)
     
-       
+    #filemag='data/solo_may2020.p'
+    #pickle.dump(smag, open(filemag, "wb"))
+
+    
+    #HEEQ if needed
+    #solo=hd.convert_RTN_to_HEEQ(solo,'SolO')
+
+           
     print('load MAVEN data MSO') 
     #filemav='maven_2014_2018.p'
     #[mav,hmav]=pickle.load(open(filemav, 'rb' ) )
@@ -634,9 +538,12 @@ print()
 print('time ranges of the in situ data: ')    
 print()
 print('active spacecraft:')
+
+print('Solar Orbiter        ',str(solo.time[0])[0:10],str(solo.time[-1])[0:10])
+print('Bepi Colombo         ',str(bepi.time[0])[0:10],str(bepi.time[-1])[0:10])
+print('Parker Solar Probe   ',str(psp.time[0])[0:10],str(psp.time[-1])[0:10])
 print('Wind                 ',str(win.time[0])[0:10],str(win.time[-1])[0:10])
 print('STEREO-A             ',str(sta.time[0])[0:10],str(sta.time[-1])[0:10])
-print('Parker Solar Probe   ',str(psp.time[0])[0:10],str(psp.time[-1])[0:10])
 print('MAVEN                ',str(mav.time[0])[0:10],str(mav.time[-1])[0:10])
 print('MSL/RAD              ',str(rad.time[0])[0:10],str(rad.time[-1])[0:10])
 print()
@@ -658,7 +565,7 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning if needed
 
-# In[5]:
+# In[18]:
 
 
 # save data as numpy structured arrays for machine learning
@@ -679,15 +586,7 @@ if data_to_numpy > 0:
     stb_nd=stb_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
     pickle.dump([stb_nd,hstb_att], open(data_path_ML+ "stereob_2007_2014_sceq_ndarray.p", "wb" ) )
     
-          
-    
-    print('STEREO-A')
-    hsta_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
-    sta_nd=hd.recarray_to_numpy_array(sta)
-    sta_nd=sta_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([sta_nd,hsta_att], open(data_path_ML+ "stereoa_2007_2019_sceq_ndarray.p", "wb" ) )
-
-
+     
     
     print('Ulysses')
     huly_att='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, RTN], <f8), (by  [nT, RTN], <f8),     (bz  [nT, RTN], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8),    (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
@@ -711,12 +610,26 @@ if data_to_numpy > 0:
     mes_nd=mes_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                ('x', '<f8'), ('y', '<f8'),  ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])    
     pickle.dump([mes_nd,hatt7], open(data_path_ML+ "mes_2007_2015_sceq_removed_ndarray.p", "wb" ) ) 
 
+    
+    
+    
+    ###################################### UPDATED
+    
+         
+    
+    print('STEREO-A')
+    hsta_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
+    sta_nd=hd.recarray_to_numpy_array(sta)
+    sta_nd=sta_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
+    pickle.dump([sta_nd,hsta_att], open(data_path_ML+ "stereoa_2007_2020_sceq_ndarray.p", "wb" ) )
+    
+    
   
     print('Wind')
     hwind_att='dtype=[((time [matplotlib format]), (bt [nT], <f8), (bx  [nT, HEEQ], <f8), (by  [nT, HEEQ], <f8),                         (bz  [nT, HEEQ], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8),                         (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),                        (lat [deg, HEEQ], <f8), (lon [deg, HEEQ],<f8 )]'
     win_nd=hd.recarray_to_numpy_array(win)
     win_nd=win_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_2007_2019_heeq_ndarray.p", "wb" ) )
+    pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_2007_2020_heeq_ndarray.p", "wb" ) )
 
    
     
@@ -725,7 +638,7 @@ if data_to_numpy > 0:
 
     psp_nd=hd.recarray_to_numpy_array(psp)
     psp_nd=psp_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'),('vx', '<f8'),('vy', '<f8'),('vz', '<f8'), ('np', '<f8'), ('tp', '<f8'),                                ('x', '<f8'), ('y', '<f8'), ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([psp_nd,hpsp_att], open(data_path_ML+ "psp_2018_2019_sceq_ndarray.p", "wb" ) ) 
+    pickle.dump([psp_nd,hpsp_att], open(data_path_ML+ "psp_2018_2020_sceq_ndarray.p", "wb" ) ) 
 
  
 
@@ -734,7 +647,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[9]:
+# In[5]:
 
 
 #for measuring new events use these functions from heliocats.plot 
@@ -754,8 +667,22 @@ plt.close('all')
 #plt.ion()
 
 
+get_ipython().run_line_magic('matplotlib', '')
+
+###################### make huge overview plot after Aug 2018
+
+
+#Solar Orbiter
+##hp.plot_insitu_measure(solo, '2020-Apr-15','2020-Apr-29', 'SolO', 'results/plots_icmecat/')
+
+
+#Bepi Colombo
+##hp.plot_insitu_measure(bepi, '2018-Oct-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
+
+
+
 #PSP
-#hp.plot_insitu_measure(psp, '2018-Nov-10','2018-Nov-15', 'PSP', 'results/plots_icmecat/')
+#hp.plot_insitu_measure(psp, '2018-Oct-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
 
 #for plotting single events
 #hp.plot_insitu(psp, ic.icme,'2018-Nov-15', 'PSP', icplotsdir)
@@ -764,14 +691,14 @@ plt.close('all')
 #hp.plot_insitu_measure(sta, '2018-Jan-01 12:00','2018-Feb-01 12:00', 'STEREO-A', 'results/')
 
 #Wind
-#hp.plot_insitu_measure(win, '2019-Jan-29','2019-Feb-28', 'Wind', 'results/')
+#hp.plot_insitu_measure(win, '2019-Jan-29','2020-Aug-28', 'Wind', 'results/')
 
 #hp.plot_insitu_measure(win, '2011-Feb-10','2011-Feb-25', 'Wind', 'results/')
 
 
 
 #STEREO-A
-#hp.plot_insitu_measure(sta, '2018-Jan-01 12:00','2018-Feb-01 12:00', 'STEREO-A', 'results/')
+hp.plot_insitu_measure(sta, '2019-Nov-01 12:00','2020-Aug-01 12:00', 'STEREO-A', 'results/')
 
 
 
@@ -822,7 +749,16 @@ plt.close('all')
 
 
 print('data loaded')
+
+
+#public
 ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELCATS_ICMECAT_v20_master.xlsx')
+
+
+#non public catalog
+ic2=hc.load_helcats_icmecat_master_from_excel('icmecat/HELCATS_ICMECAT_v20_master_internal.xlsx')
+
+
 
 ####### 3a get indices for all spacecraft
 
