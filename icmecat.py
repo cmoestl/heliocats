@@ -26,7 +26,7 @@
 # 
 # 
 
-# In[4]:
+# In[2]:
 
 
 import numpy as np
@@ -178,7 +178,7 @@ warnings.filterwarnings('ignore')
 
 
 
-# In[16]:
+# In[5]:
 
 
 ############################# make Ulysses files
@@ -331,44 +331,56 @@ warnings.filterwarnings('ignore')
 ######################## ---------------------------------Be
 
 
+
+from heliocats import data as hd
+importlib.reload(hd) #reload again while debugging
+
 print('load Bepi Colombo HEE')
 filebepi='bepi_2020_march_sept_hee.p'
 bepi_hee=pickle.load(open(data_path+filebepi, "rb" ) )      
 #convert other coordinate systems - SCEQ for ICMECAT in 2 steps
-bepi_hee=hd.convert_HEE_to_HEEQ(bepi_hee)
+bepi_heeq=hd.convert_HEE_to_HEEQ(bepi_hee)
+
+filemag=data_path+'bepi_2020_march_sept_heeq.p'
+pickle.dump(bepi_heeq, open(filemag, "wb"))
+
+
 #final in SCEQ
 bepi=hd.convert_HEEQ_to_SCEQ(bepi_heeq)
-#may add RTN for Bepi
+#may add RTN for Bepi in the future
+filemag=data_path+'bepi_2020_march_sept_sceq.p'
+pickle.dump(bepi, open(filemag, "wb"))
+
 
 
 print('load Solar Orbiter RTN')
 filesolo='solo_april2020.p'
 solo_rtn=pickle.load(open(data_path+filesolo, "rb" ) ) 
+
+filemag=data_path+'solo_2020_april_rtn.p'
+pickle.dump(solo_rtn, open(filemag, "wb"))
+
 print('convert SolO to SCEQ')
 #convert other coordinate systems - SCEQ for ICMECAT
 solo=hd.convert_RTN_to_SCEQ(solo_rtn,'SolO')
-
-
-#filemag='data/solo_may2020.p'
-#pickle.dump(smag, open(filemag, "wb"))
-
+filemag=data_path+'solo_2020_april_sceq.p'
+pickle.dump(solo, open(filemag, "wb"))
 
 
 #if needed for ICME prediction from < 1 AU
-#solo_heeq=hd.convert_RTN_to_HEEQ(solo_rtn,'SolO')
-#solo_gse=hd.convert_HEEQ_to_GSE(solo_heeq)
+solo_heeq=hd.convert_RTN_to_HEEQ(solo_rtn,'SolO')
+solo_gse=hd.convert_HEEQ_to_GSE(solo_heeq)
+filemag=data_path+'solo_2020_april_gse.p'
+pickle.dump(solo, open(filemag, "wb"))
 
-#filemag='data/solo_may2020.p'
-#pickle.dump(smag, open(filemag, "wb"))
 
 
-#HEEQ if needed
-#solo=hd.convert_RTN_to_HEEQ(solo,'SolO')
+print('done')
 
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[6]:
+# In[15]:
 
 
 load_data=1
@@ -394,39 +406,15 @@ if load_data > 0:
 
     ########### CURRENT ACTIVE SPACECRAFT    
     
-    print('load Bepi Colombo HEE')
-    filebepi='bepi_2020_march_sept_hee.p'
-    bepi_hee=pickle.load(open(data_path+filebepi, "rb" ) )      
-    #convert other coordinate systems - SCEQ for ICMECAT in 2 steps
-    bepi_hee=hd.convert_HEE_to_HEEQ(bepi_hee)
-    #final in SCEQ
-    bepi=hd.convert_HEEQ_to_SCEQ(bepi_heeq)
-    #may add RTN for Bepi
-
+    print('load Bepi Colombo SCEQ')
+    filebepi='bepi_2020_march_sept_sceq.p'
+    bepi=pickle.load(open(data_path+filebepi, "rb" ) )      
+   
     
-    print('load Solar Orbiter RTN')
-    filesolo='solo_april2020.p'
-    solo_rtn=pickle.load(open(data_path+filesolo, "rb" ) ) 
-    print('convert SolO to SCEQ')
-    #convert other coordinate systems - SCEQ for ICMECAT
-    solo=hd.convert_RTN_to_SCEQ(solo_rtn,'SolO')
-    
-
-    #filemag='data/solo_may2020.p'
-    #pickle.dump(smag, open(filemag, "wb"))
-    
-    
-
-    #if needed for ICME prediction from < 1 AU
-    #solo_heeq=hd.convert_RTN_to_HEEQ(solo_rtn,'SolO')
-    #solo_gse=hd.convert_HEEQ_to_GSE(solo_heeq)
-    
-    #filemag='data/solo_may2020.p'
-    #pickle.dump(smag, open(filemag, "wb"))
-
-    
-    #HEEQ if needed
-    #solo=hd.convert_RTN_to_HEEQ(solo,'SolO')
+    print('load Solar Orbiter SCEQ')
+    filesolo='solo_2020_april_sceq.p'
+    solo=pickle.load(open(data_path+filesolo, "rb" ) ) 
+   
 
            
     print('load MAVEN data MSO') 
