@@ -26,7 +26,7 @@
 # 
 # 
 
-# In[2]:
+# In[1]:
 
 
 import numpy as np
@@ -178,7 +178,7 @@ warnings.filterwarnings('ignore')
 
 
 
-# In[5]:
+# In[2]:
 
 
 ############################# make Ulysses files
@@ -331,7 +331,7 @@ warnings.filterwarnings('ignore')
 ######################## ---------------------------------Be
 
 
-
+'''
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
@@ -372,7 +372,7 @@ solo_heeq=hd.convert_RTN_to_HEEQ(solo_rtn,'SolO')
 solo_gse=hd.convert_HEEQ_to_GSE(solo_heeq)
 filemag=data_path+'solo_2020_april_gse.p'
 pickle.dump(solo, open(filemag, "wb"))
-
+'''
 
 
 print('done')
@@ -380,7 +380,7 @@ print('done')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[15]:
+# In[3]:
 
 
 load_data=1
