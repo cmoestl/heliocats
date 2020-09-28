@@ -1044,7 +1044,87 @@ def plot_insitu_measure(sc, start, end, sc_label, path, **kwargs):
      #plt.savefig(plotfile)
      #print('saved as ',plotfile)
    
+ 
+
+def plot_insitu_measure_mag(sc, start, end, sc_label, path, **kwargs):
+     '''
+     sc = data
     
+     '''
+     
+     start=parse_time(start).datetime
+     end=parse_time(end).datetime
+     #print(start)
+     #print(end)
+     
+     #cut out data from full array for faster plotting    
+     startind=np.where(sc.time > start)[0][0]   
+     endind=np.where(sc.time > end)[0][0]    
+        
+    
+     sc=sc[startind:endind]
+        
+    
+     #t1=parse_time('2010-10-30T09:16').datetime
+     #t2=parse_time('2010-10-30T16:00').datetime
+     #t3=parse_time('2010-10-30T20:33').datetime
+    
+    
+     sns.set_style('darkgrid')
+     sns.set_context('paper')
+
+     fig=plt.figure(figsize=(9,6), dpi=150)
+     
+     #sharex means that zooming in works with all subplots
+     ax1 = plt.subplot(111) 
+
+     ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
+     ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
+     ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
+     ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
+     
+     plt.ylabel('B [nT]')
+     plt.legend(loc=3,ncol=4,fontsize=8)
+     ax1.set_xlim(start,end)
+     ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
+     #plt.ylim((-20, 20))
+     #ax1.set_xticklabels([]) does not work with sharex
+     #plt.setp(ax1.get_xticklabels(), fontsize=6)
+
+     plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
+     
+
+
+     
+     plt.tight_layout()
+     #plt.show()
+     
+  
+     def onclick(event):
+
+        #global stepout
+        #print('button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
+           #   (event.button, event.x, event.y, event.xdata, event.ydata))
+        #print('time',str(mdates.num2date(event.xdata)))
+        nearestm1=np.argmin(abs(parse_time(sc.time).plot_date-event.xdata))
+        seltime=str(parse_time(sc.time[nearestm1]).iso)
+        print(seltime[0:10]+'T'+seltime[11:16]+'Z',event.ydata )  
+        #if event.button == 3: stepout=True
+
+
+  
+     cid = fig.canvas.mpl_connect('button_press_event', onclick)
+
+    
+     
+
+     #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
+     #plt.savefig(plotfile)
+     #print('saved as ',plotfile)
+   
+    
+   
+           
    
          
 
