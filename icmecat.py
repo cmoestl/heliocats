@@ -10,7 +10,9 @@
 # **Author**: C. Möstl, IWF Graz, Austria
 # twitter @chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# **latest release: version 2.0, 2020 June 3, updated 2020 September 28 doi: 10.6084/m9.figshare.6356420
+# **latest release: version 2.0, 2020 June 3**
+# 
+# **updated 2020 September 28, doi: 10.6084/m9.figshare.6356420**
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -178,7 +180,7 @@ warnings.filterwarnings('ignore')
 
 
 
-# In[3]:
+# In[2]:
 
 
 ############################# make Ulysses files
@@ -380,7 +382,7 @@ print('done')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[4]:
+# In[3]:
 
 
 load_data=1
@@ -635,7 +637,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[5]:
+# In[4]:
 
 
 #for measuring new events use these functions from heliocats.plot 
@@ -670,9 +672,10 @@ plt.close('all')
 
 
 #PSP
-#hp.plot_insitu_measure(psp, '2018-Oct-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
+#hp.plot_insitu_measure_mag(psp, '2020-Jan-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
 
-#or use plot_insitu_measure_mag
+#hp.plot_insitu_measure(psp, '2020-Jan-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
+
 
 #for plotting single events
 #hp.plot_insitu(psp, ic.icme,'2018-Nov-15', 'PSP', icplotsdir)
@@ -735,7 +738,7 @@ plt.close('all')
 
 # ## (3) make ICMECAT 
 
-# In[37]:
+# In[8]:
 
 
 print('data loaded')
@@ -792,10 +795,10 @@ matplotlib.use('Agg')
 #hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 #finished missions
-# hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
-# hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
-# hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
-# hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
+#hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
+#hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
+#hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
+#hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
 print('done')
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -805,7 +808,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[39]:
+# In[9]:
 
 
 #save header and parameters as text file and prepare for html website

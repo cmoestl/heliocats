@@ -51,6 +51,7 @@ def is_float(value):
 def running_mean(x, N):
     return np.convolve(x, np.ones((N,))/N)[(N-1):]
 
+
 def expon(x, a, k, b):
     return a*np.exp(k*x) + b
 
