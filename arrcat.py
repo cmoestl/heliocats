@@ -14,13 +14,13 @@
 # 
 # Convert this notebook to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell
 
-# In[201]:
+# In[1]:
 
 
 last_update='2020 September 14'
 
 
-# In[4]:
+# In[5]:
 
 
 import numpy as np
@@ -87,7 +87,7 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[5]:
+# In[ ]:
 
 
 from heliocats import cats as hc
@@ -143,7 +143,7 @@ ac
 
 # #### save header
 
-# In[17]:
+# In[ ]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -173,7 +173,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[18]:
+# In[ ]:
 
 
 ########## python formats
@@ -350,7 +350,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[9]:
+# In[ ]:
 
 
 #load icmecat as pandas dataframe
@@ -362,33 +362,33 @@ file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
 [ac_rec,ac_struct,h]=pickle.load( open(file, 'rb'))   
 
 
-# In[10]:
+# In[ ]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[11]:
+# In[ ]:
 
 
 ac
 
 
-# In[12]:
+# In[ ]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[13]:
+# In[ ]:
 
 
 ac_struct
 
 
-# In[14]:
+# In[ ]:
 
 
 ac_struct['id']
@@ -401,7 +401,7 @@ print(deltata)
 
 # ### plot directions and targets
 
-# In[19]:
+# In[ ]:
 
 
 
@@ -471,7 +471,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[21]:
+# In[ ]:
 
 
 fig=plt.figure(2, figsize=(18,8), dpi=100)
@@ -499,12 +499,6 @@ plt.savefig(plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
-# In[ ]:
-
-
-
-
-
 # ## HIGeoCAT CME rates plot
 # 
 # 
@@ -512,7 +506,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[38]:
+# In[ ]:
 
 
 '''
@@ -540,7 +534,7 @@ hibi=np.where(ac.sc=='B')[0]
 
 
 
-# In[233]:
+# In[ ]:
 
 
 last_year=2021

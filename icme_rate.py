@@ -9,9 +9,7 @@
 # 
 # Main author: C. Moestl, IWF Graz, Austria; twitter @chrisoutofspace; https://github.com/cmoestl
 # 
-# 
-# update 
-# http://www.sidc.be/silso/datafiles
+# ssn is automatically loaded from http://www.sidc.be/silso/DATA/SN_d_tot_V2.0.csv
 # 
 # ---
 # 
@@ -36,7 +34,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[4]:
+# In[1]:
 
 
 from scipy import stats
@@ -127,6 +125,10 @@ AU_in_km=const.au.value/1e3
 load_data=1
 get_new_sunspots=1
 
+get_new_sunspots_ms=1
+
+get_new_sunspots_mean=1
+
 
 if load_data > 0:
     
@@ -156,7 +158,8 @@ if load_data > 0:
     #daily sunspot number
 
     if get_new_sunspots==1:
-        ssn=pd.read_csv('data/SN_d_tot_V2.0.csv',sep=';')
+        ssn=pd.read_csv('http://www.sidc.be/silso/DATA/SN_d_tot_V2.0.csv',sep=';',names=['year','month','day','year2','spot','stand','obs','prov'])       
+        
         ssn_time=np.zeros(len(ssn))
         for k in np.arange(len(ssn)):
             ssn_time[k]=parse_time(str(ssn.year[k])+'-'+str(ssn.month[k])+'-'+str(ssn.day[k])).plot_date
@@ -167,24 +170,95 @@ if load_data > 0:
         ssn.stand.loc[np.where(ssn.stand< 0)[0]]=np.nan    
         fileout='ssn.p'
         pickle.dump(ssn, open(data_path+fileout, "wb"))
+        
+
+    if get_new_sunspots_ms==1:
+
+        #ssn_ms=pd.read_csv('data/SN_ms_tot_V2.0.csv',sep=';')
+        ssn_ms=pd.read_csv('http://www.sidc.be/silso/DATA/SN_ms_tot_V2.0.csv',sep=';',names=['year','month','year2','spot','stand','obs','check'])       
+
+
+        ssn_ms_time=np.zeros(len(ssn_ms))
+
+        for k in np.arange(len(ssn_ms)):
+            ssn_ms_time[k]=parse_time(str(ssn_ms.year[k])+'-'+str(ssn_ms.month[k])+'-01').plot_date
+            #print(mdates.num2date(ssn_ms_time[k]))
+            #print(ssn_ms.spot[k])
+
+        print('time convert done')
+        ssn_ms.insert(0,'time',ssn_ms_time)
+        ssn_ms.spot.loc[np.where(ssn_ms.spot< 0)[0]]=np.nan    
+    
+        fileout='ssn_13ms.p'
+        pickle.dump(ssn_ms, open(data_path+fileout, "wb"))
+        
+    
+    if get_new_sunspots_mean==1:
+
+       
+        ssn_m=pd.read_csv('http://www.sidc.be/silso/DATA/SN_m_tot_V2.0.csv',sep=';',names=['year','month','year2','spot','stand','obs','check'])       
+
+        ssn_m_time=np.zeros(len(ssn_m))
+
+        for k in np.arange(len(ssn_m)):
+            ssn_m_time[k]=parse_time(str(ssn_m.year[k])+'-'+str(ssn_m.month[k])+'-01').plot_date
+
+        print('time convert done')
+        ssn_m.insert(0,'time',ssn_m_time)
+        ssn_m.spot.loc[np.where(ssn_m.spot< 0)[0]]=np.nan    
+    
+        fileout='ssn_m.p'
+        pickle.dump(ssn_m, open(data_path+fileout, "wb"))
+
+        
 
     file='ssn.p'  
     ssn=pickle.load(open(data_path+file, "rb"))
     
-    #make 12 month running mean
-    runmean_months=12.0
-    ssn_mean_12=hs.running_mean(ssn.spot,int(np.rint(30.42*runmean_months+1)))
-    ssn_std_12=hs.running_mean(ssn.stand,int(np.rint(30.42*runmean_months+1)))    
+    #make 13 month running mean
+    runmean_months=13.0
+    ssn_mean_13=hs.running_mean(ssn.spot,int(np.rint(30.42*runmean_months+1)))
+    ssn_std_13=hs.running_mean(ssn.stand,int(np.rint(30.42*runmean_months+1)))    
 
-    ssn.insert(1,'spot_mean_12',ssn_mean_12)    
-    ssn.insert(2,'spot_std_12',ssn_std_12)    
+    ssn.insert(1,'spot_mean_13',ssn_mean_13)    
+    ssn.insert(2,'spot_std_13',ssn_std_13)    
     
     print('SIDC sunspots done')
 
     
     ################## Spacecraft
+
+    #completed missions
+    
+    
+    filevex='vex_2007_2014_sceq_removed.p'
+    [vex,hvex]=pickle.load(open(data_path+filevex, 'rb' ) )
+
+    filevex='vex_2007_2014_sceq.p'
+    [vexnon,hvexnon]=pickle.load(open(data_path+filevex, 'rb' ) )
+
+    filemes='messenger_2007_2015_sceq_removed.p'
+    [mes,hmes]=pickle.load(open(data_path+filemes, 'rb' ) )
+
+    filemes='messenger_2007_2015_sceq.p'
+    [mesnon,hmesnon]=pickle.load(open(data_path+filemes, 'rb' ) )
+
+    filestb='stereob_2007_2014_sceq.p'
+    [stb,hstb]=pickle.load(open(data_path+filestb, "rb" ) )      
+
+
+    fileuly='ulysses_1990_2009_rtn.p'
+    [uly,huly]=pickle.load(open(data_path+fileuly, "rb" ) ) 
+    
+    
+    
+    
+    ##active mission
+    
     filemav='maven_2014_2018_removed_smoothed.p'
     [mav,hmav]=pickle.load(open(data_path+filemav, 'rb' ) )
+    
+    
 
     print('load and merge Wind data HEEQ') 
     #from HELCATS HEEQ until 2018 1 1 + new self-processed data with heliosat and hd.save_wind_data
@@ -228,7 +302,6 @@ if load_data > 0:
     sta1=sta1[np.where(sta1.time < parse_time('2019-Sep-01 00:00').datetime)[0]]
 
     #beacon data
-    #filesta2="stereoa_2019_2020_sceq_beacon.p"
     filesta2='stereoa_2019_2020_sept_sceq_beacon.p'
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
     sta2=sta2[np.where(sta2.time >= parse_time('2019-Sep-01 00:00').datetime)[0]]
@@ -261,30 +334,8 @@ if load_data > 0:
     filepsp='psp_2018_2020_sceq.p'
     [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )     
     
+        
     
-    
-    
-    #completed missions
-    
-    
-    filevex='vex_2007_2014_sceq_removed.p'
-    [vex,hvex]=pickle.load(open(data_path+filevex, 'rb' ) )
-
-    filevex='vex_2007_2014_sceq.p'
-    [vexnon,hvexnon]=pickle.load(open(data_path+filevex, 'rb' ) )
-
-    filemes='messenger_2007_2015_sceq_removed.p'
-    [mes,hmes]=pickle.load(open(data_path+filemes, 'rb' ) )
-
-    filemes='messenger_2007_2015_sceq.p'
-    [mesnon,hmesnon]=pickle.load(open(data_path+filemes, 'rb' ) )
-
-    filestb='stereob_2007_2014_sceq.p'
-    [stb,hstb]=pickle.load(open(data_path+filestb, "rb" ) )      
-
-
-    fileuly='ulysses_1990_2009_rtn.p'
-    [uly,huly]=pickle.load(open(data_path+fileuly, "rb" ) ) 
 
     fileomni='omni_1963_2020.p'
     [omni,homni]=pickle.load(open(data_path+fileomni, "rb" ) ) 
@@ -293,7 +344,7 @@ if load_data > 0:
     
 
 
-# In[3]:
+# In[ ]:
 
 
 # ############# get positions from a 
@@ -331,7 +382,7 @@ mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]
 #other spacecraft
 #all MESSENGER events including cruise phase
 mesi=np.where(ic.sc_insitu == 'MESSENGER')[:][0]   
-pspi=np.where(ic.sc_insitu == 'ParkerSolarProbe')[:][0]    
+pspi=np.where(ic.sc_insitu == 'PSP')[:][0]    
 stai=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
 stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
 ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]   
@@ -376,6 +427,11 @@ wini_min=iall_min[np.where(ic.sc_insitu[iall_min]=='Wind')]
 #wini_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='Wind')]
 wini_max=iall_max[np.where(ic.sc_insitu[iall_max]=='Wind')]
 
+pspi_min=iall_min[np.where(ic.sc_insitu[iall_min]=='PSP')]
+#wini_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='Wind')]
+pspi_max=iall_max[np.where(ic.sc_insitu[iall_max]=='PSP')]
+
+
 vexi_min=iall_min[np.where(ic.sc_insitu[iall_min]=='VEX')]
 #vexi_rise=iall_rise[np.where(ic.sc_insitu[iall_rise]=='VEX')]
 vexi_max=iall_max[np.where(ic.sc_insitu[iall_max]=='VEX')]
@@ -400,7 +456,7 @@ merci_max=iall_max[np.where(np.logical_and(ic.sc_insitu[iall_max] =='MESSENGER',
 print('done')
 
 
-# In[4]:
+# In[ ]:
 
 
 ic
@@ -410,13 +466,13 @@ ic
 
 # ### Check data days available each year for each planet or spacecraft
 
-# In[5]:
+# In[ ]:
 
 
 ######################## make bin for each year for yearly histograms
 #define dates of January 1 from 2007 to end year
 
-last_year=2020 #2020 means last date is 2019 Dec 31
+last_year=2021 #2020 means last date is 2019 Dec 31
 
 years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,last_year) ] 
 yearly_start_times=parse_time(years_jan_1_str).datetime
@@ -437,6 +493,11 @@ yearly_end_times_num=parse_time(years_dec_31_str).plot_date
 ########### define arrays for total data days and fill with nan
 total_data_days_yearly_win=np.zeros(np.size(yearly_mid_times))
 total_data_days_yearly_win.fill(np.nan)
+
+
+total_data_days_yearly_psp=np.zeros(np.size(yearly_mid_times))
+total_data_days_yearly_psp.fill(np.nan)
+
 
 total_data_days_yearly_sta=np.zeros(np.size(yearly_mid_times))
 total_data_days_yearly_sta.fill(np.nan)
@@ -474,12 +535,28 @@ for i in range(np.size(yearly_mid_times)):
     if datas > 0: total_data_days_yearly_win[i]=datas*min_in_days
    
     #manual override because Wind data for 2018 and 2019 are heavily despiked
-    total_data_days_yearly_win[-1]=360
+    
     total_data_days_yearly_win[-2]=360
+    total_data_days_yearly_win[-3]=360
+    
+    
+    
+    
+    
+    ###########******************************+ set manually !!!!!!!!!!!!!!
+    total_data_days_yearly_win[-1]=244
 
+
+    
 
     #all other data is in 1 min resolution      
     min_in_days=1/(60*24)
+    
+    
+    #for PSP
+    thisyear=np.where(np.logical_and((psp.time > yearly_start_times[i]),(psp.time < yearly_end_times[i])))[0]
+    datas=np.size(np.where(np.isnan(psp.bt[thisyear])==False))
+    if datas >0: total_data_days_yearly_psp[i]=datas*min_in_days
 
     #same for STEREO-A
     thisyear=np.where(np.logical_and((sta.time > yearly_start_times[i]),(sta.time < yearly_end_times[i])))[0]
@@ -536,9 +613,11 @@ print(np.round(total_data_days_yearly_vex,1))
 print()
 print('Wind')
 print(np.round(total_data_days_yearly_win,1))
-print()
 print('STA')
 print(np.round(total_data_days_yearly_sta,1))
+print()
+print('PSP')
+print(np.round(total_data_days_yearly_psp,1))
 print()
 print('STB')
 print(np.round(total_data_days_yearly_stb,1))
@@ -552,7 +631,7 @@ print('done')
 
 # ### get yearly ICME rates at each spacecraft
 
-# In[6]:
+# In[177]:
 
 
 #define dates of January 1 from 2007 to 2020
@@ -567,6 +646,7 @@ binweite=365/8
 (histmav1, bin_edgesmav) = np.histogram(parse_time(ic.icme_start_time[mavi]).plot_date, yearly_bin_edges)
 (histstb1, bin_edgesstb) = np.histogram(parse_time(ic.icme_start_time[stbi]).plot_date, yearly_bin_edges)
 (histsta1, bin_edgessta) = np.histogram(parse_time(ic.icme_start_time[stai]).plot_date, yearly_bin_edges)
+(histpsp1, bin_edgespsp) = np.histogram(parse_time(ic.icme_start_time[pspi]).plot_date, yearly_bin_edges)
 binedges=bin_edgeswin
 
 
@@ -579,8 +659,12 @@ histmes=np.round(histmes1/total_data_days_yearly_mes*365.24,1)
 #ok for these spacecraft as continously in the solar wind and the MAVEN data set is made without orbit gaps
 histsta=np.round(histsta1/total_data_days_yearly_sta*365.24,1)
 
+
 #STA beacon data used in 2019 - set manually
-histsta[-1]=13
+histsta[-2]=13
+#STA beacon data used in 2020 - set manually
+histsta[-1]=10*4/3
+
 
 
 histstb=np.round(histstb1/total_data_days_yearly_stb*365.24,1)
@@ -588,11 +672,15 @@ histwin=np.round(histwin1/total_data_days_yearly_win*365.24,1)
 histmav=np.round(histmav1/total_data_days_yearly_mav*365.24,1)
 histmav[7]=np.nan #not enough data for 2014
 
+
+histpsp=np.round(histpsp1/total_data_days_yearly_psp*365.24,1)
+
 print('corrected ICME rates for years')
 print(yearly_mid_times)
 print('MESSENGER',histmes)
 print('VEX',histvex)
 print('Wind',histwin)
+print('PSP',histpsp)
 print('STA',histsta)
 print('STB',histstb)
 print('MAVEN',histmav)
@@ -610,6 +698,7 @@ plt.plot(yearly_mid_times,histwin,'-',label='Wind')
 plt.plot(yearly_mid_times,histsta,'-',label='STA')
 plt.plot(yearly_mid_times,histstb,'-',label='STB')
 plt.plot(yearly_mid_times,histmav,'-',label='MAVEN')
+plt.plot(yearly_mid_times,histpsp,'-',label='PSP')
 plt.legend(loc=1)
 
 
@@ -630,11 +719,11 @@ icrate=pd.DataFrame(np.zeros([len(yearly_mid_times),6]), columns=['year','std1',
 for i in np.arange(0,len(yearly_mid_times)):
     
     icrate.at[i,'year']=yearly_mid_times_num[i]
-    icrate.at[i,'median1']=np.round(np.nanmedian([histwin[i],histvex[i],histsta[i],histstb[i],histmes[i],histmav[i]]),1)
-    icrate.at[i,'mean1']=np.round(np.nanmean([histwin[i],histvex[i],histsta[i],histstb[i],histmes[i],histmav[i]]),1)
-    icrate.at[i,'std1']=np.round(np.nanstd([histwin[i],histvex[i],histsta[i],histstb[i],histmes[i],histmav[i]]),1)
-    icrate.at[i,'max1']=np.nanmax([histwin[i],histvex[i],histsta[i],histstb[i],histmes[i],histmav[i]])
-    icrate.at[i,'min1']=np.nanmin([histwin[i],histvex[i],histsta[i],histstb[i],histmes[i],histmav[i]])
+    icrate.at[i,'median1']=np.round(np.nanmedian([histwin[i],histvex[i],histsta[i],histstb[i],histmes[i],histmav[i],histpsp[i]]),1)
+    icrate.at[i,'mean1']=np.round(np.nanmean([histwin[i],histvex[i],histsta[i],histstb[i],histmes[i],histmav[i],histpsp[i]]),1)
+    icrate.at[i,'std1']=np.round(np.nanstd([histwin[i],histvex[i],histsta[i],histstb[i],histmes[i],histmav[i],histpsp[i]]),1)
+    icrate.at[i,'max1']=np.nanmax([histwin[i],histvex[i],histsta[i],histstb[i],histmes[i],histmav[i],histpsp[i]])
+    icrate.at[i,'min1']=np.nanmin([histwin[i],histvex[i],histsta[i],histstb[i],histmes[i],histmav[i],histpsp[i]])
 
 #change matplotlib time before plotting
 icrate_year2=icrate.year + mdates.date2num(np.datetime64('0000-12-31'))
@@ -677,7 +766,7 @@ icrate
 
 # ### get Richardson and Cane ICME rate for comparison
 
-# In[7]:
+# In[24]:
 
 
 #convert times in dataframe from richardson and cane list to numpy array
@@ -721,7 +810,7 @@ print(yearly_mid_times_rc)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[8]:
+# In[225]:
 
 
 sns.set_context("talk")     
@@ -738,13 +827,14 @@ fig=plt.figure(1,figsize=(12,9),dpi=80)
 
 ax1 = plt.subplot(211) 
 msize=4
-plt.plot_date(ic.icme_start_time[mesi],ic.mo_sc_heliodistance[mesi],fmt='o',color='darkgrey',markersize=msize,label='MESSENGER')
+plt.plot_date(ic.icme_start_time[mesi],ic.mo_sc_heliodistance[mesi],fmt='o',color='coral',markersize=msize,label='MESSENGER')
 plt.plot_date(ic.icme_start_time[vexi],ic.mo_sc_heliodistance[vexi],fmt='o',color='orange',markersize=msize,label='VEX')
 plt.plot_date(ic.icme_start_time[wini],ic.mo_sc_heliodistance[wini],fmt='o',color='mediumseagreen',markersize=msize,label='Wind')
 plt.plot_date(ic.icme_start_time[stai],ic.mo_sc_heliodistance[stai],fmt='o',color='red',markersize=msize,label='STEREO-A')
 plt.plot_date(ic.icme_start_time[stbi],ic.mo_sc_heliodistance[stbi],fmt='o',color='royalblue',markersize=msize,label='STEREO-B')
 plt.plot_date(ic.icme_start_time[mavi],ic.mo_sc_heliodistance[mavi],fmt='o',color='steelblue',markersize=msize,label='MAVEN')
-plt.legend(loc=4,fontsize=12)
+plt.plot_date(ic.icme_start_time[pspi],ic.mo_sc_heliodistance[pspi],fmt='o',color='black',markersize=msize,label='PSP')
+plt.legend(loc='upper right',fontsize=10)
 
 plt.ylabel('Heliocentric distance R [AU]',fontsize=fsize)
 plt.xticks(yearly_start_times,fontsize=fsize) 
@@ -762,9 +852,9 @@ ax1.xaxis.set_major_formatter(myformat)
 
 #grid for icme rate
 for i in np.arange(0,2.0,0.2):
-    ax1.plot([datetime.datetime(2007,1,1),datetime.datetime(2020,1,1)],np.zeros(2)+i,linestyle='--',color='grey',alpha=0.5,lw=0.8,zorder=0)
+    ax1.plot([datetime.datetime(2007,1,1),datetime.datetime(2024,1,1)],np.zeros(2)+i,linestyle='--',color='grey',alpha=0.5,lw=0.8,zorder=0)
     
-for i in np.arange(0,13):    
+for i in np.arange(0,14):    
     ax1.plot([yearly_start_times[i],yearly_start_times[i]],[0,2],linestyle='--',color='grey',alpha=0.5,lw=0.8,zorder=0)
 
 
@@ -788,9 +878,9 @@ ax3.legend(loc=1,fontsize=12)
 
 #grid for icme rate
 for i in np.arange(0,50,10):
-    ax2.plot([datetime.datetime(2007,1,1),datetime.datetime(2020,1,1)],np.zeros(2)+i,linestyle='--',color='k',alpha=0.4,lw=0.8,zorder=0)
+    ax2.plot([datetime.datetime(2007,1,1),datetime.datetime(2023,1,1)],np.zeros(2)+i,linestyle='--',color='k',alpha=0.4,lw=0.8,zorder=0)
 
-binweite=int(np.round(360/7))
+binweite=int(np.round(360/8))
 bin_edges=bin_edgeswin[:-1]
 
 #change matplotlib time before plotting
@@ -800,10 +890,16 @@ alp=0.7
 ax2.bar(bin_edges2+5+binweite,histmes, width=binweite,color='darkgrey', alpha=alp,label='MESSENGER')
 ax2.bar(bin_edges2+5+binweite*2,histvex, width=binweite,color='orange', alpha=alp,label='VEX')
 ax2.bar(bin_edges2+5+binweite*3,histwin, width=binweite,color='mediumseagreen', alpha=alp,label='Wind')
+ax2.bar(bin_edges2+5+binweite*4,histpsp, width=binweite,color='black', alpha=alp,label='PSP')
+ax2.bar(bin_edges2+5+binweite*5,histsta, width=binweite,color='red', alpha=alp,label='STEREO-A')
+ax2.bar(bin_edges2+5+binweite*6,histstb, width=binweite,color='royalblue', alpha=alp,label='STEREO-B')
+ax2.bar(bin_edges2+5+binweite*7,histmav, width=binweite,color='steelblue', alpha=alp,label='MAVEN')
+
+
+
 #ax2.bar(bin_edgeswin[:-1]+5+binweite*3,rc_rate_values[-14:-1], width=binweite,color='darkgreen', alpha=0.8,label='Wind')
-ax2.bar(bin_edges2+5+binweite*4,histsta, width=binweite,color='red', alpha=alp,label='STEREO-A')
-ax2.bar(bin_edges2+5+binweite*5,histstb, width=binweite,color='royalblue', alpha=alp,label='STEREO-B')
-ax2.bar(bin_edges2+5+binweite*6,histmav, width=binweite,color='steelblue', alpha=alp,label='MAVEN')
+
+
 
 
 #ax2.boxplot(histmes)
@@ -835,11 +931,11 @@ plt.xlabel('Year',fontsize=fsize)
 
 plt.tight_layout()
 
-plt.annotate('(a)',[0.01,0.96],xycoords='figure fraction')
-plt.annotate('(b)',[0.01,0.47],xycoords='figure fraction')
+#plt.annotate('(a)',[0.01,0.96],xycoords='figure fraction')
+#plt.annotate('(b)',[0.01,0.47],xycoords='figure fraction')
 
-plt.savefig('results/plots_rate/fig1_icme_rate_hso.pdf', dpi=300)
-plt.savefig('results/plots_rate/fig1_icme_rate_hso.png', dpi=300)
+#plt.savefig('results/cycle25_icme_rate.pdf', dpi=100)
+plt.savefig('results/icmecat_icme_rate.png', dpi=100)
 
 
 # 
@@ -852,7 +948,7 @@ plt.savefig('results/plots_rate/fig1_icme_rate_hso.png', dpi=300)
 
 # ## solar cycle 23
 
-# In[9]:
+# In[191]:
 
 
 print('cycle 23\n')
@@ -936,7 +1032,7 @@ print()
 
 # ## solar cycle 24
 
-# In[10]:
+# In[215]:
 
 
 print('cycle 24\n')
@@ -944,11 +1040,11 @@ print('cycle 24\n')
 #################### times
 print('times:')
 #these years cover solar cycle 23
-years24=np.arange(2009,2020)
+years24=np.arange(2009,2021)
 print(years24)
 
 #same for July 1 as middle of the year
-last_year=2020
+last_year=2021
 years_jul_1_str_24=[str(i)+'-07-01' for i in np.arange(2009,last_year) ] 
 yearly_mid_times_24=parse_time(years_jul_1_str_24).datetime
 yearly_mid_times_num_24=parse_time(years_jul_1_str_24).plot_date
@@ -975,7 +1071,7 @@ print('----------')
 print('ICME rate:')
 print()
 
-rc_rate24=rc_rate_values[13:]
+rc_rate24=rc_rate_values[12:]
 print(years24)
 print('icmes RC',rc_rate24)
 print()
@@ -995,7 +1091,7 @@ print(np.round(np.mean(rc_rate24/ic_rate24),2))
 # ## **Figure 2** correlation SSN with ICME rate and fit
 # plot SSN vs ICME rate, linear fit with confidence interval
 
-# In[27]:
+# In[216]:
 
 
 #add spots23/24 and rc_rate23/24 into 1 array for correlation
@@ -1116,7 +1212,7 @@ plt.savefig('results/plots_rate/fig2_rate_ssn', dpi=300)
 # ## predictions for solar cycle 25: SSN and ICME rate
 # ### 1. Mean cycle model
 
-# In[12]:
+# In[221]:
 
 
 # from heliocats import stats as hs
@@ -1226,7 +1322,7 @@ print('error from SSN to ICME fit',ic_rate25_m_std_fit)
 
 #2. error from ICME rate
 #assumption icrate_std=2 for last 3 years
-ic_rate25_std=np.hstack([ic_rate24_std[0:-1],np.array([2.0,2.0,2.0])])
+ic_rate25_std=np.hstack([ic_rate24_std[0:-2],np.array([2.0,2.0,2.0])])
 print('spread in ICME rate from SC24, assuming 2009=> 2020',ic_rate25_std)
 
 #add both errors as sigma_new=sqrt(sigma1^2+sigma2^2)
@@ -1235,7 +1331,7 @@ print('Std in ICME rate from fit and ICMECAT range for each year:')
 print(ic_rate_25_m_std)
 
 
-# In[13]:
+# In[222]:
 
 
 ########################################################### 2. SC25 panel prediction (SC25PP)
@@ -1354,7 +1450,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_pp_std)
 
 
-# In[14]:
+# In[223]:
 
 
 ################################### SC25MC
@@ -1452,7 +1548,7 @@ print(ic_rate_25_mc20_std)
 
 # ## **Figure 3** ICME rate predictions
 
-# In[15]:
+# In[237]:
 
 
 sns.set_context("talk")     
@@ -1541,53 +1637,39 @@ for i in np.arange(0,100,10):
 
 plt.tight_layout()
 
-plt.annotate('(a)',[0.0,0.965],xycoords='figure fraction',weight='bold')
-plt.annotate('(b)',[0.0,0.47],xycoords='figure fraction',weight='bold')
+#plt.annotate('(a)',[0.0,0.965],xycoords='figure fraction',weight='bold')
+#plt.annotate('(b)',[0.0,0.47],xycoords='figure fraction',weight='bold')
 
-plt.savefig('results/plots_rate/fig3_sc25_predictions.pdf', dpi=300)
-plt.savefig('results/plots_rate/fig3_sc25_predictions.png', dpi=300)
+#plt.savefig('results/plots_rate/fig3_sc25_predictions.pdf', dpi=100)
+plt.savefig('results/cycle25_icme_rate_predictions.png', dpi=100)
 
 
-# In[16]:
+# In[227]:
 
+
+get_ipython().run_line_magic('matplotlib', 'inline')
 
 #Extra plot for solar cycle comparison
 sns.set_context('talk')
 sns.set_style('darkgrid')
 fig=plt.figure(3,figsize=(12,6),dpi=100)
 
-print('get sunspot number from SIDC')    
+#print('get sunspot number from SIDC')    
 #get 13month smoothed sunspot number from SIDC
 #http://www.sidc.be/silso/datafiles
 #add year;month;year2;spot;stand;obs;check in first row to read pandas dataframe
 
-get_new_sunspots_ms=1
 
-if get_new_sunspots_ms==1:
-    
-    ssn_ms=pd.read_csv('data/SN_ms_tot_V2.0.csv',sep=';')
-    ssn_ms_time=np.zeros(len(ssn_ms))
-    
-    for k in np.arange(len(ssn_ms)):
-        ssn_ms_time[k]=parse_time(str(ssn_ms.year[k])+'-'+str(ssn_ms.month[k])+'-01').plot_date+ mdates.date2num(np.datetime64('0000-12-31'))
-        #print(mdates.num2date(ssn_ms_time[k]))
-        #print(ssn_ms.spot[k])
-
-    print('time convert done')
-    ssn_ms.insert(0,'time',ssn_ms_time)
-    ssn_ms.spot.loc[np.where(ssn_ms.spot< 0)[0]]=np.nan    
-    
-    fileout='ssn_13ms.p'
-    pickle.dump(ssn_ms, open(data_path+fileout, "wb"))
-
-file='ssn_13ms.p'  
+file='ssn_m.p'  
 ssn_ms=pickle.load(open(data_path+file, "rb"))
 
 fsize=15
-max_spot=300
+max_spot=380
 
 ax1 = plt.subplot(111) 
-ax1.plot(ssn_ms.time,ssn_ms.spot,'-k',alpha=1,linewidth=1.5,label='Observed sunspot number (SIDC, 13-month smoothed)')
+ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.4,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
+#ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
+ax1.plot(ssn_ms.time,ssn_ms.spot,'-k',alpha=1,linewidth=2,label='Observed sunspot number (SIDC, monthly mean)')
 
 #PP25 prediction
 ax1.plot(times_25_daily,spots_predict_25pp_daily,'-b',alpha=1,linewidth=2.5,label='Solar Cycle Prediction Panel (NOAA, NASA, ISES)')
@@ -1602,22 +1684,78 @@ ax1.set_xlim(datetime.datetime(1749,1,1),datetime.datetime(2035,1,1))
 ax1.set_ylim(0,max_spot)
 ax1.set_ylabel('Sunspot number')
 
-plt.legend(loc='upper center',fontsize=10)
+plt.legend(loc='upper right',fontsize=10)
 plt.tight_layout()
 
 plt.savefig('results/cycle25_prediction.png',dpi=100)
 
 #with shorter interval
-plt.legend(loc='upper center',fontsize=14)
+
+
+plt.legend(loc='upper right',fontsize=12)
 ax1.set_xlim(datetime.datetime(1975,1,1),datetime.datetime(2035,1,1))
+years = mdates.YearLocator(5)   # every year
+ax1.xaxis.set_major_locator(years)
+myformat = mdates.DateFormatter('%Y')
+ax1.xaxis.set_major_formatter(myformat)
 plt.savefig('results/cycle25_prediction_short.png',dpi=100)
+
+
+# In[228]:
+
+
+#with shortest interval
+
+#Extra plot for solar cycle comparison
+sns.set_context('talk')
+sns.set_style('ticks')
+fig=plt.figure(4,figsize=(12,6),dpi=100)
+
+#print('get sunspot number from SIDC')    
+#get 13month smoothed sunspot number from SIDC
+#http://www.sidc.be/silso/datafiles
+#add year;month;year2;spot;stand;obs;check in first row to read pandas dataframe
+
+
+file='ssn_m.p'  
+ssn_ms=pickle.load(open(data_path+file, "rb"))
+
+fsize=15
+max_spot=420
+
+ax1 = plt.subplot(111) 
+ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.4,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
+#ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
+ax1.plot(ssn_ms.time,ssn_ms.spot,'-k',alpha=1,linewidth=2,label='Observed sunspot number (SIDC, monthly mean)')
+
+#PP25 prediction
+ax1.plot(times_25_daily,spots_predict_25pp_daily,'-b',alpha=1,linewidth=2.5,label='Solar Cycle Prediction Panel (NOAA, NASA, ISES)')
+ax1.fill_between(times_25_daily,spots_predict_25pp_daily_low,spots_predict_25pp_daily_high,alpha=0.2)
+
+ax1.plot(times_25_daily,spots_predict_25_daily,'-r',alpha=1,linewidth=2.5,label='McIntosh et al. (2020)')
+ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
+
+#mean cycle
+ax1.plot(times_25_daily,spots_predict_25m_daily,'-g',alpha=1,linewidth=2.5,label='Mean solar cycle since 1750')
+ax1.set_xlim(datetime.datetime(1749,1,1),datetime.datetime(2035,1,1))
+ax1.set_ylim(0,max_spot)
+ax1.set_ylabel('Sunspot number')
+
+
+plt.legend(loc='upper left',fontsize=12)
+ax1.set_xlim(datetime.datetime(2019,1,1),datetime.datetime(2023,1,1))
+ax1.set_ylim(0,70)
+months = mdates.MonthLocator()   # every year
+ax1.xaxis.set_minor_locator(months)
+ax1.grid(linestyle='--')
+plt.savefig('results/cycle25_prediction_focus.png',dpi=100)
 
 
 # # 4 Parker Probe ICME rate prediction
 
 # ### make PSP and Solar Orbiter position
 
-# In[17]:
+# In[229]:
 
 
 frame='HEEQ'
@@ -1707,7 +1845,7 @@ sns.distplot(bepi_r)
 plt.xlabel('AU')
 
 
-# In[18]:
+# In[230]:
 
 
 #get the speed in hourly resolution
@@ -1737,7 +1875,7 @@ plt.xlabel('AU')
 print('psp maximum speed ',np.max(psp_highres_speed),' km/s at ',psp_highres_r[np.argmax(psp_highres_speed)], ' AU')
 
 
-# In[19]:
+# In[231]:
 
 
 #%matplotlib inline
@@ -1806,7 +1944,7 @@ plt.figtext(0.99,0.008,'C. Möstl @chrisoutofspace', fontsize=10, ha='right',col
 plt.savefig('results/psp_orbits.png', dpi=100)
 
 
-# In[20]:
+# In[232]:
 
 
 #same thing for Solar Orbiter
@@ -1910,7 +2048,7 @@ plt.savefig('results/solo_orbits.png', dpi=100)
 
 # first calculate smooth functions for the icme rate including the derived error bars in Figure 3
 
-# In[21]:
+# In[233]:
 
 
 #fit yearly ICME rates again with hathaway function to get to daily resolution including errors
@@ -1970,7 +2108,7 @@ plt.plot(times_25_daily_icrange_num,fmc_low(times_25_daily_icrange_num))
 
 # Figure out how many ICMEs PSP sees < 0.1 AU, < 0.2 AU, < 0.3 AU for the predicted ICME rates
 
-# In[22]:
+# In[234]:
 
 
 #make position new in order to be of similar range with ICME rate spline fits
@@ -2101,7 +2239,7 @@ print('days < 0.3 AU:',solo_l03.size)
 
 # ## **Figure 4** PSP Solar Orbiter distance and ICME rate
 
-# In[23]:
+# In[239]:
 
 
 sns.set_context("talk")     
@@ -2185,14 +2323,14 @@ plt.xlim(plotstart,plotend)
 plt.tight_layout()
 
 
-plt.annotate('(a)',[0.01,0.965],xycoords='figure fraction',weight='bold')
-plt.annotate('(b)',[0.01,0.475],xycoords='figure fraction',weight='bold')
+#plt.annotate('(a)',[0.01,0.965],xycoords='figure fraction',weight='bold')
+#plt.annotate('(b)',[0.01,0.475],xycoords='figure fraction',weight='bold')
 plt.annotate('Parker Solar Probe',[0.08,0.95],xycoords='figure fraction',weight='bold')
 plt.annotate('Solar Orbiter',[0.08,0.455],xycoords='figure fraction',weight='bold')
 plt.annotate('Bepi Colombo',[0.20,0.455],xycoords='figure fraction',weight='bold',color='orange')
 
-plt.savefig('results/plots_rate/fig4_psp_rate.pdf', dpi=300)
-plt.savefig('results/plots_rate/fig4_psp_rate.png', dpi=300)
+#plt.savefig('results/plots_rate/fig4_psp_rate.pdf', dpi=300)
+plt.savefig('results/cycle25_icme_rate_psp_orbiter_bepi.png', dpi=100)
 
 
 # In[ ]:
