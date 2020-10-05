@@ -26,7 +26,7 @@
 # 
 # 
 
-# In[3]:
+# In[1]:
 
 
 import numpy as np
@@ -106,7 +106,7 @@ warnings.filterwarnings('ignore')
 
 # ## (0) process in situ data into similar format
 
-# In[4]:
+# In[2]:
 
 
 # make data
@@ -178,7 +178,7 @@ warnings.filterwarnings('ignore')
 
 
 
-# In[5]:
+# In[2]:
 
 
 ############################# make Ulysses files
@@ -308,79 +308,19 @@ warnings.filterwarnings('ignore')
 
 
 
-#check solar orbiter conversions
-#from heliocats import data as hd
-#importlib.reload(hd)
 
-#print('load Solar Orbiter RTN')
-#filesolo='solo_april2020.p'
-#solo_rtn=pickle.load(open(data_path+filesolo, "rb" ) )   
-#solo_sceq=hd.convert_RTN_to_SCEQ(solo_rtn,'SolO')
-#solo_heeq=hd.convert_RTN_to_HEEQ(solo_rtn,'SolO')
-
-#fig=plt.figure(3,figsize=(15,10),dpi=70)
-
-#plt.plot(solo_rtn.time,solo_rtn.bx,'-k')
-#plt.plot(solo_heeq.time,solo_heeq.bx,'-g')
+#for Bepi Colombo, got to read_bepi.ipynb
 
 
 
-
-
-
-######################## ---------------------------------Be
-
-
-'''
-from heliocats import data as hd
-importlib.reload(hd) #reload again while debugging
-
-print('load Bepi Colombo HEE')
-filebepi='bepi_2020_march_sept_hee.p'
-bepi_hee=pickle.load(open(data_path+filebepi, "rb" ) )      
-#convert other coordinate systems - SCEQ for ICMECAT in 2 steps
-bepi_heeq=hd.convert_HEE_to_HEEQ(bepi_hee)
-
-filemag=data_path+'bepi_2020_march_sept_heeq.p'
-pickle.dump(bepi_heeq, open(filemag, "wb"))
-
-
-#final in SCEQ
-bepi=hd.convert_HEEQ_to_SCEQ(bepi_heeq)
-#may add RTN for Bepi in the future
-filemag=data_path+'bepi_2020_march_sept_sceq.p'
-pickle.dump(bepi, open(filemag, "wb"))
-
-
-
-print('load Solar Orbiter RTN')
-filesolo='solo_april2020.p'
-solo_rtn=pickle.load(open(data_path+filesolo, "rb" ) ) 
-
-filemag=data_path+'solo_2020_april_rtn.p'
-pickle.dump(solo_rtn, open(filemag, "wb"))
-
-print('convert SolO to SCEQ')
-#convert other coordinate systems - SCEQ for ICMECAT
-solo=hd.convert_RTN_to_SCEQ(solo_rtn,'SolO')
-filemag=data_path+'solo_2020_april_sceq.p'
-pickle.dump(solo, open(filemag, "wb"))
-
-
-#if needed for ICME prediction from < 1 AU
-solo_heeq=hd.convert_RTN_to_HEEQ(solo_rtn,'SolO')
-solo_gse=hd.convert_HEEQ_to_GSE(solo_heeq)
-filemag=data_path+'solo_2020_april_gse.p'
-pickle.dump(solo, open(filemag, "wb"))
-'''
-
+#for Solar Orbiter, got to read_solo.ipynb
 
 print('done')
 
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[6]:
+# In[4]:
 
 
 load_data=1
@@ -635,7 +575,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[7]:
+# In[6]:
 
 
 #for measuring new events use these functions from heliocats.plot 
@@ -736,7 +676,7 @@ plt.close('all')
 
 # ## (3) make ICMECAT 
 
-# In[8]:
+# In[7]:
 
 
 print('data loaded')
@@ -814,7 +754,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[9]:
+# In[8]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -850,7 +790,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[10]:
+# In[9]:
 
 
 ########## python formats
@@ -1026,7 +966,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[11]:
+# In[10]:
 
 
 #load icmecat as pandas dataframe
@@ -1038,25 +978,25 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[85]:
+# In[11]:
 
 
 print(ic_pandas.keys())
 
 
-# In[86]:
+# In[12]:
 
 
 ic_nprec
 
 
-# In[87]:
+# In[13]:
 
 
 ic_nprec.icmecat_id
 
 
-# In[88]:
+# In[14]:
 
 
 ic=ic_pandas
@@ -1155,7 +1095,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=100,bbox_inches='tight')
 
 
-# In[89]:
+# In[19]:
 
 
 #markersize
@@ -1163,6 +1103,14 @@ ms=25
 #alpha
 al=0.7
 
+sns.set_context("talk")     
+sns.set_style('darkgrid')
+
+###############################################################################
+fig=plt.figure(3,figsize=(18,7),dpi=100)
+
+#########################################################################
+ax2=plt.subplot(111,projection='polar')
 
 plt.title('ICMECAT events [HEEQ longitude, AU]')
 

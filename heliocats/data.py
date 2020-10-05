@@ -3053,11 +3053,10 @@ def convert_GSE_to_HEEQ(sc_in):
    
 def convert_HEE_to_HEEQ(sc_in):
     '''
-    for Wind magnetic field components: convert HEE to HAE to HEEQ
+    for Wind, Bepi magnetic field components: convert HEE to HAE to HEEQ
     '''
 
     print('conversion HEE to HEEQ')                                
-
     
     sc=copy.deepcopy(sc_in)
     
@@ -3127,7 +3126,8 @@ def convert_HEE_to_HEEQ(sc_in):
         sc.bz[i]=bz_heeq
 
     
-    print('HEE to HEEQ done')                                
+    print('HEE to HEEQ done')  
+    
     return sc
 
     
@@ -3268,14 +3268,59 @@ def convert_HEEQ_to_SCEQ(sc_in):
         Y_sceq=np.dot(R,Y_heeq)         
        
         #project into new system
-        sc.bx[i]=np.dot([sc.bx[i],sc.by[i],sc.bz[i]],X_sceq)
-        sc.by[i]=np.dot([sc.bx[i],sc.by[i],sc.bz[i]],Y_sceq)
+        sc.bx[i]=np.dot([sc_in.bx[i],sc_in.by[i],sc_in.bz[i]],X_sceq)
+        sc.by[i]=np.dot([sc_in.bx[i],sc_in.by[i],sc_in.bz[i]],Y_sceq)
     
     return sc
 
 
     
 
+   
+def convert_E2K_to_HEE(sc_in):
+    '''
+    for Bepi magnetic field components: convert E2K to HEE by projection
+    '''
+
+    print('conversion E2K to HEE')                                
+    
+    sc=copy.deepcopy(sc_in)
+
+    #get Earth trajectory in ECLIPJ2000
+    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
+    earth.generate_positions(sc.time,'Sun','ECLIPJ2000')
+    earth.change_units(astropy.units.AU)  
+    earth_x_ej2=earth.x.value
+    earth_y_ej2=earth.y.value
+    earth_z_ej2=earth.z.value
+
+    sc_len=len(sc.bt)
+
+    #unit vectors of EJ2 basis
+    ej_x=[1,0,0]
+    ej_y=[0,1,0]
+    ej_z=[0,0,1]
+
+    #project into new system HEE
+    for i in np.arange(0,sc_len):   
+        #make unit vectors of HEE in basis of EJ2
+        hee_x=[earth_x_ej2[i],earth_y_ej2[i],earth_z_ej2[i]]/np.linalg.norm([earth_x_ej2[i],earth_y_ej2[i],earth_z_ej2[i]])
+        hee_z=[0,0,1]
+        hee_y=np.cross(hee_z,hee_x)
+
+        sc.bx[i]=sc.bxe[i]*np.dot(ej_x,hee_x)+sc.bye[i]*np.dot(ej_y,hee_x)+sc.bze[i]*np.dot(ej_z,hee_x)
+        sc.by[i]=sc.bxe[i]*np.dot(ej_x,hee_y)+sc.bye[i]*np.dot(ej_y,hee_y)+sc.bze[i]*np.dot(ej_z,hee_y)
+        sc.bz[i]=sc.bxe[i]*np.dot(ej_x,hee_z)+sc.bye[i]*np.dot(ej_y,hee_z)+sc.bze[i]*np.dot(ej_z,hee_z)
+
+    return sc
+
+
+
+
+  
+    
+    
+   
 def convert_RTN_to_SCEQ(sc_in,name):
     '''
     for STEREO-A, B, Solar Orbiter and Parker Solar Probe   
@@ -3312,22 +3357,25 @@ def convert_RTN_to_SCEQ(sc_in,name):
         Zrtn=np.cross(Xrtn, Yrtn)/np.linalg.norm(np.cross(Xrtn, Yrtn))
         
         #project into new system
-        sc.bx[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),X_sceq)
-        sc.by[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Y_sceq)
-        sc.bz[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Z_heeq)
+        sc.bx[i]=np.dot(np.dot(sc_in.bx[i],Xrtn)+np.dot(sc_in.by[i],Yrtn)+np.dot(sc_in.bz[i],Zrtn),X_sceq)
+        sc.by[i]=np.dot(np.dot(sc_in.bx[i],Xrtn)+np.dot(sc_in.by[i],Yrtn)+np.dot(sc_in.bz[i],Zrtn),Y_sceq)
+        sc.bz[i]=np.dot(np.dot(sc_in.bx[i],Xrtn)+np.dot(sc_in.by[i],Yrtn)+np.dot(sc_in.bz[i],Zrtn),Z_heeq)
         
         #project into new system
         if name=='PSP':
-            sc.vx[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),X_sceq)
-            sc.vy[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),Y_sceq)
-            sc.vz[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),Z_heeq)
+            sc.vx[i]=np.dot(np.dot(sc_in.vx[i],Xrtn)+np.dot(sc_in.vy[i],Yrtn)+np.dot(sc_in.vz[i],Zrtn),X_sceq)
+            sc.vy[i]=np.dot(np.dot(sc_in.vx[i],Xrtn)+np.dot(sc_in.vy[i],Yrtn)+np.dot(sc_in.vz[i],Zrtn),Y_sceq)
+            sc.vz[i]=np.dot(np.dot(sc_in.vx[i],Xrtn)+np.dot(sc_in.vy[i],Yrtn)+np.dot(sc_in.vz[i],Zrtn),Z_heeq)
 
 
     
     return sc
 
 
-  
+
+
+       
+    
 
 def convert_RTN_to_HEEQ(sc_in,name):
     '''
@@ -3339,7 +3387,7 @@ def convert_RTN_to_HEEQ(sc_in,name):
     
     sc_len=len(sc)
     
-    print('RTN to HEEQ')
+    print('conversion RTN to HEEQ')
     #HEEQ unit vectors (same as spacecraft xyz position)
     X_heeq=[1,0,0]
     Y_heeq=[0,1,0]
@@ -3348,22 +3396,23 @@ def convert_RTN_to_HEEQ(sc_in,name):
     # go through all data points    
     for i in np.arange(0,sc_len):                
        
-        #make normalized RTN unit vectors from spacecraft position
+        #make normalized RTN unit vectors from spacecraft position in HEEQ basis
         Xrtn=[sc.x[i], sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i], sc.y[i],sc.z[i]])
         Yrtn=np.cross(Z_heeq,Xrtn)/np.linalg.norm(np.cross(Z_heeq,Xrtn))
         Zrtn=np.cross(Xrtn, Yrtn)/np.linalg.norm(np.cross(Xrtn, Yrtn))
         
         #project into new system (HEEQ)
-        sc.bx[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),X_heeq)
-        sc.by[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Y_heeq)
-        sc.bz[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Z_heeq)
+        sc.bx[i]=np.dot(np.dot(sc_in.bx[i],Xrtn)+np.dot(sc_in.by[i],Yrtn)+np.dot(sc_in.bz[i],Zrtn),X_heeq)
+        sc.by[i]=np.dot(np.dot(sc_in.bx[i],Xrtn)+np.dot(sc_in.by[i],Yrtn)+np.dot(sc_in.bz[i],Zrtn),Y_heeq)
+        sc.bz[i]=np.dot(np.dot(sc_in.bx[i],Xrtn)+np.dot(sc_in.by[i],Yrtn)+np.dot(sc_in.bz[i],Zrtn),Z_heeq)
         
-        #project into new system (HEEQ) for speed
+        #project into new system (HEEQ) for speed 
         if name=='PSP':
-            sc.vx[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),X_heeq)
-            sc.vy[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),Y_heeq)
-            sc.vz[i]=np.dot(np.dot(sc.vx[i],Xrtn)+np.dot(sc.vy[i],Yrtn)+np.dot(sc.vz[i],Zrtn),Z_heeq)
+            sc.vx[i]=np.dot(np.dot(sc_in.vx[i],Xrtn)+np.dot(sc_in.vy[i],Yrtn)+np.dot(sc_in.vz[i],Zrtn),X_heeq)
+            sc.vy[i]=np.dot(np.dot(sc_in.vx[i],Xrtn)+np.dot(sc_in.vy[i],Yrtn)+np.dot(sc_in.vz[i],Zrtn),Y_heeq)
+            sc.vz[i]=np.dot(np.dot(sc_in.vx[i],Xrtn)+np.dot(sc_in.vy[i],Yrtn)+np.dot(sc_in.vz[i],Zrtn),Z_heeq)
 
+    print('conversion RTN to HEEQ done')     
     
     return sc
 
@@ -3371,7 +3420,38 @@ def convert_RTN_to_HEEQ(sc_in,name):
 
 
 
+def convert_HEEQ_to_RTN(sc_in):
+    '''
+    for all spacecraft
+    '''
+
+    print('conversion HEEQ to RTN')                                
     
+    sc=copy.deepcopy(sc_in)
+    
+    sc_len=len(sc.bt)
+
+    #unit vectors of HEEQ basis
+    heeq_x=[1,0,0]
+    heeq_y=[0,1,0]
+    heeq_z=[0,0,1]
+
+    #project into new system RTN
+    for i in np.arange(0,sc_len):
+
+        #make unit vectors of RTN in basis of HEEQ
+        rtn_r=[sc.x[i],sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i],sc.y[i],sc.z[i]])
+        rtn_t=np.cross(heeq_z,rtn_r)
+        rtn_n=np.cross(rtn_r,rtn_t)
+
+        sc.bx[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_r)+sc_in.by[i]*np.dot(heeq_y,rtn_r)+sc_in.bz[i]*np.dot(heeq_z,rtn_r)
+        sc.by[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_t)+sc_in.by[i]*np.dot(heeq_y,rtn_t)+sc_in.bz[i]*np.dot(heeq_z,rtn_t)
+        sc.bz[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_n)+sc_in.by[i]*np.dot(heeq_y,rtn_n)+sc_in.bz[i]*np.dot(heeq_z,rtn_n)
+
+    print('conversion HEEQ to RTN done')                                
+
+    return sc
+
        
 
 ##########################################################################################################
