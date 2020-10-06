@@ -3172,48 +3172,44 @@ def convert_HEEQ_to_GSE(sc_in):
 
         b_heeq=[sc.bx[i],sc.by[i],sc.bz[i]]
 
-        #HEEQ to HAE - Hapgood equation 13 inverted, angles are set to -angle
+        #HEEQ to HAE - Hapgood equation 13 inverted, angles are set to -angle later, revert order of matrices too
         
         iota=np.radians(7.25)
         omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
-        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
-                      
+        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                                             
     
         #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
         #get lambda-omega angle in degree mod 360 and theta in degrees
         lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
         theta_node_deg=np.degrees(theta)
 
-
         ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
         if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                                                                          
         
         #rotation around Z by -theta
         c, s = np.cos(-theta), np.sin(-theta)
-        Sm2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        St = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
 
         #rotation around X by -iota  
         iota=np.radians(7.25)
         c, s = np.cos(-iota), np.sin(-iota)
-        Sm2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
+        Si = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
                 
         #rotation around Z by -Omega  
         c, s = np.cos(-omega), np.sin(-omega)
-        Sm2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
+        So = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
         
-        #matrix multiplication to go from HAE to HEEQ components                
-        b_hae=np.dot(  np.dot(   np.dot(Sm2_1,Sm2_2),Sm2_3), b_heeq) 
+        #matrix multiplication to go from HAE to HEEQ components - inverted matrix to Hapgood equation 13, 
+        #so use inverted order here: omega - iota - theta
 
-
+        b_hae=np.dot(  np.dot(   np.dot(So,Si),St), b_heeq) 
         
-        #HAE to HEE 
-        
+        #HAE to HEE        
         
         #S1 Matrix equation 12 hapgood 1992
         c, s = np.cos((lambda_sun+np.radians(180))), np.sin((lambda_sun+np.radians(180)))
         S1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
         b_hee=np.dot(S1,b_hae)
-
 
         
         #HEE to GSE
@@ -3231,6 +3227,7 @@ def convert_HEEQ_to_GSE(sc_in):
 
     
     print('conversion HEEQ to GSE done')                                
+    
     return sc
 
     
