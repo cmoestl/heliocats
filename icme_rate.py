@@ -3,13 +3,22 @@
 
 # # ICME rate update plots
 # 
-# from
+# adapted from
 # https://github.com/helioforecast/Papers/tree/master/Moestl2020_PSP_rate
 # makes a prediction of the ICME rate in solar cycle 25
 # 
 # Main author: C. Moestl, IWF Graz, Austria; twitter @chrisoutofspace; https://github.com/cmoestl
 # 
 # ssn is automatically loaded from http://www.sidc.be/silso/DATA/SN_d_tot_V2.0.csv
+# 
+# 
+# Convert this notebook to a script with jupyter nbconvert --to script cme_rate.ipynb
+# 
+# 
+# os.system('jupyter nbconvert --to script icme_rate.ipynb')    
+# 
+# 
+# 
 # 
 # ---
 # 
@@ -34,17 +43,26 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[1]:
+# In[34]:
+
+
+
+import matplotlib
+
+
+#for server runs
+matplotlib.use('Agg')
 
 
 from scipy import stats
 import scipy.io
 from matplotlib import cm
 import sys
-import matplotlib
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
+import datetime
 from datetime import timedelta
 import astropy.constants as const
 from sunpy.time import parse_time
@@ -67,6 +85,7 @@ from heliocats import stats as hs
 from heliocats import data as hd
 
 
+
 #where the 6 in situ data files are located is read from input.py
 #as data_path=....
 from config import data_path
@@ -76,8 +95,6 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 
-#Convert this notebook to a script with jupyter nbconvert --to script cme_rate.ipynb
-os.system('jupyter nbconvert --to script icme_rate.ipynb')    
 
 #%matplotlib inline
 #matplotlib.use('Qt5Agg')
@@ -91,15 +108,15 @@ if os.path.isdir(resdir) == False: os.mkdir(resdir)
 datadir='data'
 if os.path.isdir(datadir) == False: os.mkdir(datadir)
 
-outputdirectory='results/plots_rate'
+outputdirectory='results/icme_rate_cycle_update'
 if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
     
     
-animdirectory='results/plots_rate/anim'
-if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
+#animdirectory='results/plots_rate/anim'
+#if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
     
-animdirectory2='results/plots_rate/anim2'
-if os.path.isdir(animdirectory2) == False: os.mkdir(animdirectory2)
+#animdirectory2='results/plots_rate/anim2'
+#if os.path.isdir(animdirectory2) == False: os.mkdir(animdirectory2)
     
 plt.rcParams["figure.figsize"] = (15,8)
 print('done')
@@ -107,12 +124,12 @@ print('done')
 
 # ## 1 Settings and load data
 
-# In[ ]:
+# In[15]:
 
 
 plt.close('all')
 
-print('cme_rate main program.')
+print('icme_rate main program.')
 print('Christian Moestl et al., IWF Graz, Austria')
 
 #constants: 
@@ -266,7 +283,7 @@ if load_data > 0:
     [win1,hwin1]=pickle.load(open(data_path+filewin, "rb" ) )  
     
     #or use: filewin2="wind_2018_now_heeq.p" 
-    filewin2="wind_2018_2020_sept_heeq.p" 
+    filewin2="wind_2018_now_heeq.p" 
     [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
 
     #merge Wind old and new data 
@@ -344,17 +361,8 @@ if load_data > 0:
     
 
 
-# In[ ]:
+# In[16]:
 
-
-# ############# get positions from a 
-# # pre-made IDL sav file for older spacecraft positions
-# print()
-# print('get positions')
-# pos = hs.getcat('data/positions_2007_2023_HEEQ_6hours.sav')
-# pos_time= hs.decode_array(pos.time) 
-# pos_time_num=parse_time(pos_time).plot_date 
-# print('positions done')
 
 
 ########### load ICMECAT v2.0, made with icmecat.py or ipynb
@@ -456,7 +464,7 @@ merci_max=iall_max[np.where(np.logical_and(ic.sc_insitu[iall_max] =='MESSENGER',
 print('done')
 
 
-# In[ ]:
+# In[17]:
 
 
 ic
@@ -466,7 +474,7 @@ ic
 
 # ### Check data days available each year for each planet or spacecraft
 
-# In[ ]:
+# In[18]:
 
 
 ######################## make bin for each year for yearly histograms
@@ -631,7 +639,7 @@ print('done')
 
 # ### get yearly ICME rates at each spacecraft
 
-# In[177]:
+# In[19]:
 
 
 #define dates of January 1 from 2007 to 2020
@@ -766,7 +774,7 @@ icrate
 
 # ### get Richardson and Cane ICME rate for comparison
 
-# In[24]:
+# In[20]:
 
 
 #convert times in dataframe from richardson and cane list to numpy array
@@ -810,7 +818,7 @@ print(yearly_mid_times_rc)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[225]:
+# In[22]:
 
 
 sns.set_context("talk")     
@@ -871,7 +879,7 @@ ax3=ax2.twinx()
 #change matplotlib time before plotting
 ssn_time2=ssn.time + mdates.date2num(np.datetime64('0000-12-31'))
 
-ax3.plot(ssn_time2,ssn.spot_mean_12,'-k',alpha=0.5,linewidth=1.5,label='sunspot number',zorder=0)
+ax3.plot(ssn_time2,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='sunspot number',zorder=0)
 ax3.set_ylabel('Sunspot number SIDC')
 ax3.set_ylim(0,155)
 ax3.legend(loc=1,fontsize=12)
@@ -935,7 +943,7 @@ plt.tight_layout()
 #plt.annotate('(b)',[0.01,0.47],xycoords='figure fraction')
 
 #plt.savefig('results/cycle25_icme_rate.pdf', dpi=100)
-plt.savefig('results/icmecat_icme_rate.png', dpi=100)
+plt.savefig(outputdirectory+'/icmecat_icme_rate.png', dpi=100)
 
 
 # 
@@ -948,7 +956,7 @@ plt.savefig('results/icmecat_icme_rate.png', dpi=100)
 
 # ## solar cycle 23
 
-# In[191]:
+# In[25]:
 
 
 print('cycle 23\n')
@@ -1032,7 +1040,7 @@ print()
 
 # ## solar cycle 24
 
-# In[215]:
+# In[26]:
 
 
 print('cycle 24\n')
@@ -1091,7 +1099,7 @@ print(np.round(np.mean(rc_rate24/ic_rate24),2))
 # ## **Figure 2** correlation SSN with ICME rate and fit
 # plot SSN vs ICME rate, linear fit with confidence interval
 
-# In[216]:
+# In[27]:
 
 
 #add spots23/24 and rc_rate23/24 into 1 array for correlation
@@ -1205,14 +1213,14 @@ plt.plot(xlinfit,np.zeros(len(xlinfit))+26,'--k',alpha=0.5)
 
 plt.legend(loc=2)
 plt.tight_layout()
-plt.savefig('results/plots_rate/fig2_rate_ssn.pdf', dpi=300)
-plt.savefig('results/plots_rate/fig2_rate_ssn', dpi=300)
+#plt.savefig(outputdirectory+'/fig2_rate_ssn.pdf', dpi=300)
+plt.savefig(outputdirectory+'/fig2_rate_ssn.png', dpi=300)
 
 
 # ## predictions for solar cycle 25: SSN and ICME rate
 # ### 1. Mean cycle model
 
-# In[221]:
+# In[28]:
 
 
 # from heliocats import stats as hs
@@ -1331,7 +1339,7 @@ print('Std in ICME rate from fit and ICMECAT range for each year:')
 print(ic_rate_25_m_std)
 
 
-# In[222]:
+# In[29]:
 
 
 ########################################################### 2. SC25 panel prediction (SC25PP)
@@ -1450,7 +1458,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_pp_std)
 
 
-# In[223]:
+# In[30]:
 
 
 ################################### SC25MC
@@ -1548,7 +1556,7 @@ print(ic_rate_25_mc20_std)
 
 # ## **Figure 3** ICME rate predictions
 
-# In[237]:
+# In[31]:
 
 
 sns.set_context("talk")     
@@ -1580,7 +1588,7 @@ ax1.legend(loc=2,fontsize=12)
 
 ################## SSN
 ax2=ax1.twinx()
-ax2.plot(ssn_time2,ssn.spot_mean_12,'-k',alpha=1,linewidth=1.5,label='Observed sunspot number (SIDC)')
+ax2.plot(ssn_time2,ssn.spot_mean_13,'-k',alpha=1,linewidth=1.5,label='Observed sunspot number (SIDC)')
 
 ax2.plot(times_25_daily,spots_predict_25_daily,'-r',alpha=1,linewidth=2.5,label='Predicted SSN by MC20')
 ax2.plot(times_25_daily,spots_predict_25m_daily,'-g',alpha=1,linewidth=2.5,label='Predicted SSN by mean solar cycle')
@@ -1614,7 +1622,7 @@ ax3.legend(loc=2,fontsize=12)
 ######SSN axis
 ax4=ax3.twinx()
 #observed SSN
-ax4.plot(ssn_time2,ssn.spot_mean_12,'-k',alpha=1,linewidth=1.5,label='Observed sunspot number (SIDC)')
+ax4.plot(ssn_time2,ssn.spot_mean_13,'-k',alpha=1,linewidth=1.5,label='Observed sunspot number (SIDC)')
 #PP25 prediction
 ax4.plot(times_25_daily,spots_predict_25pp_daily,'-b',alpha=1,linewidth=2.5,label='Predicted SSN by PP19')
 ax4.fill_between(times_25_daily,spots_predict_25pp_daily_low,spots_predict_25pp_daily_high,alpha=0.2)
@@ -1641,18 +1649,17 @@ plt.tight_layout()
 #plt.annotate('(b)',[0.0,0.47],xycoords='figure fraction',weight='bold')
 
 #plt.savefig('results/plots_rate/fig3_sc25_predictions.pdf', dpi=100)
-plt.savefig('results/cycle25_icme_rate_predictions.png', dpi=100)
+plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.png', dpi=100)
 
 
-# In[227]:
+# In[32]:
 
 
-get_ipython().run_line_magic('matplotlib', 'inline')
 
 #Extra plot for solar cycle comparison
 sns.set_context('talk')
 sns.set_style('darkgrid')
-fig=plt.figure(3,figsize=(12,6),dpi=100)
+fig=plt.figure(30,figsize=(12,6),dpi=100)
 
 #print('get sunspot number from SIDC')    
 #get 13month smoothed sunspot number from SIDC
@@ -1687,7 +1694,7 @@ ax1.set_ylabel('Sunspot number')
 plt.legend(loc='upper right',fontsize=10)
 plt.tight_layout()
 
-plt.savefig('results/cycle25_prediction.png',dpi=100)
+plt.savefig(outputdirectory+'/cycle25_prediction.png',dpi=100)
 
 #with shorter interval
 
@@ -1698,10 +1705,10 @@ years = mdates.YearLocator(5)   # every year
 ax1.xaxis.set_major_locator(years)
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
-plt.savefig('results/cycle25_prediction_short.png',dpi=100)
+plt.savefig(outputdirectory+'/cycle25_prediction_short.png',dpi=100)
 
 
-# In[228]:
+# In[33]:
 
 
 #with shortest interval
@@ -1748,14 +1755,14 @@ ax1.set_ylim(0,70)
 months = mdates.MonthLocator()   # every year
 ax1.xaxis.set_minor_locator(months)
 ax1.grid(linestyle='--')
-plt.savefig('results/cycle25_prediction_focus.png',dpi=100)
+plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 
 # # 4 Parker Probe ICME rate prediction
 
 # ### make PSP and Solar Orbiter position
 
-# In[229]:
+# In[23]:
 
 
 frame='HEEQ'
@@ -1845,7 +1852,7 @@ sns.distplot(bepi_r)
 plt.xlabel('AU')
 
 
-# In[230]:
+# In[24]:
 
 
 #get the speed in hourly resolution
@@ -1875,7 +1882,7 @@ plt.xlabel('AU')
 print('psp maximum speed ',np.max(psp_highres_speed),' km/s at ',psp_highres_r[np.argmax(psp_highres_speed)], ' AU')
 
 
-# In[231]:
+# In[25]:
 
 
 #%matplotlib inline
@@ -1941,10 +1948,10 @@ plt.tight_layout()
 plt.figtext(0.99,0.008,'C. Möstl @chrisoutofspace', fontsize=10, ha='right',color='k',style='italic')     
 
 
-plt.savefig('results/psp_orbits.png', dpi=100)
+plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[232]:
+# In[26]:
 
 
 #same thing for Solar Orbiter
@@ -1976,7 +1983,7 @@ print('solo maximum speed ',np.max(solo_highres_speed),' km/s at ',solo_highres_
 sns.set_context('talk')
 sns.set_style('whitegrid')
 
-fig=plt.figure(23,figsize=(13,10),dpi=70)
+fig=plt.figure(24,figsize=(13,10),dpi=70)
 
 ax1 = plt.subplot(211) 
 ax1.plot_date(solo_time_highres_num,solo_highres_r,c='r',linestyle='-',markersize=0)
@@ -2041,14 +2048,14 @@ plt.tight_layout()
 plt.figtext(0.99,0.008,'C. Möstl @chrisoutofspace', fontsize=10, ha='right',color='k',style='italic')     
 
 
-plt.savefig('results/solo_orbits.png', dpi=100)
+plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
 # ### Calculate expected number of PSP ICMEs < 0.3, 0.2, 0.1 AU 
 
 # first calculate smooth functions for the icme rate including the derived error bars in Figure 3
 
-# In[233]:
+# In[27]:
 
 
 #fit yearly ICME rates again with hathaway function to get to daily resolution including errors
@@ -2108,7 +2115,7 @@ plt.plot(times_25_daily_icrange_num,fmc_low(times_25_daily_icrange_num))
 
 # Figure out how many ICMEs PSP sees < 0.1 AU, < 0.2 AU, < 0.3 AU for the predicted ICME rates
 
-# In[234]:
+# In[28]:
 
 
 #make position new in order to be of similar range with ICME rate spline fits
@@ -2239,7 +2246,7 @@ print('days < 0.3 AU:',solo_l03.size)
 
 # ## **Figure 4** PSP Solar Orbiter distance and ICME rate
 
-# In[239]:
+# In[29]:
 
 
 sns.set_context("talk")     
@@ -2247,7 +2254,7 @@ sns.set_context("talk")
 sns.set_style("ticks")
 fsize=15
 
-fig=plt.figure(4,figsize=(16,12),dpi=70)
+fig=plt.figure(45,figsize=(16,12),dpi=70)
 ax1 = plt.subplot(211) 
 #plot R[AU]
 ax1.plot_date(pspt_time,psp_r,'-k')
@@ -2330,7 +2337,7 @@ plt.annotate('Solar Orbiter',[0.08,0.455],xycoords='figure fraction',weight='bol
 plt.annotate('Bepi Colombo',[0.20,0.455],xycoords='figure fraction',weight='bold',color='orange')
 
 #plt.savefig('results/plots_rate/fig4_psp_rate.pdf', dpi=300)
-plt.savefig('results/cycle25_icme_rate_psp_orbiter_bepi.png', dpi=100)
+plt.savefig(outputdirectory+'/cycle25_icme_rate_psp_orbiter_bepi.png', dpi=100)
 
 
 # In[ ]:
