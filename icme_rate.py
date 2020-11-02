@@ -12,7 +12,7 @@
 # ssn is automatically loaded from http://www.sidc.be/silso/DATA/SN_d_tot_V2.0.csv
 # 
 # 
-# Convert this notebook to a script with jupyter nbconvert --to script cme_rate.ipynb
+# Convert this notebook to a script with:
 # 
 # 
 # os.system('jupyter nbconvert --to script icme_rate.ipynb')    
@@ -108,7 +108,9 @@ if os.path.isdir(resdir) == False: os.mkdir(resdir)
 datadir='data'
 if os.path.isdir(datadir) == False: os.mkdir(datadir)
 
-outputdirectory='results/icme_rate_cycle_update'
+#outputdirectory='results/icme_rate_cycle_update'
+outputdirectory='/nas/helio/data/insitu_python/icme_rate_cycle_update'
+
 if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
     
     
