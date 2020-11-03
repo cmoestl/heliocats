@@ -31,6 +31,8 @@ import scipy.signal
 import urllib
 import json
 import os   
+import h5py
+import pytz
 
 #import 
 from heliocats import data as hd
@@ -55,15 +57,13 @@ position_path='/nas/helio/data/insitu_python/plots_positions/'
 #for easier debugging - do not download and process data but do everything else
 get_new_data=True
 
+
+
 #~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit1.py
 #~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit2.py
 
 
-
-
-
 ################################# PSP data update
-
 
 ################################## USE THIS ################################
 # load PSP data from server on linux command line onto leo server
@@ -90,17 +90,18 @@ get_new_data=True
 ############################################# standard data update each day
 
 
-######################################### spacecraft positions image
+################# spacecraft positions image
 hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
 
 
 
-########################################### SDO images now
+################# SDO images now
 hd.get_sdo_realtime_image()
 
 
 
-########################################### NOAA real time
+################## NOAA real time
+################ load jsons
 
 print('download NOAA real time solar wind plasma and mag')
 datestr=str(datetime.datetime.utcnow().strftime("%Y_%b_%d_%H_%M"))
@@ -119,21 +120,35 @@ except urllib.error.URLError as e:
   
 print()
 
-filenoaa='noaa_rtsw_jan_2020_now.p'
-if get_new_data: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
+
+# my version:
+#filenoaa='noaa_rtsw_jan_2020_now.p'
+#if get_new_data: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
+#[noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+
+#################### with Rachel Bailey's data from predstorm
+noaapath='/nas/helio/realcode/real/predstorm/data/rtsw_min_last100days.h5'
+filenoaa='noaa_rtsw_last100days_now.p'
+if get_new_data: hd.save_noaa_rtsw_data_predstorm(data_path,noaapath,filenoaa)        
 [noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+    
+              
+############### make 3 plots
+
+#for ICMEs
+start=noaa.time[-1]-datetime.timedelta(days=3)
+end=datetime.datetime.utcnow() #noaa.time[-1]     
+hp.plot_insitu_update(noaa, start, end,'NOAA_RTSW_PREDSTORM_3days',plot_path,now=True)
 
 start=noaa.time[-1]-datetime.timedelta(days=14)
 end=datetime.datetime.utcnow() #noaa.time[-1]     
-hp.plot_insitu_update(noaa, start, end,'NOAA_RTSW',plot_path,now=True)
+hp.plot_insitu_update(noaa, start, end,'NOAA_RTSW_PREDSTORM_14days',plot_path,now=True)
 
 start=noaa.time[-1]-datetime.timedelta(days=55)
 end=datetime.datetime.utcnow() #noaa.time[-1]     
-hp.plot_insitu_update(noaa, start, end,'NOAA_RTSW',plot_path,now2=True)
+hp.plot_insitu_update(noaa, start, end,'NOAA_RTSW_PREDSTORM_55days',plot_path,now=True)
 
 print()
-
-
 
 #make quick new plot for ICMEs
 # hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
@@ -143,7 +158,72 @@ print()
 
 
 
-########################################### STEREO-A
+
+
+####################################### OMNI2
+fileomni="omni_1963_now.p"
+if get_new_data: hd.save_omni_data(data_path,fileomni)
+[o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
+
+start=datetime.datetime.utcnow() -datetime.timedelta(days=365)
+end=datetime.datetime.utcnow() 
+hp.plot_insitu_update(o, start, end,'OMNI2',plot_path,now=True)
+
+
+########################## add NOAA RTSW to OMNI data and make combined plot
+
+#get index of last OMNI data
+last_omni_index=np.where(np.isfinite(o.bt) == True)[0][-1]
+#get time for this index
+last_omni_time=o.time[last_omni_index]
+#add utc timezone awareness
+last_omni_time_utc=last_omni_time.astimezone(tz=datetime.timezone.utc)
+#get index where omni ends in noaa data
+noaa_omni_end=np.where(noaa.time>last_omni_time_utc)[0][0]
+
+
+#length of NOAA data
+size_noaa=np.size(noaa)-noaa_omni_end
+
+combi_omni_noaa=np.zeros(last_omni_index+size_noaa,dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+
+#convert to recarray
+combi_omni_noaa = combi_omni_noaa.view(np.recarray)  
+#stack omni and noaa data
+combi_omni_noaa.time=np.hstack((o.time[0:last_omni_index],noaa.time[noaa_omni_end-1:-1]))
+combi_omni_noaa.bx=np.hstack((o.bx[0:last_omni_index],noaa.bx[noaa_omni_end-1:-1]))
+combi_omni_noaa.by=np.hstack((o.by[0:last_omni_index],noaa.by[noaa_omni_end-1:-1]))
+combi_omni_noaa.bz=np.hstack((o.bz[0:last_omni_index],noaa.bz[noaa_omni_end-1:-1]))
+combi_omni_noaa.bt=np.hstack((o.bt[0:last_omni_index],noaa.bt[noaa_omni_end-1:-1]))
+combi_omni_noaa.vt=np.hstack((o.vt[0:last_omni_index],noaa.vt[noaa_omni_end-1:-1]))
+combi_omni_noaa.np=np.hstack((o.np[0:last_omni_index],noaa.np[noaa_omni_end-1:-1]))
+combi_omni_noaa.tp=np.hstack((o.tp[0:last_omni_index],noaa.tp[noaa_omni_end-1:-1]))
+
+print('Merging NOAA OMNI done')
+
+start=datetime.datetime.utcnow() -datetime.timedelta(days=365)
+end=datetime.datetime.utcnow() 
+hp.plot_insitu_update(combi_omni_noaa, start, end,'OMNI2_and_NOAA_RTSW',plot_path,now=True)
+
+
+
+
+#for making quick plots
+# plot_path='/home/cmoestl/pycode/heliocats/'
+# fileomni="omni_1963_now.p"
+# [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
+# start=datetime.datetime.utcnow() -datetime.timedelta(days=365)
+# end=datetime.datetime.utcnow() 
+# hp.plot_insitu_update(o, start, end,'OMNI2',plot_path,now=True)
+
+
+
+
+
+################################### STEREO-A
 filesta="stereoa_2019_now_sceq_beacon.p" 
 start=datetime.datetime(2019, 1, 1)
 end=datetime.datetime.utcnow()
@@ -157,7 +237,7 @@ hp.plot_insitu_update(sta, start, end,'STEREO-A_beacon',plot_path,now=True)
 
 
 
-########################################### Wind
+####################################### Wind
 
 print('download Wind 2020 files without overwriting existing files into ',data_path)
 wind_data_path='/nas/helio/data/heliosat/data/wind_mfi_k0'
@@ -181,27 +261,6 @@ start=win.time[-1]-datetime.timedelta(days=100)
 end=datetime.datetime.utcnow()         
 hp.plot_insitu_update(win, start, end,'Wind',plot_path,now=True)
 
-
-
-
-####################################### OMNI2
-fileomni="omni_1963_now.p"
-overwrite=1
-if get_new_data: hd.save_omni_data(data_path,fileomni,overwrite)
-[o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
-
-start=datetime.datetime.utcnow() -datetime.timedelta(days=365)
-end=datetime.datetime.utcnow() 
-hp.plot_insitu_update(o, start, end,'OMNI2',plot_path,now=True)
-
-
-#for making quick plots
-# plot_path='/home/cmoestl/pycode/heliocats/'
-# fileomni="omni_1963_now.p"
-# [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
-# start=datetime.datetime.utcnow() -datetime.timedelta(days=365)
-# end=datetime.datetime.utcnow() 
-# hp.plot_insitu_update(o, start, end,'OMNI2',plot_path,now=True)
 
 
 ############### write header file for daily updates

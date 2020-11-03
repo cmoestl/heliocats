@@ -30,7 +30,7 @@ import heliopy.spice as spice
 import astropy
 import requests
 import math
-
+import h5py
 
 from config import data_path
 #data_path='/nas/helio/data/insitu_python/'
@@ -1239,7 +1239,50 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa):
     
     print('NOAA done')        
 
+    
 
+
+def save_noaa_rtsw_data_predstorm(data_path,noaa_path,filenoaa):
+
+
+    print(' ')
+    print('convert NOAA real time solar wind from predstorm h5 file to pickle file')
+
+    hf = h5py.File(noaa_path, 'r')
+
+    #make array
+    noaa=np.zeros(len(np.array(hf.get('time'))),dtype=[('time',object),('bx', float),('by', float),\
+                    ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                    ('x', float),('y', float),('z', float),\
+                    ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    noaa = noaa.view(np.recarray)  
+    noaa.time =  mdates.num2date( np.array(hf.get('time')))
+    noaa.bt=np.array(hf.get('bt'))
+    noaa.bx=np.array(hf.get('bx_gsm'))
+    noaa.by=np.array(hf.get('by_gsm'))
+    noaa.bz=np.array(hf.get('bz_gsm'))
+    noaa.vt=np.array(hf.get('speed'))
+    noaa.np=np.array(hf.get('density'))
+    noaa.tp=np.array(hf.get('temperature'))
+
+    header='Real time solar wind magnetic field and plasma data from NOAA, ' + \
+            'obtained daily from https://services.swpc.noaa.gov/products/solar-wind/  '+ \
+            'Timerange: '+noaa.time[0].strftime("%Y-%b-%d %H:%M")+' to '+noaa.time[-1].strftime("%Y-%b-%d %H:%M")+\
+            ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(noaa.time)).seconds)+' seconds. '+\
+            'The data are available in a numpy recarray, fields can be accessed by nf.time, nf.bx, nf.vt etc. '+\
+            'Total number of data points: '+str(noaa.size)+'. '+\
+            'Units are btxyz [nT, RTN], vt  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+            'Made with https://github.com/cmoestl/heliocats save_noaa_rtsw_data_predstorm  '+\
+            'By C. Moestl (twitter @chrisoutofspace) and R. L. Bailey. File creation date: '+\
+            datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+    pickle.dump([noaa,header], open(data_path+filenoaa, "wb"))
+
+    print('NOAA from predstorm done')        
+    
+    
 
 def get_noaa_realtime_data(magfile, plasmafile):
     """
@@ -1775,27 +1818,27 @@ def save_stereoa_science_data(path,file,t_start, t_end,sceq):
 
 
 
-def omni_loader(overwrite):
+def omni_loader():
    '''
    downloads all omni2 data into the "data" folder
    '''
 
-   if overwrite>0: 
-         print('download OMNI2 again')
-         os.remove('data/omni2_all_years.dat')
+   #if overwrite>0: 
+   #      print('download OMNI2 again')
+   #      if os.path.exists('data/omni2_all_years.dat'): os.remove('data/omni2_all_years.dat')
   
-   if not os.path.exists('data/omni2_all_years.dat'):
+   #if not os.path.exists('data/omni2_all_years.dat'):
       #see http://omniweb.gsfc.nasa.gov/html/ow_data.html
-      print('OMNI2 .dat file not in "data" directory, so download OMNI2 data from')
-      omni2_url='https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2_all_years.dat'
-      print(omni2_url)
-      try: urllib.request.urlretrieve(omni2_url, 'data/omni2_all_years.dat')
-      except urllib.error.URLError as e:
-          print(' ', omni2_url,' ',e.reason)
-          sys.exit()
+   print('load OMNI2 .dat into "data" directory from')
+   omni2_url='https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2_all_years.dat'
+   print(omni2_url)
+   try: urllib.request.urlretrieve(omni2_url, 'data/omni2_all_years.dat')
+   except urllib.error.URLError as e:
+         print(' ', omni2_url,' ',e.reason)
+         sys.exit()
 
 
-def save_omni_data(path,file,overwrite):
+def save_omni_data(path,file):
     '''
     save variables from OMNI2 dataset as pickle
 
@@ -1805,7 +1848,7 @@ def save_omni_data(path,file,overwrite):
   
     print('start omni')
     
-    omni_loader(overwrite)
+    omni_loader()
     #check how many rows exist in this file
     f=open('data/omni2_all_years.dat')
     dataset= len(f.readlines())
