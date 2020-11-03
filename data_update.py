@@ -63,6 +63,10 @@ get_new_data=True
 #~/miniconda/envs/helio/bin/python /home/cmoestl/pycode/heliocats/sc_positions_insitu_orbit2.py
 
 
+
+
+
+
 ################################# PSP data update
 
 ################################## USE THIS ################################
