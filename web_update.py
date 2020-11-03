@@ -27,8 +27,12 @@ print()
 sftp.put(path+'Wind_now.png')  # upload file to public/ on remote
 sftp.put(path+'STEREO-A_beacon_now.png')
 sftp.put(path+'OMNI2_now.png')
-sftp.put(path+'NOAA_RTSW_now.png')
-sftp.put(path+'NOAA_RTSW_now2.png')
+
+
+sftp.put(path+'NOAA_RTSW_PREDSTORM_55days_now.png')
+sftp.put(path+'NOAA_RTSW_PREDSTORM_14days_now.png')
+sftp.put(path+'NOAA_RTSW_PREDSTORM_3days_now.png')
+sftp.put(path+'OMNI2_and_NOAA_RTSW_now.png')
 
 sftp.put(path_position+'positions_now.png')
 
