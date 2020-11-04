@@ -43,7 +43,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[34]:
+# In[155]:
 
 
 
@@ -52,6 +52,9 @@ import matplotlib
 
 #for server runs
 matplotlib.use('Agg')
+#for notebook use
+#%matplotlib inline
+
 
 
 from scipy import stats
@@ -126,7 +129,7 @@ print('done')
 
 # ## 1 Settings and load data
 
-# In[15]:
+# In[97]:
 
 
 plt.close('all')
@@ -135,7 +138,7 @@ print('icme_rate main program.')
 print('Christian Moestl et al., IWF Graz, Austria')
 
 #constants: 
-#solar radius
+#solar radiusx
 Rs_in_AU=float(const.R_sun/const.au)
 #define AU in km
 AU_in_km=const.au.value/1e3
@@ -177,8 +180,9 @@ if load_data > 0:
     #daily sunspot number
 
     if get_new_sunspots==1:
-        ssn=pd.read_csv('http://www.sidc.be/silso/DATA/SN_d_tot_V2.0.csv',sep=';',names=['year','month','day','year2','spot','stand','obs','prov'])       
+        ssn=pd.read_csv('http://www.sidc.be/silso/DATA/SN_d_tot_V2.0.csv',sep=';',names=['year','month','day','year2','spot','stand','obs','prov'])     
         
+   
         ssn_time=np.zeros(len(ssn))
         for k in np.arange(len(ssn)):
             ssn_time[k]=parse_time(str(ssn.year[k])+'-'+str(ssn.month[k])+'-'+str(ssn.day[k])).plot_date
@@ -189,6 +193,37 @@ if load_data > 0:
         ssn.stand.loc[np.where(ssn.stand< 0)[0]]=np.nan    
         fileout='ssn.p'
         pickle.dump(ssn, open(data_path+fileout, "wb"))
+        
+
+        #also get preliminary data for current month for plotting    
+        #does not work
+        #ssn_prelim_raw=pd.csv('http://www.sidc.be/silso/DATA/EISN/EISN_current.csv',sep=',',names=['year','month','day','year2','spot','stand','stat calc','stat avail'])       
+        
+        
+        #download manually
+        ssn_prelim_url='http://www.sidc.be/silso/DATA/EISN/EISN_current.csv'
+        try: urllib.request.urlretrieve(ssn_prelim_url,'data/EISN_current.csv')
+        except urllib.error.URLError as e:
+            print('Failed downloading ', ssn_prelim_url,' ',e)
+        
+        ssn_prelim_raw = np.loadtxt('data/EISN_current.csv', delimiter=',',usecols=(0,1,2,4,5))
+        ssn_p_int=ssn_prelim_raw.astype(int)
+        ssn_p=pd.DataFrame(ssn_p_int,columns=['year','month','day','spot','stand'])        
+        
+        ssn_p_time=np.zeros(len(ssn_p))
+        for k in np.arange(len(ssn_p)):
+            ssn_p_time[k]=parse_time(str(ssn_p.year[k])+'-'+str(ssn_p.month[k])+'-'+str(ssn_p.day[k])).plot_date
+        
+        ssn_p.insert(0,'time',ssn_p_time)
+        ssn_p.spot.loc[np.where(ssn_p.spot< 0)[0]]=np.nan    
+        ssn_p.stand.loc[np.where(ssn_p.stand< 0)[0]]=np.nan    
+    
+
+        fileout='ssn_prelim.p'
+        pickle.dump(ssn_p, open(data_path+fileout, "wb"))
+
+
+
         
 
     if get_new_sunspots_ms==1:
@@ -363,7 +398,7 @@ if load_data > 0:
     
 
 
-# In[16]:
+# In[125]:
 
 
 
@@ -466,7 +501,7 @@ merci_max=iall_max[np.where(np.logical_and(ic.sc_insitu[iall_max] =='MESSENGER',
 print('done')
 
 
-# In[17]:
+# In[126]:
 
 
 ic
@@ -476,7 +511,7 @@ ic
 
 # ### Check data days available each year for each planet or spacecraft
 
-# In[18]:
+# In[127]:
 
 
 ######################## make bin for each year for yearly histograms
@@ -641,7 +676,7 @@ print('done')
 
 # ### get yearly ICME rates at each spacecraft
 
-# In[19]:
+# In[128]:
 
 
 #define dates of January 1 from 2007 to 2020
@@ -776,7 +811,7 @@ icrate
 
 # ### get Richardson and Cane ICME rate for comparison
 
-# In[20]:
+# In[129]:
 
 
 #convert times in dataframe from richardson and cane list to numpy array
@@ -820,7 +855,7 @@ print(yearly_mid_times_rc)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[22]:
+# In[156]:
 
 
 sns.set_context("talk")     
@@ -958,7 +993,7 @@ plt.savefig(outputdirectory+'/icmecat_icme_rate.png', dpi=100)
 
 # ## solar cycle 23
 
-# In[25]:
+# In[157]:
 
 
 print('cycle 23\n')
@@ -1042,7 +1077,7 @@ print()
 
 # ## solar cycle 24
 
-# In[26]:
+# In[158]:
 
 
 print('cycle 24\n')
@@ -1101,7 +1136,7 @@ print(np.round(np.mean(rc_rate24/ic_rate24),2))
 # ## **Figure 2** correlation SSN with ICME rate and fit
 # plot SSN vs ICME rate, linear fit with confidence interval
 
-# In[27]:
+# In[159]:
 
 
 #add spots23/24 and rc_rate23/24 into 1 array for correlation
@@ -1222,7 +1257,7 @@ plt.savefig(outputdirectory+'/fig2_rate_ssn.png', dpi=300)
 # ## predictions for solar cycle 25: SSN and ICME rate
 # ### 1. Mean cycle model
 
-# In[28]:
+# In[160]:
 
 
 # from heliocats import stats as hs
@@ -1341,7 +1376,7 @@ print('Std in ICME rate from fit and ICMECAT range for each year:')
 print(ic_rate_25_m_std)
 
 
-# In[29]:
+# In[161]:
 
 
 ########################################################### 2. SC25 panel prediction (SC25PP)
@@ -1460,7 +1495,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_pp_std)
 
 
-# In[30]:
+# In[162]:
 
 
 ################################### SC25MC
@@ -1558,7 +1593,7 @@ print(ic_rate_25_mc20_std)
 
 # ## **Figure 3** ICME rate predictions
 
-# In[31]:
+# In[163]:
 
 
 sns.set_context("talk")     
@@ -1654,7 +1689,7 @@ plt.tight_layout()
 plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.png', dpi=100)
 
 
-# In[32]:
+# In[164]:
 
 
 
@@ -1670,7 +1705,7 @@ fig=plt.figure(30,figsize=(12,6),dpi=100)
 
 
 file='ssn_m.p'  
-ssn_ms=pickle.load(open(data_path+file, "rb"))
+ssn_m=pickle.load(open(data_path+file, "rb"))
 
 fsize=15
 max_spot=380
@@ -1678,7 +1713,7 @@ max_spot=380
 ax1 = plt.subplot(111) 
 ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.4,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
 #ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
-ax1.plot(ssn_ms.time,ssn_ms.spot,'-k',alpha=1,linewidth=2,label='Observed sunspot number (SIDC, monthly mean)')
+ax1.plot(ssn_m.time,ssn_m.spot,'-k',alpha=1,linewidth=2,label='Observed sunspot number (SIDC, monthly mean)')
 
 #PP25 prediction
 ax1.plot(times_25_daily,spots_predict_25pp_daily,'-b',alpha=1,linewidth=2.5,label='Solar Cycle Prediction Panel (NOAA, NASA, ISES)')
@@ -1710,7 +1745,7 @@ ax1.xaxis.set_major_formatter(myformat)
 plt.savefig(outputdirectory+'/cycle25_prediction_short.png',dpi=100)
 
 
-# In[33]:
+# In[165]:
 
 
 #with shortest interval
@@ -1727,15 +1762,19 @@ fig=plt.figure(4,figsize=(12,6),dpi=100)
 
 
 file='ssn_m.p'  
-ssn_ms=pickle.load(open(data_path+file, "rb"))
+ssn_m=pickle.load(open(data_path+file, "rb"))
+
+file='ssn_prelim.p'
+ssn_p=pickle.load(open(data_path+file, "rb"))
 
 fsize=15
 max_spot=420
 
 ax1 = plt.subplot(111) 
-ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.4,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
+ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.5,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
+ax1.plot(ssn_p.time,ssn_p.spot,color='mediumseagreen',alpha=0.5,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
 #ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
-ax1.plot(ssn_ms.time,ssn_ms.spot,'-k',alpha=1,linewidth=2,label='Observed sunspot number (SIDC, monthly mean)')
+ax1.plot(ssn_m.time,ssn_m.spot,'-k',alpha=1,linewidth=2,label='Observed sunspot number (SIDC, monthly mean)')
 
 #PP25 prediction
 ax1.plot(times_25_daily,spots_predict_25pp_daily,'-b',alpha=1,linewidth=2.5,label='Solar Cycle Prediction Panel (NOAA, NASA, ISES)')
@@ -1764,7 +1803,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # ### make PSP and Solar Orbiter position
 
-# In[23]:
+# In[166]:
 
 
 frame='HEEQ'
@@ -1854,7 +1893,7 @@ sns.distplot(bepi_r)
 plt.xlabel('AU')
 
 
-# In[24]:
+# In[167]:
 
 
 #get the speed in hourly resolution
@@ -1884,7 +1923,7 @@ plt.xlabel('AU')
 print('psp maximum speed ',np.max(psp_highres_speed),' km/s at ',psp_highres_r[np.argmax(psp_highres_speed)], ' AU')
 
 
-# In[25]:
+# In[168]:
 
 
 #%matplotlib inline
@@ -1953,7 +1992,7 @@ plt.figtext(0.99,0.008,'C. Möstl @chrisoutofspace', fontsize=10, ha='right',col
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[26]:
+# In[169]:
 
 
 #same thing for Solar Orbiter
@@ -2057,7 +2096,7 @@ plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 # first calculate smooth functions for the icme rate including the derived error bars in Figure 3
 
-# In[27]:
+# In[170]:
 
 
 #fit yearly ICME rates again with hathaway function to get to daily resolution including errors
@@ -2117,7 +2156,7 @@ plt.plot(times_25_daily_icrange_num,fmc_low(times_25_daily_icrange_num))
 
 # Figure out how many ICMEs PSP sees < 0.1 AU, < 0.2 AU, < 0.3 AU for the predicted ICME rates
 
-# In[28]:
+# In[171]:
 
 
 #make position new in order to be of similar range with ICME rate spline fits
@@ -2248,7 +2287,7 @@ print('days < 0.3 AU:',solo_l03.size)
 
 # ## **Figure 4** PSP Solar Orbiter distance and ICME rate
 
-# In[29]:
+# In[172]:
 
 
 sns.set_context("talk")     
