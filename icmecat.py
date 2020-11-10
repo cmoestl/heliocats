@@ -320,7 +320,7 @@ print('done')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[4]:
+# In[3]:
 
 
 load_data=1
@@ -346,15 +346,14 @@ if load_data > 0:
 
     ########### CURRENT ACTIVE SPACECRAFT    
     
-    print('load Bepi Colombo SCEQ')
-    filebepi='bepi_2020_march_sept_sceq.p'
-    bepi=pickle.load(open(data_path+filebepi, "rb" ) )      
+    #print('load Bepi Colombo SCEQ')
+    #filebepi='bepi_2020_march_sept_sceq.p'
+    #bepi=pickle.load(open(data_path+filebepi, "rb" ) )      
    
     
     print('load Solar Orbiter SCEQ')
-    filesolo='solo_2020_april_sceq.p'
-    solo=pickle.load(open(data_path+filesolo, "rb" ) ) 
-   
+    filesolo='solo_2020_june_july_sceq.p'
+    solo=pickle.load(open(data_path+filesolo, "rb" ) )    
 
            
     print('load MAVEN data MSO') 
