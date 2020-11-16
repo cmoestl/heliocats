@@ -373,7 +373,7 @@ if load_data > 0:
     
     
     print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
-    filepsp='psp_2018_2020_sceq.p'
+    filepsp='psp_2018_2020_nov_sceq.p'
     [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
     
