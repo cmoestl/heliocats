@@ -52,6 +52,7 @@ import pandas as pd
 import copy
 import openpyxl
 import h5py
+import heliosat
 
 
 import astropy.units as u
@@ -106,7 +107,7 @@ warnings.filterwarnings('ignore')
 
 # ## (0) process in situ data into similar format
 
-# In[2]:
+# In[204]:
 
 
 # make data
@@ -173,12 +174,242 @@ warnings.filterwarnings('ignore')
 
 
 
+
+
 ########################## SAVE MSL rad data into recarray as pickle
 #hd.save_msl_rad()
 
 
 
-# In[2]:
+################################### STEREO-A science data
+
+
+c1=time.time()
+filesta="stereoa_2019_2020_rtn_science.p" 
+
+
+
+
+#t_start=datetime.datetime(2019, 12, 28)
+#t_end=datetime.datetime(2020, 1, 3)
+
+
+
+#sta_sat = heliosat.STA()
+#tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_l1")
+
+
+
+#read manually cdf
+
+
+sta_impact_path='/nas/helio/data/heliosat/data/sta_impact_l1/'
+
+t_start=datetime.datetime(2020, 7,20)
+t_end=datetime.datetime(2020, 7, 23)
+
+
+t_start1=copy.deepcopy(t_start)
+time_1=[]
+#make 1 min datetimes
+while t_start1 < t_end:
+    time_1.append(t_start1)  
+    t_start1 += timedelta(minutes=1)
+
+
+#make array for 1 min data
+sta=np.zeros(len(time_1),dtype=[('time',object),('bx', float),('by', float),            ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),            ('x', float),('y', float),('z', float),            ('r', float),('lat', float),('lon', float)])   
+
+#convert to recarray
+sta = sta.view(np.recarray)  
+sta.time=time_1
+
+#make data file names
+t_start1=copy.deepcopy(t_start)
+days_sta = []
+days_str = []
+i=0
+while t_start < t_end:
+    days_sta.append(t_start)  
+    days_str.append(str(days_sta[i])[0:4]+str(days_sta[i])[5:7]+str(days_sta[i])[8:10])        
+    i=i+1
+    t_start += timedelta(days=1)
+
+#go through all files
+
+bt=np.zeros(int(1e8))
+bx=np.zeros(int(1e8))
+by=np.zeros(int(1e8))
+bz=np.zeros(int(1e8))
+t2=[]
+i=0
+for days_date in days_str:
+    cdf_file = 'STA_L1_MAG_RTN_{}_V06.cdf'.format(days_date)
+    print(cdf_file)
+    f1 = cdflib.CDF(sta_impact_path+cdf_file)
+    t1=parse_time(f1.varget('Epoch'),format='cdf_epoch').datetime
+    t2.extend(t1)
+    bfield=f1.varget('BFIELD')
+    bt[i:i+len(bfield[:,3])]=bfield[:,3]
+    bx[i:i+len(bfield[:,0])]=bfield[:,0]
+    by[i:i+len(bfield[:,1])]=bfield[:,1]
+    bz[i:i+len(bfield[:,2])]=bfield[:,2]
+    i=i+len(bfield[:,3])
+
+#cut array
+bt=bt[0:i]
+bx=bx[0:i]
+by=by[0:i]
+bz=bz[0:i]
+
+tm2=mdates.date2num(t2)
+time_mat=mdates.date2num(time_1)
+
+
+#linear interpolation to time_mat times    
+sta.bx = np.interp(time_mat, tm2, bx )
+sta.by = np.interp(time_mat, tm2, by )
+sta.bz = np.interp(time_mat, tm2, bz )
+sta.bt = np.sqrt(sta.bx**2+sta.by**2+sta.bz**2)
+
+
+########### get PLASTIC new prel data
+#PLASTIC
+#2019 monthly if needed
+#https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2019/
+
+#2020 manually all
+#https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2020/
+
+#STA_L2_PLA_1DMax_1min_202004_092_PRELIM_v01.txt
+#STA_L2_PLA_1DMax_1min_202005_122_PRELIM_v01.txt
+#STA_L2_PLA_1DMax_1min_202006_153_PRELIM_v01.txt
+#STA_L2_PLA_1DMax_1min_202007_183_PRELIM_v01.txt
+
+
+
+
+
+########
+vt=np.zeros(int(1e8))
+np=np.zeros(int(1e8))
+tp=np.zeros(int(1e8))
+pt2=[]
+
+
+sta_plastic_path='/nas/helio/data/heliosat/data/sta_plastic_l2_ascii/'
+
+
+pfiles=['STA_L2_PLA_1DMax_1min_202004_092_PRELIM_v01.txt',     
+     'STA_L2_PLA_1DMax_1min_202005_122_PRELIM_v01.txt',
+     'STA_L2_PLA_1DMax_1min_202006_153_PRELIM_v01.txt',
+     'STA_L2_PLA_1DMax_1min_202007_183_PRELIM_v01.txt']
+
+j=0
+for name in pfiles:
+
+    p1=np.genfromtxt(sta_plastic_path+name,skip_header=2)
+
+    vt1=p1[:,8]
+    np1=p1[:,9]
+    tp1=p1[:,10]
+
+    #YEAR	DOY	hour	min	sec
+    year1=p1[:,0]
+    doy1=p1[:,1]
+    hour1=p1[:,2]
+    min1=p1[:,3]
+    sec1=p1[:,4]
+
+
+
+    p1t=[]
+    #make datetime array from year and doy
+    for i in np.arange(len(doy1)):
+        p1t.append(parse_time(str(int(year1[i]))+'-01-01 00:00').datetime+datetime.timedelta(days=doy1[i]-1)+                   +datetime.timedelta(hours=hour1[i]) + datetime.timedelta(minutes=min1[i])  )
+    vt.extend(vt1)
+    np.extend(np1)
+    tp.extend(tp1)    
+    pt2.extend(p1t)
+    
+    j=j+len(vt1)
+    
+    #cut array
+    vt=vt[0:j]
+    np=np[0:j]
+    tp=tp[0:j]
+    pt2=pt2[0:j]
+
+
+    
+    
+tm2=mdates.date2num(t2)
+time_mat=mdates.date2num(time_1)
+
+
+#linear interpolation to time_mat times    
+sta.bx = np.interp(time_mat, tm2, bx )
+sta.by = np.interp(time_mat, tm2, by )
+sta.bz = np.interp(time_mat, tm2, bz )
+sta.bt = np.sqrt(sta.bx**2+sta.by**2+sta.bz**2)
+
+
+
+
+
+#plt.plot(p1t,vt1)    
+ 
+    
+    
+    
+    
+
+
+#add position
+#***********
+
+        
+        
+#f1 = cdflib.CDF(sta_science_path+file)
+#f1.cdf_info()
+#time=f1.varget('Epoch')
+#a1=f1.varinq('BFIELD')
+#bfield=f1.varget('BFIELD')
+#bt=bfield[:,3]
+#bx=bfield[:,0]
+#by=bfield[:,1]
+#bz=bfield[:,2]
+#t1=parse_time(time,format='cdf_epoch').datetime  
+
+
+
+#end=datetime.datetime.utcnow()
+#hd.save_stereoa_science_data(data_path,filesta,start,end,sceq=False)
+#[sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
+
+
+print('done')
+
+
+plt.figure(1,dpi=100)
+plt.plot(t2,bt)
+plt.plot(t2,bx)
+plt.plot(t2,by)
+plt.plot(t2,bz)
+
+plt.figure(2,dpi=100)
+plt.plot(sta.time,sta.bt)
+plt.plot(sta.time,sta.bx)
+plt.plot(sta.time,sta.by)
+plt.plot(sta.time,sta.bz)
+
+nroffiles=3
+perfile=np.round((time.time()-c1)/nroffiles)
+print('run time per file',perfile,' sc')
+print(perfile*200/60,' min')
+
+
+# In[14]:
 
 
 ############################# make Ulysses files
@@ -316,6 +547,74 @@ warnings.filterwarnings('ignore')
 #for Solar Orbiter, got to read_solo.ipynb
 
 print('done')
+
+
+# In[19]:
+
+
+print('load PSP data RTN') #from heliosat, converted to SCEQ similar to STEREO-A/B
+filepsp='psp_2018_2020_nov_rtn.p'
+[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
+    
+
+
+# In[81]:
+
+
+get_ipython().run_line_magic('matplotlib', 'inline')
+
+
+
+start=datetime.datetime(2020,7,11)
+end=datetime.datetime(2020,7,11,6,0,0)
+
+
+#start=datetime.datetime(2020,4,30)
+#end=datetime.datetime(2020,7,20)
+
+#start=datetime.datetime(2020,7,20)
+#end=datetime.datetime(2020,11,1)
+
+
+sns.set_context("talk")     
+sns.set_style('darkgrid')
+
+fig=plt.figure(3,figsize=(20,15),dpi=200)
+
+
+
+ax1=plt.subplot(211)
+
+
+
+#ax1.plot(psp.time,psp.bt,'-k',lw=0.5,label='Btotal')
+#ax1.plot(psp.time,psp.bx,'-r',lw=0.2,label='Br')
+#ax1.plot(psp.time,psp.by,'-g',lw=0.2,label='Bt')
+#ax1.plot(psp.time,psp.bz,'-b',lw=0.2,label='Bn')
+
+ax1.plot(psp.time,psp.bt,'-k',lw=1,label='Btotal')
+ax1.plot(psp.time,psp.bx,'-r',lw=1,label='Br')
+ax1.plot(psp.time,psp.by,'-g',lw=1,label='Bt')
+ax1.plot(psp.time,psp.bz,'-b',lw=1,label='Bn')
+
+
+
+ax1.set_xlim(start,end)
+ax1.set_ylabel('FIELDS magnetic field [nT]')
+ax1.legend(loc=2)
+ax1.set_ylim(-20,20)
+
+
+ax2=plt.subplot(212,sharex=ax1)
+ax2.plot(psp.time,psp.r,'-b')
+#ax2.set_ylim(0,0.5)
+
+ax2.set_ylabel('Heliocentric distance [AU]')
+
+plt.tight_layout()
+
+plt.savefig('results/parker_orbit_venus.png',dpi=200)
+plt.savefig('results/parker_orbit_venus.pdf')
 
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data

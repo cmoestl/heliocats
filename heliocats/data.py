@@ -854,7 +854,7 @@ def load_stereoa_science_1min():
     alldata = {k: [] for k in varnames}
     if not os.path.exists(heliosat_data_path+'sta_magplasma_outside_heliosat'):
         os.mkdir(heliosat_data_path+'sta_magplasma_outside_heliosat')
-    for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016','2017','2018','2019']:
+    for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016','2017','2018','2019','2020']:
         print('get STEREO-A yearly 1min data file for ',year)
         cdf_write = heliosat_data_path+'sta_magplasma_outside_heliosat/STA_L2_MAGPLASMA_1m_{}_V01.cdf'.format(year)
         if not os.path.exists(cdf_write):
@@ -1676,7 +1676,30 @@ def save_stereoa_beacon_data(path,file,start_time,end_time,sceq):
 
 
 
+    
+    
+    
+    
+    
+    
+    
+def save_stereoa_science_data_new(path,file,t_start, t_end):
 
+    
+    #PLASTIC
+    #2019 monthly
+    #https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2019/
+    
+    #2020 manually
+    #https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2020/
+
+    
+    
+    
+    
+    return 0
+    
+    
 
 def save_stereoa_science_data(path,file,t_start, t_end,sceq):
     
@@ -1690,9 +1713,9 @@ def save_stereoa_science_data(path,file,t_start, t_end,sceq):
     time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
     time_mat=mdates.date2num(time) 
     
-    tp, pro = sta_sat.get_data_raw(t_start, t_end, "sta_plastic_l2")
+    #tp, pro = sta_sat.get_data_raw(t_start, t_end, "sta_plastic_l2")
     #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_beacon")
-    #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_l1")
+    tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_l1")
 
     print('download complete')
    

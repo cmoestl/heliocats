@@ -86,6 +86,12 @@ get_new_data=True
 
 
 
+############################################ STEREO - A science data update
+
+
+
+
+
 
 ############################################# standard data update each day
 
