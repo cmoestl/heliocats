@@ -26,7 +26,7 @@
 # 
 # 
 
-# In[1]:
+# In[5]:
 
 
 import numpy as np
@@ -53,6 +53,9 @@ import copy
 import openpyxl
 import h5py
 import heliosat
+import heliopy.data.spice as spicedata
+import heliopy.spice as spice
+import cdflib
 
 
 import astropy.units as u
@@ -103,362 +106,21 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 import warnings
 warnings.filterwarnings('ignore')
+print('done')
 
 
-# ## (0) process in situ data into similar format
+# ## (0) process new in situ data into similar format
 
-# In[204]:
+# In[6]:
 
 
 # make data
 # from heliocats import data as hd
 # importlib.reload(hd) #reload again while debugging
 
-# # ################################# PSP
-
-
-################################## USE THIS ################################
-# load PSP data from server on linux command line onto leo server
-# go to heliosat directory /nas/helio/data/heliosat/data/psp_fields_l2
-# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2019/*.cdf"
-# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2020/*.cdf"
-# psp_spc_l3
-# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf"
-# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2020/*.cdf"
-############################################################################
-
-
-# print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
-
-#filepsp='psp_2018_2020_rtn.p'
-#hd.save_psp_data(data_path,filepsp, sceq=False)   
-#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
-#print('done')
-
-#filepsp='psp_2018_2020_sceq.p'
-#hd.save_psp_data(data_path,filepsp, sceq=True)   
-#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
-# plt.xlim(parse_time('2007-08-15').plot_date,parse_time('2007-08-15 12:00').plot_date)
-
-
-# ################################# Wind
-
-# filewin="wind_2018_2019_gse.p" 
-# start=datetime.datetime(2018, 1, 1)
-# end=datetime.datetime(2020, 1, 1)
-# hd.save_wind_data(data_path,filewin,start,end,heeq=False)
-
-# filewin="wind_2018_2019_heeq.p" 
-# start=datetime.datetime(2018, 1, 1)
-# #end=datetime.datetime(2019, 12, 31)
-# end=datetime.datetime.utcnow()
-# hd.save_wind_data(data_path,filewin,start,end,heeq=True)
-
-# filewin1="wind_2007_2018_heeq_helcats.p" 
-# [win1,hwin1]=pickle.load(open(data_path+filewin1, "rb" ) )  
-# filewin2="wind_2018_2019_heeq.p" 
-# [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
-# filewin3="wind_2018_2019_gse.p" 
-# [win3,hwin3]=pickle.load(open(data_path+filewin3, "rb" ) )  
-
-
-
-################################### STEREO-A
-#filesta="stereoa_2019_2020_sceq_beacon.p" 
-#start=datetime.datetime(2019, 1, 1)
-#end=datetime.datetime.utcnow()
-#hd.save_stereoa_beacon_data(data_path,filesta,start,end,sceq=True)
-#[sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
-
-
-
-
-
-
-
-########################## SAVE MSL rad data into recarray as pickle
-#hd.save_msl_rad()
-
-
-
-################################### STEREO-A science data
-
-
-c1=time.time()
-filesta="stereoa_2019_2020_rtn_science.p" 
-
-
-
-
-#t_start=datetime.datetime(2019, 12, 28)
-#t_end=datetime.datetime(2020, 1, 3)
-
-
-
-#sta_sat = heliosat.STA()
-#tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_l1")
-
-
-
-#read manually cdf
-
-
-sta_impact_path='/nas/helio/data/heliosat/data/sta_impact_l1/'
-
-t_start=datetime.datetime(2020, 7,20)
-t_end=datetime.datetime(2020, 7, 23)
-
-
-t_start1=copy.deepcopy(t_start)
-time_1=[]
-#make 1 min datetimes
-while t_start1 < t_end:
-    time_1.append(t_start1)  
-    t_start1 += timedelta(minutes=1)
-
-
-#make array for 1 min data
-sta=np.zeros(len(time_1),dtype=[('time',object),('bx', float),('by', float),            ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),            ('x', float),('y', float),('z', float),            ('r', float),('lat', float),('lon', float)])   
-
-#convert to recarray
-sta = sta.view(np.recarray)  
-sta.time=time_1
-
-#make data file names
-t_start1=copy.deepcopy(t_start)
-days_sta = []
-days_str = []
-i=0
-while t_start < t_end:
-    days_sta.append(t_start)  
-    days_str.append(str(days_sta[i])[0:4]+str(days_sta[i])[5:7]+str(days_sta[i])[8:10])        
-    i=i+1
-    t_start += timedelta(days=1)
-
-#go through all files
-
-bt=np.zeros(int(1e8))
-bx=np.zeros(int(1e8))
-by=np.zeros(int(1e8))
-bz=np.zeros(int(1e8))
-t2=[]
-i=0
-for days_date in days_str:
-    cdf_file = 'STA_L1_MAG_RTN_{}_V06.cdf'.format(days_date)
-    print(cdf_file)
-    f1 = cdflib.CDF(sta_impact_path+cdf_file)
-    t1=parse_time(f1.varget('Epoch'),format='cdf_epoch').datetime
-    t2.extend(t1)
-    bfield=f1.varget('BFIELD')
-    bt[i:i+len(bfield[:,3])]=bfield[:,3]
-    bx[i:i+len(bfield[:,0])]=bfield[:,0]
-    by[i:i+len(bfield[:,1])]=bfield[:,1]
-    bz[i:i+len(bfield[:,2])]=bfield[:,2]
-    i=i+len(bfield[:,3])
-
-#cut array
-bt=bt[0:i]
-bx=bx[0:i]
-by=by[0:i]
-bz=bz[0:i]
-
-tm2=mdates.date2num(t2)
-time_mat=mdates.date2num(time_1)
-
-
-#linear interpolation to time_mat times    
-sta.bx = np.interp(time_mat, tm2, bx )
-sta.by = np.interp(time_mat, tm2, by )
-sta.bz = np.interp(time_mat, tm2, bz )
-sta.bt = np.sqrt(sta.bx**2+sta.by**2+sta.bz**2)
-
-
-########### get PLASTIC new prel data
-#PLASTIC
-#2019 monthly if needed
-#https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2019/
-
-#2020 manually all
-#https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2020/
-
-#STA_L2_PLA_1DMax_1min_202004_092_PRELIM_v01.txt
-#STA_L2_PLA_1DMax_1min_202005_122_PRELIM_v01.txt
-#STA_L2_PLA_1DMax_1min_202006_153_PRELIM_v01.txt
-#STA_L2_PLA_1DMax_1min_202007_183_PRELIM_v01.txt
-
-
-
-
-
-########
-vt=np.zeros(int(1e8))
-np=np.zeros(int(1e8))
-tp=np.zeros(int(1e8))
-pt2=[]
-
-
-sta_plastic_path='/nas/helio/data/heliosat/data/sta_plastic_l2_ascii/'
-
-
-pfiles=['STA_L2_PLA_1DMax_1min_202004_092_PRELIM_v01.txt',     
-     'STA_L2_PLA_1DMax_1min_202005_122_PRELIM_v01.txt',
-     'STA_L2_PLA_1DMax_1min_202006_153_PRELIM_v01.txt',
-     'STA_L2_PLA_1DMax_1min_202007_183_PRELIM_v01.txt']
-
-j=0
-for name in pfiles:
-
-    p1=np.genfromtxt(sta_plastic_path+name,skip_header=2)
-
-    vt1=p1[:,8]
-    np1=p1[:,9]
-    tp1=p1[:,10]
-
-    #YEAR	DOY	hour	min	sec
-    year1=p1[:,0]
-    doy1=p1[:,1]
-    hour1=p1[:,2]
-    min1=p1[:,3]
-    sec1=p1[:,4]
-
-
-
-    p1t=[]
-    #make datetime array from year and doy
-    for i in np.arange(len(doy1)):
-        p1t.append(parse_time(str(int(year1[i]))+'-01-01 00:00').datetime+datetime.timedelta(days=doy1[i]-1)+                   +datetime.timedelta(hours=hour1[i]) + datetime.timedelta(minutes=min1[i])  )
-    vt.extend(vt1)
-    np.extend(np1)
-    tp.extend(tp1)    
-    pt2.extend(p1t)
-    
-    j=j+len(vt1)
-    
-    #cut array
-    vt=vt[0:j]
-    np=np[0:j]
-    tp=tp[0:j]
-    pt2=pt2[0:j]
-
-
-    
-    
-tm2=mdates.date2num(t2)
-time_mat=mdates.date2num(time_1)
-
-
-#linear interpolation to time_mat times    
-sta.bx = np.interp(time_mat, tm2, bx )
-sta.by = np.interp(time_mat, tm2, by )
-sta.bz = np.interp(time_mat, tm2, bz )
-sta.bt = np.sqrt(sta.bx**2+sta.by**2+sta.bz**2)
-
-
-
-
-
-#plt.plot(p1t,vt1)    
- 
-    
-    
-    
-    
-
-
-#add position
-#***********
-
-        
-        
-#f1 = cdflib.CDF(sta_science_path+file)
-#f1.cdf_info()
-#time=f1.varget('Epoch')
-#a1=f1.varinq('BFIELD')
-#bfield=f1.varget('BFIELD')
-#bt=bfield[:,3]
-#bx=bfield[:,0]
-#by=bfield[:,1]
-#bz=bfield[:,2]
-#t1=parse_time(time,format='cdf_epoch').datetime  
-
-
-
-#end=datetime.datetime.utcnow()
-#hd.save_stereoa_science_data(data_path,filesta,start,end,sceq=False)
-#[sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
-
-
-print('done')
-
-
-plt.figure(1,dpi=100)
-plt.plot(t2,bt)
-plt.plot(t2,bx)
-plt.plot(t2,by)
-plt.plot(t2,bz)
-
-plt.figure(2,dpi=100)
-plt.plot(sta.time,sta.bt)
-plt.plot(sta.time,sta.bx)
-plt.plot(sta.time,sta.by)
-plt.plot(sta.time,sta.bz)
-
-nroffiles=3
-perfile=np.round((time.time()-c1)/nroffiles)
-print('run time per file',perfile,' sc')
-print(perfile*200/60,' min')
-
-
-# In[14]:
-
 
 ############################# make Ulysses files
 #hd.save_ulysses_data(data_path)
-
-
-############################# make STEREO-A data files
-
-#filesta_all='stereoa_2007_2019_rtn.p'
-#hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=False)
-#[sa1,hsa1]=pickle.load(open(data_path+filesta_all, "rb" ) )  
-
-#filesta_all='stereoa_2007_2019_sceq.p'
-#hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=True)
-#[sa2,hsa2]=pickle.load(open(data_path+filesta_all, "rb" ) )  
-
-# plt.plot(sta.time,sta.by,'-g',linewidth=5)
-# plt.plot(sa2.time,sa2.by,'-k')
-# plt.plot(sa1.time,sa1.by,'-b')
-# plt.plot(sta.time,sta.lat,'-r')
-
-# plt.xlim(parse_time('2007-08-15').plot_date,parse_time('2007-08-15 12:00').plot_date)
-# plt.ylim(-5,4)
-
-# #merge STEREO-A old and new data    
-# #make array
-# sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
-#             ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
-#             ('x', float),('y', float),('z', float),\
-#             ('r', float),('lat', float),('lon', float)])   
-
-# #convert to recarray
-# sta = sta.view(np.recarray)  
-# #add merged variables
-# sta.time=np.hstack((sta1.time,sta2.time))
-# sta.bx=np.hstack((sta1.bx,sta2.bx))
-# sta.by=np.hstack((sta1.by,sta2.by))
-# sta.bz=np.hstack((sta1.bz,sta2.bz))
-# sta.bt=np.hstack((sta1.bt,sta2.bt))
-# sta.vt=np.hstack((sta1.vt,sta2.vt))
-# sta.np=np.hstack((sta1.np,sta2.np))
-# sta.tp=np.hstack((sta1.tp,sta2.tp))
-# sta.x=np.hstack((sta1.x,sta2.x))
-# sta.y=np.hstack((sta1.y,sta2.y))
-# sta.z=np.hstack((sta1.z,sta2.z))
-# sta.r=np.hstack((sta1.r,sta2.r))
-# sta.lon=np.hstack((sta1.lon,sta2.lon))
-# sta.lat=np.hstack((sta1.lat,sta2.lat))
-
 
 ############################## make STEREO-B data files
 # STEREO-B
@@ -482,6 +144,30 @@ print(perfile*200/60,' min')
 
 
 ############################## make Wind data files
+
+
+
+# ################################# Wind
+
+# filewin="wind_2018_2019_gse.p" 
+# start=datetime.datetime(2018, 1, 1)
+# end=datetime.datetime(2020, 1, 1)
+# hd.save_wind_data(data_path,filewin,start,end,heeq=False)
+
+# filewin="wind_2018_2019_heeq.p" 
+# start=datetime.datetime(2018, 1, 1)
+# #end=datetime.datetime(2019, 12, 31)
+# end=datetime.datetime.utcnow()
+# hd.save_wind_data(data_path,filewin,start,end,heeq=True)
+
+# filewin1="wind_2007_2018_heeq_helcats.p" 
+# [win1,hwin1]=pickle.load(open(data_path+filewin1, "rb" ) )  
+# filewin2="wind_2018_2019_heeq.p" 
+# [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
+# filewin3="wind_2018_2019_gse.p" 
+# [win3,hwin3]=pickle.load(open(data_path+filewin3, "rb" ) )  
+
+
 
 #filewin="wind_2018_2019_gse.p" 
 #for updating data
@@ -545,6 +231,170 @@ print(perfile*200/60,' min')
 
 
 #for Solar Orbiter, got to read_solo.ipynb
+
+
+################################# PSP
+
+
+################################## USE THIS ################################
+# load PSP data from server on linux command line onto leo server
+# go to heliosat directory /nas/helio/data/heliosat/data/psp_fields_l2
+# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2019/*.cdf"
+# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2020/*.cdf"
+# psp_spc_l3
+# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf"
+# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2020/*.cdf"
+############################################################################
+
+# print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
+
+#filepsp='psp_2018_2020_rtn.p'
+#hd.save_psp_data(data_path,filepsp, sceq=False)   
+#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
+#print('done')
+
+#filepsp='psp_2018_2020_sceq.p'
+#hd.save_psp_data(data_path,filepsp, sceq=True)   
+#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
+# plt.xlim(parse_time('2007-08-15').plot_date,parse_time('2007-08-15 12:00').plot_date)
+
+
+
+
+
+
+
+########################## SAVE MSL rad data into recarray as pickle
+#hd.save_msl_rad()
+
+
+
+################################### STEREO-A beacon
+#filesta="stereoa_2019_2020_sceq_beacon.p" 
+#start=datetime.datetime(2019, 1, 1)
+#end=datetime.datetime.utcnow()
+#hd.save_stereoa_beacon_data(data_path,filesta,start,end,sceq=True)
+#[sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
+
+
+
+############################# make STEREO-A science data files
+
+#filesta_all='stereoa_2007_2019_rtn.p'
+#hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=False)
+#[sa1,hsa1]=pickle.load(open(data_path+filesta_all, "rb" ) )  
+
+#filesta_all='stereoa_2007_2019_sceq.p'
+#hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=True)
+#[sa2,hsa2]=pickle.load(open(data_path+filesta_all, "rb" ) )  
+
+
+################################### STEREO-A science data after December 2019, ascii plastic files
+#start=datetime.datetime(2020, 1,1)
+#end=datetime.datetime(2020, 5, 1)
+#filesta="stereoa_2020_april_rtn.p" 
+#filesta="stereoa_2020_april_sceq.p" 
+
+
+
+#start=datetime.datetime(2020, 5,1)
+#end=datetime.datetime(2020, 8, 1)
+#filesta="stereoa_2020_may_july_rtn.p" 
+#filesta="stereoa_2020_may_july_sceq.p" 
+
+
+
+#delete 2020 IMPACT March 11, April 17, May 18, July9 -corrupt cdf
+
+#hd.save_stereoa_science_data(data_path,filesta,start, end,sceq=False)
+#save_stereoa_science_data_new(data_path,filesta,start, end,sceq=True)
+
+#[sta2,hsta2]=pickle.load(open(data_path+filesta, "rb"))  
+
+#plt.figure(100,dpi=300)
+#plt.plot(sta2.time,sta2.bt)
+#plt.plot(sta2.time,sta2.bx)
+#plt.plot(sta2.time,sta2.by)
+#plt.plot(sta2.time,sta2.bz)
+
+
+#plt.figure(101,dpi=300)
+#plt.plot(sta2.time,sta2.vt)
+
+#stitch together all science data files
+
+filesta="stereoa_2007_2020_rtn.p"
+hd.save_stereoa_science_data_merge_rtn(data_path,filesta)
+
+sta=pickle.load(open(data_path+filesta, "rb" ) )  
+
+plt.plot(sta.time,sta.bx)
+plt.plot(sta.time,sta.by)
+plt.plot(sta.time,sta.bz)
+
+
+plt.figure(101,dpi=300)
+plt.plot(sta.time,sta.vt)
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[14]:
+
+
+############################# make Ulysses files
+#hd.save_ulysses_data(data_path)
+
+
+############################# make STEREO-A science data files
+
+#filesta_all='stereoa_2007_2019_rtn.p'
+#hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=False)
+#[sa1,hsa1]=pickle.load(open(data_path+filesta_all, "rb" ) )  
+
+#filesta_all='stereoa_2007_2019_sceq.p'
+#hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=True)
+#[sa2,hsa2]=pickle.load(open(data_path+filesta_all, "rb" ) )  
+
+# plt.plot(sta.time,sta.by,'-g',linewidth=5)
+# plt.plot(sa2.time,sa2.by,'-k')
+# plt.plot(sa1.time,sa1.by,'-b')
+# plt.plot(sta.time,sta.lat,'-r')
+
+# plt.xlim(parse_time('2007-08-15').plot_date,parse_time('2007-08-15 12:00').plot_date)
+# plt.ylim(-5,4)
+
+# #merge STEREO-A old and new data    
+# #make array
+# sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
+#             ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+#             ('x', float),('y', float),('z', float),\
+#             ('r', float),('lat', float),('lon', float)])   
+
+# #convert to recarray
+# sta = sta.view(np.recarray)  
+# #add merged variables
+# sta.time=np.hstack((sta1.time,sta2.time))
+# sta.bx=np.hstack((sta1.bx,sta2.bx))
+# sta.by=np.hstack((sta1.by,sta2.by))
+# sta.bz=np.hstack((sta1.bz,sta2.bz))
+# sta.bt=np.hstack((sta1.bt,sta2.bt))
+# sta.vt=np.hstack((sta1.vt,sta2.vt))
+# sta.np=np.hstack((sta1.np,sta2.np))
+# sta.tp=np.hstack((sta1.tp,sta2.tp))
+# sta.x=np.hstack((sta1.x,sta2.x))
+# sta.y=np.hstack((sta1.y,sta2.y))
+# sta.z=np.hstack((sta1.z,sta2.z))
+# sta.r=np.hstack((sta1.r,sta2.r))
+# sta.lon=np.hstack((sta1.lon,sta2.lon))
+# sta.lat=np.hstack((sta1.lat,sta2.lat))
+
+
 
 print('done')
 
@@ -680,6 +530,9 @@ if load_data > 0:
     filesta1='stereoa_2007_2019_sceq.p'
     [sta1,hsta1]=pickle.load(open(data_path+filesta1, "rb" ) )  
     sta1=sta1[np.where(sta1.time < parse_time('2019-Sep-01 00:00').datetime)[0]]
+    
+    ########### new science data***
+    
 
     #beacon data
     #filesta2="stereoa_2019_2020_sceq_beacon.p"

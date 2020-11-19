@@ -62,6 +62,412 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ####################################### get new data ####################################
 
 
+def save_stereoa_science_data_merge_rtn(data_path,file):
+    
+    print('STEREO-A science data merging')
+    filesta="stereoa_2007_2019_rtn.p"
+    [sta0,hsta0]=pickle.load(open(data_path+filesta, "rb" ) )  
+
+    filesta="stereoa_2020_april_rtn.p" 
+    [sta1,hsta1]=pickle.load(open(data_path+filesta, "rb" ) )  
+
+    filesta="stereoa_2020_may_july_rtn.p" 
+    [sta2,hsta2]=pickle.load(open(data_path+filesta, "rb" ) )  
+
+    #beacon data
+    #filesta='stereoa_2019_now_sceq_beacon.p'
+    #[sta3,hsta3]=pickle.load(open(data_path+filesta2, "rb" ) )  
+    #sta2=sta2[np.where(sta2.time >= parse_time('2020-Aug-01 00:00').datetime)[0]]
+
+
+    #make array
+    sta=np.zeros(np.size(sta0.time)+np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    sta = sta.view(np.recarray)  
+    sta.time=np.hstack((sta0.time,sta1.time,sta2.time))
+    sta.bx=np.hstack((sta0.bx,sta1.bx,sta2.bx))
+    sta.by=np.hstack((sta0.by,sta1.by,sta2.by))
+    sta.bz=np.hstack((sta0.bz,sta1.bz,sta2.bz))
+    sta.bt=np.hstack((sta0.bz,sta1.bt,sta2.bt))
+    sta.vt=np.hstack((sta0.vt,sta1.vt,sta2.vt))
+    sta.np=np.hstack((sta0.np,sta1.np,sta2.np))
+    sta.tp=np.hstack((sta0.tp,sta1.tp,sta2.tp))
+    sta.x=np.hstack((sta0.x,sta1.x,sta2.x))
+    sta.y=np.hstack((sta0.y,sta1.y,sta2.y))
+    sta.z=np.hstack((sta0.z,sta1.z,sta2.z))
+    sta.r=np.hstack((sta0.r,sta1.r,sta2.r))
+    sta.lon=np.hstack((sta0.lon,sta1.lon,sta2.lon))
+    sta.lat=np.hstack((sta0.lat,sta1.lat,sta2.lat))
+
+
+    pickle.dump(sta, open(data_path+file, "wb"))
+    print('STEREO-A merging done')
+   
+    
+    
+    return 0
+
+
+def save_stereoa_science_data_merge_sceq(data_path,file):
+    
+    print('STEREO-A science data merging')
+    filesta="stereoa_2007_2019_sceq.p"
+    [sta0,hsta0]=pickle.load(open(data_path+filesta, "rb" ) )  
+
+    filesta="stereoa_2020_april_sceq.p" 
+    [sta1,hsta1]=pickle.load(open(data_path+filesta, "rb" ) )  
+
+    filesta="stereoa_2020_may_july_sceq.p" 
+    [sta2,hsta2]=pickle.load(open(data_path+filesta, "rb" ) )  
+
+    #beacon data
+    #filesta='stereoa_2019_now_sceq_beacon.p'
+    #[sta3,hsta3]=pickle.load(open(data_path+filesta2, "rb" ) )  
+    #sta2=sta2[np.where(sta2.time >= parse_time('2020-Aug-01 00:00').datetime)[0]]
+
+
+    #make array
+    sta=np.zeros(np.size(sta0.time)+np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    sta = sta.view(np.recarray)  
+    sta.time=np.hstack((sta0.time,sta1.time,sta2.time))
+    sta.bx=np.hstack((sta0.bx,sta1.bx,sta2.bx))
+    sta.by=np.hstack((sta0.by,sta1.by,sta2.by))
+    sta.bz=np.hstack((sta0.bz,sta1.bz,sta2.bz))
+    sta.bt=np.hstack((sta0.bz,sta1.bt,sta2.bt))
+    sta.vt=np.hstack((sta0.vt,sta1.vt,sta2.vt))
+    sta.np=np.hstack((sta0.np,sta1.np,sta2.np))
+    sta.tp=np.hstack((sta0.tp,sta1.tp,sta2.tp))
+    sta.x=np.hstack((sta0.x,sta1.x,sta2.x))
+    sta.y=np.hstack((sta0.y,sta1.y,sta2.y))
+    sta.z=np.hstack((sta0.z,sta1.z,sta2.z))
+    sta.r=np.hstack((sta0.r,sta1.r,sta2.r))
+    sta.lon=np.hstack((sta0.lon,sta1.lon,sta2.lon))
+    sta.lat=np.hstack((sta0.lat,sta1.lat,sta2.lat))
+
+
+
+
+    pickle.dump(sta, open(data_path+file, "wb"))
+    print('STEREO-A merging done')
+   
+    
+    
+
+
+
+    
+def save_stereoa_science_data(path,file,t_start, t_end,sceq):
+
+
+    #impact https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/ 
+    #download with heliosat
+    #-------------------    
+    #print('start STA')
+    #sta_sat = heliosat.STA()
+     
+    #create an array with 1 minute resolution between t start and end
+    #time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
+    #time_mat=mdates.date2num(time) 
+    
+    #tm, mag = sta_sat.get_data_raw(t_start, t_end, "sta_impact_l1")
+    #print('download complete')
+    #---------------------------
+    
+    
+    #2020 PLASTIC download manually
+    #https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2020/
+    
+        
+    sta_impact_path='/nas/helio/data/heliosat/data/sta_impact_l1/'
+    sta_plastic_path='/nas/helio/data/heliosat/data/sta_plastic_l2_ascii/'
+
+
+    t_start1=copy.deepcopy(t_start)
+    time_1=[]
+    #make 1 min datetimes
+    while t_start1 < t_end:
+        time_1.append(t_start1)  
+        t_start1 += datetime.timedelta(minutes=1)
+
+
+    #make array for 1 min data
+    sta=np.zeros(len(time_1),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    sta = sta.view(np.recarray)  
+    sta.time=time_1
+
+    #make data file names
+    t_start1=copy.deepcopy(t_start)
+    days_sta = []
+    days_str = []
+    i=0
+    while t_start < t_end:
+        days_sta.append(t_start)  
+        days_str.append(str(days_sta[i])[0:4]+str(days_sta[i])[5:7]+str(days_sta[i])[8:10])        
+        i=i+1
+        t_start +=datetime.timedelta(days=1)
+
+    #go through all files
+
+    bt=np.zeros(int(1e9))
+    bx=np.zeros(int(1e9))
+    by=np.zeros(int(1e9))
+    bz=np.zeros(int(1e9))
+    t2=[]
+    i=0
+    for days_date in days_str:
+        cdf_file = 'STA_L1_MAG_RTN_{}_V06.cdf'.format(days_date)
+        
+        if os.path.exists(sta_impact_path+cdf_file):
+            print(cdf_file)
+            f1 = cdflib.CDF(sta_impact_path+cdf_file)
+            t1=parse_time(f1.varget('Epoch'),format='cdf_epoch').datetime
+            t2.extend(t1)
+            bfield=f1.varget('BFIELD')
+            bt[i:i+len(bfield[:,3])]=bfield[:,3]
+            bx[i:i+len(bfield[:,0])]=bfield[:,0]
+            by[i:i+len(bfield[:,1])]=bfield[:,1]
+            bz[i:i+len(bfield[:,2])]=bfield[:,2]
+            i=i+len(bfield[:,3])
+
+    #cut array
+    bt=bt[0:i]
+    bx=bx[0:i]
+    by=by[0:i]
+    bz=bz[0:i]
+
+    tm2=mdates.date2num(t2)
+    time_mat=mdates.date2num(time_1)
+
+
+    #linear interpolation to time_mat times    
+    sta.bx = np.interp(time_mat, tm2, bx )
+    sta.by = np.interp(time_mat, tm2, by )
+    sta.bz = np.interp(time_mat, tm2, bz )
+    #sta.bt = np.sqrt(sta.bx**2+sta.by**2+sta.bz**2)
+    
+    
+    
+    #round first each original time to full minutes   original data at 30sec
+    tround=copy.deepcopy(t2)
+    format_str = '%Y-%m-%d %H:%M'  
+    for k in np.arange(np.size(t2)):
+         tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(t2[k], format_str), format_str) 
+    tm2_round=parse_time(tround).plot_date
+
+    #which values are not in original data compared to full time range
+    isin=np.isin(time_mat,tm2_round)      
+    setnan=np.where(isin==False)
+    #set to to nan that is not in original data
+    sta.bx[setnan]=np.nan
+    sta.by[setnan]=np.nan
+    sta.bz[setnan]=np.nan
+    sta.bt = np.sqrt(sta.bx**2+sta.by**2+sta.bz**2)
+    
+
+
+    ########### get PLASTIC new prel data
+    #PLASTIC
+    #2019 monthly if needed
+    #https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2019/
+
+    #2020 manually all
+    #https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2020/
+
+    #STA_L2_PLA_1DMax_1min_202004_092_PRELIM_v01.txt
+    #STA_L2_PLA_1DMax_1min_202005_122_PRELIM_v01.txt
+    #STA_L2_PLA_1DMax_1min_202006_153_PRELIM_v01.txt
+    #STA_L2_PLA_1DMax_1min_202007_183_PRELIM_v01.txt
+
+
+
+
+
+    ########
+    pvt=np.zeros(int(1e8))
+    pnp=np.zeros(int(1e8))
+    ptp=np.zeros(int(1e8))
+    pt2=[]
+
+
+
+
+    pfiles=['STA_L2_PLA_1DMax_1min_202004_092_PRELIM_v01.txt',     
+         'STA_L2_PLA_1DMax_1min_202005_122_PRELIM_v01.txt',
+         'STA_L2_PLA_1DMax_1min_202006_153_PRELIM_v01.txt',
+         'STA_L2_PLA_1DMax_1min_202007_183_PRELIM_v01.txt']
+
+    j=0
+    for name in pfiles:
+
+        p1=np.genfromtxt(sta_plastic_path+name,skip_header=2)
+        print(name)
+
+        vt1=p1[:,8]
+        np1=p1[:,9]
+        tp1=p1[:,10]
+
+        #YEAR	DOY	hour	min	sec
+        year1=p1[:,0]
+        doy1=p1[:,1]
+        hour1=p1[:,2]
+        min1=p1[:,3]
+        sec1=p1[:,4]
+
+
+
+        p1t=[]
+        #make datetime array from year and doy
+        for i in np.arange(len(doy1)):
+            p1t.append(parse_time(str(int(year1[i]))+'-01-01 00:00').datetime+datetime.timedelta(days=doy1[i]-1)+\
+                       +datetime.timedelta(hours=hour1[i]) + datetime.timedelta(minutes=min1[i])  )
+
+
+        pvt[j:j+len(vt1)]=vt1
+        pnp[j:j+len(np1)]=np1
+        ptp[j:j+len(tp1)]=tp1
+
+        pt2.extend(p1t)
+
+        j=j+len(vt1)
+
+    #cut array
+    pvt=pvt[0:j]
+    pnp=pnp[0:j]
+    ptp=ptp[0:j]
+    pt2=pt2[0:j]
+
+
+
+    pt2m=mdates.date2num(pt2)
+
+
+    #linear interpolation to time_mat times    
+    sta.vt = np.interp(time_mat, pt2m, pvt )
+    sta.np = np.interp(time_mat, pt2m, pnp )
+    sta.tp = np.interp(time_mat, pt2m, ptp )
+
+
+
+    #which values are not in original data compared to full time range
+    isin=np.isin(time_mat,pt2m)      
+    setnan=np.where(isin==False)
+    #set to to nan that is not in original data
+    sta.vt[setnan]=np.nan
+    sta.np[setnan]=np.nan
+    sta.tp[setnan]=np.nan
+
+    #add position
+    
+    print('position start')
+    frame='HEEQ'
+    kernels = spicedata.get_kernel('stereo_a')
+    kernels += spicedata.get_kernel('stereo_a_pred')
+    spice.furnish(kernels)
+    statra=spice.Trajectory('-234') #STEREO-A SPICE NAIF code
+    statra.generate_positions(sta.time,'Sun',frame)
+    statra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(statra.x,statra.y,statra.z)
+    
+    sta.x=statra.x
+    sta.y=statra.y
+    sta.z=statra.z
+    
+    sta.r=r
+    sta.lat=np.degrees(lat)
+    sta.lon=np.degrees(lon)
+
+    print('position end ')
+
+    
+        
+    coord='RTN'
+    #convert magnetic field to SCEQ
+    if sceq==True:
+        print('convert RTN to SCEQ ')
+        coord='SCEQ'
+        sta=convert_RTN_to_SCEQ(sta,'STEREO-A')
+    
+    header='STEREO-A magnetic field (IMPACT instrument, science data) and plasma data (PLASTIC, preliminary science data), ' + \
+    'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/ and   '+ \
+    'https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2020/ '+ \
+    'Timerange: '+sta.time[0].strftime("%Y-%b-%d %H:%M")+' to '+sta.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', with an average time resolution of '+str(np.mean(np.diff(sta.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by sta.time, sta.bx, sta.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(sta.size)+'. '+\
+    'Units are btxyz [nT, '+coord+', vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats '+\
+    'and https://github.com/heliopython/heliopy. '+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, R. L. Bailey and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+    print('save pickle file')
+    pickle.dump([sta,header], open(path+file, "wb"))
+    
+    print('done sta')
+    print()
+
+   
+    
+
+    return 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def save_wsa_hux(filein):
     #load wsa hux 
 
@@ -854,7 +1260,7 @@ def load_stereoa_science_1min():
     alldata = {k: [] for k in varnames}
     if not os.path.exists(heliosat_data_path+'sta_magplasma_outside_heliosat'):
         os.mkdir(heliosat_data_path+'sta_magplasma_outside_heliosat')
-    for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016','2017','2018','2019','2020']:
+    for year in ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016','2017','2018','2019']:
         print('get STEREO-A yearly 1min data file for ',year)
         cdf_write = heliosat_data_path+'sta_magplasma_outside_heliosat/STA_L2_MAGPLASMA_1m_{}_V01.cdf'.format(year)
         if not os.path.exists(cdf_write):
@@ -882,10 +1288,10 @@ def save_all_stereoa_science_data(path,file,sceq):
     vt np tp x y z r lat lon 1 min resolution as pickle
     sceq=True -> convert RTN to SCEQ coordinates for magnetic field components
     
-    filesta_all='stereoa_2007_2020_sceq.p'
+    filesta_all='stereoa_2007_2019_sceq.p'
     hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=True)
 
-    filesta_all='stereoa_2007_2020.p'
+    filesta_all='stereoa_2007_2019_rtn.p'
     hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=False)    
     
     
@@ -1680,28 +2086,8 @@ def save_stereoa_beacon_data(path,file,start_time,end_time,sceq):
     
     
     
-    
-    
-    
-def save_stereoa_science_data_new(path,file,t_start, t_end):
 
-    
-    #PLASTIC
-    #2019 monthly
-    #https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2019/
-    
-    #2020 manually
-    #https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2020/
-
-    
-    
-    
-    
-    return 0
-    
-    
-
-def save_stereoa_science_data(path,file,t_start, t_end,sceq):
+def save_stereoa_science_data_old(path,file,t_start, t_end,sceq):
     
     '''** TO DO 
     '''
