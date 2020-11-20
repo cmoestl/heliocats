@@ -1965,12 +1965,12 @@ def save_stereoa_beacon_data(path,file,start_time,end_time,sceq):
     tp, pro = sta_sat.get_data_raw(t_start, t_end, "proton_beacon")
     print('download complete')
    
-    tm=parse_time(tm,format='unix').datetime 
-    tp=parse_time(tp,format='unix').datetime 
+    tm1=parse_time(tm,format='unix').datetime 
+    tp1=parse_time(tp,format='unix').datetime 
 
     #convert to matplotlib time for linear interpolation
-    tm_mat=mdates.date2num(tm) 
-    tp_mat=mdates.date2num(tp) 
+    tm1_mat=mdates.date2num(tm1) 
+    tp1_mat=mdates.date2num(tp1) 
     print('time convert done')
     
     print('position start')
@@ -1983,14 +1983,59 @@ def save_stereoa_beacon_data(path,file,start_time,end_time,sceq):
     print('position end ')
     
     #linear interpolation to time_mat times    
-    bx = np.interp(time_mat, tm_mat, mag[:,0] )
-    by = np.interp(time_mat, tm_mat, mag[:,1] )
-    bz = np.interp(time_mat, tm_mat, mag[:,2] )
+    bx = np.interp(time_mat, tm1_mat, mag[:,0] )
+    by = np.interp(time_mat, tm1_mat, mag[:,1] )
+    bz = np.interp(time_mat, tm1_mat, mag[:,2] )
     bt = np.sqrt(bx**2+by**2+bz**2)
 
-    den = np.interp(time_mat, tp_mat, pro[:,0])
-    vt = np.interp(time_mat, tp_mat, pro[:,1])
-    tp = np.interp(time_mat, tp_mat, pro[:,2])
+    den = np.interp(time_mat, tp1_mat, pro[:,0])
+    vt = np.interp(time_mat, tp1_mat, pro[:,1])
+    tp = np.interp(time_mat, tp1_mat, pro[:,2])
+    
+    
+    
+    
+    #round first each original time to full minutes
+    troundm=copy.deepcopy(tm1)
+    format_str = '%Y-%m-%d %H:%M'  
+    for k in np.arange(np.size(tm1)):
+         troundm[k] = datetime.datetime.strptime(datetime.datetime.strftime(tm1[k], format_str), format_str) 
+    tm_round=parse_time(troundm).plot_date
+
+    
+    troundp=copy.deepcopy(tp1)
+    format_str = '%Y-%m-%d %H:%M'  
+    for k in np.arange(np.size(tp1)):
+         troundp[k] = datetime.datetime.strptime(datetime.datetime.strftime(tp1[k], format_str), format_str) 
+    tp_round=parse_time(troundp).plot_date
+
+    #check
+    #print('-----')
+    #print(tm1)
+    #print(tp1)
+
+    #print(troundm)
+    #print(troundp)
+
+
+    isin=np.isin(time_mat,tm_round)      
+    setnan=np.where(isin==False)
+    #set to to nan that is not in original data
+    bx[setnan]=np.nan
+    by[setnan]=np.nan
+    bz[setnan]=np.nan
+    bt = np.sqrt(bx**2+by**2+bz**2)
+    
+    
+    isin=np.isin(time_mat,tp_round)      
+    setnan=np.where(isin==False)
+    #set to to nan that is not in original data
+    den[setnan]=np.nan
+    tp[setnan]=np.nan
+    vt[setnan]=np.nan
+    
+
+
     
     #make array
     sta=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\

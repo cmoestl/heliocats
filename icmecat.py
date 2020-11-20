@@ -19,6 +19,18 @@
 # - delete the file for the respective spacecraft under icmecat/indices_icmecat/
 # - run section 3 in this notebook or script.
 # 
+# 
+# **Updating data**
+# - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files
+# - Bepi Colombo manual download
+# - PSP wget
+# - STEREO-Ahead prel. PLASTIC ASCII files, IMPACT as usual (via heliosat), beacon data automatic every day
+# - Wind automatic everyday, need to remove spikes 
+# 
+# 
+# 
+# 
+# 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 # 
 # see also https://github.com/helioforecast/Papers/blob/master/Moestl2020_PSP_rate/icme_rate.ipynb
@@ -26,7 +38,7 @@
 # 
 # 
 
-# In[5]:
+# In[3]:
 
 
 import numpy as np
@@ -111,7 +123,7 @@ print('done')
 
 # ## (0) process new in situ data into similar format
 
-# In[6]:
+# In[15]:
 
 
 # make data
@@ -259,7 +271,55 @@ print('done')
 # plt.xlim(parse_time('2007-08-15').plot_date,parse_time('2007-08-15 12:00').plot_date)
 
 
+#print('load PSP data RTN') #from heliosat, converted to SCEQ similar to STEREO-A/B
+#filepsp='psp_2018_2020_nov_rtn.p'
+#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
+    
 
+# start=datetime.datetime(2020,7,11)
+# end=datetime.datetime(2020,7,11,6,0,0)
+
+
+#start=datetime.datetime(2020,4,30)
+#end=datetime.datetime(2020,7,20)
+
+#start=datetime.datetime(2020,7,20)
+#end=datetime.datetime(2020,11,1)
+
+################### plot new psp data
+# sns.set_context("talk")     
+# sns.set_style('darkgrid')
+
+# fig=plt.figure(3,figsize=(20,15),dpi=200)
+
+# ax1=plt.subplot(211)
+
+# #ax1.plot(psp.time,psp.bt,'-k',lw=0.5,label='Btotal')
+# #ax1.plot(psp.time,psp.bx,'-r',lw=0.2,label='Br')
+# #ax1.plot(psp.time,psp.by,'-g',lw=0.2,label='Bt')
+# #ax1.plot(psp.time,psp.bz,'-b',lw=0.2,label='Bn')
+
+# ax1.plot(psp.time,psp.bt,'-k',lw=1,label='Btotal')
+# ax1.plot(psp.time,psp.bx,'-r',lw=1,label='Br')
+# ax1.plot(psp.time,psp.by,'-g',lw=1,label='Bt')
+# ax1.plot(psp.time,psp.bz,'-b',lw=1,label='Bn')
+
+# ax1.set_xlim(start,end)
+# ax1.set_ylabel('FIELDS magnetic field [nT]')
+# ax1.legend(loc=2)
+# ax1.set_ylim(-20,20)
+
+
+# ax2=plt.subplot(212,sharex=ax1)
+# ax2.plot(psp.time,psp.r,'-b')
+# #ax2.set_ylim(0,0.5)
+
+# ax2.set_ylabel('Heliocentric distance [AU]')
+
+# plt.tight_layout()
+
+# plt.savefig('results/parker_orbit_venus.png',dpi=200)
+# plt.savefig('results/parker_orbit_venus.pdf')
 
 
 
@@ -267,14 +327,6 @@ print('done')
 ########################## SAVE MSL rad data into recarray as pickle
 #hd.save_msl_rad()
 
-
-
-################################### STEREO-A beacon
-#filesta="stereoa_2019_2020_sceq_beacon.p" 
-#start=datetime.datetime(2019, 1, 1)
-#end=datetime.datetime.utcnow()
-#hd.save_stereoa_beacon_data(data_path,filesta,start,end,sceq=True)
-#[sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
 
 
 
@@ -289,25 +341,26 @@ print('done')
 #[sa2,hsa2]=pickle.load(open(data_path+filesta_all, "rb" ) )  
 
 
-################################### STEREO-A science data after December 2019, ascii plastic files
-#start=datetime.datetime(2020, 1,1)
-#end=datetime.datetime(2020, 5, 1)
-#filesta="stereoa_2020_april_rtn.p" 
-#filesta="stereoa_2020_april_sceq.p" 
+
+########################### STEREO-A science data after December 2019, ascii plastic files
+# start=datetime.datetime(2020, 1,1)
+# end=datetime.datetime(2020, 5, 1)
+# #filesta="stereoa_2020_april_rtn.p" 
+# filesta="stereoa_2020_april_sceq.p" 
+# hd.save_stereoa_science_data(data_path,filesta,start, end,sceq=True)
 
 
-
-#start=datetime.datetime(2020, 5,1)
-#end=datetime.datetime(2020, 8, 1)
-#filesta="stereoa_2020_may_july_rtn.p" 
-#filesta="stereoa_2020_may_july_sceq.p" 
-
+# start=datetime.datetime(2020, 5,1)
+# end=datetime.datetime(2020, 8, 1)
+# #filesta="stereoa_2020_may_july_rtn.p" 
+# filesta="stereoa_2020_may_july_sceq.p" 
+# hd.save_stereoa_science_data(data_path,filesta,start, end,sceq=True)
 
 
 #delete 2020 IMPACT March 11, April 17, May 18, July9 -corrupt cdf
 
 #hd.save_stereoa_science_data(data_path,filesta,start, end,sceq=False)
-#save_stereoa_science_data_new(data_path,filesta,start, end,sceq=True)
+#hd.save_stereoa_science_data_new(data_path,filesta,start, end,sceq=True)
 
 #[sta2,hsta2]=pickle.load(open(data_path+filesta, "rb"))  
 
@@ -321,150 +374,54 @@ print('done')
 #plt.figure(101,dpi=300)
 #plt.plot(sta2.time,sta2.vt)
 
-#stitch together all science data files
+########################## stitch together all science data files
 
-filesta="stereoa_2007_2020_rtn.p"
-hd.save_stereoa_science_data_merge_rtn(data_path,filesta)
+# filesta="stereoa_2007_2020_rtn.p"
+# hd.save_stereoa_science_data_merge_rtn(data_path,filesta)
 
-sta=pickle.load(open(data_path+filesta, "rb" ) )  
+# filesta="stereoa_2007_2020_sceq.p"
+# hd.save_stereoa_science_data_merge_sceq(data_path,filesta)
 
-plt.plot(sta.time,sta.bx)
-plt.plot(sta.time,sta.by)
-plt.plot(sta.time,sta.bz)
+# sta=pickle.load(open(data_path+filesta, "rb" ) )  
 
+# plt.figure(101,dpi=300)
+# plt.plot(sta.time,sta.bx)
+# plt.plot(sta.time,sta.by)
+# plt.plot(sta.time,sta.bz)
 
-plt.figure(101,dpi=300)
-plt.plot(sta.time,sta.vt)
-
-
-
-# In[ ]:
-
+# plt.figure(102,dpi=300)
+# plt.plot(sta.time,sta.vt)
 
 
 
 
-# In[14]:
+################################### STEREO-A beacon
+#filesta="stereoa_2020_now_sceq_beacon_test.p" 
+
+# start=datetime.datetime(2020, 8, 1)
+# #end=datetime.datetime(2020, 8, 15)
+# end=datetime.datetime.utcnow()
+
+# filesta="stereoa_2020_august_november_rtn_beacon.p" 
+# hd.save_stereoa_beacon_data(data_path,filesta,start,end,sceq=False)
+
+# filesta="stereoa_2020_august_november_sceq_beacon.p" 
+# hd.save_stereoa_beacon_data(data_path,filesta,start,end,sceq=True)
 
 
-############################# make Ulysses files
-#hd.save_ulysses_data(data_path)
+# [sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
 
 
-############################# make STEREO-A science data files
-
-#filesta_all='stereoa_2007_2019_rtn.p'
-#hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=False)
-#[sa1,hsa1]=pickle.load(open(data_path+filesta_all, "rb" ) )  
-
-#filesta_all='stereoa_2007_2019_sceq.p'
-#hd.save_all_stereoa_science_data(data_path, filesta_all,sceq=True)
-#[sa2,hsa2]=pickle.load(open(data_path+filesta_all, "rb" ) )  
-
-# plt.plot(sta.time,sta.by,'-g',linewidth=5)
-# plt.plot(sa2.time,sa2.by,'-k')
-# plt.plot(sa1.time,sa1.by,'-b')
-# plt.plot(sta.time,sta.lat,'-r')
-
-# plt.xlim(parse_time('2007-08-15').plot_date,parse_time('2007-08-15 12:00').plot_date)
-# plt.ylim(-5,4)
-
-# #merge STEREO-A old and new data    
-# #make array
-# sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
-#             ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
-#             ('x', float),('y', float),('z', float),\
-#             ('r', float),('lat', float),('lon', float)])   
-
-# #convert to recarray
-# sta = sta.view(np.recarray)  
-# #add merged variables
-# sta.time=np.hstack((sta1.time,sta2.time))
-# sta.bx=np.hstack((sta1.bx,sta2.bx))
-# sta.by=np.hstack((sta1.by,sta2.by))
-# sta.bz=np.hstack((sta1.bz,sta2.bz))
-# sta.bt=np.hstack((sta1.bt,sta2.bt))
-# sta.vt=np.hstack((sta1.vt,sta2.vt))
-# sta.np=np.hstack((sta1.np,sta2.np))
-# sta.tp=np.hstack((sta1.tp,sta2.tp))
-# sta.x=np.hstack((sta1.x,sta2.x))
-# sta.y=np.hstack((sta1.y,sta2.y))
-# sta.z=np.hstack((sta1.z,sta2.z))
-# sta.r=np.hstack((sta1.r,sta2.r))
-# sta.lon=np.hstack((sta1.lon,sta2.lon))
-# sta.lat=np.hstack((sta1.lat,sta2.lat))
+# plt.figure(1,dpi=300)
+# plt.plot(sta.time,sta.bt)
+# plt.plot(sta.time,sta.bx)
+# plt.plot(sta.time,sta.by)
+# plt.plot(sta.time,sta.bz)
 
 
-
-print('done')
-
-
-# In[19]:
-
-
-print('load PSP data RTN') #from heliosat, converted to SCEQ similar to STEREO-A/B
-filepsp='psp_2018_2020_nov_rtn.p'
-[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
-    
-
-
-# In[81]:
-
-
-get_ipython().run_line_magic('matplotlib', 'inline')
-
-
-
-start=datetime.datetime(2020,7,11)
-end=datetime.datetime(2020,7,11,6,0,0)
-
-
-#start=datetime.datetime(2020,4,30)
-#end=datetime.datetime(2020,7,20)
-
-#start=datetime.datetime(2020,7,20)
-#end=datetime.datetime(2020,11,1)
-
-
-sns.set_context("talk")     
-sns.set_style('darkgrid')
-
-fig=plt.figure(3,figsize=(20,15),dpi=200)
-
-
-
-ax1=plt.subplot(211)
-
-
-
-#ax1.plot(psp.time,psp.bt,'-k',lw=0.5,label='Btotal')
-#ax1.plot(psp.time,psp.bx,'-r',lw=0.2,label='Br')
-#ax1.plot(psp.time,psp.by,'-g',lw=0.2,label='Bt')
-#ax1.plot(psp.time,psp.bz,'-b',lw=0.2,label='Bn')
-
-ax1.plot(psp.time,psp.bt,'-k',lw=1,label='Btotal')
-ax1.plot(psp.time,psp.bx,'-r',lw=1,label='Br')
-ax1.plot(psp.time,psp.by,'-g',lw=1,label='Bt')
-ax1.plot(psp.time,psp.bz,'-b',lw=1,label='Bn')
-
-
-
-ax1.set_xlim(start,end)
-ax1.set_ylabel('FIELDS magnetic field [nT]')
-ax1.legend(loc=2)
-ax1.set_ylim(-20,20)
-
-
-ax2=plt.subplot(212,sharex=ax1)
-ax2.plot(psp.time,psp.r,'-b')
-#ax2.set_ylim(0,0.5)
-
-ax2.set_ylabel('Heliocentric distance [AU]')
-
-plt.tight_layout()
-
-plt.savefig('results/parker_orbit_venus.png',dpi=200)
-plt.savefig('results/parker_orbit_venus.pdf')
+# plt.figure(2,dpi=300)
+# plt.plot(sta.time,sta.vt)
+# print('done')
 
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
@@ -494,17 +451,8 @@ if load_data > 0:
  
 
     ########### CURRENT ACTIVE SPACECRAFT    
-    
-    #print('load Bepi Colombo SCEQ')
-    #filebepi='bepi_2020_march_sept_sceq.p'
-    #bepi=pickle.load(open(data_path+filebepi, "rb" ) )      
-   
-    
-    print('load Solar Orbiter SCEQ')
-    filesolo='solo_2020_june_july_sceq.p'
-    solo=pickle.load(open(data_path+filesolo, "rb" ) )    
 
-           
+               
     print('load MAVEN data MSO') 
     #filemav='maven_2014_2018.p'
     #[mav,hmav]=pickle.load(open(filemav, 'rb' ) )
@@ -520,25 +468,36 @@ if load_data > 0:
     #MSL RAD
     rad=hd.load_msl_rad()#, rad.time,rad.dose_sol
     
+
+    #print('load Bepi Colombo SCEQ')
+    #filebepi='bepi_2020_march_sept_sceq.p'
+    #bepi=pickle.load(open(data_path+filebepi, "rb" ) )      
+   
+    
+    print('load Solar Orbiter SCEQ')
+    filesolo='solo_2020_april_august_sceq.p'
+    solo=pickle.load(open(data_path+filesolo, "rb" ) )    
+
     
     print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
     filepsp='psp_2018_2020_nov_sceq.p'
     [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
     
+    
+    ########### STA
+    
     print('load and merge STEREO-A data SCEQ') #yearly magplasma files from stereo science center, conversion to SCEQ 
-    filesta1='stereoa_2007_2019_sceq.p'
+    filesta1='stereoa_2007_2020_sceq.p'
     [sta1,hsta1]=pickle.load(open(data_path+filesta1, "rb" ) )  
-    sta1=sta1[np.where(sta1.time < parse_time('2019-Sep-01 00:00').datetime)[0]]
     
-    ########### new science data***
-    
-
     #beacon data
     #filesta2="stereoa_2019_2020_sceq_beacon.p"
-    filesta2='stereoa_2019_2020_sept_sceq_beacon.p'
+    #filesta2='stereoa_2019_2020_sept_sceq_beacon.p'
+    #filesta2='stereoa_2019_now_sceq_beacon.p'
+    filesta2="stereoa_2020_august_november_sceq_beacon.p" 
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
-    sta2=sta2[np.where(sta2.time >= parse_time('2019-Sep-01 00:00').datetime)[0]]
+    #sta2=sta2[np.where(sta2.time >= parse_time('2020-Aug-01 00:00').datetime)[0]]
 
     #make array
     sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),                ('x', float),('y', float),('z', float),                ('r', float),('lat', float),('lon', float)])   
@@ -570,7 +529,7 @@ if load_data > 0:
     
     #or use: filewin2="wind_2018_now_heeq.p" 
     #filewin2="wind_2018_2019_heeq.p" 
-    filewin2="wind_2018_2020_sept_heeq.p" 
+    filewin2="wind_2018_2020_nov_heeq.p" 
     [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
 
     #merge Wind old and new data 
