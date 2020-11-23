@@ -25,7 +25,7 @@ print()
 
 #print('copy predstorm_real.png/txt to ',sftp.pwd) #show current dir
 sftp.put(path+'Wind_now.png')  # upload file to public/ on remote
-sftp.put(path+'STEREO-A_beacon_now.png')
+sftp.put(path+'STEREO-A_beacon_14_days_now.png')
 sftp.put(path+'OMNI2_now.png')
 
 

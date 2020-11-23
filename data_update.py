@@ -171,7 +171,7 @@ fileomni="omni_1963_now.p"
 if get_new_data: hd.save_omni_data(data_path,fileomni)
 [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
 
-start=datetime.datetime.utcnow() -datetime.timedelta(days=365)
+start=datetime.datetime.utcnow() - datetime.timedelta(days=365)
 end=datetime.datetime.utcnow() 
 hp.plot_insitu_update(o, start, end,'OMNI2',plot_path,now=True)
 
@@ -230,15 +230,25 @@ hp.plot_insitu_update(combi_omni_noaa, start, end,'OMNI2_and_NOAA_RTSW',plot_pat
 
 
 ################################### STEREO-A
-filesta="stereoa_2019_now_sceq_beacon.p" 
-start=datetime.datetime(2019, 1, 1)
+
+from heliocats import plot as hp
+importlib.reload(hp) #reload again while debugging
+
+
+start=datetime.datetime(2020, 1, 1)
 end=datetime.datetime.utcnow()
-if get_new_data: hd.save_stereoa_beacon_data(data_path,filesta,start,end,sceq=True)
-[sta,hsta]=pickle.load(open(data_path+filesta, "rb" ) ) 
+filesta_sceq="stereoa_2020_now_sceq_beacon.p" 
+filesta_rtn="stereoa_2020_now_rtn_beacon.p" 
+
+if get_new_data: 
+    hd.save_stereoa_beacon_data(data_path,filesta_sceq,start,end,sceq=True)
+    hd.save_stereoa_beacon_data(data_path,filesta_rtn,start,end,sceq=False)
+
+[sta,hsta]=pickle.load(open(data_path+filesta_rtn, "rb" ) ) 
 
 start=sta.time[-1]-datetime.timedelta(days=14)
 end=datetime.datetime.utcnow()     
-hp.plot_insitu_update(sta, start, end,'STEREO-A_beacon',plot_path,now=True)
+hp.plot_insitu_update_stereoa_beacon(sta, start, end,'STEREO-A_beacon_14_days',plot_path,now=True)
 
 
 
@@ -279,7 +289,7 @@ text.write('NOAA real time solar wind: '+filenoaa+'\n \n'+ hnoaa+' \n \n')
 text.write('load with: >> [noaa,hnoaa]=pickle.load(open("'+data_path+filenoaa+'", "rb"))') 
 text.write(' \n \n \n \n')
 
-text.write('STEREO-A beacon: '+filesta+'\n \n'+ hsta+' \n \n')
+text.write('STEREO-A beacon: '+filesta_sceq+'\n \n'+ hsta+' \n \n')
 text.write('load with: >> [sta,hsta]=pickle.load(open("'+data_path+filesta+'", "rb"))') 
 text.write(' \n \n \n \n')
 
