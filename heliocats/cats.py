@@ -724,6 +724,7 @@ def get_cat_parameters(sc, sci, ic, name):
     if name=='PSP': plasma=True
     if name=='VEX': plasma=False
     if name=='MESSENGER': plasma=False
+    if name=='SolarOrbiter': plasma=False
 
     print('Get parameters for ',name)
     
@@ -775,8 +776,17 @@ def get_cat_parameters(sc, sci, ic, name):
     # MO duration
     sci_istart=mdates.date2num(ic.mo_start_time[sci])   
     sci_iend=mdates.date2num(ic.mo_end_time[sci])   
-    ic.at[sci,'mo_duration']=np.round((sci_iend-sci_istart)*24,2)        
+    ic.at[sci,'mo_duration']=np.round((sci_iend-sci_istart)*24,2)      
+    
+    
+    #print(sci_istart)
+    #print(sci_iend)
+    
+    #print(mo_start_ind[i])
+    #print(mo_end_ind[i])
 
+
+    
     for i in np.arange(len(sci))-1:
     
         #MO B_max

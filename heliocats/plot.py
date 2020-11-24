@@ -771,7 +771,7 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
     if name=='PSP': plasma=True
     if name=='VEX': plasma=False
     if name=='MESSENGER': plasma=False
-                
+    if name=='SolarOrbiter': plasma=True
     
     for i in np.arange(np.size(sci)):    
     #for i in np.arange(1):     

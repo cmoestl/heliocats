@@ -235,6 +235,17 @@ from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
 
+
+#start=datetime.datetime(2020, 8, 1)
+#end=datetime.datetime.utcnow()
+#filesta_sceq="stereoa_2020_august_now_sceq_beacon.p" 
+#filesta_rtn="stereoa_2020_august_now_rtn_beacon.p" 
+
+#if get_new_data: 
+#    hd.save_stereoa_beacon_data(data_path,filesta_sceq,start,end,sceq=True)
+#    hd.save_stereoa_beacon_data(data_path,filesta_rtn,start,end,sceq=False)
+
+
 start=datetime.datetime(2020, 1, 1)
 end=datetime.datetime.utcnow()
 filesta_sceq="stereoa_2020_now_sceq_beacon.p" 
