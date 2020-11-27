@@ -92,7 +92,7 @@ def save_stereoa_science_data_merge_rtn(data_path,file):
     sta.bx=np.hstack((sta0.bx,sta1.bx,sta2.bx))
     sta.by=np.hstack((sta0.by,sta1.by,sta2.by))
     sta.bz=np.hstack((sta0.bz,sta1.bz,sta2.bz))
-    sta.bt=np.hstack((sta0.bz,sta1.bt,sta2.bt))
+    sta.bt=np.hstack((sta0.bt,sta1.bt,sta2.bt))
     sta.vt=np.hstack((sta0.vt,sta1.vt,sta2.vt))
     sta.np=np.hstack((sta0.np,sta1.np,sta2.np))
     sta.tp=np.hstack((sta0.tp,sta1.tp,sta2.tp))

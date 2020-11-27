@@ -38,7 +38,7 @@
 # 
 # 
 
-# In[6]:
+# In[ ]:
 
 
 import numpy as np
@@ -123,7 +123,7 @@ print('done')
 
 # ## (0) process new in situ data into similar format
 
-# In[73]:
+# In[83]:
 
 
 # make data
@@ -426,7 +426,7 @@ hd.save_stereoa_science_data_merge_sceq(data_path,filesta)
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[74]:
+# In[84]:
 
 
 load_data=1
@@ -499,6 +499,7 @@ if load_data > 0:
     filesta2='stereoa_2020_now_sceq_beacon.p'
     
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
+    #cutoff with end of science data
     sta2=sta2[np.where(sta2.time >= parse_time('2020-Aug-01 00:00').datetime)[0]]
 
     #make array
@@ -798,7 +799,7 @@ get_ipython().run_line_magic('matplotlib', '')
 
 # ## (3) make ICMECAT 
 
-# In[75]:
+# In[85]:
 
 
 print('data loaded')
@@ -887,7 +888,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[32]:
+# In[86]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -923,7 +924,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[33]:
+# In[87]:
 
 
 ########## python formats
@@ -1099,7 +1100,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[34]:
+# In[88]:
 
 
 #load icmecat as pandas dataframe
@@ -1111,25 +1112,25 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[35]:
+# In[89]:
 
 
 print(ic_pandas.keys())
 
 
-# In[36]:
+# In[90]:
 
 
 ic_nprec
 
 
-# In[26]:
+# In[91]:
 
 
 ic_nprec.icmecat_id
 
 
-# In[45]:
+# In[92]:
 
 
 ic=ic_pandas
@@ -1230,7 +1231,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=100,bbox_inches='tight')
 
 
-# In[61]:
+# In[93]:
 
 
 #markersize
