@@ -11,6 +11,8 @@
 # 
 # ssn is automatically loaded from http://www.sidc.be/silso/DATA/SN_d_tot_V2.0.csv
 # 
+# plots are saved to '/nas/helio/data/insitu_python/icme_rate_cycle_update'
+# 
 # 
 # Convert this notebook to a script with:
 # 
@@ -43,7 +45,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[155]:
+# In[57]:
 
 
 
@@ -129,7 +131,7 @@ print('done')
 
 # ## 1 Settings and load data
 
-# In[97]:
+# In[2]:
 
 
 plt.close('all')
@@ -398,7 +400,7 @@ if load_data > 0:
     
 
 
-# In[125]:
+# In[19]:
 
 
 
@@ -501,7 +503,7 @@ merci_max=iall_max[np.where(np.logical_and(ic.sc_insitu[iall_max] =='MESSENGER',
 print('done')
 
 
-# In[126]:
+# In[20]:
 
 
 ic
@@ -511,7 +513,7 @@ ic
 
 # ### Check data days available each year for each planet or spacecraft
 
-# In[127]:
+# In[21]:
 
 
 ######################## make bin for each year for yearly histograms
@@ -676,7 +678,7 @@ print('done')
 
 # ### get yearly ICME rates at each spacecraft
 
-# In[128]:
+# In[22]:
 
 
 #define dates of January 1 from 2007 to 2020
@@ -811,7 +813,7 @@ icrate
 
 # ### get Richardson and Cane ICME rate for comparison
 
-# In[129]:
+# In[23]:
 
 
 #convert times in dataframe from richardson and cane list to numpy array
@@ -855,7 +857,7 @@ print(yearly_mid_times_rc)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[156]:
+# In[38]:
 
 
 sns.set_context("talk")     
@@ -993,7 +995,7 @@ plt.savefig(outputdirectory+'/icmecat_icme_rate.png', dpi=100)
 
 # ## solar cycle 23
 
-# In[157]:
+# In[43]:
 
 
 print('cycle 23\n')
@@ -1077,7 +1079,7 @@ print()
 
 # ## solar cycle 24
 
-# In[158]:
+# In[44]:
 
 
 print('cycle 24\n')
@@ -1136,7 +1138,7 @@ print(np.round(np.mean(rc_rate24/ic_rate24),2))
 # ## **Figure 2** correlation SSN with ICME rate and fit
 # plot SSN vs ICME rate, linear fit with confidence interval
 
-# In[159]:
+# In[45]:
 
 
 #add spots23/24 and rc_rate23/24 into 1 array for correlation
@@ -1257,7 +1259,7 @@ plt.savefig(outputdirectory+'/fig2_rate_ssn.png', dpi=300)
 # ## predictions for solar cycle 25: SSN and ICME rate
 # ### 1. Mean cycle model
 
-# In[160]:
+# In[46]:
 
 
 # from heliocats import stats as hs
@@ -1376,7 +1378,7 @@ print('Std in ICME rate from fit and ICMECAT range for each year:')
 print(ic_rate_25_m_std)
 
 
-# In[161]:
+# In[47]:
 
 
 ########################################################### 2. SC25 panel prediction (SC25PP)
@@ -1495,7 +1497,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_pp_std)
 
 
-# In[162]:
+# In[48]:
 
 
 ################################### SC25MC
@@ -1593,14 +1595,14 @@ print(ic_rate_25_mc20_std)
 
 # ## **Figure 3** ICME rate predictions
 
-# In[163]:
+# In[49]:
 
 
 sns.set_context("talk")     
 sns.set_style('whitegrid')
 sns.set_style("ticks",{'grid.linestyle': '--'})
 
-fig=plt.figure(3,figsize=(13,10),dpi=70)
+fig=plt.figure(300,figsize=(13,10),dpi=70)
 
 fsize=15
 max_spot=350
@@ -1689,7 +1691,7 @@ plt.tight_layout()
 plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.png', dpi=100)
 
 
-# In[164]:
+# In[50]:
 
 
 
@@ -1743,9 +1745,10 @@ ax1.xaxis.set_major_locator(years)
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 plt.savefig(outputdirectory+'/cycle25_prediction_short.png',dpi=100)
+plt.savefig(outputdirectory+'/cycle25_prediction_short.pdf')
 
 
-# In[165]:
+# In[56]:
 
 
 #with shortest interval
@@ -1772,7 +1775,7 @@ max_spot=420
 
 ax1 = plt.subplot(111) 
 ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.5,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
-ax1.plot(ssn_p.time,ssn_p.spot,color='mediumseagreen',alpha=0.5,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
+ax1.plot(ssn_p.time,ssn_p.spot,color='coral',alpha=0.9,linewidth=1.0,label='Observed sunspot number (SIDC, daily, estimated)')
 #ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
 ax1.plot(ssn_m.time,ssn_m.spot,'-k',alpha=1,linewidth=2,label='Observed sunspot number (SIDC, monthly mean)')
 
@@ -1790,9 +1793,9 @@ ax1.set_ylim(0,max_spot)
 ax1.set_ylabel('Sunspot number')
 
 
-plt.legend(loc='upper left',fontsize=12)
+plt.legend(loc='upper left',fontsize=10)
 ax1.set_xlim(datetime.datetime(2019,1,1),datetime.datetime(2023,1,1))
-ax1.set_ylim(0,70)
+ax1.set_ylim(0,110)
 months = mdates.MonthLocator()   # every year
 ax1.xaxis.set_minor_locator(months)
 ax1.grid(linestyle='--')
@@ -1803,7 +1806,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # ### make PSP and Solar Orbiter position
 
-# In[166]:
+# In[69]:
 
 
 frame='HEEQ'
@@ -1893,7 +1896,7 @@ sns.distplot(bepi_r)
 plt.xlabel('AU')
 
 
-# In[167]:
+# In[70]:
 
 
 #get the speed in hourly resolution
@@ -1923,7 +1926,7 @@ plt.xlabel('AU')
 print('psp maximum speed ',np.max(psp_highres_speed),' km/s at ',psp_highres_r[np.argmax(psp_highres_speed)], ' AU')
 
 
-# In[168]:
+# In[71]:
 
 
 #%matplotlib inline
@@ -1992,7 +1995,7 @@ plt.figtext(0.99,0.008,'C. Möstl @chrisoutofspace', fontsize=10, ha='right',col
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[169]:
+# In[72]:
 
 
 #same thing for Solar Orbiter
@@ -2096,7 +2099,7 @@ plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 # first calculate smooth functions for the icme rate including the derived error bars in Figure 3
 
-# In[170]:
+# In[73]:
 
 
 #fit yearly ICME rates again with hathaway function to get to daily resolution including errors
@@ -2156,7 +2159,7 @@ plt.plot(times_25_daily_icrange_num,fmc_low(times_25_daily_icrange_num))
 
 # Figure out how many ICMEs PSP sees < 0.1 AU, < 0.2 AU, < 0.3 AU for the predicted ICME rates
 
-# In[171]:
+# In[76]:
 
 
 #make position new in order to be of similar range with ICME rate spline fits
@@ -2287,13 +2290,16 @@ print('days < 0.3 AU:',solo_l03.size)
 
 # ## **Figure 4** PSP Solar Orbiter distance and ICME rate
 
-# In[172]:
+# In[78]:
 
 
 sns.set_context("talk")     
 #sns.set_style('darkgrid')
 sns.set_style("ticks")
 fsize=15
+
+starttime =datetime.datetime(2020, 3,1)
+endtime = datetime.datetime(2029, 12, 31)
 
 fig=plt.figure(45,figsize=(16,12),dpi=70)
 ax1 = plt.subplot(211) 
