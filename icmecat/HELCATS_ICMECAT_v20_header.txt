@@ -2,35 +2,35 @@ ICME CATALOGUE v2.0
 
 This is the HELCATS interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 
-This is version 2.0, released 2020-06-03, updated 2020-11-25, doi: 10.6084/m9.figshare.6356420 
+This is version 2.0, released 2020-Jun-03, updated 2020-Dec-03, doi: 10.6084/m9.figshare.6356420 
+
+Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact christian.moestl@oeaw.ac.at for possible co-authorship.The reference for this catalog is the publication Möstl et al. (2020, https://doi.org/10.3847/1538-4357/abb9a1).  
 
 The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at 
-https://helioforecast.space/icmecat and https://www.helcats-fp7.eu/catalogues/wp4_icmecat.html 
+https://helioforecast.space/icmecat 
 
 Number of events in ICMECAT: 768 
 ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   
-Time range: January 2007 - September 2020. 
+Time range: January 2007 - November 2020. 
  
 Authors: Christian Moestl, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria.
 Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, Johan von Forstner, Mateja Dumbovic, Benoit Lavraud.  
 
-Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact christian.moestl@oeaw.ac.at for possible co-authorship. 
-
 This catalog has been made by getting the 3 times of each ICME (shock or disturbance begin, magnetic obstacle start and end) from the individual catalogs below, and then calculating all parameters again consistently from the data by us. 
 The in situ data that were used for the catalog, with a size of 8 GB in total, including extra data files with magnetic field components in RTN coordinates that are not used for producing the catalog, can be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693 
-The python code for producing this catalog is available as part of https://github.com/cmoestl/heliocats 
+The python source code for producing this catalog is available at https://github.com/cmoestl/heliocats icmecat.ipynb
 
 Each event has unique identifier - the icmecat_id - which has a tag in it that indicates from which catalog the ICME times were taken: 
 
-Wind:       Nieves-Chinchilla et al. (2018), tag: NASA. 
-STEREO-A:   Jian et al. (2018), tag: JIAN. 
-STEREO-B:   Jian et al. (2018), tag: JIAN. 
-VEX:        Good et al. (2018), tag: SGOOD 
-MESSENGER:  Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW. 
-MAVEN:      Made by us according to the method in the comments, tag: MOESTL.
-Ulysses:    Added by us, tag: MOESTL. 
+Wind:         Nieves-Chinchilla et al. (2018), tag: NASA. 
+STEREO-A:     Jian et al. (2018), tag: JIAN. 
+STEREO-B:     Jian et al. (2018), tag: JIAN. 
+VEX:          Good et al. (2018), tag: SGOOD 
+MESSENGER:    Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW. 
+MAVEN:        Made by us according to the method in the comments, tag: MOESTL.
+Ulysses:      Added by us, tag: MOESTL. 
 SolarOrbiter: Added by us, tag: MOESTL. 
-PSP:        Added by us, tag: MOESTL. 
+PSP:          Added by us, tag: MOESTL. 
 
 We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL in icmecat_id).
 
@@ -60,7 +60,8 @@ a few degrees of the solar equatorial plane are very small (within a few 0.1 nT 
 We choose SCEQ for the advantage that a comparison of the data of multipoint CME events 
 and comparisons to simulations are simpler because there is always a similar reference plane (the solar equatorial plane).
 
-- Venus Express and MESSENGER do not have plasma parameters available. 
+- Venus Express and MESSENGER do not have plasma parameters available. For events that do not have plasma parameters at Solar Orbiter or PSP, they may become available in the future.
+
 - If there is no sheath or density pileup region, so the ICME starts immediately with a magnetic obstacle, the icme_start_time is similar to mo_start_time.
 
 - At MESSENGER and VEX, for events cataloged by Simon Good, icme_start_time has been added by V. Krupar (Imperial College) and C. Möstl (IWF Graz). 

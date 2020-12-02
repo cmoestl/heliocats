@@ -498,12 +498,12 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      ax2.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,3000],color=color_sir,linestyle='-',linewidth=1,marker='')            
      ax2.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,3000],color=color_vtmax,linestyle='-',linewidth=1,marker='')            
      ax2.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,3000],'--k',linewidth=1)    
-     plt.ylabel('V [km/s]')
+     ax2.set_ylabel('V [km s$^{-1}]$')
      ax2.set_xlim(start,end)
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     ax2.set_ylim(np.nanmin(sc.vt)-20,np.nanmax(sc.vt)+100)  
-     #plt.ylim((250, 800))
-     #ax2.set_xticklabels([])
+     ax2.set_ylim(250,800)  
+     if np.isfinite(np.max(sc.vt)):
+        ax2.set_ylim(np.nanmin(sc.vt)-20,np.nanmax(sc.vt)+100)  
      plt.setp(ax2.get_xticklabels(), visible=False)
 
     
@@ -576,10 +576,17 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwarg
      sns.set_context('paper')
 
      fig=plt.figure(figsize=(9,6), dpi=150)
+
+    
      
      #sharex means that zooming in works with all subplots
      ax1 = plt.subplot(411) 
-
+     
+     plt.title(sc_label+'    ICME start: '+\
+               ic.icme_start_time[i].strftime("%Y-%b-%d %H:%M")+ \
+               '   MO start: '+ic.mo_start_time[i].strftime("%Y-%b-%d %H:%M")+ \
+               '   MO end: '+ic.mo_end_time[i].strftime("%Y-%b-%d %H:%M"))
+     
      ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
      ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
      ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
@@ -590,45 +597,44 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwarg
      ax1.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[-500,500],'-k',linewidth=1)            
      ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-500,500],'-k',linewidth=1)            
 
-    
-     plt.ylabel('B [nT]')
-     plt.legend(loc=3,ncol=4,fontsize=8)
-     ax1.set_xlim(start,end)
-     #if np.isnan(np.nanmin(sc.bt))==False:
-     ax1.set_ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)   
+     coord_string='SCEQ'   
+     if sc_label=='Wind': coord_string='HEEQ'
+     if sc_label=='Ulysses': coord_string='RTN'
+
+     ax1.set_ylabel('B [nT] '+coord_string)
+     leg=ax1.legend(loc='lower right',ncol=4,fontsize=8)
+     for line in leg.get_lines():
+         line.set_linewidth(2.0)        
         
-     ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
-     #plt.ylim((-20, 20))
-     #ax1.set_xticklabels([]) does not work with sharex
-     #plt.setp(ax1.get_xticklabels(), fontsize=6)
+     ax1.set_xlim(start,end)
+     if np.isfinite(np.nanmin(sc.bt)):
+            ax1.set_ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)   
+    
+     #ax1.xaxis.set_mainor_locator(mdates.HourLocator(interval = 6))
+     ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d %H') )
+    
      plt.setp(ax1.get_xticklabels(), visible=False)
 
-     plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
-     
+        
 
      ax2 = plt.subplot(412,sharex=ax1) 
      ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
     
-
      #plot vertical lines
      ax2.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,3000],'-k',linewidth=1)            
      ax2.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,3000],'-k',linewidth=1)            
      ax2.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,3000],'-k',linewidth=1)            
 
-
-
-     plt.ylabel('V [km/s]')
+     ax2.set_ylabel('V [km s$^{-1}]$')
      ax2.set_xlim(start,end)
-     #check plasma data exists
-     if np.isnan(np.nanmin(sc.vt))==False:
+     ax2.set_ylim(250,800)   
+     #check if plasma data exists
+     if np.isfinite(np.nanmin(sc.vt)):
          ax2.set_ylim(np.nanmin(sc.vt)-20,np.nanmax(sc.vt)+100)   
-
-
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     #plt.ylim((250, 800))
-     #ax2.set_xticklabels([])
      plt.setp(ax2.get_xticklabels(), visible=False)
 
+        
 
      ax3 = plt.subplot(413,sharex=ax1) 
      ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
@@ -637,14 +643,11 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwarg
      ax3.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,1000],'-k',linewidth=1)            
      ax3.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,1000],'-k',linewidth=1)            
      ax3.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,1000],'-k',linewidth=1)            
-
-
-     plt.ylabel('N [ccm-3]')
+     ax3.set_ylabel('N [cm$^{-3}$]')
      ax3.set_xlim(start,end)
-     if np.isnan(np.nanmin(sc.np))==False:
+     ax3.set_ylim(0,100)   
+     if np.isfinite(np.nanmin(sc.np)):
          ax3.set_ylim(0,np.nanmax(sc.np)+10)   
-
-
      ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
      #plt.ylim((0, 50))
      #ax3.set_xticklabels([])
@@ -653,29 +656,24 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwarg
 
      ax4 = plt.subplot(414,sharex=ax1) 
      ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
-    
      #plot vertical lines
      ax4.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,10],'-k',linewidth=1)            
      ax4.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,10],'-k',linewidth=1)            
      ax4.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,10],'-k',linewidth=1)            
-
-
-
-     plt.ylabel('T [MK]')
+     ax4.set_ylabel('T [MK]')
      ax4.set_xlim(start,end)
-     if np.isnan(np.nanmin(sc.tp))==False:
+     ax4.set_ylim(0,1)   
+     if np.isfinite(np.nanmin(sc.tp)):
          ax4.set_ylim(0,np.nanmax(sc.tp/1e6)+0.2)   
-
      ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     #plt.ylim((0, 0.5))
      
+
      plt.tight_layout()
      #plt.show()
 
      #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
 
      plotfile=path+ic.icmecat_id[i]+'.png'
-  
 
      plt.savefig(plotfile)
      print('saved as ',plotfile)
@@ -717,15 +715,24 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, **kwargs):
      ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-500,500],'-k',linewidth=1)            
 
      
-     plt.ylabel('B [nT]')
-     plt.legend(loc=3,ncol=4,fontsize=8)
+     coord_string='SCEQ'   
+
+
+     ax1.set_ylabel('B [nT] '+coord_string)
+
+     leg=ax1.legend(loc='lower right',ncol=4,fontsize=8)
+     for line in leg.get_lines():
+         line.set_linewidth(2.0)   
+        
      ax1.set_xlim(start,end)
      ax1.set_ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)   
 
-     ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
+     ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d %H') )
 
-     plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
-     
+     plt.title(sc_label+'    ICME start: '+\
+               ic.icme_start_time[i].strftime("%Y-%b-%d %H:%M")+ \
+               '   MO start: '+ic.mo_start_time[i].strftime("%Y-%b-%d %H:%M")+ \
+               '   MO end: '+ic.mo_end_time[i].strftime("%Y-%b-%d %H:%M"))
     
      plt.tight_layout()
 
@@ -842,11 +849,17 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
 
     fig=plt.figure(figsize=(9,8), dpi=150)
     
-    plt.title(sc_label+' data, start: '+start.strftime("%Y-%b-%d %H:%M")+'  end: '+end.strftime("%Y-%b-%d %H:%M"))
-
+ 
 
     #sharex means that zooming in works with all subplots
     ax1 = plt.subplot(411) 
+    
+    plt.title(sc_label+'    ICME start: '+\
+               ic.icme_start_time[i].strftime("%Y-%b-%d %H:%M")+ \
+               '   MO start: '+ic.mo_start_time[i].strftime("%Y-%b-%d %H:%M")+ \
+               '   MO end: '+ic.mo_end_time[i].strftime("%Y-%b-%d %H:%M"))
+    
+    
     ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
     ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
     ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
@@ -862,7 +875,9 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
         ax1.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.1, color='blue')
     
     plt.ylabel('B [nT, MSO]')
-    plt.legend(loc=3,ncol=4,fontsize=7)
+    leg=ax1.legend(loc='lower right',ncol=4,fontsize=8)
+    for line in leg.get_lines():
+         line.set_linewidth(2.0)   
     ax1.set_xlim(start,end)
     #if np.isnan(np.nanmin(sc.bt))==False:
     ax1.set_ylim(-np.nanmax(sc.bt)-3,np.nanmax(sc.bt)+3)   
@@ -900,7 +915,7 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
 
 
     plt.legend(loc=3,ncol=2,fontsize=7)        
-    plt.ylabel('V [km/s]')
+    ax2.set_ylabel('V [km s$^{-1}]$')
     ax2.set_xlim(start,end)
     #check plasma data exists
     #if np.isnan(np.nanmin(sc.vt))==False:
@@ -919,7 +934,7 @@ def plot_insitu_icmecat_maven(sc, start, end, sc_label, path, ic,i, rad, arrcat,
     for k  in np.arange(ac_mars.shape[0]):
         ax3.axvspan(arr[k]-err[k],arr[k]+err[k], alpha=0.1, color='blue')
 
-    plt.ylabel('N [ccm-3]')
+    ax3.set_ylabel('N [cm$^{-3}$]')
     ax3.set_xlim(start,end)
     #if np.isnan(np.nanmin(sc.np))==False:
     ax3.set_ylim(0,np.nanmax(sc.np)+5)   
