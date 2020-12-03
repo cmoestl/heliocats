@@ -10,7 +10,7 @@ dependencies:
   - scikit-learn==0.20.3
   - scikit-image==0.15.0
   - pandas==0.25.3
-  - seaborn==0.9.0
+  - seaborn==0.11.0
   - astropy==4.0
   - h5py==2.10.0
 
