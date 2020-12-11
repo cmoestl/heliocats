@@ -202,7 +202,9 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
     
     if insitu_location_string=='STA': 
         insitu_str='-234'
-        insitu_kernel=spicedata.get_kernel('stereo_a')
+        insitu_kernel=spicedata.get_kernel('stereo_a_pred')
+        insitu_kernel2=spicedata.get_kernel('stereo_a')
+        spice.furnish(insitu_kernel2)
         target_name='STEREO-A'
        
     if insitu_location_string=='Mercury': 
