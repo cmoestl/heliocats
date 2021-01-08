@@ -14,13 +14,13 @@
 # 
 # Convert this notebook to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell
 
-# In[1]:
+# In[16]:
 
 
 last_update='2020 December 11'
 
 
-# In[2]:
+# In[17]:
 
 
 import numpy as np
@@ -87,7 +87,7 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[3]:
+# In[18]:
 
 
 from heliocats import cats as hc
@@ -149,7 +149,7 @@ ac
 
 # #### save header
 
-# In[4]:
+# In[19]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -179,7 +179,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[5]:
+# In[20]:
 
 
 ########## python formats
@@ -356,7 +356,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[6]:
+# In[21]:
 
 
 #load icmecat as pandas dataframe
@@ -368,33 +368,33 @@ file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
 [ac_rec,ac_struct,h]=pickle.load( open(file, 'rb'))   
 
 
-# In[7]:
+# In[22]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[8]:
+# In[23]:
 
 
 ac
 
 
-# In[9]:
+# In[24]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[10]:
+# In[25]:
 
 
 ac_struct
 
 
-# In[11]:
+# In[26]:
 
 
 ac_struct['id']
@@ -407,7 +407,7 @@ print(deltata)
 
 # ### plot directions and targets
 
-# In[12]:
+# In[27]:
 
 
 
@@ -477,7 +477,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[13]:
+# In[28]:
 
 
 fig=plt.figure(2, figsize=(18,8), dpi=100)
@@ -512,7 +512,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[14]:
+# In[29]:
 
 
 '''
@@ -540,7 +540,7 @@ hibi=np.where(ac.sc=='B')[0]
 
 
 
-# In[15]:
+# In[30]:
 
 
 last_year=2021
