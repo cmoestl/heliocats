@@ -21,8 +21,8 @@
 # 
 # 
 # **Updating data**
-# - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files
-# - Bepi Colombo manual download
+# - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files, then read_solo.ipynb
+# - Bepi Colombo manual download, then read_bepi.ipynb
 # - PSP wget
 # - STEREO-Ahead prel. PLASTIC ASCII files, IMPACT as usual (via heliosat), beacon data automatic every day
 # - Wind automatic everyday, need to remove spikes 
@@ -38,7 +38,7 @@
 # 
 # 
 
-# In[ ]:
+# In[1]:
 
 
 import numpy as np
@@ -426,7 +426,7 @@ importlib.reload(hd) #reload again while debugging
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[3]:
+# In[2]:
 
 
 load_data=1
@@ -613,7 +613,7 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning if needed (add SolO, Bepi)
 
-# In[ ]:
+# In[3]:
 
 
 # save data as numpy structured arrays for machine learning
@@ -805,7 +805,7 @@ get_ipython().run_line_magic('matplotlib', '')
 
 # ## (3) make ICMECAT 
 
-# In[24]:
+# In[4]:
 
 
 print('data loaded')
@@ -866,7 +866,7 @@ from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
 #missions to be updated
-#hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
+hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
 #hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
 #hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 #hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
@@ -879,11 +879,12 @@ importlib.reload(hp) #reload again while debugging
 #hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
 print('done')
 
+############### sort ICMECAT by date
+
 
 ic = ic.sort_values(by='icme_start_time',ascending=False)
 ic = ic.reset_index(drop=True)
 
-############### sort ICMECAT by date
 
 
 
