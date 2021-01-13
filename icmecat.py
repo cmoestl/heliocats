@@ -38,7 +38,7 @@
 # 
 # 
 
-# In[1]:
+# In[3]:
 
 
 import numpy as np
@@ -717,6 +717,18 @@ get_ipython().run_line_magic('matplotlib', '')
 
 
 ###################### make huge overview plot after Aug 2018
+
+
+
+#Bepi Colombo
+#filebepi='bepi_2019_2021_rtn.p'
+#bepi=pickle.load(open(data_path+filebepi, "rb" ) )   
+#hp.plot_insitu_measure_mag(bepi, '2020-Aug-20','2021-Jan-5', 'Bepi', 'results/plots_icmecat/')
+
+
+##hp.plot_insitu_measure(bepi, '2020-Apr-15','2020-Apr-29', 'SolO', 'results/plots_icmecat/')
+
+
 
 
 #Solar Orbiter
