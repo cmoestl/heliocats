@@ -1049,6 +1049,19 @@ def save_wind_data(path,file,start_date,end_date,heeq):
     y=earth.y-y_gse
     z=earth.z+z_gse
     [r, lat, lon]=cart2sphere(x,y,z)    
+    
+    
+    #wind_pos=heliosat.WIND().trajectory(time, frame="HEEQ")
+    #x=wind._pos[:,0]
+    #y=wind_pos[:,1]
+    #z=wind_pos[:,2]
+    #[r, lat, lon]=hd.cart2sphere(wind_pos[:,0],wind_pos[:,1],wind_pos[:,2])
+    #lon=np.rad2deg(lon) #convert to degree
+    #lat=np.rad2deg(lat)
+
+
+    
+    
     print('position end ')
     
     #make array

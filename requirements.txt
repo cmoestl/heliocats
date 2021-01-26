@@ -1,6 +1,7 @@
 heliosat==0.4.9
 3DCORE==1.0.0
 sunpy==1.1.0
+spiceypy=3.0.2
 heliopy==0.10.1
 pillow==7.1.1 
 cdflib==0.3.17
