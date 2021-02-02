@@ -29,12 +29,12 @@ Parameters
     1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)
     2: target_name: Name of in situ target.
     3: sse_launch_time: From HIGeoCAT, launch time of the CME at Sun center, unit: UTC.
-    4: target_arrival_time: CME arrival time at target location, corrected for SSE shape (Moestl and Davies, 2013). unit: UTC.
-    5: target_arrival_time_err: Error of CME arrival time at target location, solely based on error in parameter sse_speed_err. unit: hours.
-    6: target_distance: Target distance from Sun, at CME arrival time. unit: AU.
-    7: target_heeq_lon: Target longitude in HEEQ, at CME arrival time. unit: degree.
-    8: target_heeq_lat: Target latitude in HEEQ, at CME arrival time. unit: degree.
-    9: target_delta: Difference in HEEQ longitude between central CME direction and target location at CME arrival time, 
+    4: target_arrival_time: CME arrival time at target location calculated with the SSEF30 model, corrected for SSE shape (Moestl and Davies, 2013). unit: UTC.
+    5: target_arrival_time_err: Error of CME arrival time at target location from SSEF30 model, solely based on error in parameter sse_speed_err. unit: hours.
+    6: target_distance: Target distance from Sun, at model CME arrival time. unit: AU.
+    7: target_heeq_lon: Target longitude in HEEQ, at model CME arrival time. unit: degree.
+    8: target_heeq_lat: Target latitude in HEEQ, at model CME arrival time. unit: degree.
+    9: target_delta: Difference in HEEQ longitude between central CME direction and target location at model CME arrival time, 
        positive values: spacecraft is west of CME apex. unit: degree.
     10: sse_heeq_lon: From HIGeoCAT, the HEEQ longitude of the CME apex propagation direction, unit: degree.
     11: sse_heeq_lat: From HIGeoCAT, the HEEQ latitude of the CME apex propagation direction, unit: degree.

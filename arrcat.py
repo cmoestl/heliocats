@@ -14,15 +14,16 @@
 # 
 # Convert this notebook to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell
 # 
+# https://figshare.com/articles/dataset/Arrival_catalog_of_coronal_mass_ejections_observed_with_STEREO_Heliospheric_Imagers_HELCATS_ARRCAT_2_0_/12271292
 # 
 
-# In[16]:
+# In[ ]:
 
 
 last_update='2021 January 12'
 
 
-# In[17]:
+# In[ ]:
 
 
 import numpy as np
@@ -89,7 +90,7 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[3]:
+# In[ ]:
 
 
 from heliocats import cats as hc
@@ -151,7 +152,7 @@ ac
 
 # #### save header
 
-# In[4]:
+# In[ ]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -181,7 +182,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[5]:
+# In[ ]:
 
 
 ########## python formats
@@ -358,7 +359,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[6]:
+# In[ ]:
 
 
 #load icmecat as pandas dataframe
@@ -370,33 +371,33 @@ file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
 [ac_rec,ac_struct,h]=pickle.load( open(file, 'rb'))   
 
 
-# In[7]:
+# In[ ]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[8]:
+# In[ ]:
 
 
 ac
 
 
-# In[9]:
+# In[ ]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[10]:
+# In[ ]:
 
 
 ac_struct
 
 
-# In[11]:
+# In[ ]:
 
 
 ac_struct['id']
@@ -409,7 +410,7 @@ print(deltata)
 
 # ### plot directions and targets
 
-# In[12]:
+# In[ ]:
 
 
 
@@ -479,7 +480,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[13]:
+# In[ ]:
 
 
 fig=plt.figure(2, figsize=(18,8), dpi=100)
@@ -514,7 +515,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[14]:
+# In[ ]:
 
 
 '''
@@ -542,7 +543,7 @@ hibi=np.where(ac.sc=='B')[0]
 
 
 
-# In[15]:
+# In[ ]:
 
 
 last_year=2021
