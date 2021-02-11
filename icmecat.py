@@ -38,7 +38,7 @@
 # 
 # 
 
-# In[3]:
+# In[16]:
 
 
 import numpy as np
@@ -253,7 +253,8 @@ importlib.reload(hd) #reload again while debugging
 # go to heliosat directory /nas/helio/data/heliosat/data/psp_fields_l2
 # wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2019/*.cdf"
 # wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2020/*.cdf"
-# psp_spc_l3
+# wget -nc "https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2020/*.cdf"
+# go to  /nas/helio/data/heliosat/data/psp_spc_l3
 # wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf"
 # wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2020/*.cdf"
 ############################################################################
