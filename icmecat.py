@@ -734,6 +734,13 @@ get_ipython().run_line_magic('matplotlib', '')
 
 #Solar Orbiter
 ##hp.plot_insitu_measure(solo, '2020-Apr-15','2020-Apr-29', 'SolO', 'results/plots_icmecat/')
+#t.figure(figsize=(15,10), dpi=100)
+#plt.plot(solo.time,solo.bt,'-k')
+#plt.plot(solo.time,solo.bx,'-r')
+#plt.plot(solo.time,solo.by,'-g')
+#plt.plot(solo.time,solo.bz,'-b')
+#plt.xlim([datetime.datetime(2020,9,3),datetime.datetime(2020,9,8)])
+#plt.ylim(-10,10)
 
 
 #Bepi Colombo
