@@ -38,7 +38,7 @@
 # 
 # 
 
-# In[1]:
+# In[3]:
 
 
 import numpy as np
@@ -729,7 +729,13 @@ get_ipython().run_line_magic('matplotlib', '')
 
 ##hp.plot_insitu_measure(bepi, '2020-Apr-15','2020-Apr-29', 'SolO', 'results/plots_icmecat/')
 
-
+#plt.figure(figsize=(15,10), dpi=100)
+#plt.plot(bepi.time,bepi.bt,'-k')
+#plt.plot(bepi.time,bepi.bx,'-r')
+#plt.plot(bepi.time,bepi.by,'-g')
+#plt.plot(bepi.time,bepi.bz,'-b')
+#plt.ylim(-15,15)
+#plt.xlim([datetime.datetime(2020,12,15),datetime.datetime(2020,12,30)])
 
 
 #Solar Orbiter
