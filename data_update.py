@@ -66,6 +66,7 @@ get_new_data=True
 ################################# PSP data update
 
 ################################## USE THIS ################################
+# old
 # load PSP data from server on linux command line onto leo server
 # go to heliosat directory /nas/helio/data/heliosat/data/psp_fields_l2
 # wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2019/*.cdf"
@@ -73,6 +74,8 @@ get_new_data=True
 #  /nas/helio/data/heliosat/data/psp_spc_l3
 # wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf"
 # wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2020/*.cdf"
+#new
+#use beginning of icmecat.ipynb
 ############################################################################
 
 # print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B

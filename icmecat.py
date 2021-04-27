@@ -10,7 +10,7 @@
 # **Author**: C. Möstl, IWF Graz, Austria
 # https://twitter.com/chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# **latest release: version 2.0, 2020 June 3, updated 2020 December 3, doi: 10.6084/m9.figshare.6356420**
+# **latest release: version 2.0, 2020 June 3, updated 2021 Apr 26, doi: 10.6084/m9.figshare.6356420**
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -21,7 +21,7 @@
 # 
 # 
 # **Updating data**
-# - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files, then read_solo.ipynb
+# - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files, then use read_solo.ipynb; currently ends 2021-12-31
 # - Bepi Colombo manual download, then read_bepi.ipynb
 # - PSP wget
 # - STEREO-Ahead prel. PLASTIC ASCII files, IMPACT as usual (via heliosat), beacon data automatic every day
@@ -38,7 +38,7 @@
 # 
 # 
 
-# In[3]:
+# In[1]:
 
 
 import numpy as np
@@ -126,9 +126,146 @@ print('done')
 # In[2]:
 
 
+
+
+
+#for Bepi Colombo, got to read_bepi.ipynb
+
+
+
+#for Solar Orbiter, got to read_solo.ipynb
+
+
+# ## Parker Solar Probe
+
+# In[15]:
+
+
+################### FIELDS
+#generate datestrings for filenames
+time1=[]
+tstart1=datetime.datetime(2020, 10, 21)
+tend1=datetime.datetime(2021, 1, 1)
+while tstart1 < tend1:
+    time1.append(tstart1)  
+    tstart1 += timedelta(days=1) 
+
+
+#version 1 until 2020 July 31
+#version 2 from 2020 Oct 21
+    
+os.chdir('/nas/helio/data/heliosat/data/psp_fields_l2')
+#download each file
+for i in np.arange(0,len(time1)):    
+    time1str=time1[i].strftime('%Y%m%d')
+    time1year=time1[i].strftime('%Y')  
+    os.system('wget -nc https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/'+time1year+'/psp_fld_l2_mag_rtn_1min_'+time1str+'_v02.cdf')
+    
+os.chdir('/home/cmoestl/pycode/heliocats')
+
+
+# In[2]:
+
+
+############# SWEAP
+
+time1=[]
+tstart1=datetime.datetime(2021, 1, 1)
+tend1=datetime.datetime(2021, 1, 31)
+while tstart1 < tend1:
+    time1.append(tstart1)  
+    tstart1 += timedelta(days=1) 
+
+os.chdir('/nas/helio/data/heliosat/data/psp_spc_l3')
+
+for i in np.arange(0,len(time1)):    
+    time1str=time1[i].strftime('%Y%m%d')
+    time1year=time1[i].strftime('%Y')    
+    os.system('wget -nc https://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/'+time1year+'/psp_swp_spc_l3i_'+time1str+'_v02.cdf')
+      
+
+os.chdir('/home/cmoestl/pycode/heliocats')
+
+
+# In[13]:
+
+
+
 # make data
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
+
+
+print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
+
+#filepsp='psp_2018_2020_rtn_new.p'
+#hd.save_psp_data(data_path,filepsp, sceq=False)   
+#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
+#print('done')
+
+#filepsp='psp_2018_2020_sceq.p'
+#hd.save_psp_data(data_path,filepsp, sceq=True)   
+#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
+# plt.xlim(parse_time('2007-08-15').plot_date,parse_time('2007-08-15 12:00').plot_date)
+
+
+print('load PSP data RTN') #from heliosat, converted to SCEQ similar to STEREO-A/B
+filepsp='psp_2018_2020_rtn_new.p'
+[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
+    
+
+# start=datetime.datetime(2020,7,11)
+# end=datetime.datetime(2020,7,11,6,0,0)
+
+
+#start=datetime.datetime(2020,4,30)
+#end=datetime.datetime(2020,7,20)
+
+start=datetime.datetime(2020,9,1)
+end=datetime.datetime(2020,12,31)
+
+
+################### plot new psp data
+sns.set_context("talk")     
+sns.set_style('darkgrid')
+
+fig=plt.figure(3,figsize=(20,15),dpi=200)
+
+ax1=plt.subplot(211)
+
+#  #ax1.plot(psp.time,psp.bt,'-k',lw=0.5,label='Btotal')
+# #ax1.plot(psp.time,psp.bx,'-r',lw=0.2,label='Br')
+# #ax1.plot(psp.time,psp.by,'-g',lw=0.2,label='Bt')
+# #ax1.plot(psp.time,psp.bz,'-b',lw=0.2,label='Bn')
+
+ax1.plot(psp.time,psp.bt,'-k',lw=1,label='Btotal')
+ax1.plot(psp.time,psp.bx,'-r',lw=1,label='Br')
+ax1.plot(psp.time,psp.by,'-g',lw=1,label='Bt')
+ax1.plot(psp.time,psp.bz,'-b',lw=1,label='Bn')
+
+ax1.set_xlim(start,end)
+ax1.set_ylabel('FIELDS magnetic field [nT]')
+ax1.legend(loc=2)
+#ax1.set_ylim(-20,20)
+
+
+ax2=plt.subplot(212,sharex=ax1)
+ax2.plot(psp.time,psp.r,'-b')
+ax2.set_ylim(0,1)
+
+ax2.set_ylabel('Heliocentric distance [AU]')
+
+plt.tight_layout()
+
+# plt.savefig('results/parker_orbit_venus.png',dpi=200)
+# plt.savefig('results/parker_orbit_venus.pdf')
+
+
+
+
+# ## Others
+
+# In[2]:
 
 
 ############################# make Ulysses files
@@ -238,91 +375,6 @@ importlib.reload(hd) #reload again while debugging
 
 
 
-#for Bepi Colombo, got to read_bepi.ipynb
-
-
-
-#for Solar Orbiter, got to read_solo.ipynb
-
-
-################################# PSP
-
-
-################################## USE THIS ################################
-# load PSP data from server on linux command line onto leo server
-# go to heliosat directory /nas/helio/data/heliosat/data/psp_fields_l2
-# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2019/*.cdf"
-# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2020/*.cdf"
-# wget -nc "https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/2020/*.cdf"
-# go to  /nas/helio/data/heliosat/data/psp_spc_l3
-# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2019/*.cdf"
-# wget -nc "ftps://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/2020/*.cdf"
-############################################################################
-
-# print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
-
-#filepsp='psp_2018_2020_rtn.p'
-#hd.save_psp_data(data_path,filepsp, sceq=False)   
-#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
-#print('done')
-
-#filepsp='psp_2018_2020_sceq.p'
-#hd.save_psp_data(data_path,filepsp, sceq=True)   
-#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
-# plt.xlim(parse_time('2007-08-15').plot_date,parse_time('2007-08-15 12:00').plot_date)
-
-
-#print('load PSP data RTN') #from heliosat, converted to SCEQ similar to STEREO-A/B
-#filepsp='psp_2018_2020_nov_rtn.p'
-#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
-    
-
-# start=datetime.datetime(2020,7,11)
-# end=datetime.datetime(2020,7,11,6,0,0)
-
-
-#start=datetime.datetime(2020,4,30)
-#end=datetime.datetime(2020,7,20)
-
-#start=datetime.datetime(2020,7,20)
-#end=datetime.datetime(2020,11,1)
-
-################### plot new psp data
-# sns.set_context("talk")     
-# sns.set_style('darkgrid')
-
-# fig=plt.figure(3,figsize=(20,15),dpi=200)
-
-# ax1=plt.subplot(211)
-
-# #ax1.plot(psp.time,psp.bt,'-k',lw=0.5,label='Btotal')
-# #ax1.plot(psp.time,psp.bx,'-r',lw=0.2,label='Br')
-# #ax1.plot(psp.time,psp.by,'-g',lw=0.2,label='Bt')
-# #ax1.plot(psp.time,psp.bz,'-b',lw=0.2,label='Bn')
-
-# ax1.plot(psp.time,psp.bt,'-k',lw=1,label='Btotal')
-# ax1.plot(psp.time,psp.bx,'-r',lw=1,label='Br')
-# ax1.plot(psp.time,psp.by,'-g',lw=1,label='Bt')
-# ax1.plot(psp.time,psp.bz,'-b',lw=1,label='Bn')
-
-# ax1.set_xlim(start,end)
-# ax1.set_ylabel('FIELDS magnetic field [nT]')
-# ax1.legend(loc=2)
-# ax1.set_ylim(-20,20)
-
-
-# ax2=plt.subplot(212,sharex=ax1)
-# ax2.plot(psp.time,psp.r,'-b')
-# #ax2.set_ylim(0,0.5)
-
-# ax2.set_ylabel('Heliocentric distance [AU]')
-
-# plt.tight_layout()
-
-# plt.savefig('results/parker_orbit_venus.png',dpi=200)
-# plt.savefig('results/parker_orbit_venus.pdf')
-
-
 
 
 ########################## SAVE MSL rad data into recarray as pickle
@@ -427,7 +479,7 @@ importlib.reload(hd) #reload again while debugging
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[2]:
+# In[22]:
 
 
 load_data=1
@@ -469,14 +521,14 @@ if load_data > 0:
     #MSL RAD
     rad=hd.load_msl_rad()#, rad.time,rad.dose_sol
     
-
-    #print('load Bepi Colombo SCEQ')
-    filebepi='bepi_2019_2020_sceq.p'
+    ##############################################
+    print('load Bepi Colombo SCEQ')
+    filebepi='bepi_2019_2021_sceq.p'
     bepi=pickle.load(open(data_path+filebepi, "rb" ) )      
    
-    
+    ##############################################
     print('load Solar Orbiter SCEQ')
-    filesolo='solo_2020_april_august_sceq.p'
+    filesolo='solo_2020_april_december_sceq.p'
     solo=pickle.load(open(data_path+filesolo, "rb" ) )    
     #set all plasma data to NaN
     solo.vt=np.nan
@@ -484,8 +536,7 @@ if load_data > 0:
     solo.tp=np.nan
 
 
-
-    
+    ##############################################
     print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
     filepsp='psp_2018_2020_nov_sceq.p'
     [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
@@ -713,7 +764,7 @@ plt.close('all')
 #works in scripts
 #matplotlib.use('qt5agg')  
 get_ipython().run_line_magic('matplotlib', '')
-#plt.ion()
+plt.ion()
 
 
 
