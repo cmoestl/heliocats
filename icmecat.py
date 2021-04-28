@@ -10,7 +10,7 @@
 # **Author**: C. Möstl, IWF Graz, Austria
 # https://twitter.com/chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# **latest release: version 2.0, 2020 June 3, updated 2021 Apr 26, doi: 10.6084/m9.figshare.6356420**
+# **latest release: version 2.0, 2020 June 3, updated 2021 Apr ***, doi: 10.6084/m9.figshare.6356420**
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -23,7 +23,7 @@
 # **Updating data**
 # - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files, then use read_solo.ipynb; currently ends 2021-12-31
 # - Bepi Colombo manual download, then read_bepi.ipynb
-# - PSP wget
+# - PSP use cell in this notebook, beware of unfinished file downloads - redo!
 # - STEREO-Ahead prel. PLASTIC ASCII files, IMPACT as usual (via heliosat), beacon data automatic every day
 # - Wind automatic everyday, need to remove spikes 
 # 
@@ -38,7 +38,7 @@
 # 
 # 
 
-# In[1]:
+# In[2]:
 
 
 import numpy as np
@@ -64,6 +64,7 @@ import pandas as pd
 import copy
 import openpyxl
 import h5py
+#get heliosat from github or pip https://pypi.org/project/HelioSat/
 import heliosat
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
@@ -120,21 +121,16 @@ import warnings
 warnings.filterwarnings('ignore')
 print('done')
 
+print(heliosat.__version__)
+
 
 # ## (0) process new in situ data into similar format
-
-# In[2]:
-
-
-
-
-
-#for Bepi Colombo, got to read_bepi.ipynb
-
-
-
-#for Solar Orbiter, got to read_solo.ipynb
-
+# 
+# ### for Bepi Colombo, got to read_bepi.ipynb
+# 
+# ### for Solar Orbiter, got to read_solo.ipynb
+# 
+# 
 
 # ## Parker Solar Probe
 
@@ -163,15 +159,11 @@ for i in np.arange(0,len(time1)):
     
 os.chdir('/home/cmoestl/pycode/heliocats')
 
-
-# In[2]:
-
-
 ############# SWEAP
 
 time1=[]
-tstart1=datetime.datetime(2021, 1, 1)
-tend1=datetime.datetime(2021, 1, 31)
+tstart1=datetime.datetime(2020, 9, 1)
+tend1=datetime.datetime(2020, 10, 17)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -187,45 +179,32 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[13]:
+# In[3]:
 
 
-
-# make data
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
+print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
 
-print('load PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
+filepsp='psp_2018_2021_rtn.p'
+hd.save_psp_data(data_path,filepsp, sceq=False)   
+print('rtn done')
 
-#filepsp='psp_2018_2020_rtn_new.p'
-#hd.save_psp_data(data_path,filepsp, sceq=False)   
-#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
-#print('done')
+filepsp='psp_2018_2021_sceq.p'
+hd.save_psp_data(data_path,filepsp, sceq=True)   
+print('rtn done')
 
-#filepsp='psp_2018_2020_sceq.p'
-#hd.save_psp_data(data_path,filepsp, sceq=True)   
-#[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )  
-# plt.xlim(parse_time('2007-08-15').plot_date,parse_time('2007-08-15 12:00').plot_date)
-
-
-print('load PSP data RTN') #from heliosat, converted to SCEQ similar to STEREO-A/B
-filepsp='psp_2018_2020_rtn_new.p'
+print('load PSP data RTN') 
+filepsp='psp_2018_2021_rtn.p'
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
-
-# start=datetime.datetime(2020,7,11)
-# end=datetime.datetime(2020,7,11,6,0,0)
-
-
-#start=datetime.datetime(2020,4,30)
-#end=datetime.datetime(2020,7,20)
 
 start=datetime.datetime(2020,9,1)
 end=datetime.datetime(2020,12,31)
 
 
-################### plot new psp data
+################ plot new psp data for checking
 sns.set_context("talk")     
 sns.set_style('darkgrid')
 
@@ -258,7 +237,7 @@ ax2.set_ylabel('Heliocentric distance [AU]')
 plt.tight_layout()
 
 # plt.savefig('results/parker_orbit_venus.png',dpi=200)
-# plt.savefig('results/parker_orbit_venus.pdf')
+plt.savefig('results/parker_icme.pdf')
 
 
 
@@ -479,7 +458,7 @@ plt.tight_layout()
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[22]:
+# In[28]:
 
 
 load_data=1
@@ -747,7 +726,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[12]:
+# In[46]:
 
 
 #for measuring new events use these functions from heliocats.plot 
@@ -763,8 +742,8 @@ plt.close('all')
 
 #works in scripts
 #matplotlib.use('qt5agg')  
-get_ipython().run_line_magic('matplotlib', '')
-plt.ion()
+get_ipython().run_line_magic('matplotlib', 'inline')
+#plt.ion()
 
 
 
@@ -775,10 +754,10 @@ plt.ion()
 #Bepi Colombo
 #filebepi='bepi_2019_2021_rtn.p'
 #bepi=pickle.load(open(data_path+filebepi, "rb" ) )   
-#hp.plot_insitu_measure_mag(bepi, '2020-Aug-20','2021-Jan-5', 'Bepi', 'results/plots_icmecat/')
+hp.plot_insitu_measure_mag_notz(bepi, '2020-Aug-20','2021-Jan-5', 'Bepi', 'results/plots_icmecat/')
 
 
-##hp.plot_insitu_measure(bepi, '2020-Apr-15','2020-Apr-29', 'SolO', 'results/plots_icmecat/')
+#hp.plot_insitu_measure_mag_notz(bepi, '2021-Mar-1','2021-Mar-15', 'Bepi', 'results/plots_icmecat/')
 
 #plt.figure(figsize=(15,10), dpi=100)
 #plt.plot(bepi.time,bepi.bt,'-k')
@@ -790,7 +769,7 @@ plt.ion()
 
 
 #Solar Orbiter
-##hp.plot_insitu_measure(solo, '2020-Apr-15','2020-Apr-29', 'SolO', 'results/plots_icmecat/')
+hp.plot_insitu_measure_mag(solo, '2020-Apr-15','2020-Apr-29', 'SolO', 'results/plots_icmecat/')
 #t.figure(figsize=(15,10), dpi=100)
 #plt.plot(solo.time,solo.bt,'-k')
 #plt.plot(solo.time,solo.bx,'-r')
@@ -806,7 +785,7 @@ plt.ion()
 
 
 #PSP
-#hp.plot_insitu_measure_mag(psp, '2020-Jan-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
+hp.plot_insitu_measure_mag_notz(psp, '2020-Jan-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
 
 #hp.plot_insitu_measure(psp, '2020-Jan-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
 
