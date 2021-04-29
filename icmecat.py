@@ -38,7 +38,7 @@
 # 
 # 
 
-# In[2]:
+# In[1]:
 
 
 import numpy as np
@@ -186,21 +186,20 @@ from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
 print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
+#filepsp='psp_2018_2021_rtn.p'
+#hd.save_psp_data(data_path,filepsp, sceq=False)   
+#print('rtn done')
 
-filepsp='psp_2018_2021_rtn.p'
-hd.save_psp_data(data_path,filepsp, sceq=False)   
-print('rtn done')
-
-filepsp='psp_2018_2021_sceq.p'
-hd.save_psp_data(data_path,filepsp, sceq=True)   
-print('rtn done')
+#filepsp='psp_2018_2021_sceq.p'
+#hd.save_psp_data(data_path,filepsp, sceq=True)   
+#print('rtn done')
 
 print('load PSP data RTN') 
-filepsp='psp_2018_2021_rtn.p'
+filepsp='psp_2018_2021_sceq.p'
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
 
-start=datetime.datetime(2020,9,1)
+start=datetime.datetime(2018,10,1)
 end=datetime.datetime(2020,12,31)
 
 
@@ -208,7 +207,7 @@ end=datetime.datetime(2020,12,31)
 sns.set_context("talk")     
 sns.set_style('darkgrid')
 
-fig=plt.figure(3,figsize=(20,15),dpi=200)
+fig=plt.figure(3,figsize=(15,10),dpi=100)
 
 ax1=plt.subplot(211)
 
@@ -218,9 +217,9 @@ ax1=plt.subplot(211)
 # #ax1.plot(psp.time,psp.bz,'-b',lw=0.2,label='Bn')
 
 ax1.plot(psp.time,psp.bt,'-k',lw=1,label='Btotal')
-ax1.plot(psp.time,psp.bx,'-r',lw=1,label='Br')
-ax1.plot(psp.time,psp.by,'-g',lw=1,label='Bt')
-ax1.plot(psp.time,psp.bz,'-b',lw=1,label='Bn')
+#ax1.plot(psp.time,psp.bx,'-r',lw=1,label='Br')
+#ax1.plot(psp.time,psp.by,'-g',lw=1,label='Bt')
+#ax1.plot(psp.time,psp.bz,'-b',lw=1,label='Bn')
 
 ax1.set_xlim(start,end)
 ax1.set_ylabel('FIELDS magnetic field [nT]')
@@ -237,7 +236,9 @@ ax2.set_ylabel('Heliocentric distance [AU]')
 plt.tight_layout()
 
 # plt.savefig('results/parker_orbit_venus.png',dpi=200)
-plt.savefig('results/parker_icme.pdf')
+plt.savefig('results/parker_allorbits.png')
+#plt.savefig('results/parker_icme.pdf')
+
 
 
 
@@ -458,7 +459,7 @@ plt.savefig('results/parker_icme.pdf')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[28]:
+# In[12]:
 
 
 load_data=1
@@ -517,7 +518,7 @@ if load_data > 0:
 
     ##############################################
     print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
-    filepsp='psp_2018_2020_nov_sceq.p'
+    filepsp='psp_2018_2021_sceq.p'
     [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
     
@@ -726,7 +727,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[46]:
+# In[13]:
 
 
 #for measuring new events use these functions from heliocats.plot 
@@ -742,8 +743,8 @@ plt.close('all')
 
 #works in scripts
 #matplotlib.use('qt5agg')  
-get_ipython().run_line_magic('matplotlib', 'inline')
-#plt.ion()
+get_ipython().run_line_magic('matplotlib', '')
+plt.ion()
 
 
 
@@ -754,7 +755,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 #Bepi Colombo
 #filebepi='bepi_2019_2021_rtn.p'
 #bepi=pickle.load(open(data_path+filebepi, "rb" ) )   
-hp.plot_insitu_measure_mag_notz(bepi, '2020-Aug-20','2021-Jan-5', 'Bepi', 'results/plots_icmecat/')
+#hp.plot_insitu_measure_mag_notz(bepi, '2020-Aug-20','2021-Apr-5', 'Bepi', 'results/plots_icmecat/')
 
 
 #hp.plot_insitu_measure_mag_notz(bepi, '2021-Mar-1','2021-Mar-15', 'Bepi', 'results/plots_icmecat/')
@@ -769,7 +770,7 @@ hp.plot_insitu_measure_mag_notz(bepi, '2020-Aug-20','2021-Jan-5', 'Bepi', 'resul
 
 
 #Solar Orbiter
-hp.plot_insitu_measure_mag(solo, '2020-Apr-15','2020-Apr-29', 'SolO', 'results/plots_icmecat/')
+#hp.plot_insitu_measure_mag(solo, '2020-Apr-15','2020-Apr-29', 'SolO', 'results/plots_icmecat/')
 #t.figure(figsize=(15,10), dpi=100)
 #plt.plot(solo.time,solo.bt,'-k')
 #plt.plot(solo.time,solo.bx,'-r')
@@ -785,7 +786,7 @@ hp.plot_insitu_measure_mag(solo, '2020-Apr-15','2020-Apr-29', 'SolO', 'results/p
 
 
 #PSP
-hp.plot_insitu_measure_mag_notz(psp, '2020-Jan-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
+#hp.plot_insitu_measure_mag_notz(psp, '2020-Nov-29','2020-Dec-15', 'PSP', 'results/plots_icmecat/')
 
 #hp.plot_insitu_measure(psp, '2020-Jan-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
 
@@ -803,11 +804,11 @@ hp.plot_insitu_measure_mag_notz(psp, '2020-Jan-30','2020-Apr-29', 'PSP', 'result
 #hp.plot_insitu(psp, ic.icme,'2018-Nov-15', 'PSP', icplotsdir)
 
 #STEREO-A
-#hp.plot_insitu_measure(sta, '2020-Jul-01 12:00','2020-Jul-15 12:00', 'STEREO-A', 'results/')
+#hp.plot_insitu_measure_mag_notz(sta, '2020-Nov-25 12:00','2020-Dec-15 12:00', 'STEREO-A', 'results/')
 
 #Wind
 #%matplotlib
-#hp.plot_insitu_measure(win, '2020-Oct-21','2020-Nov-15', 'Wind', 'results/')
+hp.plot_insitu_measure(win, '2020-Oct-21','2021-Apr-15', 'Wind', 'results/')
 
 #hp.plot_insitu_measure(win, '2011-Feb-10','2011-Feb-25', 'Wind', 'results/')
 
