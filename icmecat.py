@@ -10,7 +10,7 @@
 # **Author**: C. Möstl, IWF Graz, Austria
 # https://twitter.com/chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# **latest release: version 2.0, 2020 June 3, updated 2021 Apr ***, doi: 10.6084/m9.figshare.6356420**
+# **latest release: version 2.0, 2020 June 3, updated 2021 Apr 29, doi: 10.6084/m9.figshare.6356420**
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -179,7 +179,7 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[3]:
+# In[2]:
 
 
 from heliocats import data as hd
@@ -459,7 +459,7 @@ plt.savefig('results/parker_allorbits.png')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[12]:
+# In[3]:
 
 
 load_data=1
@@ -727,7 +727,7 @@ if data_to_numpy > 0:
 
 # ## (2) measure new events 
 
-# In[13]:
+# In[11]:
 
 
 #for measuring new events use these functions from heliocats.plot 
@@ -745,6 +745,24 @@ plt.close('all')
 #matplotlib.use('qt5agg')  
 get_ipython().run_line_magic('matplotlib', '')
 plt.ion()
+
+
+
+#PSP
+#hp.plot_insitu_measure_mag_notz(psp, '2020-Jun-20','2020-Dec-31', 'PSP', 'results/plots_icmecat/')
+
+
+#SolO
+#hp.plot_insitu_measure_mag(solo, '2020-Aug-20','2020-Dec-31', 'SolarOrbiter', 'results/plots_icmecat/')
+
+
+#STEREO-A
+#hp.plot_insitu_measure_mag_notz(sta, '2020-Oct-15 12:00','2020-Dec-31 12:00', 'STEREO-A', 'results/')
+
+
+#Wind
+hp.plot_insitu_measure(win, '2020-Oct-1','2021-Apr-27', 'Wind', 'results/')
+
 
 
 
@@ -785,19 +803,6 @@ plt.ion()
 
 
 
-#PSP
-#hp.plot_insitu_measure_mag_notz(psp, '2020-Nov-29','2020-Dec-15', 'PSP', 'results/plots_icmecat/')
-
-#hp.plot_insitu_measure(psp, '2020-Jan-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
-
-#hp.plot_insitu_measure_mag(psp, '2019-Dec-1','2019-Dec-5', 'PSP', 'results/plots_icmecat/')
-
-
-#SolO
-
-#%matplotlib
-#hp.plot_insitu_measure_mag(solo, '2020-Jul-20','2020-Jul-31', 'SolarOrbiter', 'results/plots_icmecat/')
-
 
 
 #for plotting single events
@@ -808,7 +813,7 @@ plt.ion()
 
 #Wind
 #%matplotlib
-hp.plot_insitu_measure(win, '2020-Oct-21','2021-Apr-15', 'Wind', 'results/')
+#hp.plot_insitu_measure(win, '2020-Oct-21','2021-Apr-15', 'Wind', 'results/')
 
 #hp.plot_insitu_measure(win, '2011-Feb-10','2011-Feb-25', 'Wind', 'results/')
 
