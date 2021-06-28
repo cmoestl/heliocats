@@ -33,13 +33,13 @@
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
-# In[11]:
+# In[1]:
 
 
 last_update='2021-Apr-29'
 
 
-# In[1]:
+# In[2]:
 
 
 import numpy as np
@@ -135,7 +135,7 @@ print(heliosat.__version__)
 
 # ## Parker Solar Probe
 
-# In[15]:
+# In[3]:
 
 
 ################### FIELDS
@@ -180,7 +180,7 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[2]:
+# In[4]:
 
 
 from heliocats import data as hd
@@ -243,7 +243,7 @@ plt.savefig('results/parker_allorbits.png')
 
 # ## Others
 
-# In[2]:
+# In[5]:
 
 
 ############################# make Ulysses files
@@ -457,7 +457,7 @@ plt.savefig('results/parker_allorbits.png')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[7]:
+# In[6]:
 
 
 load_data=1
@@ -643,14 +643,15 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning if needed (add SolO, Bepi)
 
-# In[3]:
+# In[4]:
 
 
 # save data as numpy structured arrays for machine learning
-data_to_numpy=0
+data_to_numpy_1=0
 
 
-if data_to_numpy > 0:  
+
+if data_to_numpy_1 > 0:  
 
     print('convert data to numpy structured arrays suitable for machine learning')
     
@@ -692,14 +693,19 @@ if data_to_numpy > 0:
     
     
     ###################################### UPDATED
-    
-         
+
+data_to_numpy_2=1  
+
+
+if data_to_numpy_2 > 0:  
+
+        
     
     print('STEREO-A')
     hsta_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
     sta_nd=hd.recarray_to_numpy_array(sta)
     sta_nd=sta_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([sta_nd,hsta_att], open(data_path_ML+ "stereoa_2007_2020_sceq_ndarray.p", "wb" ) )
+    pickle.dump([sta_nd,hsta_att], open(data_path_ML+ "stereoa_2007_2021_sceq_ndarray.p", "wb" ) )
     
     
   
@@ -707,7 +713,7 @@ if data_to_numpy > 0:
     hwind_att='dtype=[((time [matplotlib format]), (bt [nT], <f8), (bx  [nT, HEEQ], <f8), (by  [nT, HEEQ], <f8),                         (bz  [nT, HEEQ], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8),                         (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),                        (lat [deg, HEEQ], <f8), (lon [deg, HEEQ],<f8 )]'
     win_nd=hd.recarray_to_numpy_array(win)
     win_nd=win_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_2007_2020_heeq_ndarray.p", "wb" ) )
+    pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_2007_2021_heeq_ndarray.p", "wb" ) )
 
    
     
@@ -716,7 +722,7 @@ if data_to_numpy > 0:
 
     psp_nd=hd.recarray_to_numpy_array(psp)
     psp_nd=psp_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'),('vx', '<f8'),('vy', '<f8'),('vz', '<f8'), ('np', '<f8'), ('tp', '<f8'),                                ('x', '<f8'), ('y', '<f8'), ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([psp_nd,hpsp_att], open(data_path_ML+ "psp_2018_2020_sceq_ndarray.p", "wb" ) ) 
+    pickle.dump([psp_nd,hpsp_att], open(data_path_ML+ "psp_2018_2021_sceq_ndarray.p", "wb" ) ) 
 
  
 
