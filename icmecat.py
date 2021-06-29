@@ -33,13 +33,13 @@
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
-# In[1]:
+# In[8]:
 
 
 last_update='2021-Apr-29'
 
 
-# In[2]:
+# In[4]:
 
 
 import numpy as np
@@ -135,14 +135,14 @@ print(heliosat.__version__)
 
 # ## Parker Solar Probe
 
-# In[3]:
+# In[5]:
 
 
 ################### FIELDS
 #generate datestrings for filenames
 time1=[]
-tstart1=datetime.datetime(2020, 10, 21)
-tend1=datetime.datetime(2021, 1, 1)
+tstart1=datetime.datetime(2021, 1, 1)
+tend1=datetime.datetime(2021, 6, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -163,8 +163,8 @@ os.chdir('/home/cmoestl/pycode/heliocats')
 ############# SWEAP
 
 time1=[]
-tstart1=datetime.datetime(2020, 9, 1)
-tend1=datetime.datetime(2020, 10, 17)
+tstart1=datetime.datetime(2020, 10, 16)
+tend1=datetime.datetime(2021, 1, 12)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -180,7 +180,7 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[4]:
+# In[7]:
 
 
 from heliocats import data as hd
