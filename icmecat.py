@@ -33,13 +33,13 @@
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
-# In[8]:
+# In[1]:
 
 
-last_update='2021-Apr-29'
+last_update='2021-July-1'
 
 
-# In[4]:
+# In[2]:
 
 
 import numpy as np
@@ -135,7 +135,7 @@ print(heliosat.__version__)
 
 # ## Parker Solar Probe
 
-# In[5]:
+# In[3]:
 
 
 ################### FIELDS
@@ -180,7 +180,7 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[7]:
+# In[4]:
 
 
 from heliocats import data as hd
@@ -457,7 +457,7 @@ plt.savefig('results/parker_allorbits.png')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[6]:
+# In[137]:
 
 
 load_data=1
@@ -708,6 +708,25 @@ if data_to_numpy_2 > 0:
     pickle.dump([sta_nd,hsta_att], open(data_path_ML+ "stereoa_2007_2021_sceq_ndarray.p", "wb" ) )
     
     
+    print('BepiColombo')
+    hbepi_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),    (bz, SCEQ  [nT], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
+    #make new array
+    bepi_nd=np.zeros(np.size(bepi),dtype=[('time',object),('bt', '<f8'),('bx', '<f8'),                ('by', float),('bz', '<f8'),('x', '<f8'),('y', '<f8'),                ('z', float),('r', '<f8'),('lat', '<f8'),('lon', '<f8')])   
+    bepi_nd['time']=bepi.time
+    bepi_nd['bt']=bepi.bt
+    bepi_nd['bx']=bepi.bx
+    bepi_nd['by']=bepi.by
+    bepi_nd['bz']=bepi.bz
+    bepi_nd['x']=bepi.x
+    bepi_nd['y']=bepi.y
+    bepi_nd['z']=bepi.z
+    bepi_nd['r']=bepi.r
+    bepi_nd['lat']=bepi.lat
+    bepi_nd['lon']=bepi.lon
+    
+    pickle.dump([bepi_nd,hbepi_att], open(data_path_ML+ "bepi_2019_2021_sceq_ndarray.p", "wb" ) )
+    
+        
   
     print('Wind')
     hwind_att='dtype=[((time [matplotlib format]), (bt [nT], <f8), (bx  [nT, HEEQ], <f8), (by  [nT, HEEQ], <f8),                         (bz  [nT, HEEQ], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8),                         (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),                        (lat [deg, HEEQ], <f8), (lon [deg, HEEQ],<f8 )]'
@@ -864,7 +883,7 @@ plt.ion()
 
 # ## (3) make ICMECAT 
 
-# In[24]:
+# In[199]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -873,13 +892,8 @@ print('data loaded')
 
 from heliocats import cats as hc
 importlib.reload(hc) #reload again while debugging
-#public
+
 ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELCATS_ICMECAT_v20_master.xlsx')
-
-
-#non public catalog
-#ic2=hc.load_helcats_icmecat_master_from_excel('icmecat/HELCATS_ICMECAT_v20_master_internal.xlsx')
-
 
 
 ####### 3a get indices for all spacecraft
@@ -893,19 +907,28 @@ ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]
 mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
 pspi=np.where(ic.sc_insitu == 'PSP')[:][0]    
 soli=np.where(ic.sc_insitu == 'SolarOrbiter')[:][0]    
-#bepi=np.where(ic.sc_insitu == 'BepiColombo')[:][0]    
-
-
+beci=np.where(ic.sc_insitu == 'BepiColombo')[:][0]    
 
 
 ####### 3b get parameters for all spacecraft one after another
 
 ####### DELETE INDEX files when times are new
 #os.system('rm icmecat/indices_icmecat/ICMECAT_indices_Wind.p')
+#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_STEREO-A.p')
+#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_BepiColombo.p')
+#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_SolarOrbiter.p')
+#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_PSP.p')
+#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_MAVEN.p')
 
-#misssions to be updated
-#ic=hc.get_cat_parameters(bepi,bepi,ic,'BepiColombo')
+#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_STEREO-B.p')
+#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_ULYSSES.p')
+#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_MESSENGER.p')
+#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_VEX.p')
 
+
+#missions to be updated
+
+ic=hc.get_cat_parameters(bepi,beci,ic,'BepiColombo')
 ic=hc.get_cat_parameters(solo,soli,ic,'SolarOrbiter')
 ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
 ic=hc.get_cat_parameters(win,wini,ic,'Wind')
@@ -926,17 +949,18 @@ from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
 #missions to be updated
+hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
 hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
 hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
 hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
-#hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 #finished missions
-#hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
-#hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
-#hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
-#hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
+hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
+hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
+hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
+hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
 print('done')
 
 ############### sort ICMECAT by date
@@ -955,7 +979,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[14]:
+# In[55]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -991,7 +1015,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[15]:
+# In[56]:
 
 
 ########## python formats
@@ -1167,7 +1191,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[16]:
+# In[57]:
 
 
 #load icmecat as pandas dataframe
@@ -1179,25 +1203,25 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[17]:
+# In[58]:
 
 
 print(ic_pandas.keys())
 
 
-# In[18]:
+# In[59]:
 
 
 ic_nprec
 
 
-# In[19]:
+# In[60]:
 
 
 ic_nprec.icmecat_id
 
 
-# In[20]:
+# In[90]:
 
 
 ic=ic_pandas
@@ -1214,7 +1238,7 @@ ista=np.where(ic.sc_insitu=='STEREO-A')[0]
 istb=np.where(ic.sc_insitu=='STEREO-B')[0]
 ipsp=np.where(ic.sc_insitu=='PSP')[0]
 isol=np.where(ic.sc_insitu=='SolarOrbiter')[0]
-#bepii=np.where(ac.target_name=='BepiColombo')[0]
+ibep=np.where(ic.sc_insitu=='BepiColombo')[0]
 iuly=np.where(ic.sc_insitu=='ULYSSES')[0]
 
 
@@ -1231,18 +1255,21 @@ plt.title('ICMECAT event times and distance')
 #markersize
 ms=6
 #alpha
-al=0.7
+al=0.8
 
-ax1.plot_date(ic_mo_start_time_num[iuly],ic.mo_sc_heliodistance[iuly],'ok',c='brown', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[imes],ic.mo_sc_heliodistance[imes],'ok',c='coral', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[ivex],ic.mo_sc_heliodistance[ivex],'ok',c='orange', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[istb],ic.mo_sc_heliodistance[istb],'ok',c='royalblue', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[iwin],ic.mo_sc_heliodistance[iwin],'ok',c='mediumseagreen', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[imav],ic.mo_sc_heliodistance[imav],'ok',c='orangered', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[ista],ic.mo_sc_heliodistance[ista],'ok',c='red', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[iuly],ic.mo_sc_heliodistance[iuly],'o',c='brown', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[imes],ic.mo_sc_heliodistance[imes],'o',c='coral', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ivex],ic.mo_sc_heliodistance[ivex],'o',c='orange', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[istb],ic.mo_sc_heliodistance[istb],'o',c='royalblue', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[iwin],ic.mo_sc_heliodistance[iwin],'o',c='mediumseagreen', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[imav],ic.mo_sc_heliodistance[imav],'s',c='orangered', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ista],ic.mo_sc_heliodistance[ista],'o',c='red', alpha=al,ms=ms)
 
-ax1.plot_date(ic_mo_start_time_num[ipsp],ic.mo_sc_heliodistance[ipsp],'ok',c='black', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[isol],ic.mo_sc_heliodistance[isol],'ok',c='black',markerfacecolor='white', alpha=1.0,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ipsp],ic.mo_sc_heliodistance[ipsp],'o',c='black', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[isol],ic.mo_sc_heliodistance[isol],'o',c='black',markerfacecolor='white', alpha=1.0,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ibep],ic.mo_sc_heliodistance[ibep],'s',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms)
+
+
 
 ax1.set_ylabel('Heliocentric distance [AU]')
 ax1.set_xlabel('Year')
@@ -1270,15 +1297,22 @@ ax3.set_xlabel('Heliocentric distance [AU]')
 ax3.set_ylabel('<B> [nT]')
 
 
-ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c='black', markerfacecolor='white',alpha=al,ms=ms, label='Solar Orbiter',zorder=3)
-ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c='black', alpha=al,ms=ms, label='Parker Solar Probe',zorder=3)
-ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c='mediumseagreen', alpha=al,ms=ms,label='Wind at L1')
-ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c='red', alpha=al,ms=ms, label='STEREO-A')
+
 ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c='royalblue', alpha=al,ms=ms, label='STEREO-B')
 ax3.plot(ic.mo_sc_heliodistance[imes],ic.mo_bmean[imes],'o',c='coral', alpha=al,ms=ms,label='MESSENGER')
 ax3.plot(ic.mo_sc_heliodistance[ivex],ic.mo_bmean[ivex],'o',c='orange', alpha=al,ms=ms,label='Venus Express')
-ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'o',c='orangered', alpha=al,ms=ms, label='MAVEN')
 ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c='brown', alpha=al,ms=ms, label='Ulysses')
+ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'s',c='orangered', alpha=al,ms=ms, label='MAVEN')
+
+
+
+ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c='red', alpha=al,ms=ms, label='STEREO-A')
+ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c='mediumseagreen', alpha=al,ms=ms,label='Wind at L1')
+ax3.plot(ic.mo_sc_heliodistance[ibep],ic.mo_bmean[ibep],'s',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms,label='Bepi Colombo')
+ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c='black', alpha=al,ms=ms, label='Parker Solar Probe',zorder=3)
+ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c='black', markerfacecolor='white',alpha=al,ms=ms, label='Solar Orbiter',zorder=3)
+
+
 ax3.legend(loc=1)
 
 ax3.set_xticks(np.arange(0,2,0.1))
@@ -1295,12 +1329,12 @@ ax3.set_ylim([0,np.max(ic.mo_bmean)+5])
 
 
 plt.tight_layout()
-plt.savefig('icmecat/icmecat_overview.png', dpi=100,bbox_inches='tight')
+plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
 # ## Parameter distribution plots
 
-# In[21]:
+# In[62]:
 
 
 #make distribution plots
@@ -1332,7 +1366,7 @@ sns.histplot(ic.mo_expansion_speed,label='MO expansion speed',color='coral',alph
 plt.legend(loc=1)
 
 
-# In[22]:
+# In[63]:
 
 
 #markersize
@@ -1370,7 +1404,7 @@ ax2.tick_params(labelsize=12,zorder=3)
 # ## radial lineups
 # 
 
-# In[23]:
+# In[64]:
 
 
 #markersize
@@ -1388,6 +1422,12 @@ fig=plt.figure(3,figsize=(10,10),dpi=100)
 ax2=plt.subplot(111,projection='polar')
 
 plt.title('ICMECAT events [HEEQ longitude, AU]')
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
