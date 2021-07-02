@@ -10,7 +10,7 @@
 # **Author**: C. Möstl, IWF Graz, Austria
 # https://twitter.com/chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# **latest release: version 2.0, 2020 June 3, updated 2021 Apr 29, doi: 10.6084/m9.figshare.6356420**
+# **latest release: version 2.0, 2020 June 3, updated 2021 Jul **, doi: 10.6084/m9.figshare.6356420**
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -36,7 +36,7 @@
 # In[1]:
 
 
-last_update='2021-July-1'
+last_update='2021-July-2'
 
 
 # In[2]:
@@ -457,7 +457,7 @@ plt.savefig('results/parker_allorbits.png')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[137]:
+# In[3]:
 
 
 load_data=1
@@ -750,7 +750,7 @@ if data_to_numpy_2 > 0:
 
 # ## (2) measure new events 
 
-# In[11]:
+# In[84]:
 
 
 #for measuring new events use these functions from heliocats.plot 
@@ -883,7 +883,7 @@ plt.ion()
 
 # ## (3) make ICMECAT 
 
-# In[199]:
+# In[4]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -949,18 +949,18 @@ from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
 #missions to be updated
-hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
-hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
-hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
-hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
-hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+#hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
+#hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
+#hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
+#hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+#hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
+#hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 #finished missions
-hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
-hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
-hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
-hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
+#hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
+#hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
+#hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
+#hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
 print('done')
 
 ############### sort ICMECAT by date
@@ -979,7 +979,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[55]:
+# In[26]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -1015,7 +1015,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[56]:
+# In[27]:
 
 
 ########## python formats
@@ -1191,7 +1191,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[57]:
+# In[28]:
 
 
 #load icmecat as pandas dataframe
@@ -1203,25 +1203,25 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[58]:
+# In[29]:
 
 
 print(ic_pandas.keys())
 
 
-# In[59]:
+# In[30]:
 
 
 ic_nprec
 
 
-# In[60]:
+# In[31]:
 
 
 ic_nprec.icmecat_id
 
 
-# In[90]:
+# In[32]:
 
 
 ic=ic_pandas
@@ -1334,7 +1334,7 @@ plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[62]:
+# In[33]:
 
 
 #make distribution plots
@@ -1366,7 +1366,7 @@ sns.histplot(ic.mo_expansion_speed,label='MO expansion speed',color='coral',alph
 plt.legend(loc=1)
 
 
-# In[63]:
+# In[24]:
 
 
 #markersize
@@ -1404,7 +1404,7 @@ ax2.tick_params(labelsize=12,zorder=3)
 # ## radial lineups
 # 
 
-# In[64]:
+# In[14]:
 
 
 #markersize

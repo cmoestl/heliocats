@@ -2,7 +2,7 @@ ICME CATALOGUE v2.0
 
 This is the HELCATS interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 
-This is version 2.0, released 2020-Jun-03, updated 2021-July-1, doi: 10.6084/m9.figshare.6356420 
+This is version 2.0, released 2020-Jun-03, updated 2021-July-2, doi: 10.6084/m9.figshare.6356420 
 
 Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact christian.moestl@oeaw.ac.at for possible co-authorship. 
 References for this catalog are Möstl et al. (2017,  https://doi.org/10.1002/2017SW001614) and Möstl et al. (2020, https://doi.org/10.3847/1538-4357/abb9a1).  

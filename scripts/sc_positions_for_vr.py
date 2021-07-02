@@ -3,12 +3,12 @@ save spacecraft and planet trajectories in numpy incl. Bepi Colombo, PSP, Solar 
 
 Author: C. Moestl, IWF Graz, Austria
 twitter @chrisoutofspace, https://github.com/cmoestl
-last update: March 2020
+last update: July 2021
 
 needs python 3.7 with sunpy, heliopy, numba (conda environment "helio"")
 
 MIT LICENSE
-Copyright 2019, Christian Moestl 
+Copyright 2019-2021, Christian Moestl 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this 
 software and associated documentation files (the "Software"), to deal in the Software
 without restriction, including without limitation the rights to use, copy, modify, 
@@ -151,6 +151,8 @@ solo.change_units(astropy.units.AU)
 [solo_r, solo_lat, solo_lon]=cart2sphere(solo.x,solo.y,solo.z)
 print('Solo')
 
+
+
 '''
 plt.figure(1, figsize=(12,9))
 plt.plot_date(psp_time,psp_r,'-', label='R')
@@ -158,8 +160,6 @@ plt.plot_date(psp_time,psp_lat,'-',label='lat')
 plt.plot_date(psp_time,psp_lon,'-',label='lon')
 plt.ylabel('AU / RAD')
 plt.legend()
-
-
 
 
 plt.figure(2, figsize=(12,9))
@@ -205,9 +205,11 @@ plt.savefig('results/positions_plots/bepi_psp_solo_longitude_'+frame+'.png')
 #https://docs.heliopy.org/en/stable/data/spice.html
 
 
+
+
 planet_kernel=spicedata.get_kernel('planet_trajectories')
 
-starttime =datetime(2018, 1, 1)
+starttime =datetime(2007, 1, 1)
 endtime = datetime(2029, 12, 31)
 earth_time = []
 while starttime < endtime:
@@ -285,10 +287,19 @@ print('neptune')
 
 
 #############stereo-A
-sta_time_num=earth_time_num
-spice.furnish(spicedata.get_kernel('stereo_a_pred'))
+
+
+
+starttime =datetime(2007, 1, 1)
+endtime = datetime(2029, 12, 31)
+sta_time = []
+while starttime < endtime:
+    sta_time.append(starttime)
+    starttime += timedelta(hours=res_hours)
+
+spice.furnish(spicedata.get_kernel('stereo_a'))
 sta=spice.Trajectory('-234')  
-sta.generate_positions(earth_time,'Sun',frame)  
+sta.generate_positions(sta_time,'Sun',frame)  
 sta.change_units(astropy.units.AU)  
 [sta_r, sta_lat, sta_lon]=cart2sphere(sta.x,sta.y,sta.z)
 print('STEREO-A') 
@@ -296,7 +307,53 @@ print('STEREO-A')
 
 
 
+#############stereo-B
+starttime =datetime(2007, 1, 1)
+endtime = datetime(2014, 9, 27)
+stb_time = []
+while starttime < endtime:
+    stb_time.append(starttime)
+    starttime += timedelta(hours=res_hours)
+stb_time_num=parse_time(stb_time).iso  
 
+spice.furnish(spicedata.get_kernel('stereo_b'))
+stb=spice.Trajectory('-235')  
+stb.generate_positions(stb_time,'Sun',frame)  
+stb.change_units(astropy.units.AU)  
+[stb_r, stb_lat, stb_lon]=cart2sphere(stb.x,stb.y,stb.z)
+print('STEREO-B') 
+
+
+
+
+data_path='/nas/helio/data/insitu_python/'
+
+
+############# ULYSSES get position from data file
+
+print('load Ulysses RTN') #made with heliocats.data.save_ulysses_data
+fileuly='ulysses_1990_2009_rtn.p'
+[uly,huly]=pickle.load(open(data_path+fileuly, "rb" ) )  
+
+uly.lon=np.deg2rad(uly.lon)
+uly.lat=np.deg2rad(uly.lat)
+
+print('Ulysses') 
+
+
+
+#############MESSENGER get position from data file
+
+print('load MESSENGER data (Mercury magnetosphere removed) SCEQ') #legacy from HELCATS project in SCEQ, removed magnetosphere
+filemes='messenger_2007_2015_sceq_removed.p'
+[mes,hmes]=pickle.load(open(data_path+filemes, 'rb' ) )
+
+mes.lon=np.deg2rad(mes.lon)
+mes.lat=np.deg2rad(mes.lat)
+
+
+
+print('MESSENGER') 
 
 
 
@@ -307,13 +364,21 @@ print('STEREO-A')
 psp_time= mdates.date2num(psp_time)   
 bepi_time= mdates.date2num(bepi_time)   
 solo_time= mdates.date2num(solo_time)   
-earth_time= mdates.date2num(earth_time)   
+earth_time= mdates.date2num(earth_time)  
+mes_time= mdates.date2num(mes.time)  
+uly_time= mdates.date2num(uly.time)  
+stb_time= mdates.date2num(stb_time)  
+
+
 
 
 psp=np.rec.array([psp_time,psp_r,psp_lon,psp_lat, psp.x, psp.y,psp.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
 bepi=np.rec.array([bepi_time,bepi_r,bepi_lon,bepi_lat,bepi.x, bepi.y,bepi.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
 solo=np.rec.array([solo_time,solo_r,solo_lon,solo_lat,solo.x, solo.y,solo.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
 sta=np.rec.array([earth_time,sta_r,sta_lon,sta_lat,sta.x, sta.y,sta.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+stb=np.rec.array([stb_time,stb_r,stb_lon,stb_lat,stb.x, stb.y,stb.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+messenger=np.rec.array([mes_time,mes.r,mes.lon,mes.lat,mes.x, mes.y,mes.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+ulysses=np.rec.array([uly_time,uly.r,uly.lon,uly.lat,uly.x, uly.y,uly.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
 earth=np.rec.array([earth_time,earth_r,earth_lon,earth_lat, earth.x, earth.y,earth.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
 venus=np.rec.array([earth_time,venus_r,venus_lon,venus_lat, venus.x, venus.y,venus.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
 mars=np.rec.array([earth_time,mars_r,mars_lon,mars_lat, mars.x, mars.y,mars.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
@@ -325,8 +390,30 @@ uranus=np.rec.array([earth_time,uranus_r,uranus_lon,uranus_lat,uranus.x, uranus.
 neptune=np.rec.array([earth_time,neptune_r,neptune_lon,neptune_lat,neptune.x, neptune.y,neptune.z],dtype=[('time','f8'),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
 
 
-pickle.dump([psp, bepi, solo, sta, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame], open( 'results/positions_'+frame+'_1hr.p', "wb" ) )
+pickle.dump([psp, bepi, solo, sta, stb, messenger, ulysses, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame], open( 'results/positions_'+frame+'_1hr.p', "wb" ) )
+
+
+
+
+
+
+
 sys.exit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #save positions with date as char
