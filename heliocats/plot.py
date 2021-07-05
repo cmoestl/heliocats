@@ -843,6 +843,13 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
 def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     '''
     sc = data
+    
+    for testing:
+    from heliocats import plot as hp
+    importlib.reload(hp) #reload again while debugging
+    fig=plt.figure(figsize=(12,8), dpi=100)   
+    ax5 = plt.subplot(111, projection='polar')
+    hp.plot_icmecat_positions_mag_plasma(ic.icme_start_time[400],'HEEQ',ax5)
     '''
     
     sns.set_style('darkgrid')
@@ -912,9 +919,50 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     ax.text(0,earth.r[earth_timeind]+0.12,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
     
     
+    
+    #STA FOV HI1 HI2
+    
+    #calculate endpoints
+    
+    #sta position    
+    #x0=sta.x[earth_timeind]
+    #y0=sta.y[earth_timeind]
+    #z0=sta.z[earth_timeind]
+
+    #x1=sta.x[earth_timeind]+1
+    #y1=sta.y[earth_timeind]
+    #z1=sta.z[earth_timeind]
+    
+    #rotate
+    #ang=np.deg2rad(-4-110)#+sta.lon[earth_timeind]
+    #rot=np.array([[np.cos(ang), -np.sin(ang)], [np.sin(ang), np.cos(ang)]])    
+    #[x2,y2]=np.dot(rot,[x1,y1])
+    #z2=0
+    
+    #rotate 2
+    #ang2=np.deg2rad(-4-110-88)#+sta.lon[earth_timeind]
+    #rot2=np.array([[np.cos(ang2), -np.sin(ang2)], [np.sin(ang2), np.cos(ang2)]])    
+    #[x3,y3]=np.dot(rot2,[x1,y1])
+    #z3=0
+
+    #convert to polar coordinates and plot
+    #[r0,t0,lon0]=hd.cart2sphere(x0,y0,z0)
+    #[r1,t1,lon1]=hd.cart2sphere(x1,y1,z1)    
+    #[r2,t2,lon2]=hd.cart2sphere(x2,y2,z2)    
+    #[r3,t3,lon3]=hd.cart2sphere(x3,y3,z3)    
+    
+    #ax.plot([lon0,lon1],[r0,r1],'--r',alpha=0.5)
+    #ax.plot([lon0,lon2],[r0,r2],'--k',alpha=0.5)
+    #ax.plot([lon0,lon3],[r0,r3],'--k',alpha=0.5)
+
+
+
+
+    
     ########### Sun
     ax.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)
 
+    
 
     #parker spiral
     if plot_parker:
@@ -1192,9 +1240,21 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwarg
 
      plot_icmecat_positions_mag_plasma(ic.icme_start_time[i],'HEEQ',ax5)
     
-    
-    
         
+        
+     if sc_label=='PSP': 
+        plt.figtext(0.5,0.01,'Data source: Parker Solar Probe (FIELDS, UCB, SWEAP, UMich)',fontsize=10, ha='left',color='black')
+       
+     if sc_label=='STEREO-A': 
+        plt.figtext(0.5,0.01,'Data source: STEREO-Ahead (IMPACT, UCB, PLASTIC, UNH)',fontsize=10, ha='left',color='black')
+
+     if sc_label=='STEREO-B': 
+        plt.figtext(0.5,0.01,'Data source: STEREO-Behind (IMPACT, UCB, PLASTIC, UNH)',fontsize=10, ha='left',color='black')
+        
+     if sc_label=='Wind': 
+        plt.figtext(0.5,0.01,'Data source: Wind (MFI, SWE, NASA/Goddard)',fontsize=10, ha='left',color='black')
+
+
         
      plt.tight_layout()
      #plt.show()
@@ -1264,11 +1324,24 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, **kwargs):
                ic.icme_start_time[i].strftime("%Y-%b-%d %H:%M")+ \
                '   MO start: '+ic.mo_start_time[i].strftime("%Y-%b-%d %H:%M")+ \
                '   MO end: '+ic.mo_end_time[i].strftime("%Y-%b-%d %H:%M"),fontsize=15)
-    
-     plt.tight_layout()
+        
+     if sc_label=='BepiColombo': 
+        plt.figtext(0.01,0.01,'Data source: BepiColombo MPO-MAG (IGEP/IWF/ISAS/IC)',fontsize=13, ha='left',color='black')
+  
+     if sc_label=='SolarOrbiter': 
+        plt.figtext(0.01,0.01,'Data source: Solar Orbiter (MAG, Imperial College)',fontsize=13, ha='left',color='black')
+        
+     if sc_label=='VEX': 
+        plt.figtext(0.01,0.01,'Data source: Venus Express (MAG, IWF/OEAW)',fontsize=13, ha='left',color='black')  
+
+     if sc_label=='MESSENGER': 
+        plt.figtext(0.01,0.01,'Data source: MESSENGER (MAG, JHU/APL)',fontsize=13, ha='left',color='black')
+
+
 
      #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
-    
+
+     plt.tight_layout()
     
      ################positions plot
      ax2 = plt.subplot(212,projection='polar') 

@@ -36,7 +36,7 @@
 # In[1]:
 
 
-last_update='2021-July-2'
+last_update='2021-July-5'
 
 
 # In[2]:
@@ -791,7 +791,7 @@ plt.ion()
 #hp.plot_insitu_measure_mag_notz(bepi, '2020-Aug-20','2021-Apr-5', 'Bepi', 'results/plots_icmecat/')
 
 
-# In[11]:
+# In[122]:
 
 
 #plt.figure(figsize=(15,10), dpi=100)
@@ -883,7 +883,7 @@ plt.ion()
 
 # ## (3) make ICMECAT 
 
-# In[4]:
+# In[5]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -949,17 +949,24 @@ from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
 #missions to be updated
+
+#mag only
 #hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
 #hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
+
+#mag and plasma
 #hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
 #hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 #hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 #hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 #finished missions
-#hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
+#mag only
 #hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
 #hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
+
+#mag and plasma
+#hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
 #hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
 print('done')
 
@@ -970,8 +977,6 @@ ic = ic.sort_values(by='icme_start_time',ascending=False)
 ic = ic.reset_index(drop=True)
 
 
-
-
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
@@ -979,7 +984,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[26]:
+# In[6]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -1015,7 +1020,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[27]:
+# In[7]:
 
 
 ########## python formats
@@ -1191,7 +1196,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[28]:
+# In[8]:
 
 
 #load icmecat as pandas dataframe
@@ -1203,25 +1208,25 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[29]:
+# In[9]:
 
 
 print(ic_pandas.keys())
 
 
-# In[30]:
+# In[10]:
 
 
 ic_nprec
 
 
-# In[31]:
+# In[11]:
 
 
 ic_nprec.icmecat_id
 
 
-# In[32]:
+# In[12]:
 
 
 ic=ic_pandas
@@ -1334,7 +1339,7 @@ plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[33]:
+# In[13]:
 
 
 #make distribution plots
@@ -1366,7 +1371,7 @@ sns.histplot(ic.mo_expansion_speed,label='MO expansion speed',color='coral',alph
 plt.legend(loc=1)
 
 
-# In[24]:
+# In[15]:
 
 
 #markersize
@@ -1378,7 +1383,7 @@ sns.set_context("talk")
 sns.set_style('darkgrid')
 
 ###############################################################################
-fig=plt.figure(3,figsize=(10,10),dpi=100)
+fig=plt.figure(3,figsize=(10,10),dpi=50)
 
 #########################################################################
 ax2=plt.subplot(111,projection='polar')
@@ -1399,39 +1404,4 @@ ax2.scatter(np.radians(ic.mo_sc_long_heeq[isol]),ic.mo_sc_heliodistance[isol],s=
 #ax.scatter(np.radians(ac.target_heeq_lon[bepii]),ac.target_distance[bepii],s=ms,c='violet', alpha=al)
 ax2.set_ylim([0,1.8])
 ax2.tick_params(labelsize=12,zorder=3)
-
-
-# ## radial lineups
-# 
-
-# In[14]:
-
-
-#markersize
-ms=25
-#alpha
-al=0.7
-
-sns.set_context("talk")     
-sns.set_style('darkgrid')
-
-###############################################################################
-fig=plt.figure(3,figsize=(10,10),dpi=100)
-
-#########################################################################
-ax2=plt.subplot(111,projection='polar')
-
-plt.title('ICMECAT events [HEEQ longitude, AU]')
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
