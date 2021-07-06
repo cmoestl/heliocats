@@ -62,6 +62,46 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ####################################### get new data ####################################
 
 
+
+
+def remove_wind_spikes_gaps(data):
+    
+    #nan intervals
+
+    nt1=parse_time('2020-04-20 17:06').datetime 
+    nt2=parse_time('2020-04-20 17:14').datetime
+    gapind1=np.where(np.logical_and(data.time >= nt1,data.time <= nt2 ))[0]
+
+    nt1=parse_time('2020-04-21 01:20').datetime 
+    nt2=parse_time('2020-04-21 01:22').datetime
+    gapind2=np.where(np.logical_and(data.time >= nt1,data.time <= nt2 ))[0]
+
+    nt1=parse_time('2020-11-09T16:04Z').datetime 
+    nt2=parse_time('2020-11-09T17:08Z').datetime
+    gapind3=np.where(np.logical_and(data.time >= nt1,data.time <= nt2 ))[0]
+
+    nt1=parse_time('2020-08-31T16:58Z').datetime 
+    nt2=parse_time('2020-08-31T18:32Z').datetime
+    gapind4=np.where(np.logical_and(data.time >= nt1,data.time <= nt2 ))[0]
+    
+    nt1=parse_time('2021-02-01T12:32Z').datetime 
+    nt2=parse_time('2021-02-01T14:04Z').datetime
+    gapind5=np.where(np.logical_and(data.time >= nt1,data.time <= nt2 ))[0]
+    
+
+    data.bt[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5])]=np.nan
+    data.bx[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5])]=np.nan
+    data.by[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5])]=np.nan
+    data.bz[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5])]=np.nan
+    
+    
+    return data
+
+
+
+
+
+
 def save_stereoa_science_data_merge_rtn(data_path,file):
     
     print('STEREO-A science data merging')

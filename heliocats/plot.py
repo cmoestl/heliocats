@@ -579,6 +579,120 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
             
 ################################## ICMECAT  ############################################################
   
+    
+    
+    
+    
+    
+def plot_stereo_hi_fov(pos, time_num, timeind,ax,sc, lw):    
+    
+    
+    #plots the STA FOV HI1 HI2
+    
+    #STB never flipped the camera:    
+    if sc=='B': 
+        ang1d=-4
+        ang2d=-24
+        ang3d=-18
+        ang4d=-88
+        lcolor='blue'
+    
+    if sc=='A': 
+        ang1d=4
+        ang2d=24
+        ang3d=18
+        ang4d=88
+        lcolor='red'
+
+        #STA flipped during conjunction
+        if time_num>mdates.date2num(datetime.datetime(2015,11,1)):  
+            ang1d=-4
+            ang2d=-24
+            ang3d=-18
+            ang4d=-88
+
+
+
+    #calculate endpoints
+    
+    #sta position
+    x0=pos.x[timeind]
+    y0=pos.y[timeind]
+    z0=pos.z[timeind]
+    
+    #sta position 180° rotated    
+    x1=-pos.x[timeind]
+    y1=-pos.y[timeind]
+    z1=pos.z[timeind]
+    
+    #rotate by 4 deg for HI1 FOV
+    ang=np.deg2rad(ang1d)
+    rot=np.array([[np.cos(ang), -np.sin(ang)], [np.sin(ang), np.cos(ang)]])    
+    [x2,y2]=np.dot(rot,[x1,y1])
+    z2=0    
+    #add to sta position
+    x2f=x0+x2
+    y2f=y0+y2    
+    z2f=z0+z2
+    
+    #rotate 2
+    ang2=np.deg2rad(ang2d)
+    rot2=np.array([[np.cos(ang2), -np.sin(ang2)], [np.sin(ang2), np.cos(ang2)]])    
+    [x3,y3]=np.dot(rot2,[x1,y1])
+    z3=0    
+    #add to sta position
+    x3f=x0+x3
+    y3f=y0+y3    
+    z3f=z0+z3    
+    
+    #rotate 3
+    ang3=np.deg2rad(ang3d)
+    rot3=np.array([[np.cos(ang3), -np.sin(ang3)], [np.sin(ang3), np.cos(ang3)]])    
+    [x4,y4]=np.dot(rot3,[x1,y1])
+    z4=0    
+    #add to sta position
+    x4f=x0+x4
+    y4f=y0+y4    
+    z4f=z0+z4    
+
+    #rotate 4
+    ang4=np.deg2rad(ang4d)
+    rot4=np.array([[np.cos(ang4), -np.sin(ang4)], [np.sin(ang4), np.cos(ang4)]])    
+    [x5,y5]=np.dot(rot4,[x1,y1])
+    z5=0    
+    #add to sta position
+    x5f=x0+x5
+    y5f=y0+y5    
+    z5f=z0+z5    
+
+    
+    #convert to polar coordinates and plot
+    [r0,t0,lon0]=hd.cart2sphere(x0,y0,z0)    
+    #[r1,t1,lon1]=hd.cart2sphere(x1,y1,z1)    
+    [r2,t2,lon2]=hd.cart2sphere(x2f,y2f,z2f)    
+    [r3,t3,lon3]=hd.cart2sphere(x3f,y3f,z3f)    
+    [r4,t4,lon4]=hd.cart2sphere(x4f,y4f,z4f)    
+    [r5,t5,lon5]=hd.cart2sphere(x5f,y5f,z5f)    
+    
+    #ax.plot([lon0,lon1],[r0,r1],'--r',alpha=0.5)
+    ax.plot([lon0,lon2],[r0,r2],linestyle='-',color=lcolor,alpha=0.3)
+    ax.plot([lon0,lon3],[r0,r3],linestyle='-',color=lcolor,alpha=0.3)
+    ax.plot([lon0,lon4],[r0,r4],linestyle='--',color=lcolor,alpha=0.3)
+    ax.plot([lon0,lon5],[r0,r5],linestyle='--',color=lcolor,alpha=0.3)
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
   
 
 def plot_icmecat_positions_mag(time_date1,frame,ax):
@@ -652,6 +766,14 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     ax.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
     ax.text(0,earth.r[earth_timeind]+0.12,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
     
+    
+    
+    
+    #plot stereo hi fov
+    plot_stereo_hi_fov(sta,time1, earth_timeind, ax,'A')
+    
+    if time1<mdates.date2num(datetime.datetime(2014,9,26)):  
+        plot_stereo_hi_fov(stb,time1, earth_timeind, ax,'B')
     
     ########### Sun
     ax.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)
@@ -820,24 +942,6 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
 
 def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
@@ -919,45 +1023,11 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     ax.text(0,earth.r[earth_timeind]+0.12,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
     
     
+    #plot stereo hi fov
+    plot_stereo_hi_fov(sta,time1, earth_timeind, ax,'A')
     
-    #STA FOV HI1 HI2
-    
-    #calculate endpoints
-    
-    #sta position    
-    #x0=sta.x[earth_timeind]
-    #y0=sta.y[earth_timeind]
-    #z0=sta.z[earth_timeind]
-
-    #x1=sta.x[earth_timeind]+1
-    #y1=sta.y[earth_timeind]
-    #z1=sta.z[earth_timeind]
-    
-    #rotate
-    #ang=np.deg2rad(-4-110)#+sta.lon[earth_timeind]
-    #rot=np.array([[np.cos(ang), -np.sin(ang)], [np.sin(ang), np.cos(ang)]])    
-    #[x2,y2]=np.dot(rot,[x1,y1])
-    #z2=0
-    
-    #rotate 2
-    #ang2=np.deg2rad(-4-110-88)#+sta.lon[earth_timeind]
-    #rot2=np.array([[np.cos(ang2), -np.sin(ang2)], [np.sin(ang2), np.cos(ang2)]])    
-    #[x3,y3]=np.dot(rot2,[x1,y1])
-    #z3=0
-
-    #convert to polar coordinates and plot
-    #[r0,t0,lon0]=hd.cart2sphere(x0,y0,z0)
-    #[r1,t1,lon1]=hd.cart2sphere(x1,y1,z1)    
-    #[r2,t2,lon2]=hd.cart2sphere(x2,y2,z2)    
-    #[r3,t3,lon3]=hd.cart2sphere(x3,y3,z3)    
-    
-    #ax.plot([lon0,lon1],[r0,r1],'--r',alpha=0.5)
-    #ax.plot([lon0,lon2],[r0,r2],'--k',alpha=0.5)
-    #ax.plot([lon0,lon3],[r0,r3],'--k',alpha=0.5)
-
-
-
-
+    if time1<mdates.date2num(datetime.datetime(2014,9,26)):  
+        plot_stereo_hi_fov(stb,time1, earth_timeind, ax,'B')
     
     ########### Sun
     ax.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)

@@ -25,7 +25,7 @@
 # - Bepi Colombo manual download, then read_bepi.ipynb
 # - PSP use cell in this notebook, beware of unfinished file downloads - redo!
 # - STEREO-Ahead prel. PLASTIC ASCII files, IMPACT as usual (via heliosat), beacon data automatic every day
-# - Wind automatic everyday, need to remove spikes 
+# - Wind automatic everyday, add spike and gap times under hd.remove_wind_spikes_gaps
 # 
 # 
 # 
@@ -36,7 +36,7 @@
 # In[1]:
 
 
-last_update='2021-July-5'
+last_update='2021-July-6'
 
 
 # In[2]:
@@ -457,7 +457,7 @@ plt.savefig('results/parker_allorbits.png')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[3]:
+# In[ ]:
 
 
 load_data=1
@@ -571,6 +571,9 @@ if load_data > 0:
     #filewin2="wind_2018_2020_nov_heeq.p" 
     filewin2="wind_2018_now_heeq.p" 
     [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
+    
+    #function for spike removal, see list with times in that function
+    win2=hd.remove_wind_spikes_gaps(win2)
 
     #merge Wind old and new data 
     #cut off HELCATS data at end of 2017, win2 begins exactly after this
@@ -883,7 +886,7 @@ plt.ion()
 
 # ## (3) make ICMECAT 
 
-# In[5]:
+# In[143]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -951,22 +954,22 @@ importlib.reload(hp) #reload again while debugging
 #missions to be updated
 
 #mag only
-#hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
-#hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
+hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
+hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
 
 #mag and plasma
-#hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-#hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
-#hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
+hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
+hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 #hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 #finished missions
 #mag only
-#hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
-#hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
+hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
+hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
 
 #mag and plasma
-#hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
+hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
 #hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
 print('done')
 
@@ -984,7 +987,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[6]:
+# In[5]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -1020,7 +1023,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[7]:
+# In[6]:
 
 
 ########## python formats
@@ -1196,7 +1199,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[8]:
+# In[7]:
 
 
 #load icmecat as pandas dataframe
@@ -1208,25 +1211,27 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[9]:
+# In[8]:
 
 
 print(ic_pandas.keys())
 
 
-# In[10]:
+# In[9]:
 
 
 ic_nprec
 
 
-# In[11]:
+# In[10]:
 
 
 ic_nprec.icmecat_id
 
 
-# In[12]:
+# ## 5 plots
+
+# In[58]:
 
 
 ic=ic_pandas
@@ -1276,7 +1281,7 @@ ax1.plot_date(ic_mo_start_time_num[ibep],ic.mo_sc_heliodistance[ibep],'s',c='dar
 
 
 
-ax1.set_ylabel('Heliocentric distance [AU]')
+ax1.set_ylabel('Heliocentric distance $R$ [AU]')
 ax1.set_xlabel('Year')
 ax1.set_ylim([0,1.7])
 
@@ -1298,8 +1303,8 @@ ax1.set_ylim([0,1.7])
 ##############################################################################
 ax3=plt.subplot(122)
 plt.title('ICMECAT mean magnetic field in the magnetic obstacle')
-ax3.set_xlabel('Heliocentric distance [AU]')
-ax3.set_ylabel('<B> [nT]')
+ax3.set_xlabel('Heliocentric distance $R$ [AU]')
+ax3.set_ylabel('$<B>$ [nT]')
 
 
 
@@ -1331,51 +1336,16 @@ ax3.set_ylim([0,np.max(ic.mo_bmean)+5])
 
 
 
-
-
 plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# ## Parameter distribution plots
-
-# In[13]:
-
-
-#make distribution plots
-plt.figure(10,figsize=(12,5))
-sns.histplot(ic.mo_sc_heliodistance)
-
-plt.figure(11,figsize=(12,5))
-sns.histplot(ic.icme_bmax, label='Bmax',color='mediumseagreen',kde=True)
-sns.histplot(ic.icme_bmean, label='Bmean',color='coral',alpha=0.5,kde=True)
-plt.legend(loc=1)
-plt.xlim(0,100)
-
-
-
-
-plt.figure(12)
-sns.histplot(ic.mo_bzmin,label='MO_Bzmin',color='mediumseagreen',kde=True)
-sns.histplot(ic.mo_bzmean,label='MO_Bzmean',color='coral',alpha=0.5,kde=True)
-plt.legend(loc=1)
-plt.xlim(-50,50)
-
-
-#plt.figure(14)
-#sns.distplot(ic.mo_bymean)
-
-plt.figure(15)
-sns.histplot(ic.icme_speed_mean,label='ICME speed mean',color='mediumseagreen',kde=True)
-sns.histplot(ic.mo_expansion_speed,label='MO expansion speed',color='coral',alpha=0.5,kde=True)
-plt.legend(loc=1)
-
-
-# In[15]:
+# In[75]:
 
 
 #markersize
 ms=25
+ms2=7
 #alpha
 al=0.7
 
@@ -1391,17 +1361,65 @@ ax2=plt.subplot(111,projection='polar')
 plt.title('ICMECAT events [HEEQ longitude, AU]')
 
 ax2.scatter(np.radians(ic.mo_sc_long_heeq[iuly]),ic.mo_sc_heliodistance[iuly],s=ms,c='brown', alpha=al)
-ax2.scatter(np.radians(ic.mo_sc_long_heeq[imes]),ic.mo_sc_heliodistance	[imes],s=ms,c='dimgrey', alpha=0.6)
+ax2.scatter(np.radians(ic.mo_sc_long_heeq[imes]),ic.mo_sc_heliodistance	[imes],s=ms,c='coral', alpha=0.6)
 ax2.scatter(np.radians(ic.mo_sc_long_heeq[ivex]),ic.mo_sc_heliodistance	[ivex],s=ms,c='orange', alpha=al)
 ax2.scatter(np.radians(ic.mo_sc_long_heeq[iwin]),ic.mo_sc_heliodistance	[iwin],s=ms,c='mediumseagreen', alpha=al)
+ax2.scatter(np.radians(ic.mo_sc_long_heeq[istb]),ic.mo_sc_heliodistance[istb],s=ms,c='royalblue', alpha=al)
+
 ax2.scatter(np.radians(ic.mo_sc_long_heeq[imav]),ic.mo_sc_heliodistance	[imav],s=ms,c='orangered', alpha=al)
-
 ax2.scatter(np.radians(ic.mo_sc_long_heeq[ista]),ic.mo_sc_heliodistance[ista],s=ms,c='red', alpha=al)
-ax2.scatter(np.radians(ic.mo_sc_long_heeq[istb]),ic.mo_sc_heliodistance[istb],s=ms,c='blue', alpha=al)
 
-ax2.scatter(np.radians(ic.mo_sc_long_heeq[ipsp]),ic.mo_sc_heliodistance[ipsp],s=ms,c='black', alpha=1.0)
-ax2.scatter(np.radians(ic.mo_sc_long_heeq[isol]),ic.mo_sc_heliodistance[isol],s=ms,c='white',edgecolors='black', alpha=1.0)
-#ax.scatter(np.radians(ac.target_heeq_lon[bepii]),ac.target_distance[bepii],s=ms,c='violet', alpha=al)
+ax2.plot(np.radians(ic.mo_sc_long_heeq[ipsp]),ic.mo_sc_heliodistance[ipsp],'s',markersize=ms2, c='black', alpha=1.0)
+ax2.plot(np.radians(ic.mo_sc_long_heeq[isol]),ic.mo_sc_heliodistance[isol],'s',markersize=ms2, c='black',markerfacecolor='white', alpha=al)
+ax2.plot(np.radians(ic.mo_sc_long_heeq[ibep]),ic.mo_sc_heliodistance[ibep],'s',markersize=ms2, c='darkblue',markerfacecolor='lightgrey', alpha=al)
+
+
+
 ax2.set_ylim([0,1.8])
 ax2.tick_params(labelsize=12,zorder=3)
+
+
+plt.tight_layout()
+plt.savefig('icmecat/icmecat_overview2.png', dpi=150,bbox_inches='tight')
+
+
+# ## Parameter distribution plots
+
+# In[74]:
+
+
+#make distribution plots
+plt.figure(10,figsize=(15,12),dpi=50)
+
+
+ax1=plt.subplot(221)
+sns.histplot(ic.mo_sc_heliodistance,color='coral',bins=np.arange(0,1.8,0.1))
+ax1.set_xlim(0,1.8)
+
+ax2=plt.subplot(222)
+sns.histplot(ic.mo_bmax, label='magnetic obstacle $max(B_t)$',color='mediumseagreen',kde=True, bins=np.arange(0,100,2.5))
+sns.histplot(ic.mo_bmean, label='magnetic obstacle $<B_t>$',color='coral',alpha=0.5,kde=True, bins=np.arange(0,100,2.5))
+plt.legend(loc=1)
+plt.xlim(0,100)
+
+
+ax3=plt.subplot(223)
+sns.histplot(ic.mo_bzmin,label='MO $min(B_z)$',color='mediumseagreen',kde=True, bins=np.arange(-50,50,2.5))
+sns.histplot(ic.mo_bzmean,label='MO $<B_z>$',color='coral',alpha=0.5,kde=True, bins=np.arange(-50,50,2.5))
+plt.legend(loc=1)
+plt.xlim(-50,50)
+
+ax4=plt.subplot(224)
+sns.histplot(ic.mo_speed_mean,label='MO $<V>$',color='mediumseagreen',kde=True)
+sns.histplot(ic.mo_expansion_speed,label='MO $V_{exp}$',color='coral',alpha=0.5)
+plt.legend(loc=1)
+
+plt.tight_layout()
+plt.savefig('icmecat/icmecat_overview3.png', dpi=150,bbox_inches='tight')
+
+
+# In[ ]:
+
+
+
 
