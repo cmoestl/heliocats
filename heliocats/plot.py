@@ -584,7 +584,7 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
     
     
     
-def plot_stereo_hi_fov(pos, time_num, timeind,ax,sc, lw):    
+def plot_stereo_hi_fov(pos, time_num, timeind,ax,sc):    
     
     
     #plots the STA FOV HI1 HI2
