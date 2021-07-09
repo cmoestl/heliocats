@@ -8,7 +8,7 @@
 # Author: C. Möstl, IWF Graz, Austria
 # twitter @chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# current version ARRCAT 2.0, released 2020 May 13, updated 2021 Apr 23
+# current version ARRCAT 2.0, released 2020 May 13, updated 2021 Jul 9
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -17,13 +17,13 @@
 # https://figshare.com/articles/dataset/Arrival_catalog_of_coronal_mass_ejections_observed_with_STEREO_Heliospheric_Imagers_HELCATS_ARRCAT_2_0_/12271292
 # 
 
-# In[1]:
+# In[9]:
 
 
-last_update='2021-Apr-23'
+last_update='2021-Jul-09'
 
 
-# In[3]:
+# In[10]:
 
 
 import numpy as np
@@ -90,7 +90,7 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[4]:
+# In[11]:
 
 
 from heliocats import cats as hc
@@ -152,7 +152,7 @@ ac
 
 # #### save header
 
-# In[5]:
+# In[18]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -182,7 +182,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[6]:
+# In[22]:
 
 
 ########## python formats
@@ -359,7 +359,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[7]:
+# In[23]:
 
 
 #load arrcat as pandas dataframe
@@ -379,33 +379,33 @@ ac5 = f['arrcat']
 ac5['sse_launch_time']
 
 
-# In[8]:
+# In[24]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[34]:
+# In[25]:
 
 
 ac
 
 
-# In[35]:
+# In[26]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[36]:
+# In[27]:
 
 
 ac_struct
 
 
-# In[37]:
+# In[28]:
 
 
 ac_struct['id']
@@ -418,7 +418,7 @@ print(deltata)
 
 # ### plot directions and targets
 
-# In[38]:
+# In[29]:
 
 
 
@@ -488,7 +488,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[39]:
+# In[30]:
 
 
 fig=plt.figure(2, figsize=(18,8), dpi=100)
@@ -523,7 +523,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[40]:
+# In[31]:
 
 
 '''
@@ -551,7 +551,7 @@ hibi=np.where(ac.sc=='B')[0]
 
 
 
-# In[41]:
+# In[32]:
 
 
 last_year=2022
