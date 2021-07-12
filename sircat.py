@@ -38,7 +38,7 @@
 # ### Data sources
 # 
 # 
-# **PSP SIR list**: Allen et al.  https://www.aanda.org/articles/aa/full_html/2021/06/aa39833-20/aa39833-20.html
+# **PSP SIR list**: Allen et al. 2021: https://www.aanda.org/articles/aa/full_html/2021/06/aa39833-20/aa39833-20.html, list at https://sppgway.jhuapl.edu/event_list
 # 
 # 
 # **STEREO SIR list**: Lan Jian, https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/
@@ -83,7 +83,7 @@
 
 # start with importing packages, get paths from config.py file and make directories 
 
-# In[1]:
+# In[ ]:
 
 
 import numpy as np
@@ -156,10 +156,10 @@ os.system('jupyter nbconvert --to script sircat.ipynb')
 ## (1) load data 
 
 
-# ## (1) load data from STEREO-B, STEREO-A, Wind, and MAVEN
+# ## (1) load data from STEREO-B, STEREO-A, Wind, PSP, and MAVEN
 # 
 
-# In[2]:
+# In[ ]:
 
 
 load_data=1
@@ -197,19 +197,29 @@ if load_data > 0:
     #rad=hd.load_msl_rad()#, rad.time,rad.dose_sol
 
     
-    #print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
-    #filepsp='psp_2018_2019_sceq.p'
-    #[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )     
+    ##############################################
+    print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
+    filepsp='psp_2018_2021_sceq.p'
+    [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
+    
+    
+    
+    ########### STA
     
     print('load and merge STEREO-A data SCEQ') #yearly magplasma files from stereo science center, conversion to SCEQ 
-    filesta1='stereoa_2007_2019_sceq.p'
-    [sta1,hsta1]=pickle.load(open(data_path+filesta1, "rb" ) )  
-    sta1=sta1[np.where(sta1.time < parse_time('2019-Sep-01 00:00').datetime)[0]]
-
+    filesta1='stereoa_2007_2020_sceq.p'
+    sta1=pickle.load(open(data_path+filesta1, "rb" ) )  
+    
     #beacon data
-    filesta2="stereoa_2019_2020_sceq_beacon.p"
+    #filesta2="stereoa_2019_2020_sceq_beacon.p"
+    #filesta2='stereoa_2019_2020_sept_sceq_beacon.p'
+    #filesta2='stereoa_2019_now_sceq_beacon.p'
+    #filesta2="stereoa_2020_august_november_sceq_beacon.p" 
+    filesta2='stereoa_2020_now_sceq_beacon.p'
+    
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
-    sta2=sta2[np.where(sta2.time >= parse_time('2019-Sep-01 00:00').datetime)[0]]
+    #cutoff with end of science data
+    sta2=sta2[np.where(sta2.time >= parse_time('2020-Aug-01 00:00').datetime)[0]]
 
     #make array
     sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),                ('x', float),('y', float),('z', float),                ('r', float),('lat', float),('lon', float)])   
@@ -232,16 +242,18 @@ if load_data > 0:
     sta.lat=np.hstack((sta1.lat,sta2.lat))
     print('STA Merging done')
 
-    
-    
+
+    ########### Wind
     print('load and merge Wind data HEEQ') 
     #from HELCATS HEEQ until 2018 1 1 + new self-processed data with heliosat and hd.save_wind_data
     filewin="wind_2007_2018_heeq_helcats.p" 
     [win1,hwin1]=pickle.load(open(data_path+filewin, "rb" ) )  
     
-    #or use: filewin2="wind_2018_now_heeq.p" 
-    filewin2="wind_2018_2019_heeq.p" 
+    filewin2="wind_2018_now_heeq.p" 
     [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
+    
+    #function for spike removal, see list with times in that function
+    win2=hd.remove_wind_spikes_gaps(win2)
 
     #merge Wind old and new data 
     #cut off HELCATS data at end of 2017, win2 begins exactly after this
@@ -278,7 +290,7 @@ print()
 print('active spacecraft:')
 print('Wind                 ',str(win.time[0])[0:10],str(win.time[-1])[0:10])
 print('STEREO-A             ',str(sta.time[0])[0:10],str(sta.time[-1])[0:10])
-#print('Parker Solar Probe   ',str(psp.time[0])[0:10],str(psp.time[-1])[0:10])
+print('Parker Solar Probe   ',str(psp.time[0])[0:10],str(psp.time[-1])[0:10])
 print('MAVEN                ',str(mav.time[0])[0:10],str(mav.time[-1])[0:10])
 #print('MSL/RAD              ',str(rad.time[0])[0:10],str(rad.time[-1])[0:10])
 print()
@@ -300,6 +312,20 @@ print('done')
 # ## (2) make SIRCAT masterfile from STEREO and Wind catalogs
 
 # Here we read raw STEREO SIR and Earth SIR catalogs from Lan Jian, Maxim Grandin, and Hui Huang et al. and convert to master catalog xlsx file that contains all times in a consistent way.
+
+# In[3]:
+
+
+#read Allen catalog
+
+
+
+
+#save master file as Excel
+file='sircat/HELIO4CAST_SIRCAT_v10_master.xlsx'
+master.to_excel(file,sheet_name='SIRCATv1.0')
+
+
 
 # In[3]:
 

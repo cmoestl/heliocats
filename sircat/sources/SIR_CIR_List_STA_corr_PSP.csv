@@ -1,0 +1,63 @@
+#ListTitle: List of Stream Interaction Regions (SIRs) and Co-rotation Interaction Regions (CIRs) Observed by STEREO-A with corresponding oservations at Parker Solar Probe,,,,,,,,,,,,,,,,
+#CreationDate: 2020-04-23,,,,,,,,,,,,,,,,
+#ModifyDate: 2020-12-04,,,,,,,,,,,,,,,,
+#FieldNames: Event_number SIR_start_time SIR_end_time Pmax_time Radial_distance Pmax Bmax Npmax Vmin Vmax ambiguous_event_marker Notes PSP_event_num L1_conj CIR Shock HCS,,,,,,,,,,,,,,,,
+#FieldUnits: None DateTime DateTime DateTime au nPa nT cm^-3 km/s km/s None None None None None None None,,,,,,,,,,,,,,,,
+#FieldTypes: int char char char float float float float float float int char int int int int int,,,,,,,,,,,,,,,,
+#FieldNulls: -1 0001-01-01/00:00:00 0001-01-01/00:00:00 0001-01-01/00:00:00 -1 -1 -1 -1 -1 -1 -1 -- -1 -1 -1 -1 -1,,,,,,,,,,,,,,,,
+#ListBeginDate: 2018-10-03/00:00:00:00Z,,,,,,,,,,,,,,,,
+#ListEndDate: 2019-10-01/00:00:00:00Z,,,,,,,,,,,,,,,,
+#Contact: Robert C. Allen (Robert.Allen@jhuapl.edu),,,,,,,,,,,,,,,,
+#,,,,,,,,,,,,,,,,
+#Description:,,,,,,,,,,,,,,,,
+#The event list is compiled by Dr. Robert C. Allen (Robert.Allen@jhuapl.edu) based on visual inspection for reference purposes only.,,,,,,,,,,,,,,,,
+"#Not all of the desired data are always available for event identification, and some of the data used is preliminary, rather than final.",,,,,,,,,,,,,,,,
+"#As such, some of the event identifications are marked as ambiguous. Since the interaction region around the interface is the focus of this list,",,,,,,,,,,,,,,,,
+#the continuous rise of fast wind beyond the interaction region is not included in the listed times. Only SIRs and CIRs observed by STEREO-A that,,,,,,,,,,,,,,,,
+#were also observed by PSP are included in this list and as such it is not intended to be used as extensive STEREO-A SIR or CIR list. For event,,,,,,,,,,,,,,,,
+"#details and information on ambiguous events, please contact Dr. Robert C. Allen. The intention of this list is to be an aid for research, and no",,,,,,,,,,,,,,,,
+#guarantees as to its accuracy are given. Authors of studies using this list are encouraged to check values and structures with the latest public,,,,,,,,,,,,,,,,
+"#data file version, as these events may have been initially analyzed with data using outdated calibrations.",,,,,,,,,,,,,,,,
+#,,,,,,,,,,,,,,,,
+#Some events are marked with an ambiguous event marker. These ambiguous markers are denoted by three possible values. A value of 0,,,,,,,,,,,,,,,,
+#denotes an event that has all desired data for identification throughout the event and that the data are final. A value of 1 denotes an event that has,,,,,,,,,,,,,,,,
+"#most of the desired data for most of the event, but with either some minor gaps or that the event was selected using preliminary STEREO-A data. These",,,,,,,,,,,,,,,,
+"#events (ambiquous marker=1) are events with a high confidence that it is an SIR or CIR, although some of the fields (e.g., Pmax) may not be reliable",,,,,,,,,,,,,,,,
+"#due to data gaps or the use of preliminary data. Once final data is released by the relavent STEREO-A team, the list will be updated and the ambiguous",,,,,,,,,,,,,,,,
+"#marker will be changed accordingly. Finally, events with the ambiquous marker set to 2 denote events that are likely an SIR or CIR, but the gaps or data",,,,,,,,,,,,,,,,
+"#availablity make this difficult to fully discern, and due to most of the velocity increase ocurring during a data gap, all of the supporting values",,,,,,,,,,,,,,,,
+"#(e.g., Pmax) are set to a fill value (-1).",,,,,,,,,,,,,,,,
+#,,,,,,,,,,,,,,,,
+#The CIR marker distinguishes between events that are SIRs (0) and CIRs (1). This is based on comparing to both PSP and L1 (ACE/Wind)  measurments to,,,,,,,,,,,,,,,,
+#determine if the structure has persisted for more than one solar rotation.,,,,,,,,,,,,,,,,
+#,,,,,,,,,,,,,,,,
+#The PSP event marker denotes the event number in the companion PSP SIR list.,,,,,,,,,,,,,,,,
+#,,,,,,,,,,,,,,,,
+"#If the L1 Conjuction marker is 1, then the structure observed at PSP was also oberved at L1 (ACE and/or Wind).",,,,,,,,,,,,,,,,
+#,,,,,,,,,,,,,,,,
+#If the obervations were observed to have an associated Shock (based on visual inspection) it is marked as a (1) in the Shock column,,,,,,,,,,,,,,,,
+#If the observations were observed to be near a Heliospheric Current Sheet crossing then the HCS column is marked as (1),,,,,,,,,,,,,,,,
+#,,,,,,,,,,,,,,,,
+#The criteria for event classification are based on the following two papers:,,,,,,,,,,,,,,,,
+"#L. Jian, C.T. Russell, J.G. Luhmann, and R.M. Skoug, Properties of Stream Interactions at One AU during 1995 - 2004,",,,,,,,,,,,,,,,,
+"#Solar Phys., 239, 337-392, 2006.",,,,,,,,,,,,,,,,
+"#L.K. Jian, C.T. Russell, J.G. Luhmann, A.B. Galvin, K.D.C. Simunac, Solar Wind Observations at STEREO: 2007 - 2011,",,,,,,,,,,,,,,,,
+"#Amer. Inst. Phys. Proceedings of Solar Wind 13, 1539, 191-194, doi: 10.1063/1.4811020, 2013.",,,,,,,,,,,,,,,,
+#,,,,,,,,,,,,,,,,
+#Further information about this list can be found in the following paper:,,,,,,,,,,,,,,,,
+"#Allen et al. (2020), A Living Catalog of Stream Interaction Regions in the Parker Solar Probe Era, A&A, doi:",,,,,,,,,,,,,,,,
+#,,,,,,,,,,,,,,,,
+"#If using this list, please cite the aforementioned Allen et al. paper.",,,,,,,,,,,,,,,,
+#,,,,,,,,,,,,,,,,
+Event number,Start time,End time,Time of max P,R [au],Max P [nPa],Max B [nT],Max np [cm^-3],Min V [km/s],Max V [km/s],Ambiguous Marker,Notes,PSP event number,L1 conjunction,CIR,Shock,HCS
+1,2018-08-08/00:00:00,2018-08-08/18:00:00,2018-08-08/11:23:30,0.96,0.103181,14.4412,19.7,305.2,479.4,0,--,1; 2,1,-1,N,Y
+2,2018-08-11/14:40:00,2018-08-12/23:40:00,2018-08-12/06:21:30,0.96,0.105791,13.6708,26.4,364.2,682.7,0,--,3,0,0,N,Y
+3,2018-09-02/16:00:00,2018-09-03/06:00:00,2018-09-02/22:54:30,0.96,0.351836,24.3697,56.1,336.3,650.7,0,--,1; 2,1,1,N,Y
+4,2018-09-07/12:00:00,2018-09-08/05:40:00,2018-09-07/20:00:30,0.96,0.0702223,10.9269,23.1,357.3,631.1,0,--,3,0,0,N,Y
+5,2018-10-26/06:30:00,2018-10-27/20:50:00,2018-10-27/07:28:30,0.96,0.144297,12.9602,17.4,347.2,700.3,0,--,1; 2,1,1,N,Y
+6,2018-11-02/06:00:00,2018-11-02/18:10:00,2018-11-02/11:21:30,0.96,0.151601,17.7562,30.7,344.8,556.4,0,--,3,0,0,N,Y
+7,2018-11-22/13:35:00,2018-11-23/00:35:00,2018-11-22/20:40:30,0.96,0.0467275,8.70334,26.9,324.3,405.5,0,"Allen et al. (2020, ApJS)",1; 2,1,1,N,Y
+8,2018-12-01/05:55:00,2018-12-01/09:55:00,2018-12-01/06:13:30,0.96,0.041761,8.83976,20.8,320.9,430.4,0,"Allen et al. (2020, ApJS)",3,0,0,N,Y
+9,2019-07-30/07:50:00,2019-07-31/05:50:00,2019-07-30/21:02:30,0.96,0.0778747,14.2775,16.5,323.2,584.4,0,"Allen et al. (2020, GRL)",10,1,0,N,Y
+10,2019-08-24/13:00:00,2019-08-25/18:25:00,2019-08-25/05:05:30,0.96,0.151267,15.0092,23.8,324.3,697.2,0,"Allen et al. (2020, GRL)",10,1,1,N,Y
+11,2019-09-21/06:20:00,2019-09-22/01:05:00,2019-09-21/10:55:30,0.96,0.370202,18.5793,71.5,349.2,695.4,0,"Allen et al. (2020, GRL)",10,1,1,N,Y
