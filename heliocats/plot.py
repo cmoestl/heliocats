@@ -328,7 +328,15 @@ def plot_sircat_events(sc,sci,ic,name,icplotsdir):
                                  ic.hss_end_time[sci[i]]+datetime.timedelta(days=3),name, icplotsdir,ic,sci[i])
             plt.close('all')       
 
+            
+    if name=='PSP':
+    
+        for i in np.arange(np.size(sci)):            
 
+            plot_insitu_sircat_mag_plasma(sc[hss_start_ind[i]-60*2*24:hss_end_ind[i]+3*60*24],\
+                                 ic.hss_start_time[sci[i]]-datetime.timedelta(days=2), \
+                                 ic.hss_end_time[sci[i]]+datetime.timedelta(days=3),name, icplotsdir,ic,sci[i])
+            plt.close('all') 
 
 
 def plot_insitu_sircat_MAVEN(sc, start, end, sc_label, path, ic,i, **kwargs):
