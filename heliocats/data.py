@@ -2489,11 +2489,11 @@ def save_omni_data(path,file):
 
 
 
-def convert_MAVEN_mat_original(data_path,filename):
+def convert_MAVEN_mat_original(file_input,filename):
 
     print('load MAVEN from MAT')
     
-    file=data_path+'input/MAVEN_2014to2018_cyril.mat'
+    file=file_input
     mavraw = scipy.io.loadmat(file)
     
     #make array 
@@ -2597,19 +2597,28 @@ def convert_MAVEN_mat_original(data_path,filename):
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
     
 
-    pickle.dump([mav,header], open(data_path+filename, "wb"))
+    pickle.dump([mav,header], open(filename, "wb"))
 
    
     
 
 
 
-def convert_MAVEN_mat_removed(data_path,filename):
+def convert_MAVEN_mat_removed(file_input,filename):
 
     print('load MAVEN from MAT')
-    
-    file=data_path+'input/MAVEN_2014to2018_removed_cyril.mat'
+
+    file=file_input
     mavraw = scipy.io.loadmat(file)
+    
+    
+    #load time data extra
+    
+    file_input=data_path+'input/Data-MAVEN-MAG_SolarWind_102014-012021_time.mat'
+    mavraw_time = scipy.io.loadmat(file_input)
+    #mavraw_time['time']
+
+   
     
     #make array 
     mav=np.zeros(np.size(mavraw['BT']),dtype=[('time',object),('bt', float),('bx', float),\
@@ -2621,10 +2630,12 @@ def convert_MAVEN_mat_removed(data_path,filename):
     #convert to recarray
     mav = mav.view(np.recarray)  
     #convert time from matlab to python
-    t=mavraw['timeD'][:,0]
+    #t=mavraw['timeD'][:,0]
+    t=mavraw_time['time']
+
     for p in np.arange(np.size(t)):
-        mav.time[p]= datetime.datetime.fromordinal(t[p].astype(int) ) + \
-        datetime.timedelta(days=t[p]%1) - datetime.timedelta(days = 366) 
+        mav.time[p]= datetime.datetime.fromordinal(t[p][0].astype(int) ) + \
+        datetime.timedelta(days=t[p][0]%1) - datetime.timedelta(days = 366) 
         
 
     mav.bx=mavraw['Bx'][:,0]       
@@ -2632,13 +2643,20 @@ def convert_MAVEN_mat_removed(data_path,filename):
     mav.bz=mavraw['Bz'][:,0]      
     mav.bt=mavraw['BT'][:,0]      
 
-    mav.vx=mavraw['Vx'][:,0]      
-    mav.vy=mavraw['Vy'][:,0]      
-    mav.vz=mavraw['Vz'][:,0]      
-    mav.vt=mavraw['VT'][:,0] 
+    
+    
+    ### TO DO *** add plasma data
+    #file_input=data_path+'input/MAVEN_2014to2018_cyril.mat'
+    #mavraw2 = scipy.io.loadmat(file_input)
+   
+    
+    #mav.vx[0:len(mavraw2)]=mavraw2['Vx'][:,0]      
+    #mav.vy[0:len(mavraw2)]=mavraw2['Vy'][:,0]      
+    #mav.vz[0:len(mavraw2)]=mavraw2['Vz'][:,0]      
+    #mav.vt[0:len(mavraw2)]=mavraw2['VT'][:,0] 
 
-    mav.tp=mavraw['Tp'][:,0]*(1.602176634*1e-19)/(1.38064852*1e-23)        #from ev to K     
-    mav.np=mavraw['np'][:,0]      
+    #mav.tp[0:len(mavraw2)]=mavraw2['Tp'][:,0]*(1.602176634*1e-19)/(1.38064852*1e-23)        #from ev to K     
+    #mav.np[0:len(mavraw2)]=mavraw2['np'][:,0]      
   
     
     #add position with respect to Mars center in km in MSO
@@ -2647,7 +2665,7 @@ def convert_MAVEN_mat_removed(data_path,filename):
     
     insertion=datetime.datetime(2014,9,22,2,24,0)
     #these are the indices of the times for the cruise phase     
-    tc=np.where(mdates.date2num(mav.time) < mdates.date2num(insertion))       
+    #tc=np.where(mdates.date2num(mav.time) < mdates.date2num(insertion))       
 
     mars_radius=3389.5
     mav.xo=mavraw['Xsc'][:,0]*mars_radius
@@ -2655,9 +2673,9 @@ def convert_MAVEN_mat_removed(data_path,filename):
     mav.zo=mavraw['Zsc'][:,0]*mars_radius  
     
     #set to nan for cruise phase
-    mav.xo[tc]=np.nan
-    mav.yo[tc]=np.nan
-    mav.zo[tc]=np.nan
+    #mav.xo[tc]=np.nan
+    #mav.yo[tc]=np.nan
+    #mav.zo[tc]=np.nan
     
     [mav.ro,mav.lato,mav.lono]=cart2sphere(mav.xo,mav.yo,mav.zo)
     mav.lono=np.rad2deg(mav.lono)   
@@ -2669,17 +2687,17 @@ def convert_MAVEN_mat_removed(data_path,filename):
     
     #add position in HEEQ for cruise phase and orbit
     
-    #cruise phase
+    #cruise phase for plasma file only
     #use heliopy to load own bsp spice file from MAVEN 
     #obtained through https://naif.jpl.nasa.gov/pub/naif/pds/pds4/maven/maven_spice/spice_kernels/spk/
-    spice.furnish(data_path+'input/maven_cru_rec_131118_140923_v1.bsp') 
-    cruise=spice.Trajectory('MAVEN') #or NAIF CODE -202 
-    cruise.generate_positions(mav.time[tc],'Sun',frame)     
-    cruise.change_units(astropy.units.AU)  
-    mav.x[tc]=cruise.x
-    mav.y[tc]=cruise.y
-    mav.z[tc]=cruise.z
-    [mav.r[tc], mav.lat[tc], mav.lon[tc]]=cart2sphere(mav.x[tc],mav.y[tc],mav.z[tc])
+    #spice.furnish(data_path+'input/maven_cru_rec_131118_140923_v1.bsp') 
+    #cruise=spice.Trajectory('MAVEN') #or NAIF CODE -202 
+    #cruise.generate_positions(mav.time[tc],'Sun',frame)     
+    #cruise.change_units(astropy.units.AU)  
+    #mav.x[tc]=cruise.x
+    #mav.y[tc]=cruise.y
+    #mav.z[tc]=cruise.z
+    #[mav.r[tc], mav.lat[tc], mav.lon[tc]]=cart2sphere(mav.x[tc],mav.y[tc],mav.z[tc])
 
     #times in orbit
     to=np.where(mdates.date2num(mav.time) > mdates.date2num(insertion))       
@@ -2712,7 +2730,7 @@ def convert_MAVEN_mat_removed(data_path,filename):
     'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
      
-    pickle.dump([mav,header], open(data_path+filename, "wb"))
+    pickle.dump([mav,header], open(filename, "wb"))
 
 
 
@@ -2720,10 +2738,9 @@ def convert_MAVEN_mat_removed(data_path,filename):
 
 
 
-def MAVEN_smooth_orbit(data_path,filename):
+def MAVEN_smooth_orbit(filemav,filename):
 
 
-    filemav=data_path+'maven_2014_2018_removed.p'
     [mav,hmav]=pickle.load(open(filemav, 'rb' ) )
     print('loaded ',filemav)
     
@@ -2835,7 +2852,7 @@ def MAVEN_smooth_orbit(data_path,filename):
     'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
     
-    pickle.dump([mavs,header], open(data_path+filename, "wb"))
+    pickle.dump([mavs,header], open(filename, "wb"))
 
     
 
