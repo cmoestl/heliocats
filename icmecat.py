@@ -39,7 +39,7 @@
 last_update='2021-July-9'
 
 
-# In[76]:
+# In[129]:
 
 
 import numpy as np
@@ -484,22 +484,44 @@ if load_data > 0:
     ########### CURRENT ACTIVE SPACECRAFT    
 
 
-
-
-    #convert MAVEN from Cyril's MAT file to pickle
+    ############### convert MAVEN from Cyril's MAT file to pickle
+    
+    from heliocats import data as hd
+    importlib.reload(hd) #reload again while debugging
+    
     file_input=data_path+'input/Data-MAVEN-MAG_SolarWind_102014-012021.mat'        
-    filename=data_path+'maven_2014_2021_removed.p'
+    filename=data_path+'maven_2014_2021_removed_no_plasma.p'
     hd.convert_MAVEN_mat_removed(file_input,filename)
+
+    filemav=data_path+'maven_2014_2021_removed_no_plasma.p'   
+    filename=data_path+'maven_2014_2021_removed_smoothed_no_plasma.p'   
+    hd.MAVEN_smooth_orbit(filemav,filename)
+    
+    
     
     
     print('load MAVEN data MSO') 
     #filemav='maven_2014_2018.p'
     #[mav,hmav]=pickle.load(open(filemav, 'rb' ) )
+
+    #combined plasma and mag
     filemav='maven_2014_2018_removed.p'
     [mavr,hmavr]=pickle.load(open(data_path+filemav, 'rb' ) )    
-    #removed magnetosphere by C. Simon Wedlund, 1 data point per orbit, MSO
     filemav='maven_2014_2018_removed_smoothed.p'
     [mav,hmav]=pickle.load(open(data_path+filemav, 'rb' ) )
+
+    #only mag
+    filemav='maven_2014_2021_removed_no_plasma.p'
+    [mav2,hmav2]=pickle.load(open(data_path+filemav, 'rb' ) )    
+
+    filemav='maven_2014_2021_removed_smoothed_no_plasma.p'
+    [mavr2,hmavr2]=pickle.load(open(data_path+filemav, 'rb' ) )    
+
+
+    
+    #removed magnetosphere by C. Simon Wedlund, 1 data point per orbit, MSO
+    #filemav='maven_2014_2021_removed_smoothed.p'
+    #[mav,hmav]=pickle.load(open(data_path+filemav, 'rb' ) )
     
         
     #use hd.save_msl_rad() first to convert data doseE_sol_filter_2019.dat to pickle file
