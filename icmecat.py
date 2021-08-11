@@ -39,7 +39,7 @@
 last_update='2021-July-9'
 
 
-# In[5]:
+# In[1]:
 
 
 import numpy as np
@@ -180,7 +180,7 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[7]:
+# In[2]:
 
 
 from heliocats import data as hd
@@ -790,7 +790,7 @@ if data_to_numpy_2 > 0:
 
 # ## (2) measure new events 
 
-# In[6]:
+# In[4]:
 
 
 #for measuring new events use these functions from heliocats.plot 
@@ -812,7 +812,7 @@ plt.ion()
 
 
 #PSP
-#hp.plot_insitu_measure_mag_notz(psp, '2020-Jun-20','2020-Dec-31', 'PSP', 'results/plots_icmecat/')
+hp.plot_insitu_measure_mag_notz(psp, '2020-Dec-20','2021-Mar-31', 'PSP', 'results/plots_icmecat/')
 
 
 #SolO
