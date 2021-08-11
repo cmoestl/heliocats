@@ -39,7 +39,7 @@
 last_update='2021-July-9'
 
 
-# In[129]:
+# In[5]:
 
 
 import numpy as np
@@ -164,7 +164,7 @@ os.chdir('/home/cmoestl/pycode/heliocats')
 
 time1=[]
 tstart1=datetime.datetime(2020, 10, 16)
-tend1=datetime.datetime(2021, 1, 12)
+tend1=datetime.datetime(2021, 6, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -180,28 +180,29 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[4]:
+# In[7]:
 
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
 print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
-#filepsp='psp_2018_2021_rtn.p'
-#hd.save_psp_data(data_path,filepsp, sceq=False)   
-#print('rtn done')
+#+**change end date in function
+filepsp='psp_2018_2021_rtn_new.p'
+hd.save_psp_data(data_path,filepsp, sceq=False)   
+print('rtn done')
 
-#filepsp='psp_2018_2021_sceq.p'
-#hd.save_psp_data(data_path,filepsp, sceq=True)   
-#print('rtn done')
+filepsp='psp_2018_2021_sceq_new.p'
+hd.save_psp_data(data_path,filepsp, sceq=True)   
+print('sceq done')
 
 print('load PSP data RTN') 
-filepsp='psp_2018_2021_sceq.p'
+filepsp='psp_2018_2021_rtn_new.p'
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
 
 start=datetime.datetime(2018,10,1)
-end=datetime.datetime(2020,12,31)
+end=datetime.datetime(2021,5,31)
 
 
 ################ plot new psp data for checking
