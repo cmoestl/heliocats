@@ -14,7 +14,7 @@ python numpy arrays (pickle, as recarray and structured array),
 npy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at 
 https://helioforecast.space/arrcat and https://www.helcats-fp7.eu
 
-Number of events in ARRCAT: 1658
+Number of events in ARRCAT: 1669
 Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.
 
 Authors: Christian Moestl, D. Barnes, R. A. Harrison, J. A. Davies, Andreas J. Weiss, David Stansby;

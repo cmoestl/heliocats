@@ -10,7 +10,7 @@
 # **Author**: C. Möstl, IWF Graz, Austria
 # https://twitter.com/chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# **latest release: version 2.0, 2020 June 3, updated 2021 Jul **, doi: 10.6084/m9.figshare.6356420**
+# **latest release: version 2.0, 2020 June 3, updated 2021 Aug 23, doi: 10.6084/m9.figshare.6356420**
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -21,7 +21,7 @@
 # 
 # 
 # **Updating data**
-# - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files, then use read_solo.ipynb; currently ends 2021-12-31
+# - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files, then use read_solo.ipynb; currently ends 2021-04-30
 # - Bepi Colombo manual download, then read_bepi.ipynb
 # - PSP use cell in this notebook, beware of unfinished file downloads - redo!
 # - STEREO-Ahead prel. PLASTIC ASCII files, IMPACT as usual (via heliosat), beacon data automatic every day
@@ -36,7 +36,7 @@
 # In[1]:
 
 
-last_update='2021-July-9'
+last_update='2021-August-23'
 
 
 # In[2]:
@@ -135,7 +135,7 @@ print(heliosat.__version__)
 
 # ## Parker Solar Probe
 
-# In[3]:
+# In[ ]:
 
 
 ################### FIELDS
@@ -186,15 +186,15 @@ os.chdir('/home/cmoestl/pycode/heliocats')
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
-print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
+#print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
 #+**change end date in function
-filepsp='psp_2018_2021_rtn_new.p'
-hd.save_psp_data(data_path,filepsp, sceq=False)   
-print('rtn done')
+#filepsp='psp_2018_2021_rtn_new.p'
+#hd.save_psp_data(data_path,filepsp, sceq=False)   
+#print('rtn done')
 
-filepsp='psp_2018_2021_sceq_new.p'
-hd.save_psp_data(data_path,filepsp, sceq=True)   
-print('sceq done')
+#filepsp='psp_2018_2021_sceq_new.p'
+#hd.save_psp_data(data_path,filepsp, sceq=True)   
+#print('sceq done')
 
 print('load PSP data RTN') 
 filepsp='psp_2018_2021_rtn_new.p'

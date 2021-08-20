@@ -1,0 +1,10 @@
+\begin{tabular}{llrr}
+\toprule
+event Nr. &                    icmecat\_id &  sc\_insitu &  icme\_start\_time \\
+\midrule
+        1 &   ICME\_PSP\_MOESTL\_20200625\_01 &          1 &                1 \\
+        1 &  ICME\_Wind\_MOESTL\_20200701\_01 &          1 &                1 \\
+        1 &  ICME\_BEPI\_MOESTL\_20200629\_01 &          1 &                1 \\
+        2 &   ICME\_PSP\_MOESTL\_20200625\_01 &          1 &                1 \\
+\bottomrule
+\end{tabular}
