@@ -8,7 +8,7 @@
 # Authors: C. Möstl, IWF Graz, Austria, D. Barnes, J. A. Davies, R. A. Harrison, RAL Space, UK.
 # twitter @chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# current version ARRCAT 2.0, released 2020 May 13, updated 2021 Jul 9
+# current version ARRCAT 2.0, released 2020 May 13, updated 2021 Aug 23
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -17,10 +17,10 @@
 # https://figshare.com/articles/dataset/Arrival_catalog_of_coronal_mass_ejections_observed_with_STEREO_Heliospheric_Imagers_HELCATS_ARRCAT_2_0_/12271292
 # 
 
-# In[1]:
+# In[17]:
 
 
-last_update='2021-Jul-09'
+last_update='2021-Aug-23'
 
 
 # In[2]:
