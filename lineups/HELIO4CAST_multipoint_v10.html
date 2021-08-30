@@ -1,4 +1,4 @@
-<table border="1" class="dataframe">
+<p>HELIO4CAST&nbsp;Multipoint&nbsp;ICME&nbsp;catalog&nbsp;v1.0&nbsp;<br><br>This&nbsp;is&nbsp;the&nbsp;HELIO4CAST&nbsp;multipoint&nbsp;interplanetary&nbsp;coronal&nbsp;mass&nbsp;ejection&nbsp;(ICME)&nbsp;catalog.&nbsp;<br>This&nbsp;is&nbsp;version&nbsp;1.0,&nbsp;to&nbsp;be&nbsp;released&nbsp;in&nbsp;September&nbsp;2021.&nbsp;doi:&nbsp;10.6084/m9.figshare.15134745&nbsp;<br><br>Rules:&nbsp;If&nbsp;results&nbsp;are&nbsp;produced&nbsp;with&nbsp;this&nbsp;catalog&nbsp;for&nbsp;peer-reviewed&nbsp;scientific&nbsp;publications,<br>please&nbsp;contact&nbsp;christian.moestl@oeaw.ac.at&nbsp;for&nbsp;possible&nbsp;co-authorship.&nbsp;<br>The&nbsp;reference&nbsp;for&nbsp;this&nbsp;catalog&nbsp;is&nbsp;Moestl&nbsp;et&nbsp;al.&nbsp;2021&nbsp;(in&nbsp;preparation).&nbsp;&nbsp;<br><br>The&nbsp;catalog&nbsp;is&nbsp;available&nbsp;as&nbsp;a&nbsp;python&nbsp;pandas&nbsp;dataframe&nbsp;(pickle),&nbsp;json,&nbsp;csv,&nbsp;xlsx,&nbsp;txt,&nbsp;at&nbsp;<br>https://helioforecast.space/lineups&nbsp;and&nbsp;https://doi.org/10.6084/m9.figshare.15134745&nbsp;.&nbsp;<br><br>Number&nbsp;of&nbsp;events:&nbsp;17&nbsp;<br>ICME&nbsp;observatories:&nbsp;Solar&nbsp;Orbiter,&nbsp;Parker&nbsp;Solar&nbsp;Probe&nbsp;(PSP),&nbsp;BepiColombo,&nbsp;Wind,&nbsp;STEREO-A.&nbsp;&nbsp;&nbsp;<br>Time&nbsp;range:&nbsp;April&nbsp;2020&nbsp;-&nbsp;April&nbsp;2021.&nbsp;<br><br>Authors:&nbsp;Christian&nbsp;Moestl,&nbsp;Andreas&nbsp;J.&nbsp;Weiss,&nbsp;Rachel&nbsp;L.&nbsp;Bailey,&nbsp;Martin&nbsp;A.&nbsp;Reiss,&nbsp;<br>Space&nbsp;Research&nbsp;Institute,&nbsp;Austrian&nbsp;Academy&nbsp;of&nbsp;Sciences,&nbsp;Graz,&nbsp;Austria.<br>Barnes,&nbsp;J.&nbsp;A.&nbsp;Davies,&nbsp;R.&nbsp;A.&nbsp;Harrison,&nbsp;RAL&nbsp;Space,&nbsp;UK.&nbsp;<br><br>The&nbsp;python&nbsp;source&nbsp;code&nbsp;for&nbsp;producing&nbsp;this&nbsp;catalog&nbsp;is&nbsp;available&nbsp;at&nbsp;https://github.com/cmoestl/heliocats&nbsp;lineups.ipynb<br><br>Each&nbsp;event&nbsp;has&nbsp;unique&nbsp;identifier&nbsp;either&nbsp;from&nbsp;the&nbsp;HELIO4CAST&nbsp;ICMECAT&nbsp;or&nbsp;the&nbsp;HELCATS&nbsp;HIGeoCAT.&nbsp;<br><br>Comments:&nbsp;<br><br>-&nbsp;Spacecraft&nbsp;positions&nbsp;are&nbsp;given&nbsp;in&nbsp;Heliocentric&nbsp;Earth&nbsp;Equatorial&nbsp;Coordinates&nbsp;(HEEQ)&nbsp;coordinates.&nbsp;<br><br>-&nbsp;The&nbsp;coordinate&nbsp;system&nbsp;for&nbsp;the&nbsp;Bz&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;is&nbsp;SCEQ,&nbsp;except&nbsp;for&nbsp;Wind&nbsp;(HEEQ,&nbsp;which&nbsp;is&nbsp;the&nbsp;equivalent&nbsp;for&nbsp;SCEQ&nbsp;for&nbsp;Earth).&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Definition&nbsp;of&nbsp;SpaceCraft&nbsp;Equatorial&nbsp;Coordinates&nbsp;(SCEQ):&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z&nbsp;is&nbsp;the&nbsp;solar&nbsp;rotation&nbsp;axis.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y&nbsp;is&nbsp;the&nbsp;cross&nbsp;product&nbsp;of&nbsp;Z&nbsp;and&nbsp;R,&nbsp;with&nbsp;R&nbsp;being&nbsp;the&nbsp;vector&nbsp;that&nbsp;points&nbsp;from&nbsp;the&nbsp;Sun&nbsp;to&nbsp;the&nbsp;spacecraft.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;completes&nbsp;the&nbsp;right&nbsp;handed&nbsp;triad&nbsp;(and&nbsp;points&nbsp;away&nbsp;from&nbsp;the&nbsp;Sun).&nbsp;<br>This&nbsp;system&nbsp;is&nbsp;thus&nbsp;like&nbsp;HEEQ&nbsp;but&nbsp;centered&nbsp;on&nbsp;the&nbsp;respective&nbsp;in&nbsp;situ&nbsp;spacecraft,&nbsp;so&nbsp;the&nbsp;SCEQ&nbsp;X&nbsp;and&nbsp;Y&nbsp;<br>base&nbsp;vectors&nbsp;are&nbsp;rotated&nbsp;by&nbsp;the&nbsp;HEEQ&nbsp;longitude&nbsp;of&nbsp;the&nbsp;in&nbsp;situ&nbsp;spacecraft&nbsp;from&nbsp;HEEQ&nbsp;X&nbsp;and&nbsp;Y.<br>The&nbsp;Y&nbsp;vector&nbsp;is&nbsp;similar&nbsp;to&nbsp;the&nbsp;T&nbsp;vector&nbsp;in&nbsp;an&nbsp;RTN&nbsp;system&nbsp;for&nbsp;each&nbsp;spacecraft,&nbsp;but&nbsp;the&nbsp;X&nbsp;and&nbsp;Z&nbsp;vectors&nbsp;<br>are&nbsp;rotated&nbsp;around&nbsp;Y&nbsp;compared&nbsp;to&nbsp;an&nbsp;RTN&nbsp;system.&nbsp;The&nbsp;differences&nbsp;between&nbsp;RTN&nbsp;and&nbsp;SCEQ&nbsp;for&nbsp;spacecraft&nbsp;within&nbsp;<br>a&nbsp;few&nbsp;degrees&nbsp;of&nbsp;the&nbsp;solar&nbsp;equatorial&nbsp;plane&nbsp;are&nbsp;very&nbsp;small&nbsp;(within&nbsp;a&nbsp;few&nbsp;0.1&nbsp;nT&nbsp;usually).<br>We&nbsp;choose&nbsp;SCEQ&nbsp;for&nbsp;the&nbsp;advantage&nbsp;that&nbsp;a&nbsp;comparison&nbsp;of&nbsp;the&nbsp;data&nbsp;of&nbsp;multipoint&nbsp;CME&nbsp;events&nbsp;<br>and&nbsp;comparisons&nbsp;to&nbsp;simulations&nbsp;are&nbsp;simpler&nbsp;because&nbsp;there&nbsp;is&nbsp;always&nbsp;a&nbsp;similar&nbsp;reference&nbsp;plane&nbsp;(the&nbsp;solar&nbsp;equatorial&nbsp;plane).<br><br>'</p><p>Parameters:<br>01: event: To which multipoint event the row belongs to, unit: integer. <br>02: event_start_time: For in situ spacecraft, similar to icme_start_time in the ICMECAT. For STEREO-A-HI (HIA), its the sse_launch_time from HIGeoCAT. unit: UTC. <br>03: spacecraft: HIA if the entry refers to observations from STEREO-A-HI, otherwise the in situ observing spacecraft. unit: string. <br>04: sc_heliodistance: Heliocentric distance of the spacecraft at event_start_time. unit: AU.<br>05: sc_long_heeq: Heliospheric longitude of the spacecraft at event_start_time, range [-180,180]. unit: degree (HEEQ).<br>06: cme_long_heeq: CME longitude, derived from SSEF30 modeling with STEREO-A-HI, range [-180,180]. unit: degree (HEEQ).<br>07: speed: For in situ observations, the speed over the whole ICME interval (icme_speed_mean in ICMECAT). For HIA, the speed derived from SSEF30 modeling in HIGeoCAT. unit: km/s.<br>08: mo_bmax: Only for in situ observations, maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.<br>09: mo_bzmin: Only for in situ observations, minimum magnetic field Bz component in the magnetic obstacle. unit: nT.<br>10: id: the id from either the ICMECAT or HIGeoCAT, allowing to look up the event directly in these other catalogs. <br><br><br></p><table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th></th>
@@ -586,32 +586,6 @@
       <td>12.5</td>
       <td>-10.2</td>
       <td>ICME_STEREO_A_MOESTL_20210406_01</td>
-    </tr>
-    <tr>
-      <th>44</th>
-      <td>18</td>
-      <td>2021-04-10T18:08Z</td>
-      <td>HIA</td>
-      <td>0.967</td>
-      <td>-54.1</td>
-      <td>14</td>
-      <td>412</td>
-      <td>-</td>
-      <td>-</td>
-      <td>HCME_A__20210410_01</td>
-    </tr>
-    <tr>
-      <th>45</th>
-      <td>18</td>
-      <td>2021-04-15T03:16Z</td>
-      <td>Wind</td>
-      <td>0.995</td>
-      <td>0.2</td>
-      <td>-</td>
-      <td>382</td>
-      <td>10.6</td>
-      <td>6.3</td>
-      <td>ICME_Wind_MOESTL_20210415_01</td>
     </tr>
   </tbody>
 </table>
