@@ -17,13 +17,13 @@
 # https://figshare.com/articles/dataset/Arrival_catalog_of_coronal_mass_ejections_observed_with_STEREO_Heliospheric_Imagers_HELCATS_ARRCAT_2_0_/12271292
 # 
 
-# In[17]:
+# In[1]:
 
 
 last_update='2021-Aug-23'
 
 
-# In[2]:
+# In[ ]:
 
 
 import numpy as np
@@ -90,7 +90,7 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[3]:
+# In[ ]:
 
 
 from heliocats import cats as hc
@@ -152,7 +152,7 @@ ac
 
 # #### save header
 
-# In[4]:
+# In[ ]:
 
 
 #save header and parameters as text file and prepare for html website
