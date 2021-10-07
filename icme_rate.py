@@ -2062,7 +2062,7 @@ plt.tight_layout()
 plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions_shiftmax.png', dpi=100)
 
 
-# In[61]:
+# In[80]:
 
 
 
@@ -2087,6 +2087,15 @@ ax1 = plt.subplot(111)
 ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.4,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
 #ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
 ax1.plot(ssn_m.time,ssn_m.spot,'-k',alpha=1,linewidth=1.5,label='Observed sunspot number (SIDC, monthly mean)')
+
+
+
+#make pp19 begin time earlier
+import copy
+times_25_daily_shift=copy.deepcopy(times_25_daily)
+
+for i in np.arange(len(times_25_daily_shift)):
+    times_25_daily_shift[i]=times_25_daily_shift[i]-timedelta(days=6*30)
 
 #PP19 prediction
 ax1.plot(times_25_daily_shift,spots_predict_25pp_daily,'-b',alpha=1,linewidth=1.5,label='Prediction Panel NOAA/NASA/ISES shited -6 months')
@@ -2132,7 +2141,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short.png',dpi=100)
 plt.savefig(outputdirectory+'/cycle25_prediction_short.pdf')
 
 
-# In[56]:
+# In[81]:
 
 
 #with shortest interval
@@ -2163,12 +2172,6 @@ ax1.plot(ssn_p.time,ssn_p.spot,color='coral',alpha=0.9,linewidth=1.0,label='Obse
 #ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
 ax1.plot(ssn_m.time,ssn_m.spot,'-k',alpha=1,linewidth=2,label='Observed sunspot number (SIDC, monthly mean)')
 
-#make pp19 begin time earlier
-import copy
-times_25_daily_shift=copy.deepcopy(times_25_daily)
-
-for i in np.arange(len(times_25_daily_shift)):
-    times_25_daily_shift[i]=times_25_daily_shift[i]-timedelta(days=6*30)
     
 #PP19 prediction
 ax1.plot(times_25_daily,spots_predict_25pp_daily,color='deepskyblue',alpha=1,linewidth=2.5,label='Prediction Panel NOAA/NASA/ISES')
