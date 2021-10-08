@@ -45,7 +45,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[77]:
+# In[62]:
 
 
 #real time updates: icme_rate.py
@@ -2062,7 +2062,7 @@ plt.tight_layout()
 plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions_shiftmax.png', dpi=100)
 
 
-# In[80]:
+# In[59]:
 
 
 
@@ -2098,7 +2098,7 @@ for i in np.arange(len(times_25_daily_shift)):
     times_25_daily_shift[i]=times_25_daily_shift[i]-timedelta(days=6*30)
 
 #PP19 prediction
-ax1.plot(times_25_daily_shift,spots_predict_25pp_daily,'-b',alpha=1,linewidth=1.5,label='Prediction Panel NOAA/NASA/ISES shited -6 months')
+ax1.plot(times_25_daily_shift,spots_predict_25pp_daily,'-b',alpha=1,linewidth=1.5,label='Prediction Panel NOAA/NASA/ISES shifted -6 months')
 ax1.fill_between(times_25_daily_shift,spots_predict_25pp_daily_low,spots_predict_25pp_daily_high,alpha=0.2)
 
 #MC20 prediction
@@ -2130,7 +2130,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction.png',dpi=100)
 #with shorter interval
 
 
-plt.legend(loc='upper right',fontsize=12)
+plt.legend(loc='upper right',fontsize=13)
 ax1.set_xlim(datetime.datetime(1975,1,1),datetime.datetime(2033,1,1))
 ax1.set_ylim(0,400)
 years = mdates.YearLocator(5)   # every year
@@ -2141,7 +2141,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short.png',dpi=100)
 plt.savefig(outputdirectory+'/cycle25_prediction_short.pdf')
 
 
-# In[81]:
+# In[60]:
 
 
 #with shortest interval
@@ -2203,6 +2203,7 @@ ax1.set_ylabel('Sunspot number')
 
 
 plt.legend(loc='upper left',fontsize=12)
+plt.annotate('C. Möstl  helioforecast.space/solarcycle',xy=(0.995,0.02),xycoords='axes fraction',fontsize=9,ha='right')
 ax1.set_xlim(datetime.datetime(2019,1,1),datetime.datetime(2024,1,1))
 ax1.set_ylim(0,150)
 months = mdates.MonthLocator()   # every year
