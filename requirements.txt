@@ -1,9 +1,9 @@
 heliosat==0.4.9
 3DCORE==1.0.0
 sunpy==1.1.0
-spiceypy=3.0.2
+spiceypy==3.0.2
 heliopy==0.10.1
-pillow==8.2.0 
+pillow==8.3.2 
 cdflib==0.3.17
 pysftp==0.2.8
 aacgmv2==2.6.0
