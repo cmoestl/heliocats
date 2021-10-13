@@ -33,13 +33,13 @@
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
-# In[1]:
-
-
-last_update='2021-September-13'
-
-
 # In[2]:
+
+
+last_update='2021-October-20'
+
+
+# In[3]:
 
 
 import numpy as np
@@ -141,8 +141,8 @@ print(heliosat.__version__)
 ################### FIELDS
 #generate datestrings for filenames
 time1=[]
-tstart1=datetime.datetime(2021, 1, 1)
-tend1=datetime.datetime(2021, 6, 1)
+tstart1=datetime.datetime(2021, 3, 30)
+tend1=datetime.datetime(2021, 10, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -163,7 +163,7 @@ os.chdir('/home/cmoestl/pycode/heliocats')
 ############# SWEAP
 
 time1=[]
-tstart1=datetime.datetime(2020, 10, 16)
+tstart1=datetime.datetime(2021, 3, 30)
 tend1=datetime.datetime(2021, 6, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
@@ -537,7 +537,7 @@ if load_data > 0:
    
     ##############################################
     print('load Solar Orbiter SCEQ')
-    filesolo='solo_2020_april_2021_april_sceq.p'
+    filesolo='solo_2020_april_2021_may_sceq.p'
     solo=pickle.load(open(data_path+filesolo, "rb" ) )    
     #set all plasma data to NaN
     solo.vt=np.nan
@@ -923,7 +923,7 @@ plt.ion()
 
 # ## (3) make ICMECAT 
 
-# In[19]:
+# In[8]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -958,6 +958,7 @@ beci=np.where(ic.sc_insitu == 'BepiColombo')[:][0]
 #os.system('rm icmecat/indices_icmecat/ICMECAT_indices_BepiColombo.p')
 #os.system('rm icmecat/indices_icmecat/ICMECAT_indices_SolarOrbiter.p')
 #os.system('rm icmecat/indices_icmecat/ICMECAT_indices_PSP.p')
+
 #os.system('rm icmecat/indices_icmecat/ICMECAT_indices_MAVEN.p')
 
 #os.system('rm icmecat/indices_icmecat/ICMECAT_indices_STEREO-B.p')
@@ -998,6 +999,7 @@ importlib.reload(hp) #reload again while debugging
 #hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
 #hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 #hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
+
 #hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 #finished missions
@@ -1024,7 +1026,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[20]:
+# In[9]:
 
 
 #save header and parameters as text file and prepare for html website
