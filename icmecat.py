@@ -33,13 +33,13 @@
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
-# In[2]:
+# In[4]:
 
 
-last_update='2021-October-20'
+last_update='2021-November-5'
 
 
-# In[3]:
+# In[5]:
 
 
 import numpy as np
@@ -135,7 +135,7 @@ print(heliosat.__version__)
 
 # ## Parker Solar Probe
 
-# In[ ]:
+# In[3]:
 
 
 ################### FIELDS
@@ -164,7 +164,7 @@ os.chdir('/home/cmoestl/pycode/heliocats')
 
 time1=[]
 tstart1=datetime.datetime(2021, 3, 30)
-tend1=datetime.datetime(2021, 6, 1)
+tend1=datetime.datetime(2021, 10, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -180,21 +180,21 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[2]:
+# In[8]:
 
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
-#print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
+print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
 #+**change end date in function
-#filepsp='psp_2018_2021_rtn_new.p'
-#hd.save_psp_data(data_path,filepsp, sceq=False)   
-#print('rtn done')
+filepsp='psp_2018_2021_rtn_new.p'
+hd.save_psp_data(data_path,filepsp, sceq=False)   
+print('rtn done')
 
-#filepsp='psp_2018_2021_sceq_new.p'
-#hd.save_psp_data(data_path,filepsp, sceq=True)   
-#print('sceq done')
+filepsp='psp_2018_2021_sceq_new.p'
+hd.save_psp_data(data_path,filepsp, sceq=True)   
+print('sceq done')
 
 print('load PSP data RTN') 
 filepsp='psp_2018_2021_rtn_new.p'
@@ -202,7 +202,7 @@ filepsp='psp_2018_2021_rtn_new.p'
     
 
 start=datetime.datetime(2018,10,1)
-end=datetime.datetime(2021,5,31)
+end=datetime.datetime(2021,6,30)
 
 
 ################ plot new psp data for checking
