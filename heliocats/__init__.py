@@ -3,5 +3,5 @@
 __author__ = "Christian Moestl"
 __copyright__ = "Copyright (C) 2019 Christian Moestl"
 __license__ = "MIT"
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 
