@@ -6,7 +6,7 @@ This package contains codes used for the creation of catalogs of interplanetary 
 
 **Authors**: [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/), A. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow, D. Stansby.
 
-Current status (July 2020): **work in progress** 
+Current status (October 2021): **work in progress** 
 
 This is a continuation of work done in the EU HELCATS project (2014-2017): 
 [https://www.helcats-fp7.eu](https://www.helcats-fp7.eu). This package is used for updates of the the Interplanetary Coronal Mass ejection CATalog (ICMECAT).
