@@ -33,13 +33,13 @@
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
-# In[4]:
+# In[1]:
 
 
 last_update='2021-November-5'
 
 
-# In[5]:
+# In[2]:
 
 
 import numpy as np
@@ -180,29 +180,37 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[8]:
+# In[24]:
 
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
-print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
+#print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
 #+**change end date in function
-filepsp='psp_2018_2021_rtn_new.p'
-hd.save_psp_data(data_path,filepsp, sceq=False)   
-print('rtn done')
+#filepsp='psp_2018_2021_rtn_new.p'
+#hd.save_psp_data(data_path,filepsp, sceq=False)   
+#print('rtn done')
 
-filepsp='psp_2018_2021_sceq_new.p'
-hd.save_psp_data(data_path,filepsp, sceq=True)   
-print('sceq done')
+#filepsp='psp_2018_2021_sceq_new.p'
+#hd.save_psp_data(data_path,filepsp, sceq=True)   
+#print('sceq done')
 
 print('load PSP data RTN') 
 filepsp='psp_2018_2021_rtn_new.p'
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
 
-start=datetime.datetime(2018,10,1)
-end=datetime.datetime(2021,6,30)
+#start=datetime.datetime(2018,10,1)
+#end=datetime.datetime(2021,6,30)
+
+start=datetime.datetime(2021,4,25)
+end=datetime.datetime(2021,5,3)
+
+
+#start=datetime.datetime(2021,4,29)
+#end=datetime.datetime(2021,4,30)
+
 
 
 ################ plot new psp data for checking
@@ -219,9 +227,13 @@ ax1=plt.subplot(211)
 # #ax1.plot(psp.time,psp.bz,'-b',lw=0.2,label='Bn')
 
 ax1.plot(psp.time,psp.bt,'-k',lw=1,label='Btotal')
-#ax1.plot(psp.time,psp.bx,'-r',lw=1,label='Br')
-#ax1.plot(psp.time,psp.by,'-g',lw=1,label='Bt')
-#ax1.plot(psp.time,psp.bz,'-b',lw=1,label='Bn')
+ax1.plot(psp.time,psp.bx,'-r',lw=1,label='Br')
+ax1.plot(psp.time,psp.by,'-g',lw=1,label='Bt')
+ax1.plot(psp.time,psp.bz,'-b',lw=1,label='Bn')
+
+
+#ax1.plot(psp.time,psp.vt,'--',lw=1,label='Vt')
+
 
 ax1.set_xlim(start,end)
 ax1.set_ylabel('FIELDS magnetic field [nT]')
@@ -231,14 +243,18 @@ ax1.legend(loc=2)
 
 ax2=plt.subplot(212,sharex=ax1)
 ax2.plot(psp.time,psp.r,'-b')
-ax2.set_ylim(0,1)
+ax2.set_ylim(0.07,0.08)
 
 ax2.set_ylabel('Heliocentric distance [AU]')
 
+ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
+ax2.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
+
+plt.title('Parker Solar Probe orbit Nr. 8, April / May 2021')
 plt.tight_layout()
 
 # plt.savefig('results/parker_orbit_venus.png',dpi=200)
-plt.savefig('results/parker_allorbits.png')
+plt.savefig('results/parker_orbit8.png')
 #plt.savefig('results/parker_icme.pdf')
 
 
