@@ -39,7 +39,7 @@
 last_update='2021-November-5'
 
 
-# In[2]:
+# In[1]:
 
 
 import numpy as np
@@ -547,14 +547,45 @@ if load_data > 0:
     rad=hd.load_msl_rad()#, rad.time,rad.dose_sol
     
     ##############################################
+    #data to 2021 Aug 2
     print('load Bepi Colombo SCEQ')
     filebepi='bepi_2019_2021_sceq.p'
-    bepi=pickle.load(open(data_path+filebepi, "rb" ) )      
+    bepi1=pickle.load(open(data_path+filebepi, "rb" ) )  
+    
+    #data from 2021 Aug 3
+
+    filebepi2='bepi_2021_aug_2021_nov_sceq.p'
+    bepi2=pickle.load(open(data_path+filebepi, "rb" ) )   
+
+    
+    #make array
+    bepi=np.zeros(np.size(bepi1.time)+np.size(bepi2.time),dtype=[('time',object),('bx', float),('by', float),                ('bz', float),('bt', float),                ('x', float),('y', float),('z', float),                ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    bepi = bepi.view(np.recarray)  
+    bepi.time=np.hstack((bepi1.time,bepi2.time))
+    bepi.bx=np.hstack((bepi1.bx,bepi2.bx))
+    bepi.by=np.hstack((bepi1.by,bepi2.by))
+    bepi.bz=np.hstack((bepi1.bz,bepi2.bz))
+    bepi.bt=np.hstack((bepi1.bt,bepi2.bt))
+    bepi.x=np.hstack((bepi1.x,bepi2.x))
+    bepi.y=np.hstack((bepi1.y,bepi2.y))
+    bepi.z=np.hstack((bepi1.z,bepi2.z))
+    bepi.r=np.hstack((bepi1.r,bepi2.r))
+    bepi.lon=np.hstack((bepi1.lon,bepi2.lon))
+    bepi.lat=np.hstack((bepi1.lat,bepi2.lat))
+    print('Bepi Merging done')
+
+  
+    
+    
+    
    
     ##############################################
     print('load Solar Orbiter SCEQ')
-    filesolo='solo_2020_april_2021_may_sceq.p'
+    filesolo='solo_2020_april_2021_sep_sceq.p'
     solo=pickle.load(open(data_path+filesolo, "rb" ) )    
+    
     #set all plasma data to NaN
     solo.vt=np.nan
     solo.np=np.nan

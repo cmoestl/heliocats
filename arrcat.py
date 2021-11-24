@@ -17,13 +17,13 @@
 # https://figshare.com/articles/dataset/Arrival_catalog_of_coronal_mass_ejections_observed_with_STEREO_Heliospheric_Imagers_HELCATS_ARRCAT_2_0_/12271292
 # 
 
-# In[17]:
+# In[1]:
 
 
-last_update='2021-Oct-1'
+last_update='2021-De'
 
 
-# In[18]:
+# In[2]:
 
 
 import numpy as np
@@ -90,7 +90,7 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[ ]:
+# In[3]:
 
 
 from heliocats import cats as hc
@@ -152,7 +152,7 @@ ac
 
 # #### save header
 
-# In[ ]:
+# In[4]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -182,7 +182,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[ ]:
+# In[5]:
 
 
 ########## python formats
@@ -359,7 +359,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[ ]:
+# In[6]:
 
 
 #load arrcat as pandas dataframe
@@ -379,33 +379,33 @@ ac5 = f['arrcat']
 ac5['sse_launch_time']
 
 
-# In[ ]:
+# In[7]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[ ]:
+# In[8]:
 
 
 ac
 
 
-# In[ ]:
+# In[9]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[ ]:
+# In[10]:
 
 
 ac_struct
 
 
-# In[ ]:
+# In[11]:
 
 
 ac_struct['id']
@@ -418,7 +418,7 @@ print(deltata)
 
 # ### plot directions and targets
 
-# In[ ]:
+# In[12]:
 
 
 
@@ -488,7 +488,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[ ]:
+# In[13]:
 
 
 fig=plt.figure(2, figsize=(18,8), dpi=100)
@@ -523,7 +523,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[ ]:
+# In[14]:
 
 
 '''
@@ -551,7 +551,7 @@ hibi=np.where(ac.sc=='B')[0]
 
 
 
-# In[ ]:
+# In[15]:
 
 
 last_year=2022
