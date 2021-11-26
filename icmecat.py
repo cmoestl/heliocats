@@ -10,7 +10,7 @@
 # **Author**: C. Möstl, IWF Graz, Austria
 # https://twitter.com/chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# **latest release: version 2.0, 2020 June 3, updated 2021 Aug 23, doi: 10.6084/m9.figshare.6356420**
+# **latest release: version 2.0, 2020 June 3, updated 2021 November 29, doi: 10.6084/m9.figshare.6356420**
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -21,7 +21,7 @@
 # 
 # 
 # **Updating data**
-# - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files, then use read_solo.ipynb; currently ends 2021-04-30
+# - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files, then use read_solo.ipynb
 # - Bepi Colombo manual download, then read_bepi.ipynb
 # - PSP use cell in this notebook, beware of unfinished file downloads - redo!
 # - STEREO-Ahead prel. PLASTIC ASCII files, IMPACT as usual (via heliosat), beacon data automatic every day
@@ -36,10 +36,10 @@
 # In[1]:
 
 
-last_update='2021-November-5'
+last_update='2021-November-30'
 
 
-# In[1]:
+# In[2]:
 
 
 import numpy as np
@@ -474,7 +474,7 @@ plt.savefig('results/parker_orbit8.png')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[4]:
+# In[3]:
 
 
 load_data=1
@@ -555,7 +555,7 @@ if load_data > 0:
     #data from 2021 Aug 3
 
     filebepi2='bepi_2021_aug_2021_nov_sceq.p'
-    bepi2=pickle.load(open(data_path+filebepi, "rb" ) )   
+    bepi2=pickle.load(open(data_path+filebepi2, "rb" ) )   
 
     
     #make array
@@ -721,7 +721,7 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning 
 
-# In[25]:
+# In[5]:
 
 
 # save data as numpy structured arrays for machine learning
@@ -772,7 +772,7 @@ if data_to_numpy_1 > 0:
     
     ###################################### UPDATED
 
-data_to_numpy_2=0 
+data_to_numpy_2=1 
 
 
 if data_to_numpy_2 > 0:  
@@ -786,23 +786,27 @@ if data_to_numpy_2 > 0:
     pickle.dump([sta_nd,hsta_att], open(data_path_ML+ "stereoa_2007_2021_sceq_ndarray.p", "wb" ) )
     
     
-    print('BepiColombo')
-    hbepi_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),    (bz, SCEQ  [nT], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
+    #print('BepiColombo')
+    #hbepi_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),\
+    #(bz, SCEQ  [nT], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),\
+    #(z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
     #make new array
-    bepi_nd=np.zeros(np.size(bepi),dtype=[('time',object),('bt', '<f8'),('bx', '<f8'),                ('by', float),('bz', '<f8'),('x', '<f8'),('y', '<f8'),                ('z', float),('r', '<f8'),('lat', '<f8'),('lon', '<f8')])   
-    bepi_nd['time']=bepi.time
-    bepi_nd['bt']=bepi.bt
-    bepi_nd['bx']=bepi.bx
-    bepi_nd['by']=bepi.by
-    bepi_nd['bz']=bepi.bz
-    bepi_nd['x']=bepi.x
-    bepi_nd['y']=bepi.y
-    bepi_nd['z']=bepi.z
-    bepi_nd['r']=bepi.r
-    bepi_nd['lat']=bepi.lat
-    bepi_nd['lon']=bepi.lon
+    #bepi_nd=np.zeros(np.size(bepi),dtype=[('time',object),('bt', '<f8'),('bx', '<f8'),\
+    #            ('by', float),('bz', '<f8'),('x', '<f8'),('y', '<f8'),\
+    #            ('z', float),('r', '<f8'),('lat', '<f8'),('lon', '<f8')])   
+    #bepi_nd['time']=bepi.time
+    #bepi_nd['bt']=bepi.bt
+    #bepi_nd['bx']=bepi.bx
+    #bepi_nd['by']=bepi.by
+    #bepi_nd['bz']=bepi.bz
+    #bepi_nd['x']=bepi.x
+    #bepi_nd['y']=bepi.y
+    #bepi_nd['z']=bepi.z
+    #bepi_nd['r']=bepi.r
+    #bepi_nd['lat']=bepi.lat
+    #bepi_nd['lon']=bepi.lon
     
-    pickle.dump([bepi_nd,hbepi_att], open(data_path_ML+ "bepi_2019_2021_sceq_ndarray.p", "wb" ) )
+    #pickle.dump([bepi_nd,hbepi_att], open(data_path_ML+ "bepi_2019_2021_sceq_ndarray.p", "wb" ) )
     
         
   
