@@ -225,8 +225,7 @@ def save_stereoa_science_data(path,file,t_start, t_end,sceq):
     
     #2020 PLASTIC download manually
     #https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2020/
-    
-        
+            
     sta_impact_path='/nas/helio/data/heliosat/data/sta_impact_l1/'
     sta_plastic_path='/nas/helio/data/heliosat/data/sta_plastic_l2_ascii/'
 
