@@ -390,6 +390,7 @@ plt.savefig('results/parker_orbit8.png')
 
 
 
+
 ########################### STEREO-A science data after December 2019, ascii plastic files
 # start=datetime.datetime(2020, 1,1)
 # end=datetime.datetime(2020, 5, 1)
@@ -974,7 +975,7 @@ plt.ion()
 
 # ## (3) make ICMECAT 
 
-# In[25]:
+# In[6]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -1023,7 +1024,7 @@ beci=np.where(ic.sc_insitu == 'BepiColombo')[:][0]
 ic=hc.get_cat_parameters(bepi,beci,ic,'BepiColombo')
 ic=hc.get_cat_parameters(solo,soli,ic,'SolarOrbiter')
 ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
-ic=hc.get_cat_parameters(win,wini,ic,'Wind') ##### ***** to do add events
+ic=hc.get_cat_parameters(win,wini,ic,'Wind') 
 ic=hc.get_cat_parameters(sta,stai,ic,'STEREO-A')
 ic=hc.get_cat_parameters(mav,mavi,ic,'MAVEN')
 
@@ -1077,7 +1078,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[26]:
+# In[7]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -1113,7 +1114,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[9]:
+# In[8]:
 
 
 ########## python formats
@@ -1289,7 +1290,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[10]:
+# In[9]:
 
 
 #load icmecat as pandas dataframe
@@ -1301,19 +1302,19 @@ file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[11]:
+# In[10]:
 
 
 print(ic_pandas.keys())
 
 
-# In[12]:
+# In[11]:
 
 
 ic_nprec
 
 
-# In[13]:
+# In[12]:
 
 
 ic_nprec.icmecat_id
@@ -1321,7 +1322,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[14]:
+# In[13]:
 
 
 ic=ic_pandas
@@ -1430,7 +1431,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[22]:
+# In[14]:
 
 
 #markersize
@@ -1475,7 +1476,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[19]:
+# In[15]:
 
 
 #make distribution plots
