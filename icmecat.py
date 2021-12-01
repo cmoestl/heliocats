@@ -39,7 +39,7 @@
 last_update='2021-November-29'
 
 
-# In[2]:
+# In[3]:
 
 
 import numpy as np
@@ -135,7 +135,7 @@ print(heliosat.__version__)
 
 # ## Parker Solar Probe
 
-# In[3]:
+# In[2]:
 
 
 ################### FIELDS
@@ -840,6 +840,142 @@ if data_to_numpy_2 > 0:
     print('done')
 
 
+# ### UPDATE Wind data for whole dataset
+
+# In[81]:
+
+
+#if necessary, read Wind ICME catalog copied into text file: 
+
+#********+ load /data/wind_mc_cat/wind_mc_cat.txt
+wind_mc_cat='data/wind_mc_cat/wind_mc_cat.txt'
+
+
+cat=np.genfromtxt(wind_mc_cat)
+
+file1 = open(wind_mc_cat, 'r')
+lines = file1.readlines()
+
+for i in np.arange(0,len(lines)):
+    t1=lines[i][0:16]
+    t2=lines[i][19:36]
+    t3=lines[i][39:56])
+    print('----')
+    
+    
+    
+    
+    
+
+#************
+
+
+
+
+# In[50]:
+
+
+wind_data_path='/nas/helio/data/Wind/mfi_1min_ascii/'
+file='199507_wind_mag_1min.asc'
+mfi=np.genfromtxt(wind_data_path+file)
+
+wind_data_path='/nas/helio/data/Wind/swe_92sec_ascii/'
+file='wind_kp_unspike2006.txt'
+swe=np.genfromtxt(wind_data_path+file)
+
+
+# In[ ]:
+
+
+#read all wind mfi data as ascii
+
+wind_years_strings=[]
+for j in np.arange(1994,2022):
+    wind_years_strings.append(str(j))
+
+
+wind_data_path='/nas/helio/data/Wind/mfi_1min_ascii'
+os.chdir(wind_data_path)
+
+
+
+mfi_url='https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/'
+
+for i in np.arange(0,len(wind_years_strings)):    
+
+    for k in np.arange(1,12):    
+        
+        a=str(k).zfill(2) #add leading zeros
+        
+        os.system('wget -nc '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') #199504_wind_mag_1min.asc	
+    
+os.chdir('/home/cmoestl/pycode/heliocats')
+
+# 1   Year            I4
+# 2   Month           I3      01-12
+# 3   Day             I3      01-31
+# 4   Hour            I3      00-23
+# 5   Min             I3      at midpoint of average; typically 30                       
+	
+# 6   Bx,GSE          F10.3   nT  (same as Bx,GSM)
+# 7   By,GSE          F10.3   nT
+# 8   Bz,GSE          F10.3   nT
+# 9   By,GSM          F10.3   nT
+#10   Bz,GSM          F10.3   nT
+#11   Bt              F10.3   nT, average of finer scale magnitudes
+#12   RMS,Bx,GSE      F9.3    nT, rms standard deviation of Bx,GSE
+#13   RMS,By,GSM      F9.3    nT
+#14   RMS,Bz,GSM      F9.3    nT
+#15   RMS,Bt          F9.3    nT
+#16   number_fts_pts  I6      number of fine scale points in average
+#17   Rx,GSE          F9.3    Re, GSE X component of Wind position vector
+#18   Ry,GSE          F9.3    Re, Re = Earth radii
+#19   Rz,GSE          F9.3    Re
+#20   Ry,GSM          F9.3    Re
+#21   Rz,GSM          F9.3    Re
+
+
+
+#plasma ascii data
+
+wind_years_strings=[]
+for j in np.arange(1995,2022):
+    wind_years_strings.append(str(j))
+
+
+wind_data_path='/nas/helio/data/Wind/swe_92sec_ascii'
+os.chdir(wind_data_path)
+
+swe_url='https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/'
+
+for i in np.arange(0,len(wind_years_strings)):    
+
+        os.system('wget -nc '+swe_url+'wind_kp_unspike'+wind_years_strings[i]+'.txt')
+        
+os.chdir('/home/cmoestl/pycode/heliocats')
+
+
+#Wd Format  Fill values      Parameters
+# 1  I5     9999             Year
+# 2  F12.6  99999.9999999    Decimal Day (day.fractionofday)
+# 3  F8.1   99999.9          Flow Speed, km/s
+# 4  F8.1   99999.9          Vx, GSE, km/s, flow velocity component
+# 5  F8.1   99999.9          Vy, GSE, km/s
+# 6  F8.1   99999.9          Vz, GSE, km/s
+# 7  F9.0   9999999.         Proton Temperature, K.
+# 8  F7.2   999.99           Proton Density, n/cc
+# 9  F6.3   9.999            Alpha/protom ratio (all fill) 
+#10  F8.2   9999.99          X, GSE,Re, spacecraft position vector
+#11  F8.2   9999.99          Y, GSE,Re
+#12  F8.2   9999.99          Z, GSE,Re
+
+
+# In[4]:
+
+
+
+
+
 # ## (2) measure new events 
 
 # In[6]:
@@ -975,7 +1111,7 @@ plt.ion()
 
 # ## (3) make ICMECAT 
 
-# In[6]:
+# In[7]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -985,7 +1121,7 @@ print('data loaded')
 from heliocats import cats as hc
 importlib.reload(hc) #reload again while debugging
 
-ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELCATS_ICMECAT_v20_master.xlsx')
+ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v20_master.xlsx')
 
 
 ####### 3a get indices for all spacecraft
@@ -1078,11 +1214,11 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[7]:
+# In[38]:
 
 
 #save header and parameters as text file and prepare for html website
-header='ICME CATALOGUE v2.0 \n\nThis is the HELCATS interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. \n\nThis is version 2.0, released 2020-Jun-03, updated '+last_update+', doi: 10.6084/m9.figshare.6356420 \n\nRules: If results are produced with this catalog for peer-reviewed scientific publications, please contact christian.moestl@oeaw.ac.at for possible co-authorship. \nReferences for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017SW001614) and Moestl et al. 2020 (https://doi.org/10.3847/1538-4357/abb9a1).  \n\nThe catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at \nhttps://helioforecast.space/icmecat \n\nNumber of events in ICMECAT: '+str(len(ic))+' \nICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   \nTime range: January 2007 - November 2021. \n \nAuthors: Christian Moestl, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, \nSpace Research Institute, Austrian Academy of Sciences, Graz, Austria.\nContributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, \nVratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, \nJohan von Forstner, Mateja Dumbovic, Benoit Lavraud.  \n\nThis catalog has been made by getting the 3 times of each ICME (shock or disturbance begin, magnetic obstacle start and end) \nfrom the individual catalogs below, and then calculating all parameters again consistently from the data by us. \nThe selection criteria are relatively simple: the event needs to have a clearly organized large-scale magnetic structure,\n which manifests itself through (1) an elevated total magnetic field and (2) a rotation in the field observed through the field components. \n\nThe in situ data that were used for the catalog, with a size of 8 GB in total, including extra data files with magnetic field components \nin RTN coordinates that are not used for producing the catalog, can be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693 \n\nThe python source code for producing this catalog is available at https://github.com/cmoestl/heliocats icmecat.ipynb\n\nEach event has unique identifier - the icmecat_id - which has a tag in it that indicates from which catalog the ICME times were taken: \n\nWind:         Nieves-Chinchilla et al. (2018), tag: NASA. \nSTEREO-A:     Jian et al. (2018), tag: JIAN. \nSTEREO-B:     Jian et al. (2018), tag: JIAN. \nVEX:          Good et al. (2018), tag: SGOOD \nMESSENGER:    Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW. \nMAVEN:        Made by us according to the method in the comments, tag: MOESTL.\nUlysses:      Added by us, tag: MOESTL. \nSolarOrbiter: Added by us, tag: MOESTL. \nBepiColomo:   Added by us, tag: MOESTL. \nPSP:          Added by us, tag: MOESTL. \n\nWe have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL in icmecat_id).\n\nReferences: \nNieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z \n                                      https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php \nJian, L. et al. (2018), https://doi.org/10.3847/1538-4357/aab189 \n                        https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/ \nGood, S. et al. (2018) https://doi.org/10.1007/s11207-015-0828-3 \nWinslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 \n\n\nComments: \n\n- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n\n- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth) and Ulysses (RTN, because of high latitude positions) and MAVEN (MSO). \n        Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n        Z is the solar rotation axis. \n        Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.\n        X completes the right handed triad (and points away from the Sun). \nThis system is thus like HEEQ but centered on the respective in situ spacecraft, so the SCEQ X and Y \nbase vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\nThe Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \nare rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \na few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).\nWe choose SCEQ for the advantage that a comparison of the data of multipoint CME events \nand comparisons to simulations are simpler because there is always a similar reference plane (the solar equatorial plane).\n\n- Venus Express and MESSENGER do not have plasma parameters available. For events that do not have plasma parameters at Solar Orbiter or PSP, they may become available in the future.\n\n- If there is no sheath or density pileup region, so the ICME starts immediately with a magnetic obstacle, the icme_start_time is similar to mo_start_time.\n\n- At MESSENGER and VEX, for events cataloged by Simon Good, icme_start_time has been added by V. Krupar (Imperial College) and C. Moestl (IWF Graz). \n\n- For the calculation of the parameters at MESSENGER during the orbit around Mercury, all data points inside the bowshock of Mercury have been removed, \naccording to a list thankfully provided to us by by R. Winslow, UNH, B. Anderson, APL, and Lydia Philpott, UBC. \n\n- Calculation of the magnetic obstacle parameters at VEX is done after approximate removal of the induced magnetosphere, with a modified equation as in \nZhang et al. 2008 (doi: 10.1016/j.pss.2007.09.012), with a constant of 3.5 instead of 2.14/2.364, \nin order to account for a larger bowshock distance during solar maximum than studied in the Zhang et al. (2008) paper. \n\n- For MAVEN, all data inside the bow shock were removed with the model from Gruesbeck et al. (2018, doi:10.1029/2018JA025366) by C. Simon Wedlund (IWF Graz, Austria). \nFrom the remaining data, the median for each orbit is taken as 1 data point, resulting in a solar wind \ndataset at Mars with 4.5 hour time resolution. This is a far lower resolution than available at 1 AU, so the identification \nof ICMEs in the MAVEN data is not as straightforward as for data sets with higher time resolution.\n\n- The identification of ICMEs for MAVEN was done as follows: (1) We looked for typical profiles for ICMEs in magnetic field (B) and speed (V).\n(2) B needs to be elevated in ICMEs accompanied by a flat or declining profile in V. An elevation in B accompanied by a later gradual rise \nin V is a strong indicator for a high speed stream (HSS). (3) The discrimination between HSS and ICMEs was further strengthened with \nthe help of a stream interaction region list for MAVEN by Huang et al. (2019, doi: 10.3847/1538-4357/ab25e9). \n(4) We additionally plotted the predicted CME arrivals with STEREO/HI (ARRCATv2.0), the dose rate measured on the Mars surface \nby MSL/RAD (e.g. Guo et al. (2018, doi: 10.1051/0004-6361/201732087)) and the speed of the WSA/HUX model for the \nbackground solar wind (Reiss et al. 2019, doi: 10.3847/1538-4365/aaf8b3). \nGeneral guidance on space weather observed by MAVEN can be found in Lee et al. (2018, doi:10.1002/2016JA023495).\n\n\n\n'
+header='ICME CATALOGUE v2.1 \n\nThis is the HELIO4CAST interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. \n\nThis is version 2.1, released '+last_update+', doi: 10.6084/m9.figshare.6356420 \n\nRules: If results are produced with this catalog for peer-reviewed scientific publications, please contact christian.moestl@oeaw.ac.at for possible co-authorship. \nReferences for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017SW001614) and Moestl et al. 2020 (https://doi.org/10.3847/1538-4357/abb9a1).  \n\nThe catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at \nhttps://helioforecast.space/icmecat \n\nNumber of events in ICMECAT: '+str(len(ic))+' \nICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   \nTime range: January 2007 - November 2021. \n \nAuthors: Christian Moestl, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, \nSpace Research Institute, Austrian Academy of Sciences, Graz, Austria.\nContributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, \nVratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, \nJohan von Forstner, Mateja Dumbovic, Benoit Lavraud.  \n\nThis catalog has been made by getting the 3 times of each ICME (shock or disturbance begin, magnetic obstacle start and end) \nfrom the individual catalogs below, and then calculating all parameters again consistently from the data by us. \nThe selection criteria are relatively simple: the event needs to have a clearly organized large-scale magnetic structure,\n which manifests itself through (1) an elevated total magnetic field and (2) a rotation in the field observed through the field components. \n\nThe in situ data that were used for the catalog, with a size of 8 GB in total, including extra data files with magnetic field components \nin RTN coordinates that are not used for producing the catalog, can be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693 \n\nThe python source code for producing this catalog is available at https://github.com/cmoestl/heliocats icmecat.ipynb\n\nEach event has unique identifier - the icmecat_id - which has a tag in it that indicates from which catalog the ICME times were taken: \n\nWind:         Nieves-Chinchilla et al. (2018), tag: NASA. \nSTEREO-A:     Jian et al. (2018), tag: JIAN. \nSTEREO-B:     Jian et al. (2018), tag: JIAN. \nVEX:          Good et al. (2018), tag: SGOOD \nMESSENGER:    Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW. \nMAVEN:        Made by us according to the method in the comments, tag: MOESTL.\nUlysses:      Added by us, tag: MOESTL. \nSolarOrbiter: Added by us, tag: MOESTL. \nBepiColomo:   Added by us, tag: MOESTL. \nPSP:          Added by us, tag: MOESTL. \n\nWe have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL in icmecat_id).\n\nReferences: \nNieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z \n                                      https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php \nJian, L. et al. (2018), https://doi.org/10.3847/1538-4357/aab189 \n                        https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/ \nGood, S. et al. (2018) https://doi.org/10.1007/s11207-015-0828-3 \nWinslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 \n\n\nComments: \n\n- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n\n- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth) and Ulysses (RTN, because of high latitude positions) and MAVEN (MSO). \n        Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n        Z is the solar rotation axis. \n        Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.\n        X completes the right handed triad (and points away from the Sun). \nThis system is thus like HEEQ but centered on the respective in situ spacecraft, so the SCEQ X and Y \nbase vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\nThe Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \nare rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \na few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).\nWe choose SCEQ for the advantage that a comparison of the data of multipoint CME events \nand comparisons to simulations are simpler because there is always a similar reference plane (the solar equatorial plane).\n\n- Venus Express and MESSENGER do not have plasma parameters available. For events that do not have plasma parameters at Solar Orbiter or PSP, they may become available in the future.\n\n- If there is no sheath or density pileup region, so the ICME starts immediately with a magnetic obstacle, the icme_start_time is similar to mo_start_time.\n\n- At MESSENGER and VEX, for events cataloged by Simon Good, icme_start_time has been added by V. Krupar (Imperial College) and C. Moestl (IWF Graz). \n\n- For the calculation of the parameters at MESSENGER during the orbit around Mercury, all data points inside the bowshock of Mercury have been removed, \naccording to a list thankfully provided to us by by R. Winslow, UNH, B. Anderson, APL, and Lydia Philpott, UBC. \n\n- Calculation of the magnetic obstacle parameters at VEX is done after approximate removal of the induced magnetosphere, with a modified equation as in \nZhang et al. 2008 (doi: 10.1016/j.pss.2007.09.012), with a constant of 3.5 instead of 2.14/2.364, \nin order to account for a larger bowshock distance during solar maximum than studied in the Zhang et al. (2008) paper. \n\n- For MAVEN, all data inside the bow shock were removed with the model from Gruesbeck et al. (2018, doi:10.1029/2018JA025366) by C. Simon Wedlund (IWF Graz, Austria). \nFrom the remaining data, the median for each orbit is taken as 1 data point, resulting in a solar wind \ndataset at Mars with 4.5 hour time resolution. This is a far lower resolution than available at 1 AU, so the identification \nof ICMEs in the MAVEN data is not as straightforward as for data sets with higher time resolution.\n\n- The identification of ICMEs for MAVEN was done as follows: (1) We looked for typical profiles for ICMEs in magnetic field (B) and speed (V).\n(2) B needs to be elevated in ICMEs accompanied by a flat or declining profile in V. An elevation in B accompanied by a later gradual rise \nin V is a strong indicator for a high speed stream (HSS). (3) The discrimination between HSS and ICMEs was further strengthened with \nthe help of a stream interaction region list for MAVEN by Huang et al. (2019, doi: 10.3847/1538-4357/ab25e9). \n(4) We additionally plotted the predicted CME arrivals with STEREO/HI (ARRCATv2.0), the dose rate measured on the Mars surface \nby MSL/RAD (e.g. Guo et al. (2018, doi: 10.1051/0004-6361/201732087)) and the speed of the WSA/HUX model for the \nbackground solar wind (Reiss et al. 2019, doi: 10.3847/1538-4365/aaf8b3). \nGeneral guidance on space weather observed by MAVEN can be found in Lee et al. (2018, doi:10.1002/2016JA023495).\n\n\n\n'
 
 
 parameters='Parameters:\n00: icmecat_id: The unique identifier for the observed ICME. unit: string. \n01: sc insitu: The name of the in situ observing spacecraft. unit: string. \n02: icme_start_time: Shock arrival or density enhancement time, can be similar to mo_start_time. unit: UTC. \n03: mo_start_time: Start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. \n04: mo_end_time: End time of the magnetic obstacle. unit: UTC. \n05: mo_sc_heliodistance: Heliocentric distance of the spacecraft at mo_start_time. unit: AU.\n06: mo_sc_long_heeq: Heliospheric longitude of the spacecraft at mo_start_time, range [-180,180]. unit: degree (HEEQ).\n07: mo_sc_lat_heeq: Heliospheric latitude of the spacecraft at mo_start_time, range [-90,90]. unit: degree (HEEQ).\n08: icme_duration: Duration of the interval between icme_start_time and mo_endtime. unit: hours.\n09: icme_bmax: Maximum total magnetic field in the full icme interval (icme_start_time to mo_end_time). unit: nT.\n10: icme_bmean: Mean total magnetic field during the full icme interval (icme_start_time to mo_end_time). unit: nT.\n11: icme_bstd: Standard deviation of the total magnetic field from icme_start_time to mo_end_time. unit: nT.\n12: icme_speed_mean: Mean proton speed from icme_start_time to mo_end_time. unit: km/s.\n13: icme_speed_std: Standard deviation of proton speed from icme_start_time to mo_end_time. unit: km/s.\n14: mo_duration: Duration of the interval between mo_start_time and mo_endtime. unit: hours.\n15: mo_bmax: Maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.\n16: mo_bmean: Mean total magnetic field in the magnetic obstacle. unit: nT.\n17: mo_bstd: Standard deviation of the total magnetic field in the magnetic obstacle. unit: nT.\n18: mo_bzmean: Mean magnetic field Bz component in the magnetic obstacle. unit: nT.\n19: mo_bzmin: Minimum magnetic field Bz component in the magnetic obstacle. unit: nT.\n20: mo_bzstd: Standard deviation of the magnetic field Bz component in the magnetic obstacle. unit: nT.\n21: mo_bymean: Mean magnetic field By component in the magnetic obstacle. unit: nT.\n22: mo_bystd: Standard deviation of the magnetic field By component in the magnetic obstacle. unit: nT.\n23: mo_speed_mean: Mean proton speed from mo_start_time to mo_end_time. unit: km/s.\n24: mo_speed_std: Standard deviation of proton speed from mo_start_time to mo_end_time. unit: km/s.\n25: mo_expansion_speed: Difference between proton speed at mo_start_time to proton speed at mo_end_time. unit: km/s.\n26: mo_pdyn_mean: Mean proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.\n27: mo_pdyn_std: Standard deviation of proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.\n28: mo_density_mean: Mean proton density from mo_start_time to mo_start_time. unit: cm^-3.\n29: mo_density_std: Standard deviation of proton density from mo_start_time to mo_start_time. unit: cm^-3.\n30: mo_temperature_mean: Mean proton temperature from mo_start_time to mo_start_time. unit: K.\n31: mo_temperature_std: Standard deviation of proton temperature from mo_start_time to mo_end_time. unit: K.\n32: sheath_speed_mean: Mean proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.\n33: sheath_speed_std: Standard deviation of proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.\n34: sheath_density_mean: Mean proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.\n35: sheath_density_std: Standard deviation of proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.\n36: sheath_pdyn_mean: Mean proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.\n37: sheath_pdyn_std: Standard deviation of proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.\n\n\n'
@@ -1094,7 +1230,7 @@ print(parameters)
 
 
 #make header file
-file='icmecat/HELCATS_ICMECAT_v20_header.txt'
+file='icmecat/HELIO4CAST_ICMECAT_v21_header.txt'
 with open(file, "w") as text_file:
     text_file.write(header)
     text_file.write(parameters)
@@ -1114,13 +1250,13 @@ print()
 
 # ### 4b save into different formats
 
-# In[8]:
+# In[40]:
 
 
 ########## python formats
 
 # save ICMECAT as pandas dataframe with times as datetime objects as pickle
-file='icmecat/HELCATS_ICMECAT_v20_pandas.p'
+file='icmecat/HELIO4CAST_ICMECAT_v21_pandas.p'
 pickle.dump([ic,header,parameters], open(file, 'wb'))
 print('ICMECAT saved as '+file)
 
@@ -1138,7 +1274,7 @@ ic_num_struct=np.array(ic_num_rec,dtype=dtype1)
 
 
 
-file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
+file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 pickle.dump([ic_num,ic_num_struct,header,parameters], open(file, 'wb'))
 print('ICMECAT saved as '+file)
 
@@ -1168,23 +1304,23 @@ for i in np.arange(len(ic)):
 
 
 #save as Excel
-file='icmecat/HELCATS_ICMECAT_v20.xlsx'
+file='icmecat/HELIO4CAST_ICMECAT_v21.xlsx'
 ic_copy.to_excel(file,sheet_name='ICMECATv2.0')
 print('ICMECAT saved as '+file)
 
 #save as json
-file='icmecat/HELCATS_ICMECAT_v20.json'
+file='icmecat/HELIO4CAST_ICMECAT_v21.json'
 ic_copy.to_json(file)
 print('ICMECAT saved as '+file)
 
 #save as csv
-file='icmecat/HELCATS_ICMECAT_v20.csv'
+file='icmecat/HELIO4CAST_ICMECAT_v21.csv'
 ic_copy.to_csv(file)
 print('ICMECAT saved as '+file)
 
 
 #save as txt
-file='icmecat/HELCATS_ICMECAT_v20.txt'
+file='icmecat/HELIO4CAST_ICMECAT_v21.txt'
 np.savetxt(file, ic_copy.values.astype(str), fmt='%s' )
 print('ICMECAT saved as '+file)
 
@@ -1201,7 +1337,7 @@ print('ICMECAT saved as '+file)
 #########save into hdf5 format , use S for strings http://docs.h5py.org/en/stable/strings.html#what-about-numpy-s-u-type
 dtype2=[('index','i8'),('icmecat_id', 'S30'),('sc_insitu', 'S20')] +[(i, '<f8') for i in ic.keys()[2:len(ic.keys())]]
 ich5=np.array(ic_num_rec,dtype=dtype2)
-file='icmecat/HELCATS_ICMECAT_v20.h5'
+file='icmecat/HELIO4CAST_ICMECAT_v21.h5'
 f=h5py.File(file,mode='w')
 f["icmecat"]= ich5
 #add attributes
@@ -1222,7 +1358,7 @@ f.close()
 
 
 #save as .npy without pickle
-file='icmecat/HELCATS_ICMECAT_v20_numpy.npy'
+file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.npy'
 np.save(file,ich5, allow_pickle=False)
 print('ICMECAT saved as '+file)
 
@@ -1258,20 +1394,20 @@ for i in np.arange(len(ic)):
 
 
 #save as json for webpage with different time format
-file='icmecat/HELCATS_ICMECAT_v20_isot.json'
+file='icmecat/HELIO4CAST_ICMECAT_v21_isot.json'
 ic_copy2.to_json(file)
 print('ICMECAT saved as '+file)
 
 
 #save as html no header
-file='icmecat/HELCATS_ICMECAT_v20_simple.html'
+file='icmecat/HELIO4CAST_ICMECAT_v21_simple.html'
 ic_copy.to_html(file)
 print('ICMECAT saved as '+file)
 
 
 ############ save as html file with header
 #save as html
-file='icmecat/HELCATS_ICMECAT_v20.html'
+file='icmecat/HELIO4CAST_ICMECAT_v21.html'
 #ic.to_html(file,justify='center')
 
 #ichtml='{% extends "_base.html" %} \n \n {% block content %} \n \n \n '
@@ -1290,31 +1426,31 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[9]:
+# In[41]:
 
 
 #load icmecat as pandas dataframe
-file='icmecat/HELCATS_ICMECAT_v20_pandas.p'
+file='icmecat/HELIO4CAST_ICMECAT_v21_pandas.p'
 [ic_pandas,h,p]=pickle.load( open(file, 'rb'))   
 
 #load icmecat as numpy array
-file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
+file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[10]:
+# In[42]:
 
 
 print(ic_pandas.keys())
 
 
-# In[11]:
+# In[43]:
 
 
 ic_nprec
 
 
-# In[12]:
+# In[44]:
 
 
 ic_nprec.icmecat_id
@@ -1322,7 +1458,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[13]:
+# In[45]:
 
 
 ic=ic_pandas
@@ -1431,7 +1567,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[14]:
+# In[46]:
 
 
 #markersize
@@ -1476,7 +1612,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[15]:
+# In[47]:
 
 
 #make distribution plots

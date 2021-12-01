@@ -102,6 +102,316 @@ def remove_wind_spikes_gaps(data):
 
 
 
+
+
+
+
+def save_wind_data_ascii(path,file,start_date,end_date,heeq):
+    
+    '''
+    description of data sources used in this function
+    
+    SWE 92 sec
+    https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike
+    
+    MFI 1 min    
+    https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike
+    
+    examples:
+    
+    https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/wind_kp_unspike1996.txt    
+    https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/201908_wind_mag_1min.asc
+    '''
+  
+    t_start = start_date
+    t_end = end_date
+    
+    #create an array with 1 minute resolution between t start and end
+    time = [ t_start + datetime.timedelta(minutes=2*n) for n in range(int ((t_end - t_start).days*30*24))]  
+    time_mat=mdates.date2num(time) 
+    
+    #print(parse_time(time[0:10]).iso)
+    
+    
+    
+    tm=parse_time(tm,format='unix').datetime 
+    tp=parse_time(tp,format='unix').datetime 
+   
+    
+    #print(parse_time(tm[0:10]).iso)
+    #print(parse_time(tp[0:10]).iso)
+    
+    tm=parse_time(tm).plot_date
+    tp=parse_time(tp).plot_date
+    
+    print('download complete')
+     
+    #linear interpolation to time_mat times    
+    bx = np.interp(time_mat, tm, mag[:,0] )
+    by = np.interp(time_mat, tm, mag[:,1] )
+    bz = np.interp(time_mat, tm, mag[:,2] )
+    bt = np.sqrt(bx**2+by**2+bz**2)
+        
+    den = np.interp(time_mat, tp, pro[:,0])
+    vt = np.interp(time_mat, tp, pro[:,1])
+    tp = np.interp(time_mat, tp, pro[:,2])
+        
+    #interpolate the GSE position over full data range
+    x_gse = np.interp(time_mat, tm, mag[:,3])*6378.1/149597870.7*astropy.units.AU #earth radii to km to AU
+    y_gse = np.interp(time_mat, tm, mag[:,4])*6378.1/149597870.7*astropy.units.AU
+    z_gse = np.interp(time_mat, tm, mag[:,5])*6378.1/149597870.7*astropy.units.AU
+    
+    print('position start')    
+    frame='HEEQ'
+    planet_kernel=spicedata.get_kernel('planet_trajectories')
+    earth=spice.Trajectory('399')  #399 for Earth
+    earth.generate_positions(time,'Sun',frame)
+    earth.change_units(astropy.units.AU)       #from km to AU    
+    #add gse position to Earth position
+    x=earth.x-x_gse  #earth radii to km
+    y=earth.y-y_gse
+    z=earth.z+z_gse
+    [r, lat, lon]=cart2sphere(x,y,z)    
+    
+    
+    #wind_pos=heliosat.WIND().trajectory(time, frame="HEEQ")
+    #x=wind._pos[:,0]
+    #y=wind_pos[:,1]
+    #z=wind_pos[:,2]
+    #[r, lat, lon]=hd.cart2sphere(wind_pos[:,0],wind_pos[:,1],wind_pos[:,2])
+    #lon=np.rad2deg(lon) #convert to degree
+    #lat=np.rad2deg(lat)
+
+
+    
+    
+    print('position end ')
+    
+    #make array
+    win=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('np', float),('vt', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+       
+    #convert to recarray
+    win = win.view(np.recarray)  
+
+    #fill with data
+    win.time=time
+    win.bx=bx
+    win.by=by
+    win.bz=bz 
+    win.bt=bt
+
+    win.x=x
+    win.y=y
+    win.z=z
+    
+    win.r=r
+    win.lat=np.degrees(lat)
+    win.lon=np.degrees(lon)
+    
+    win.np=den
+    win.vt=vt
+    #https://en.wikipedia.org/wiki/Thermal_velocity convert from km/s to K
+    from astropy.constants import m_p,k_B
+    win.tp=np.pi*m_p*((tp*1e3)**2)/(8*k_B)
+    
+    
+    ############ spike removal
+            
+    #plasma    
+    win.np[np.where(win.np> 500)]=1000000
+    #get rid of all single spikes with scipy signal find peaks
+    peaks, properties = scipy.signal.find_peaks(win.np, height=500,width=(1, 250))
+    #go through all of them and set to nan according to widths
+    for i in np.arange(len(peaks)):
+        #get width of current peak
+        width=int(np.ceil(properties['widths']/2)[i])
+        #remove data
+        win.np[peaks[i]-width-2:peaks[i]+width+2]=np.nan
+
+    win.tp[np.where(win.tp> 1e8)]=1e11
+    #get rid of all single spikes with scipy signal find peaks
+    peaks, properties = scipy.signal.find_peaks(win.tp, height=1e8,width=(1, 250))
+    #go through all of them and set to nan according to widths
+    for i in np.arange(len(peaks)):
+        #get width of current peak
+        width=int(np.ceil(properties['widths']/2)[i])
+        #remove data
+        win.tp[peaks[i]-width-2:peaks[i]+width+2]=np.nan
+
+    win.vt[np.where(win.vt> 3000)]=1e11
+    #get rid of all single spikes with scipy signal find peaks
+    peaks, properties = scipy.signal.find_peaks(win.vt, height=1e8,width=(1, 250))
+    #go through all of them and set to nan according to widths
+    for i in np.arange(len(peaks)):
+        #get width of current peak
+        width=int(np.ceil(properties['widths']/2)[i])
+        #remove data
+        win.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
+
+        
+        
+        
+    #magnetic field    
+    peaks, properties = scipy.signal.find_peaks(win.bt, prominence=30,width=(1, 10))
+    #go through all of them and set to nan according to widths
+    for i in np.arange(len(peaks)):
+        #get width of current peak
+        width=int(np.ceil(properties['widths'])[i])
+        #remove data
+        win.bt[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
+    peaks, properties = scipy.signal.find_peaks(abs(win.bx), prominence=30,width=(1, 10))
+    for i in np.arange(len(peaks)):
+        width=int(np.ceil(properties['widths'])[i])
+        win.bx[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
+    peaks, properties = scipy.signal.find_peaks(abs(win.by), prominence=30,width=(1, 10))
+    for i in np.arange(len(peaks)):
+        width=int(np.ceil(properties['widths'])[i])
+        win.by[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
+    peaks, properties = scipy.signal.find_peaks(abs(win.bz), prominence=30,width=(1, 10))
+    for i in np.arange(len(peaks)):
+        width=int(np.ceil(properties['widths'])[i])
+        win.bz[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
+
+
+    #manual spike removal for magnetic field
+    if t_start < datetime.datetime(2018, 7, 19, 16, 25):    
+        if t_end > datetime.datetime(2018, 7, 19, 16, 25):         
+
+            remove_start=datetime.datetime(2018, 7, 19, 16, 25)
+            remove_end=datetime.datetime(2018, 7, 19, 17, 35)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan
+
+    if t_start < datetime.datetime(2018, 8, 29, 19, 00):    
+        if t_end > datetime.datetime(2018, 8, 29, 19, 00):         
+
+            remove_start=datetime.datetime(2018, 8, 29, 19, 00)
+            remove_end=datetime.datetime(2018,8, 30, 5, 00)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan
+
+            
+    if t_start < datetime.datetime(2019, 8, 8, 22, 45):    
+        if t_end > datetime.datetime(2019, 8, 8, 22, 45):         
+
+            remove_start=datetime.datetime(2019, 8, 8, 22, 45)
+            remove_end=datetime.datetime(2019,   8, 9, 17, 00)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan
+
+    if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
+        if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
+
+            remove_start=datetime.datetime(2019, 8, 20, 18, 0)
+            remove_end=datetime.datetime(2019,   8, 21, 12, 0)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan            
+
+    if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
+        if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
+
+            remove_start=datetime.datetime(2019, 8, 22, 1, 0)
+            remove_end=datetime.datetime(2019,   8, 22, 9, 0)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan            
+
+
+    
+     
+    coord='GSE'
+    #convert magnetic field to SCEQ
+    if heeq==True:
+        win=convert_GSE_to_HEEQ(win)
+        coord='HEEQ'
+   
+    
+        
+    ###################### 
+
+    
+    header='Wind magnetic field (MAG instrument) and plasma data (SWE), ' + \
+    'obtained from https://spdf.gsfc.nasa.gov/pub/data/wind/  '+ \
+    'Timerange: '+win.time[0].strftime("%Y-%b-%d %H:%M")+' to '+win.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(win.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by win.time, win.bx, win.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(win.size)+'. '+\
+    'Units are btxyz [nT, '+coord+'], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats heliocats.data.save_wind_data (uses https://github.com/ajefweiss/HelioSat '+\
+    'and https://github.com/heliopython/heliopy). '+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+    pickle.dump([win,header], open(path+file, "wb"))
+    
+    
+    print('wind update done')
+    print()
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def save_stereoa_science_data_merge_rtn(data_path,file):
     
     print('STEREO-A science data merging')
