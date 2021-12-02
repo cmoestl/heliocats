@@ -99,14 +99,171 @@ def remove_wind_spikes_gaps(data):
 
 
 
+def wind_download_ascii():
+
+    #download MFI
+
+
+    wind_years_strings=[]
+    for j in np.arange(1994,2030):
+        wind_years_strings.append(str(j))
+
+
+    wind_data_path='/nas/helio/data/Wind/mfi_1min_ascii'
+    os.chdir(wind_data_path)
+
+    mfi_url='https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/'
+
+    for i in np.arange(0,len(wind_years_strings)):    
+
+        for k in np.arange(1,12):    
+
+            a=str(k).zfill(2) #add leading zeros
+
+            os.system('wget -nc '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') #199504_wind_mag_1min.asc	
+
+    os.chdir('/home/cmoestl/pycode/heliocats')
+
+
+
+    #download plasma ascii data
+
+    wind_years_strings=[]
+    for j in np.arange(1995,2022):
+        wind_years_strings.append(str(j))
+
+
+    wind_data_path='/nas/helio/data/Wind/swe_92sec_ascii'
+    os.chdir(wind_data_path)
+
+    swe_url='https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/'
+
+    for i in np.arange(0,len(wind_years_strings)):    
+
+            os.system('wget -nc '+swe_url+'wind_kp_unspike'+wind_years_strings[i]+'.txt')
+
+    os.chdir('/home/cmoestl/pycode/heliocats')
+
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+def read_wind_icme_catalog():    
+    
+    #read Wind ICME catalog copied into text file: 
+
+
+    #load master file for ICMECAT    
+    icm=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master.xlsx')
+    lenicm=len(icm)
+
+    wind_mc_cat='data/wind_mc_cat/wind_mc_cat.txt'
+
+    #extract 3 times for icmecat
+    cat=np.genfromtxt(wind_mc_cat)
+
+    file1 = open(wind_mc_cat, 'r')
+    lines = file1.readlines()
+
+    for i in np.arange(0,len(lines)):
+        t1=lines[i][0:16]
+        t11=t1[0:4]+'-'+t1[5:7]+'-'+t1[8:17]
+        t1d=parse_time(t11).datetime
+
+        t2=lines[i][19:35]
+        t21=t2[0:4]+'-'+t2[5:7]+'-'+t2[8:17]
+        t2d=parse_time(t21).datetime
+
+        if lines[i][36]=='E':
+            t3=lines[i][38:54]
+        else:
+            t3=lines[i][39:55]
+
+        t31=t3[0:4]+'-'+t3[5:7]+'-'+t3[8:17]
+        t3d=parse_time(t31).datetime
+
+        #print('ICME_WIND_NASA_'+t11[0:4]+t11[5:7]+t11[8:10]+'_01')
+        #append to datafrme
+        icm.loc[lenicm+i,'icmecat_id']='ICME_Wind_NASA_'+t11[0:4]+t11[5:7]+t11[8:10]+'_01'
+        icm.loc[lenicm+i,'sc_insitu']='Wind'
+        icm.loc[lenicm+i,'icme_start_time']=t1d
+        icm.loc[lenicm+i,'mo_start_time']=t2d
+        icm.loc[lenicm+i,'mo_end_time']=t3d
 
 
 
 
+        #icm.loc[len(icm),1] = [' ']#],'Wind',t11,t21,t31]    
+        #icm.loc[len(icm),2] = ['Wind']
 
 
 
-def save_wind_data_ascii(path,file,start_date,end_date,heeq):
+        #print(parse_time(t11).datetime)
+        #print(parse_time(t21).datetime)
+        #print(parse_time(t31).datetime)
+        #print('---')
+
+
+    #check if there is a double id
+
+
+    ################ save to different formats
+
+    ic=icm
+    #copy pandas dataframe first to change time format consistent with HELCATS
+    ic_copy=copy.deepcopy(ic)  
+    ic_copy.icme_start_time=parse_time(ic.icme_start_time).isot
+    ic_copy.mo_start_time=parse_time(ic.mo_start_time).isot
+    ic_copy.mo_end_time=parse_time(ic.mo_end_time).isot
+
+    #change time format
+    for i in np.arange(len(ic)):
+
+        dum=ic_copy.icme_start_time[i] 
+        ic_copy.at[i,'icme_start_time']=dum[0:16]+'Z'
+
+        dum=ic_copy.mo_start_time[i] 
+        ic_copy.at[i,'mo_start_time']=dum[0:16]+'Z'
+
+        dum=ic_copy.mo_end_time[i] 
+        ic_copy.at[i,'mo_end_time']=dum[0:16]+'Z'
+
+
+    #save as Excel with all wind events appended
+    file='icmecat/HELIO4CAST_ICMECAT_v21_master_allwind_from_cat.xlsx'
+    ic_copy.to_excel(file,sheet_name='ICMECATv2.1')
+    print('ICMECAT saved as '+file)
+
+
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+
+
+def save_wind_data_ascii(path,finalfile,start_date,end_date,heeq):
     
     '''
     description of data sources used in this function
@@ -126,41 +283,157 @@ def save_wind_data_ascii(path,file,start_date,end_date,heeq):
     t_start = start_date
     t_end = end_date
     
-    #create an array with 1 minute resolution between t start and end
+    #create an array with 2 minute resolution between t start and end
     time = [ t_start + datetime.timedelta(minutes=2*n) for n in range(int ((t_end - t_start).days*30*24))]  
     time_mat=mdates.date2num(time) 
     
-    #print(parse_time(time[0:10]).iso)
+    
+    read_data_end_year=2022
+        
+    
+    
+    ##########################################################################
+    
+
+    #############mfi
+    
+    wind_data_path='/nas/helio/data/Wind/mfi_1min_ascii/'
+
+    wind_years_strings=[]
+    for j in np.arange(1995,read_data_end_year):
+        wind_years_strings.append(str(j))
+
+
+    #array for 27 years
+    win_mag=np.zeros(60*24*365*27,dtype=[('time',object),('bx', float),('by', float),\
+                    ('bz', float),('bt', float),('np', float),('vt', float),('vx', float),\
+                          ('vy', float),('vz', float),\
+                          ('tp', float),('x', float),('y', float),('z', float),\
+                    ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    win_mag = win_mag.view(np.recarray)  
+
+
+    counter=0
+
+
+    for i in np.arange(0,len(wind_years_strings)):    
+
+        for k in np.arange(1,12):    
+
+            a=str(k).zfill(2) #add leading zeros
+
+            file=wind_data_path+wind_years_strings[i]+a+'_wind_mag_1min.asc' #199504_wind_mag_1min.asc	
+            print(file)
+            #get data from file
+            mfi_data=np.genfromtxt(file,dtype="i8,i8,i8,i8,i8,i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,")
+
+
+            #put data in array
+            for p in np.arange(0,len(mfi_data)):
+                #time
+                win_mag.time[p+counter]=datetime.datetime(mfi_data[p][0],mfi_data[p][1],mfi_data[p][2],mfi_data[p][3],mfi_data[p][4],mfi_data[p][5])
+                win_mag.bx[p+counter]=mfi_data[p][6]
+                win_mag.by[p+counter]=mfi_data[p][7]
+                win_mag.bz[p+counter]=mfi_data[p][8]
+                win_mag.bt[p+counter]=mfi_data[p][11]
+                
+                #gse position
+                win_mag.x[p+counter]=mfi_data[p][17]
+                win_mag.y[p+counter]=mfi_data[p][18]
+                win_mag.z[p+counter]=mfi_data[p][19]
+
+            counter=counter+len(mfi_data)    
+
+    #cutoff        
+    win_mag2=win_mag[0:counter]    
+    win_time2=mdates.date2num(win_mag2.time)
+
+    #set missing data to nan
+    win_mag2.bt[np.where(win_mag2.bt == -1e31)]=np.nan  
+    win_mag2.bx[np.where(win_mag2.bx == -1e31)]=np.nan  
+    win_mag2.by[np.where(win_mag2.by == -1e31)]=np.nan  
+    win_mag2.bz[np.where(win_mag2.bz == -1e31)]=np.nan  
+    
+    win_mag2.x[np.where(win_mag2.x == -1e31)]=np.nan  
+    win_mag2.y[np.where(win_mag2.y == -1e31)]=np.nan  
+    win_mag2.z[np.where(win_mag2.z == -1e31)]=np.nan  
     
     
     
-    tm=parse_time(tm,format='unix').datetime 
-    tp=parse_time(tp,format='unix').datetime 
+    ############################swe
+
+    
+    #array for 27 years
+    win_swe=np.zeros(60*24*365*27,dtype=[('time',object),('bx', float),('by', float),\
+                    ('bz', float),('bt', float),('np', float),('vt', float),('vx', float),\
+                          ('vy', float),('vz', float),\
+                          ('tp', float),('x', float),('y', float),('z', float),\
+                    ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    win_swe = win_swe.view(np.recarray)  
+
+    
+    
+    counter=0
+
+    wind_data_path='/nas/helio/data/Wind/swe_92sec_ascii/'
+
+    for i in np.arange(0,len(wind_years_strings)):    
+
+            file=wind_data_path+'wind_kp_unspike'+wind_years_strings[i]+'.txt'
+            print(file)
+            swe_data=np.genfromtxt(file,dtype="i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8")
+
+            firstjan=mdates.date2num(datetime.datetime(int(wind_years_strings[i]),1,1))-1
+
+            for p in np.arange(0,len(swe_data)):
+
+                #datenum
+                win_swe.time[p+counter]=firstjan+swe_data[p][1]
+                win_swe.vt[p+counter]=swe_data[p][2]
+                win_swe.tp[p+counter]=swe_data[p][6]
+                win_swe.np[p+counter]=swe_data[p][7]            
+
+            counter=counter+len(swe_data) 
+
+
    
+    win_swe=win_swe[0:counter]    
+    win_swe_time=np.array(win_swe.time,dtype='float')
+
+
+    win_swe.vt[np.where(win_swe.vt == 99999.9)]=np.nan  
+    win_swe.tp[np.where(win_swe.tp ==9999999.)]=np.nan  
+    win_swe.np[np.where(win_swe.np ==999.99)]=np.nan  
+
+
     
-    #print(parse_time(tm[0:10]).iso)
-    #print(parse_time(tp[0:10]).iso)
+    ###################### interpolate
     
-    tm=parse_time(tm).plot_date
-    tp=parse_time(tp).plot_date
-    
-    print('download complete')
      
     #linear interpolation to time_mat times    
-    bx = np.interp(time_mat, tm, mag[:,0] )
-    by = np.interp(time_mat, tm, mag[:,1] )
-    bz = np.interp(time_mat, tm, mag[:,2] )
+    bx = np.interp(time_mat, win_time2, win_mag2.bx )
+    by = np.interp(time_mat, win_time2, win_mag2.by )
+    bz = np.interp(time_mat, win_time2, win_mag2.bz  )
     bt = np.sqrt(bx**2+by**2+bz**2)
         
-    den = np.interp(time_mat, tp, pro[:,0])
-    vt = np.interp(time_mat, tp, pro[:,1])
-    tp = np.interp(time_mat, tp, pro[:,2])
+    den = np.interp(time_mat, win_swe_time, win_swe.np)
+    vt = np.interp(time_mat, win_swe_time,win_swe.vt)
+    tp = np.interp(time_mat, win_swe_time,win_swe.tp)
+        
+        
         
     #interpolate the GSE position over full data range
-    x_gse = np.interp(time_mat, tm, mag[:,3])*6378.1/149597870.7*astropy.units.AU #earth radii to km to AU
-    y_gse = np.interp(time_mat, tm, mag[:,4])*6378.1/149597870.7*astropy.units.AU
-    z_gse = np.interp(time_mat, tm, mag[:,5])*6378.1/149597870.7*astropy.units.AU
+    x_gse = np.interp(time_mat,  win_time2, win_mag2.x)*6378.1/149597870.7*astropy.units.AU #earth radii to km to AU
+    y_gse = np.interp(time_mat,  win_time2, win_mag2.y)*6378.1/149597870.7*astropy.units.AU
+    z_gse = np.interp(time_mat,  win_time2, win_mag2.z)*6378.1/149597870.7*astropy.units.AU
     
+    
+    
+    #** check gse is not the same plane as HEEQ, small error
     print('position start')    
     frame='HEEQ'
     planet_kernel=spicedata.get_kernel('planet_trajectories')
@@ -171,19 +444,8 @@ def save_wind_data_ascii(path,file,start_date,end_date,heeq):
     x=earth.x-x_gse  #earth radii to km
     y=earth.y-y_gse
     z=earth.z+z_gse
-    [r, lat, lon]=cart2sphere(x,y,z)    
-    
-    
-    #wind_pos=heliosat.WIND().trajectory(time, frame="HEEQ")
-    #x=wind._pos[:,0]
-    #y=wind_pos[:,1]
-    #z=wind_pos[:,2]
-    #[r, lat, lon]=hd.cart2sphere(wind_pos[:,0],wind_pos[:,1],wind_pos[:,2])
-    #lon=np.rad2deg(lon) #convert to degree
-    #lat=np.rad2deg(lat)
-
-
-    
+    [r, lat, lon]=cart2sphere(x,y,z)       
+      
     
     print('position end ')
     
@@ -213,9 +475,13 @@ def save_wind_data_ascii(path,file,start_date,end_date,heeq):
     
     win.np=den
     win.vt=vt
-    #https://en.wikipedia.org/wiki/Thermal_velocity convert from km/s to K
-    from astropy.constants import m_p,k_B
-    win.tp=np.pi*m_p*((tp*1e3)**2)/(8*k_B)
+    win.tp=tp
+    
+    
+    
+    
+    
+    
     
     
     ############ spike removal
@@ -348,6 +614,10 @@ def save_wind_data_ascii(path,file,start_date,end_date,heeq):
             win.bz[remove_start_ind:remove_end_ind]=np.nan            
 
 
+  
+    
+    
+    
     
      
     coord='GSE'
@@ -362,18 +632,18 @@ def save_wind_data_ascii(path,file,start_date,end_date,heeq):
 
     
     header='Wind magnetic field (MAG instrument) and plasma data (SWE), ' + \
-    'obtained from https://spdf.gsfc.nasa.gov/pub/data/wind/  '+ \
+    'obtained from https://spdf.gsfc.nasa.gov/pub/data/wind/ ascii files  '+ \
     'Timerange: '+win.time[0].strftime("%Y-%b-%d %H:%M")+' to '+win.time[-1].strftime("%Y-%b-%d %H:%M")+\
     ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(win.time)).seconds)+' seconds. '+\
     'The data are available in a numpy recarray, fields can be accessed by win.time, win.bx, win.vt etc. '+\
     'Missing data has been set to "np.nan". Total number of data points: '+str(win.size)+'. '+\
     'Units are btxyz [nT, '+coord+'], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with https://github.com/cmoestl/heliocats heliocats.data.save_wind_data (uses https://github.com/ajefweiss/HelioSat '+\
+    'Made with https://github.com/cmoestl/heliocats heliocats.data.save_wind_data_ascii (uses https://github.com/ajefweiss/HelioSat '+\
     'and https://github.com/heliopython/heliopy). '+\
     'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
 
-    pickle.dump([win,header], open(path+file, "wb"))
+    pickle.dump([win,header], open(path+finalfile, "wb"))
     
     
     print('wind update done')
@@ -383,9 +653,23 @@ def save_wind_data_ascii(path,file,start_date,end_date,heeq):
 
 
 
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 
 

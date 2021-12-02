@@ -39,7 +39,7 @@
 last_update='2021-November-29'
 
 
-# In[3]:
+# In[85]:
 
 
 import numpy as np
@@ -840,17 +840,21 @@ if data_to_numpy_2 > 0:
     print('done')
 
 
-# ### UPDATE Wind data for whole dataset
+# ### 1b  Wind data for whole dataset and add full NASA catalog
 
-# In[81]:
+# In[240]:
 
 
-#if necessary, read Wind ICME catalog copied into text file: 
+#read Wind ICME catalog copied into text file: 
 
-#********+ load /data/wind_mc_cat/wind_mc_cat.txt
+
+#load master file for ICMECAT    
+icm=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master.xlsx')
+lenicm=len(icm)
+
 wind_mc_cat='data/wind_mc_cat/wind_mc_cat.txt'
 
-
+#extract 3 times for icmecat
 cat=np.genfromtxt(wind_mc_cat)
 
 file1 = open(wind_mc_cat, 'r')
@@ -858,19 +862,76 @@ lines = file1.readlines()
 
 for i in np.arange(0,len(lines)):
     t1=lines[i][0:16]
-    t2=lines[i][19:36]
-    t3=lines[i][39:56])
-    print('----')
+    t11=t1[0:4]+'-'+t1[5:7]+'-'+t1[8:17]
+    t1d=parse_time(t11).datetime
     
+    t2=lines[i][19:35]
+    t21=t2[0:4]+'-'+t2[5:7]+'-'+t2[8:17]
+    t2d=parse_time(t21).datetime
     
-    
-    
-    
+    if lines[i][36]=='E':
+        t3=lines[i][38:54]
+    else:
+        t3=lines[i][39:55]
 
-#************
+    t31=t3[0:4]+'-'+t3[5:7]+'-'+t3[8:17]
+    t3d=parse_time(t31).datetime
+
+    #print('ICME_WIND_NASA_'+t11[0:4]+t11[5:7]+t11[8:10]+'_01')
+    #append to datafrme
+    icm.loc[lenicm+i,'icmecat_id']='ICME_Wind_NASA_'+t11[0:4]+t11[5:7]+t11[8:10]+'_01'
+    icm.loc[lenicm+i,'sc_insitu']='Wind'
+    icm.loc[lenicm+i,'icme_start_time']=t1d
+    icm.loc[lenicm+i,'mo_start_time']=t2d
+    icm.loc[lenicm+i,'mo_end_time']=t3d
 
 
 
+    
+    #icm.loc[len(icm),1] = [' ']#],'Wind',t11,t21,t31]    
+    #icm.loc[len(icm),2] = ['Wind']
+
+
+
+    #print(parse_time(t11).datetime)
+    #print(parse_time(t21).datetime)
+    #print(parse_time(t31).datetime)
+    #print('---')
+
+    
+#check if there is a double id
+
+    
+################ save to different formats
+
+ic=icm
+#copy pandas dataframe first to change time format consistent with HELCATS
+ic_copy=copy.deepcopy(ic)  
+ic_copy.icme_start_time=parse_time(ic.icme_start_time).isot
+ic_copy.mo_start_time=parse_time(ic.mo_start_time).isot
+ic_copy.mo_end_time=parse_time(ic.mo_end_time).isot
+
+#change time format
+for i in np.arange(len(ic)):
+
+    dum=ic_copy.icme_start_time[i] 
+    ic_copy.at[i,'icme_start_time']=dum[0:16]+'Z'
+     
+    dum=ic_copy.mo_start_time[i] 
+    ic_copy.at[i,'mo_start_time']=dum[0:16]+'Z'
+     
+    dum=ic_copy.mo_end_time[i] 
+    ic_copy.at[i,'mo_end_time']=dum[0:16]+'Z'
+
+
+#save as Excel with all wind events appended
+file='icmecat/HELIO4CAST_ICMECAT_v21_master_allwind_from_cat.xlsx'
+ic_copy.to_excel(file,sheet_name='ICMECATv2.1')
+print('ICMECAT saved as '+file)
+
+
+
+# #### download all wind data
 
 # In[50]:
 
@@ -884,10 +945,10 @@ file='wind_kp_unspike2006.txt'
 swe=np.genfromtxt(wind_data_path+file)
 
 
+# #### read all wind mfi data as ascii
+
 # In[ ]:
 
-
-#read all wind mfi data as ascii
 
 wind_years_strings=[]
 for j in np.arange(1994,2022):
@@ -968,12 +1029,6 @@ os.chdir('/home/cmoestl/pycode/heliocats')
 #10  F8.2   9999.99          X, GSE,Re, spacecraft position vector
 #11  F8.2   9999.99          Y, GSE,Re
 #12  F8.2   9999.99          Z, GSE,Re
-
-
-# In[4]:
-
-
-
 
 
 # ## (2) measure new events 
@@ -1121,7 +1176,13 @@ print('data loaded')
 from heliocats import cats as hc
 importlib.reload(hc) #reload again while debugging
 
-ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v20_master.xlsx')
+ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master.xlsx')
+
+
+#for new wind events, load
+#ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master2.xlsx')
+
+
 
 
 ####### 3a get indices for all spacecraft
