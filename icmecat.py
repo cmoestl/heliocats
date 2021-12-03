@@ -39,7 +39,7 @@
 last_update='2021-November-29'
 
 
-# In[85]:
+# In[2]:
 
 
 import numpy as np
@@ -676,6 +676,10 @@ if load_data > 0:
 
     print('Wind merging done')
     
+    
+    
+#wind data from 1995    
+    
 
     
 #LOAD HELCATS catalogs
@@ -842,193 +846,14 @@ if data_to_numpy_2 > 0:
 
 # ### 1b  Wind data for whole dataset and add full NASA catalog
 
-# In[240]:
-
-
-#read Wind ICME catalog copied into text file: 
-
-
-#load master file for ICMECAT    
-icm=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master.xlsx')
-lenicm=len(icm)
-
-wind_mc_cat='data/wind_mc_cat/wind_mc_cat.txt'
-
-#extract 3 times for icmecat
-cat=np.genfromtxt(wind_mc_cat)
-
-file1 = open(wind_mc_cat, 'r')
-lines = file1.readlines()
-
-for i in np.arange(0,len(lines)):
-    t1=lines[i][0:16]
-    t11=t1[0:4]+'-'+t1[5:7]+'-'+t1[8:17]
-    t1d=parse_time(t11).datetime
-    
-    t2=lines[i][19:35]
-    t21=t2[0:4]+'-'+t2[5:7]+'-'+t2[8:17]
-    t2d=parse_time(t21).datetime
-    
-    if lines[i][36]=='E':
-        t3=lines[i][38:54]
-    else:
-        t3=lines[i][39:55]
-
-    t31=t3[0:4]+'-'+t3[5:7]+'-'+t3[8:17]
-    t3d=parse_time(t31).datetime
-
-    #print('ICME_WIND_NASA_'+t11[0:4]+t11[5:7]+t11[8:10]+'_01')
-    #append to datafrme
-    icm.loc[lenicm+i,'icmecat_id']='ICME_Wind_NASA_'+t11[0:4]+t11[5:7]+t11[8:10]+'_01'
-    icm.loc[lenicm+i,'sc_insitu']='Wind'
-    icm.loc[lenicm+i,'icme_start_time']=t1d
-    icm.loc[lenicm+i,'mo_start_time']=t2d
-    icm.loc[lenicm+i,'mo_end_time']=t3d
-
-
-
-    
-    #icm.loc[len(icm),1] = [' ']#],'Wind',t11,t21,t31]    
-    #icm.loc[len(icm),2] = ['Wind']
-
-
-
-    #print(parse_time(t11).datetime)
-    #print(parse_time(t21).datetime)
-    #print(parse_time(t31).datetime)
-    #print('---')
-
-    
-#check if there is a double id
-
-    
-################ save to different formats
-
-ic=icm
-#copy pandas dataframe first to change time format consistent with HELCATS
-ic_copy=copy.deepcopy(ic)  
-ic_copy.icme_start_time=parse_time(ic.icme_start_time).isot
-ic_copy.mo_start_time=parse_time(ic.mo_start_time).isot
-ic_copy.mo_end_time=parse_time(ic.mo_end_time).isot
-
-#change time format
-for i in np.arange(len(ic)):
-
-    dum=ic_copy.icme_start_time[i] 
-    ic_copy.at[i,'icme_start_time']=dum[0:16]+'Z'
-     
-    dum=ic_copy.mo_start_time[i] 
-    ic_copy.at[i,'mo_start_time']=dum[0:16]+'Z'
-     
-    dum=ic_copy.mo_end_time[i] 
-    ic_copy.at[i,'mo_end_time']=dum[0:16]+'Z'
-
-
-#save as Excel with all wind events appended
-file='icmecat/HELIO4CAST_ICMECAT_v21_master_allwind_from_cat.xlsx'
-ic_copy.to_excel(file,sheet_name='ICMECATv2.1')
-print('ICMECAT saved as '+file)
-
-
-
 # #### download all wind data
-
-# In[50]:
-
-
-wind_data_path='/nas/helio/data/Wind/mfi_1min_ascii/'
-file='199507_wind_mag_1min.asc'
-mfi=np.genfromtxt(wind_data_path+file)
-
-wind_data_path='/nas/helio/data/Wind/swe_92sec_ascii/'
-file='wind_kp_unspike2006.txt'
-swe=np.genfromtxt(wind_data_path+file)
-
 
 # #### read all wind mfi data as ascii
 
-# In[ ]:
+# In[3]:
 
 
-wind_years_strings=[]
-for j in np.arange(1994,2022):
-    wind_years_strings.append(str(j))
-
-
-wind_data_path='/nas/helio/data/Wind/mfi_1min_ascii'
-os.chdir(wind_data_path)
-
-
-
-mfi_url='https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/'
-
-for i in np.arange(0,len(wind_years_strings)):    
-
-    for k in np.arange(1,12):    
-        
-        a=str(k).zfill(2) #add leading zeros
-        
-        os.system('wget -nc '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') #199504_wind_mag_1min.asc	
-    
-os.chdir('/home/cmoestl/pycode/heliocats')
-
-# 1   Year            I4
-# 2   Month           I3      01-12
-# 3   Day             I3      01-31
-# 4   Hour            I3      00-23
-# 5   Min             I3      at midpoint of average; typically 30                       
-	
-# 6   Bx,GSE          F10.3   nT  (same as Bx,GSM)
-# 7   By,GSE          F10.3   nT
-# 8   Bz,GSE          F10.3   nT
-# 9   By,GSM          F10.3   nT
-#10   Bz,GSM          F10.3   nT
-#11   Bt              F10.3   nT, average of finer scale magnitudes
-#12   RMS,Bx,GSE      F9.3    nT, rms standard deviation of Bx,GSE
-#13   RMS,By,GSM      F9.3    nT
-#14   RMS,Bz,GSM      F9.3    nT
-#15   RMS,Bt          F9.3    nT
-#16   number_fts_pts  I6      number of fine scale points in average
-#17   Rx,GSE          F9.3    Re, GSE X component of Wind position vector
-#18   Ry,GSE          F9.3    Re, Re = Earth radii
-#19   Rz,GSE          F9.3    Re
-#20   Ry,GSM          F9.3    Re
-#21   Rz,GSM          F9.3    Re
-
-
-
-#plasma ascii data
-
-wind_years_strings=[]
-for j in np.arange(1995,2022):
-    wind_years_strings.append(str(j))
-
-
-wind_data_path='/nas/helio/data/Wind/swe_92sec_ascii'
-os.chdir(wind_data_path)
-
-swe_url='https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/'
-
-for i in np.arange(0,len(wind_years_strings)):    
-
-        os.system('wget -nc '+swe_url+'wind_kp_unspike'+wind_years_strings[i]+'.txt')
-        
-os.chdir('/home/cmoestl/pycode/heliocats')
-
-
-#Wd Format  Fill values      Parameters
-# 1  I5     9999             Year
-# 2  F12.6  99999.9999999    Decimal Day (day.fractionofday)
-# 3  F8.1   99999.9          Flow Speed, km/s
-# 4  F8.1   99999.9          Vx, GSE, km/s, flow velocity component
-# 5  F8.1   99999.9          Vy, GSE, km/s
-# 6  F8.1   99999.9          Vz, GSE, km/s
-# 7  F9.0   9999999.         Proton Temperature, K.
-# 8  F7.2   999.99           Proton Density, n/cc
-# 9  F6.3   9.999            Alpha/protom ratio (all fill) 
-#10  F8.2   9999.99          X, GSE,Re, spacecraft position vector
-#11  F8.2   9999.99          Y, GSE,Re
-#12  F8.2   9999.99          Z, GSE,Re
+get_ipython().run_cell_magic('time', '', "\nfrom heliocats import data as hd\nimportlib.reload(hd) #reload again while debugging\n\n\nstart=datetime.datetime(1995,1,1)\nend=datetime.datetime(2021,10,31)\n\n\n#end=datetime.datetime.utcnow() \npath='/nas/helio/data/insitu_python/'\n\nfile='wind_1995_2021_gse.p'\nhd.save_wind_data_ascii(path,file,start,end,heeq=False)\n\nfile='wind_1995_2021_heeq.p'\nhd.save_wind_data_ascii(path,file,start,end,heeq=True)\n\n\n\n\n\n")
 
 
 # ## (2) measure new events 

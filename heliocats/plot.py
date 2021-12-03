@@ -1020,28 +1020,18 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
 
     ax.scatter(venus.lon[earth_timeind], venus.r[earth_timeind]*np.cos(venus.lat[earth_timeind]), s=symsize_planet, c='orange', alpha=1,lw=0,zorder=3)
     ax.scatter(mercury.lon[earth_timeind], mercury.r[earth_timeind]*np.cos(mercury.lat[earth_timeind]), s=symsize_planet, c='dimgrey', alpha=1,lw=0,zorder=3)
-    ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_planet, c='mediumseagreen', alpha=1,lw=0,zorder=3)
-    ax.scatter(sta.lon[earth_timeind], sta.r[earth_timeind]*np.cos(sta.lat[earth_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
+    ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_planet, c='mediumseagreen', alpha=1,lw=0,zorder=3)    
     ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
 
     
     #text thats always there on the plot
-    ax.text(sta.lon[earth_timeind]-0.15,sta.r[earth_timeind],'STEREO-A', color='red', ha='center',fontsize=fsize-4,verticalalignment='top')
     ax.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
     ax.text(0,earth.r[earth_timeind]+0.12,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
     
-    
-    #plot stereo hi fov
-    plot_stereo_hi_fov(sta,time1, earth_timeind, ax,'A')
-    
-    if time1<mdates.date2num(datetime.datetime(2014,9,26)):  
-        plot_stereo_hi_fov(stb,time1, earth_timeind, ax,'B')
-    
-    ########### Sun
+    # Sun
     ax.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)
 
     
-
     #parker spiral
     if plot_parker:
         for q in np.arange(0,12):
@@ -1065,13 +1055,28 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     else: earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(earth.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
 
     mars_text='Mars:  '+str(f'{mars.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(mars.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(mars.lat[earth_timeind]):8.1f}')
-    sta_text='STA:   '+str(f'{sta.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(sta.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(sta.lat[earth_timeind]):8.1f}')
-
-    
      
     f10=plt.figtext(xset1,yset-ydiff*1,earth_text, fontsize=fsize, ha='left',color='mediumseagreen')
     f9=plt.figtext(xset1,yset-ydiff*2,mars_text, fontsize=fsize, ha='left',c='orangered')
-    f8=plt.figtext(xset1,yset-ydiff*3,sta_text, fontsize=fsize, ha='left',c='red')
+
+    
+    #stereo-a    
+    if time1>mdates.date2num(datetime.datetime(2007,1,1)):        
+
+        
+        sta_text='STA:   '+str(f'{sta.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(sta.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(sta.lat[earth_timeind]):8.1f}')
+
+
+        ax.text(sta.lon[earth_timeind]-0.15,sta.r[earth_timeind],'STEREO-A', color='red', ha='center',fontsize=fsize-4,verticalalignment='top')
+        ax.scatter(sta.lon[earth_timeind], sta.r[earth_timeind]*np.cos(sta.lat[earth_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
+        f8=plt.figtext(xset1,yset-ydiff*3,sta_text, fontsize=fsize, ha='left',c='red')
+
+        #plot stereo hi fov
+        plot_stereo_hi_fov(sta,time1, earth_timeind, ax,'A')
+
+        if plot_orbit: 
+            ax.plot(sta.lon[earth_timeind:earth_timeind+fadeind], sta.r[earth_timeind:earth_timeind+fadeind]*np.cos(sta.lat[earth_timeind:earth_timeind+fadeind]), c='red', alpha=0.6,lw=1,zorder=3)
+
     
     
     if psp_timeind > 0:
@@ -1085,7 +1090,6 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
         if plot_orbit: 
             ax.plot(psp.lon[psp_timeind:psp_timeind+fadeind], psp.r[psp_timeind:psp_timeind+fadeind]*np.cos(psp.lat[psp_timeind:psp_timeind+fadeind]), c=psp_color, alpha=0.6,lw=1,zorder=3)
 
-           
             
             
     if bepi_timeind > 0:
@@ -1108,13 +1112,11 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
         if plot_orbit: 
             ax.plot(solo.lon[solo_timeind:solo_timeind+fadeind], solo.r[solo_timeind:solo_timeind+fadeind]*np.cos(solo.lat[solo_timeind:solo_timeind+fadeind]), c=solo_color, alpha=0.6,lw=1,zorder=3)
 
-    if plot_orbit: 
-        ax.plot(sta.lon[earth_timeind:earth_timeind+fadeind], sta.r[earth_timeind:earth_timeind+fadeind]*np.cos(sta.lat[earth_timeind:earth_timeind+fadeind]), c='red', alpha=0.6,lw=1,zorder=3)
-
+ 
     
         
     #STEREO-B    
-    if time1<mdates.date2num(datetime.datetime(2014,9,26)):        
+    if time1>mdates.date2num(datetime.datetime(2007,1,1)) and time1<mdates.date2num(datetime.datetime(2014,9,26)):        
 
         #marker and text on plot - stb has similar indices to earth_timeind
         ax.scatter(stb.lon[earth_timeind], stb.r[earth_timeind]*np.cos(stb.lat[earth_timeind]), s=symsize_spacecraft, c='blue', marker='s',alpha=1,lw=0,zorder=3)        
@@ -1125,16 +1127,19 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
         stb_text='STB:   '+str(f'{stb.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(stb.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(stb.lat[earth_timeind]):8.1f}')
         f13=plt.figtext(xset2,yset-ydiff*1,stb_text, fontsize=fsize, ha='left',color='blue')
         
+        plot_stereo_hi_fov(stb,time1, earth_timeind, ax,'B')
+
+
         
         
     #VEX    
-    if time1<mdates.date2num(datetime.datetime(2014,11,26)):        
+    if time1>mdates.date2num(datetime.datetime(2007,1,1)) and time1<mdates.date2num(datetime.datetime(2014,11,26)):        
         vex_text='VEX:   '+str(f'{venus.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(venus.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(venus.lat[earth_timeind]):8.1f}')
         f11=plt.figtext(xset2,yset-ydiff*2,vex_text, fontsize=fsize, ha='left',color='orange')
         plt.text(venus.lon[earth_timeind],venus.r[earth_timeind]+0.12,'VEX', color='orange', ha='center',fontsize=fsize-5,verticalalignment='center')
 
     #MESSENGER    
-    if time1<mdates.date2num(datetime.datetime(2011,3,18)):        
+    if time1>mdates.date2num(datetime.datetime(2007,1,1)) and time1<mdates.date2num(datetime.datetime(2011,3,18)):        
      
         #marker and text on plot
         ax.scatter(messenger.lon[mes_timeind], messenger.r[mes_timeind]*np.cos(messenger.lat[mes_timeind]), s=symsize_planet, c='darkgrey', marker='s',alpha=1,lw=0,zorder=3)

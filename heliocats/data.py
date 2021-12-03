@@ -320,7 +320,7 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,heeq):
 
     for i in np.arange(0,len(wind_years_strings)):    
 
-        for k in np.arange(1,12):    
+        for k in np.arange(1,13):    
 
             a=str(k).zfill(2) #add leading zeros
 
