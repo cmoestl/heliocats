@@ -1,4 +1,4 @@
-<p>ICME&nbsp;CATALOGUE&nbsp;v2.1&nbsp;<br><br>This&nbsp;is&nbsp;the&nbsp;HELIO4CAST&nbsp;interplanetary&nbsp;coronal&nbsp;mass&nbsp;ejection&nbsp;(ICME)&nbsp;catalog,&nbsp;based&nbsp;on&nbsp;in&nbsp;situ&nbsp;magnetic&nbsp;field&nbsp;and&nbsp;bulk&nbsp;plasma&nbsp;observations&nbsp;in&nbsp;the&nbsp;heliosphere.&nbsp;<br><br>This&nbsp;is&nbsp;version&nbsp;2.1,&nbsp;released&nbsp;2021-December-15,&nbsp;doi:&nbsp;10.6084/m9.figshare.6356420&nbsp;<br><br>Rules:&nbsp;If&nbsp;results&nbsp;are&nbsp;produced&nbsp;with&nbsp;this&nbsp;catalog&nbsp;for&nbsp;peer-reviewed&nbsp;scientific&nbsp;publications,&nbsp;please&nbsp;contact&nbsp;christian.moestl@oeaw.ac.at&nbsp;for&nbsp;possible&nbsp;co-authorship.&nbsp;<br>References&nbsp;for&nbsp;this&nbsp;catalog&nbsp;are&nbsp;Moestl&nbsp;et&nbsp;al.&nbsp;2017&nbsp;(https://doi.org/10.1002/2017SW001614)&nbsp;and&nbsp;Moestl&nbsp;et&nbsp;al.&nbsp;2020&nbsp;(https://doi.org/10.3847/1538-4357/abb9a1).&nbsp;&nbsp;<br><br>The&nbsp;catalog&nbsp;is&nbsp;available&nbsp;as&nbsp;a&nbsp;python&nbsp;pandas&nbsp;dataframe&nbsp;(pickle),&nbsp;python&nbsp;numpy&nbsp;structured&nbsp;array&nbsp;(pickle),&nbsp;json,&nbsp;csv,&nbsp;xlsx,&nbsp;txt,&nbsp;hdf5,&nbsp;at&nbsp;<br>https://helioforecast.space/icmecat&nbsp;<br><br>Number&nbsp;of&nbsp;events&nbsp;in&nbsp;ICMECAT:&nbsp;1063&nbsp;<br>ICME&nbsp;observatories:&nbsp;Solar&nbsp;Orbiter,&nbsp;Parker&nbsp;Solar&nbsp;Probe&nbsp;(PSP),&nbsp;BepiColombo,&nbsp;Wind,&nbsp;STEREO-A,&nbsp;MAVEN,&nbsp;STEREO-B,&nbsp;Venus&nbsp;Express&nbsp;(VEX),&nbsp;MESSENGER,&nbsp;Ulysses.&nbsp;&nbsp;&nbsp;<br>Time&nbsp;range:&nbsp;January&nbsp;1995&nbsp;-&nbsp;November&nbsp;2021.&nbsp;<br>&nbsp;<br>Authors:&nbsp;Christian&nbsp;Moestl,&nbsp;Andreas&nbsp;J.&nbsp;Weiss,&nbsp;Rachel&nbsp;L.&nbsp;Bailey,&nbsp;Martin&nbsp;A.&nbsp;Reiss,&nbsp;<br>Space&nbsp;Research&nbsp;Institute,&nbsp;Austrian&nbsp;Academy&nbsp;of&nbsp;Sciences,&nbsp;Graz,&nbsp;Austria.<br>Contributors:&nbsp;Peter&nbsp;Boakes,&nbsp;Alexey&nbsp;Isavnin,&nbsp;Emilia&nbsp;Kilpua,&nbsp;David&nbsp;Stansby,&nbsp;Reka&nbsp;Winslow,&nbsp;Brian&nbsp;Anderson,&nbsp;Lydia&nbsp;Philpott,&nbsp;<br>Vratislav&nbsp;Krupar,&nbsp;Jonathan&nbsp;Eastwood,&nbsp;Simon&nbsp;Good,&nbsp;Lan&nbsp;Jian,&nbsp;Teresa&nbsp;Nieves-Chinchilla,&nbsp;Cyril&nbsp;Simon&nbsp;Wedlund,&nbsp;Jingnan&nbsp;Guo,&nbsp;<br>Johan&nbsp;von&nbsp;Forstner,&nbsp;Mateja&nbsp;Dumbovic,&nbsp;Benoit&nbsp;Lavraud.&nbsp;&nbsp;<br><br>This&nbsp;catalog&nbsp;has&nbsp;been&nbsp;made&nbsp;by&nbsp;getting&nbsp;the&nbsp;3&nbsp;times&nbsp;of&nbsp;each&nbsp;ICME&nbsp;(shock&nbsp;or&nbsp;disturbance&nbsp;begin,&nbsp;magnetic&nbsp;obstacle&nbsp;start&nbsp;and&nbsp;end)&nbsp;<br>from&nbsp;the&nbsp;individual&nbsp;catalogs&nbsp;below,&nbsp;and&nbsp;then&nbsp;calculating&nbsp;all&nbsp;parameters&nbsp;again&nbsp;consistently&nbsp;from&nbsp;the&nbsp;data&nbsp;by&nbsp;us.&nbsp;<br>The&nbsp;selection&nbsp;criteria&nbsp;are&nbsp;relatively&nbsp;simple:&nbsp;the&nbsp;event&nbsp;needs&nbsp;to&nbsp;have&nbsp;a&nbsp;clearly&nbsp;organized&nbsp;large-scale&nbsp;magnetic&nbsp;structure,<br>&nbsp;which&nbsp;manifests&nbsp;itself&nbsp;through&nbsp;(1)&nbsp;an&nbsp;elevated&nbsp;total&nbsp;magnetic&nbsp;field&nbsp;and&nbsp;(2)&nbsp;a&nbsp;rotation&nbsp;in&nbsp;the&nbsp;field&nbsp;observed&nbsp;through&nbsp;the&nbsp;field&nbsp;components.&nbsp;<br><br>The&nbsp;in&nbsp;situ&nbsp;data&nbsp;that&nbsp;were&nbsp;used&nbsp;for&nbsp;the&nbsp;catalog,&nbsp;with&nbsp;a&nbsp;size&nbsp;of&nbsp;8&nbsp;GB&nbsp;in&nbsp;total,&nbsp;including&nbsp;extra&nbsp;data&nbsp;files&nbsp;with&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;<br>in&nbsp;RTN&nbsp;coordinates&nbsp;that&nbsp;are&nbsp;not&nbsp;used&nbsp;for&nbsp;producing&nbsp;the&nbsp;catalog,&nbsp;can&nbsp;be&nbsp;downloaded&nbsp;in&nbsp;python&nbsp;pickle&nbsp;format&nbsp;as&nbsp;recarrays&nbsp;from&nbsp;https://doi.org/10.6084/m9.figshare.11973693&nbsp;<br><br>The&nbsp;python&nbsp;source&nbsp;code&nbsp;for&nbsp;producing&nbsp;this&nbsp;catalog&nbsp;is&nbsp;available&nbsp;at&nbsp;https://github.com/cmoestl/heliocats&nbsp;icmecat.ipynb<br><br>Each&nbsp;event&nbsp;has&nbsp;unique&nbsp;identifier&nbsp;-&nbsp;the&nbsp;icmecat_id&nbsp;-&nbsp;which&nbsp;has&nbsp;a&nbsp;tag&nbsp;in&nbsp;it&nbsp;that&nbsp;indicates&nbsp;from&nbsp;which&nbsp;catalog&nbsp;the&nbsp;ICME&nbsp;times&nbsp;were&nbsp;taken:&nbsp;<br><br>Wind:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nieves-Chinchilla&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;NASA.&nbsp;<br>STEREO-A:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;JIAN.&nbsp;<br>STEREO-B:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;JIAN.&nbsp;<br>VEX:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;SGOOD&nbsp;<br>MESSENGER:&nbsp;&nbsp;&nbsp;&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;Winslow&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;SGOOD,&nbsp;WINSLOW.&nbsp;<br>MAVEN:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Made&nbsp;by&nbsp;us&nbsp;according&nbsp;to&nbsp;the&nbsp;method&nbsp;in&nbsp;the&nbsp;comments,&nbsp;tag:&nbsp;MOESTL.<br>Ulysses:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br>SolarOrbiter:&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br>BepiColomo:&nbsp;&nbsp;&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br>PSP:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br><br>We&nbsp;have&nbsp;also&nbsp;added&nbsp;extra&nbsp;events&nbsp;at&nbsp;VEX,&nbsp;MESSENGER,&nbsp;Wind&nbsp;and&nbsp;STEREO-A&nbsp;(all&nbsp;tagged&nbsp;with&nbsp;MOESTL&nbsp;in&nbsp;icmecat_id).<br><br>References:&nbsp;<br>Nieves-Chinchilla,&nbsp;T.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;&nbsp;https://doi.org/10.1007/s11207-018-1247-z&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php&nbsp;<br>Jian,&nbsp;L.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;https://doi.org/10.3847/1538-4357/aab189&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/&nbsp;<br>Good,&nbsp;S.&nbsp;et&nbsp;al.&nbsp;(2018)&nbsp;https://doi.org/10.1007/s11207-015-0828-3&nbsp;<br>Winslow,&nbsp;R.&nbsp;et&nbsp;al.&nbsp;(2015),&nbsp;https://doi.org/10.1002/2015JA021200&nbsp;<br><br><br>Comments:&nbsp;<br><br>-&nbsp;Spacecraft&nbsp;positions&nbsp;are&nbsp;given&nbsp;in&nbsp;Heliocentric&nbsp;Earth&nbsp;Equatorial&nbsp;Coordinates&nbsp;(HEEQ)&nbsp;coordinates.&nbsp;<br><br>-&nbsp;The&nbsp;coordinate&nbsp;system&nbsp;for&nbsp;all&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;is&nbsp;SCEQ,&nbsp;except&nbsp;for&nbsp;Wind&nbsp;(HEEQ,&nbsp;which&nbsp;is&nbsp;the&nbsp;equivalent&nbsp;for&nbsp;SCEQ&nbsp;for&nbsp;Earth)&nbsp;and&nbsp;Ulysses&nbsp;(RTN,&nbsp;because&nbsp;of&nbsp;high&nbsp;latitude&nbsp;positions)&nbsp;and&nbsp;MAVEN&nbsp;(MSO).&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Definition&nbsp;of&nbsp;SpaceCraft&nbsp;Equatorial&nbsp;Coordinates&nbsp;(SCEQ):&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z&nbsp;is&nbsp;the&nbsp;solar&nbsp;rotation&nbsp;axis.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y&nbsp;is&nbsp;the&nbsp;cross&nbsp;product&nbsp;of&nbsp;Z&nbsp;and&nbsp;R,&nbsp;with&nbsp;R&nbsp;being&nbsp;the&nbsp;vector&nbsp;that&nbsp;points&nbsp;from&nbsp;the&nbsp;Sun&nbsp;to&nbsp;the&nbsp;spacecraft.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;completes&nbsp;the&nbsp;right&nbsp;handed&nbsp;triad&nbsp;(and&nbsp;points&nbsp;away&nbsp;from&nbsp;the&nbsp;Sun).&nbsp;<br>This&nbsp;system&nbsp;is&nbsp;thus&nbsp;like&nbsp;HEEQ&nbsp;but&nbsp;centered&nbsp;on&nbsp;the&nbsp;respective&nbsp;in&nbsp;situ&nbsp;spacecraft,&nbsp;so&nbsp;the&nbsp;SCEQ&nbsp;X&nbsp;and&nbsp;Y&nbsp;<br>base&nbsp;vectors&nbsp;are&nbsp;rotated&nbsp;by&nbsp;the&nbsp;HEEQ&nbsp;longitude&nbsp;of&nbsp;the&nbsp;in&nbsp;situ&nbsp;spacecraft&nbsp;from&nbsp;HEEQ&nbsp;X&nbsp;and&nbsp;Y.<br>The&nbsp;Y&nbsp;vector&nbsp;is&nbsp;similar&nbsp;to&nbsp;the&nbsp;T&nbsp;vector&nbsp;in&nbsp;an&nbsp;RTN&nbsp;system&nbsp;for&nbsp;each&nbsp;spacecraft,&nbsp;but&nbsp;the&nbsp;X&nbsp;and&nbsp;Z&nbsp;vectors&nbsp;<br>are&nbsp;rotated&nbsp;around&nbsp;Y&nbsp;compared&nbsp;to&nbsp;an&nbsp;RTN&nbsp;system.&nbsp;The&nbsp;differences&nbsp;between&nbsp;RTN&nbsp;and&nbsp;SCEQ&nbsp;for&nbsp;spacecraft&nbsp;within&nbsp;<br>a&nbsp;few&nbsp;degrees&nbsp;of&nbsp;the&nbsp;solar&nbsp;equatorial&nbsp;plane&nbsp;are&nbsp;very&nbsp;small&nbsp;(within&nbsp;a&nbsp;few&nbsp;0.1&nbsp;nT&nbsp;usually).<br>We&nbsp;choose&nbsp;SCEQ&nbsp;for&nbsp;the&nbsp;advantage&nbsp;that&nbsp;a&nbsp;comparison&nbsp;of&nbsp;the&nbsp;data&nbsp;of&nbsp;multipoint&nbsp;CME&nbsp;events&nbsp;<br>and&nbsp;comparisons&nbsp;to&nbsp;simulations&nbsp;are&nbsp;simpler&nbsp;because&nbsp;there&nbsp;is&nbsp;always&nbsp;a&nbsp;similar&nbsp;reference&nbsp;plane&nbsp;(the&nbsp;solar&nbsp;equatorial&nbsp;plane).<br><br>-&nbsp;Venus&nbsp;Express&nbsp;and&nbsp;MESSENGER&nbsp;do&nbsp;not&nbsp;have&nbsp;plasma&nbsp;parameters&nbsp;available.&nbsp;For&nbsp;events&nbsp;that&nbsp;do&nbsp;not&nbsp;have&nbsp;plasma&nbsp;parameters&nbsp;at&nbsp;Solar&nbsp;Orbiter&nbsp;or&nbsp;PSP,&nbsp;they&nbsp;may&nbsp;become&nbsp;available&nbsp;in&nbsp;the&nbsp;future.<br><br>-&nbsp;If&nbsp;there&nbsp;is&nbsp;no&nbsp;sheath&nbsp;or&nbsp;density&nbsp;pileup&nbsp;region,&nbsp;so&nbsp;the&nbsp;ICME&nbsp;starts&nbsp;immediately&nbsp;with&nbsp;a&nbsp;magnetic&nbsp;obstacle,&nbsp;the&nbsp;icme_start_time&nbsp;is&nbsp;similar&nbsp;to&nbsp;mo_start_time.<br><br>-&nbsp;At&nbsp;MESSENGER&nbsp;and&nbsp;VEX,&nbsp;for&nbsp;events&nbsp;cataloged&nbsp;by&nbsp;Simon&nbsp;Good,&nbsp;icme_start_time&nbsp;has&nbsp;been&nbsp;added&nbsp;by&nbsp;V.&nbsp;Krupar&nbsp;(Imperial&nbsp;College)&nbsp;and&nbsp;C.&nbsp;Moestl&nbsp;(IWF&nbsp;Graz).&nbsp;<br><br>-&nbsp;For&nbsp;the&nbsp;calculation&nbsp;of&nbsp;the&nbsp;parameters&nbsp;at&nbsp;MESSENGER&nbsp;during&nbsp;the&nbsp;orbit&nbsp;around&nbsp;Mercury,&nbsp;all&nbsp;data&nbsp;points&nbsp;inside&nbsp;the&nbsp;bowshock&nbsp;of&nbsp;Mercury&nbsp;have&nbsp;been&nbsp;removed,&nbsp;<br>according&nbsp;to&nbsp;a&nbsp;list&nbsp;thankfully&nbsp;provided&nbsp;to&nbsp;us&nbsp;by&nbsp;by&nbsp;R.&nbsp;Winslow,&nbsp;UNH,&nbsp;B.&nbsp;Anderson,&nbsp;APL,&nbsp;and&nbsp;Lydia&nbsp;Philpott,&nbsp;UBC.&nbsp;<br><br>-&nbsp;Calculation&nbsp;of&nbsp;the&nbsp;magnetic&nbsp;obstacle&nbsp;parameters&nbsp;at&nbsp;VEX&nbsp;is&nbsp;done&nbsp;after&nbsp;approximate&nbsp;removal&nbsp;of&nbsp;the&nbsp;induced&nbsp;magnetosphere,&nbsp;with&nbsp;a&nbsp;modified&nbsp;equation&nbsp;as&nbsp;in&nbsp;<br>Zhang&nbsp;et&nbsp;al.&nbsp;2008&nbsp;(doi:&nbsp;10.1016/j.pss.2007.09.012),&nbsp;with&nbsp;a&nbsp;constant&nbsp;of&nbsp;3.5&nbsp;instead&nbsp;of&nbsp;2.14/2.364,&nbsp;<br>in&nbsp;order&nbsp;to&nbsp;account&nbsp;for&nbsp;a&nbsp;larger&nbsp;bowshock&nbsp;distance&nbsp;during&nbsp;solar&nbsp;maximum&nbsp;than&nbsp;studied&nbsp;in&nbsp;the&nbsp;Zhang&nbsp;et&nbsp;al.&nbsp;(2008)&nbsp;paper.&nbsp;<br><br>-&nbsp;For&nbsp;MAVEN,&nbsp;all&nbsp;data&nbsp;inside&nbsp;the&nbsp;bow&nbsp;shock&nbsp;were&nbsp;removed&nbsp;with&nbsp;the&nbsp;model&nbsp;from&nbsp;Gruesbeck&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:10.1029/2018JA025366)&nbsp;by&nbsp;C.&nbsp;Simon&nbsp;Wedlund&nbsp;(IWF&nbsp;Graz,&nbsp;Austria).&nbsp;<br>From&nbsp;the&nbsp;remaining&nbsp;data,&nbsp;the&nbsp;median&nbsp;for&nbsp;each&nbsp;orbit&nbsp;is&nbsp;taken&nbsp;as&nbsp;1&nbsp;data&nbsp;point,&nbsp;resulting&nbsp;in&nbsp;a&nbsp;solar&nbsp;wind&nbsp;<br>dataset&nbsp;at&nbsp;Mars&nbsp;with&nbsp;4.5&nbsp;hour&nbsp;time&nbsp;resolution.&nbsp;This&nbsp;is&nbsp;a&nbsp;far&nbsp;lower&nbsp;resolution&nbsp;than&nbsp;available&nbsp;at&nbsp;1&nbsp;AU,&nbsp;so&nbsp;the&nbsp;identification&nbsp;<br>of&nbsp;ICMEs&nbsp;in&nbsp;the&nbsp;MAVEN&nbsp;data&nbsp;is&nbsp;not&nbsp;as&nbsp;straightforward&nbsp;as&nbsp;for&nbsp;data&nbsp;sets&nbsp;with&nbsp;higher&nbsp;time&nbsp;resolution.<br><br>-&nbsp;The&nbsp;identification&nbsp;of&nbsp;ICMEs&nbsp;for&nbsp;MAVEN&nbsp;was&nbsp;done&nbsp;as&nbsp;follows:&nbsp;(1)&nbsp;We&nbsp;looked&nbsp;for&nbsp;typical&nbsp;profiles&nbsp;for&nbsp;ICMEs&nbsp;in&nbsp;magnetic&nbsp;field&nbsp;(B)&nbsp;and&nbsp;speed&nbsp;(V).<br>(2)&nbsp;B&nbsp;needs&nbsp;to&nbsp;be&nbsp;elevated&nbsp;in&nbsp;ICMEs&nbsp;accompanied&nbsp;by&nbsp;a&nbsp;flat&nbsp;or&nbsp;declining&nbsp;profile&nbsp;in&nbsp;V.&nbsp;An&nbsp;elevation&nbsp;in&nbsp;B&nbsp;accompanied&nbsp;by&nbsp;a&nbsp;later&nbsp;gradual&nbsp;rise&nbsp;<br>in&nbsp;V&nbsp;is&nbsp;a&nbsp;strong&nbsp;indicator&nbsp;for&nbsp;a&nbsp;high&nbsp;speed&nbsp;stream&nbsp;(HSS).&nbsp;(3)&nbsp;The&nbsp;discrimination&nbsp;between&nbsp;HSS&nbsp;and&nbsp;ICMEs&nbsp;was&nbsp;further&nbsp;strengthened&nbsp;with&nbsp;<br>the&nbsp;help&nbsp;of&nbsp;a&nbsp;stream&nbsp;interaction&nbsp;region&nbsp;list&nbsp;for&nbsp;MAVEN&nbsp;by&nbsp;Huang&nbsp;et&nbsp;al.&nbsp;(2019,&nbsp;doi:&nbsp;10.3847/1538-4357/ab25e9).&nbsp;<br>(4)&nbsp;We&nbsp;additionally&nbsp;plotted&nbsp;the&nbsp;predicted&nbsp;CME&nbsp;arrivals&nbsp;with&nbsp;STEREO/HI&nbsp;(ARRCATv2.0),&nbsp;the&nbsp;dose&nbsp;rate&nbsp;measured&nbsp;on&nbsp;the&nbsp;Mars&nbsp;surface&nbsp;<br>by&nbsp;MSL/RAD&nbsp;(e.g.&nbsp;Guo&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:&nbsp;10.1051/0004-6361/201732087))&nbsp;and&nbsp;the&nbsp;speed&nbsp;of&nbsp;the&nbsp;WSA/HUX&nbsp;model&nbsp;for&nbsp;the&nbsp;<br>background&nbsp;solar&nbsp;wind&nbsp;(Reiss&nbsp;et&nbsp;al.&nbsp;2019,&nbsp;doi:&nbsp;10.3847/1538-4365/aaf8b3).&nbsp;<br>General&nbsp;guidance&nbsp;on&nbsp;space&nbsp;weather&nbsp;observed&nbsp;by&nbsp;MAVEN&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;Lee&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:10.1002/2016JA023495).<br><br><br><br></p><p>Parameters:<br>00: icmecat_id: The unique identifier for the observed ICME. unit: string. <br>01: sc insitu: The name of the in situ observing spacecraft. unit: string. <br>02: icme_start_time: Shock arrival or density enhancement time, can be similar to mo_start_time. unit: UTC. <br>03: mo_start_time: Start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. <br>04: mo_end_time: End time of the magnetic obstacle. unit: UTC. <br>05: mo_sc_heliodistance: Heliocentric distance of the spacecraft at mo_start_time. unit: AU.<br>06: mo_sc_long_heeq: Heliospheric longitude of the spacecraft at mo_start_time, range [-180,180]. unit: degree (HEEQ).<br>07: mo_sc_lat_heeq: Heliospheric latitude of the spacecraft at mo_start_time, range [-90,90]. unit: degree (HEEQ).<br>08: icme_duration: Duration of the interval between icme_start_time and mo_endtime. unit: hours.<br>09: icme_bmax: Maximum total magnetic field in the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>10: icme_bmean: Mean total magnetic field during the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>11: icme_bstd: Standard deviation of the total magnetic field from icme_start_time to mo_end_time. unit: nT.<br>12: icme_speed_mean: Mean proton speed from icme_start_time to mo_end_time. unit: km/s.<br>13: icme_speed_std: Standard deviation of proton speed from icme_start_time to mo_end_time. unit: km/s.<br>14: mo_duration: Duration of the interval between mo_start_time and mo_endtime. unit: hours.<br>15: mo_bmax: Maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.<br>16: mo_bmean: Mean total magnetic field in the magnetic obstacle. unit: nT.<br>17: mo_bstd: Standard deviation of the total magnetic field in the magnetic obstacle. unit: nT.<br>18: mo_bzmean: Mean magnetic field Bz component in the magnetic obstacle. unit: nT.<br>19: mo_bzmin: Minimum magnetic field Bz component in the magnetic obstacle. unit: nT.<br>20: mo_bzstd: Standard deviation of the magnetic field Bz component in the magnetic obstacle. unit: nT.<br>21: mo_bymean: Mean magnetic field By component in the magnetic obstacle. unit: nT.<br>22: mo_bystd: Standard deviation of the magnetic field By component in the magnetic obstacle. unit: nT.<br>23: mo_speed_mean: Mean proton speed from mo_start_time to mo_end_time. unit: km/s.<br>24: mo_speed_std: Standard deviation of proton speed from mo_start_time to mo_end_time. unit: km/s.<br>25: mo_expansion_speed: Difference between proton speed at mo_start_time to proton speed at mo_end_time. unit: km/s.<br>26: mo_pdyn_mean: Mean proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>27: mo_pdyn_std: Standard deviation of proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>28: mo_density_mean: Mean proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>29: mo_density_std: Standard deviation of proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>30: mo_temperature_mean: Mean proton temperature from mo_start_time to mo_start_time. unit: K.<br>31: mo_temperature_std: Standard deviation of proton temperature from mo_start_time to mo_end_time. unit: K.<br>32: sheath_speed_mean: Mean proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>33: sheath_speed_std: Standard deviation of proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>34: sheath_density_mean: Mean proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>35: sheath_density_std: Standard deviation of proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>36: sheath_pdyn_mean: Mean proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br>37: sheath_pdyn_std: Standard deviation of proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br><br><br></p><table border="1" class="dataframe">
+<p>ICME&nbsp;CATALOGUE&nbsp;v2.1&nbsp;<br><br>This&nbsp;is&nbsp;the&nbsp;HELIO4CAST&nbsp;interplanetary&nbsp;coronal&nbsp;mass&nbsp;ejection&nbsp;(ICME)&nbsp;catalog,&nbsp;based&nbsp;on&nbsp;in&nbsp;situ&nbsp;magnetic&nbsp;field&nbsp;and&nbsp;bulk&nbsp;plasma&nbsp;observations&nbsp;in&nbsp;the&nbsp;heliosphere.&nbsp;<br><br>This&nbsp;is&nbsp;version&nbsp;2.1,&nbsp;released&nbsp;2021-November-29,&nbsp;updated&nbsp;2021-December-6,&nbsp;doi:&nbsp;10.6084/m9.figshare.6356420&nbsp;<br><br>Rules:&nbsp;If&nbsp;results&nbsp;are&nbsp;produced&nbsp;with&nbsp;this&nbsp;catalog&nbsp;for&nbsp;peer-reviewed&nbsp;scientific&nbsp;publications,&nbsp;please&nbsp;contact&nbsp;christian.moestl@oeaw.ac.at&nbsp;for&nbsp;possible&nbsp;co-authorship.&nbsp;<br>References&nbsp;for&nbsp;this&nbsp;catalog&nbsp;are&nbsp;Moestl&nbsp;et&nbsp;al.&nbsp;2017&nbsp;(https://doi.org/10.1002/2017SW001614)&nbsp;and&nbsp;Moestl&nbsp;et&nbsp;al.&nbsp;2020&nbsp;(https://doi.org/10.3847/1538-4357/abb9a1).&nbsp;&nbsp;<br><br>The&nbsp;catalog&nbsp;is&nbsp;available&nbsp;as&nbsp;a&nbsp;python&nbsp;pandas&nbsp;dataframe&nbsp;(pickle),&nbsp;python&nbsp;numpy&nbsp;structured&nbsp;array&nbsp;(pickle),&nbsp;json,&nbsp;csv,&nbsp;xlsx,&nbsp;txt,&nbsp;hdf5,&nbsp;at&nbsp;<br>https://helioforecast.space/icmecat&nbsp;<br><br>Number&nbsp;of&nbsp;events&nbsp;in&nbsp;ICMECAT:&nbsp;1066&nbsp;<br>ICME&nbsp;observatories:&nbsp;Solar&nbsp;Orbiter,&nbsp;Parker&nbsp;Solar&nbsp;Probe&nbsp;(PSP),&nbsp;BepiColombo,&nbsp;Wind,&nbsp;STEREO-A,&nbsp;MAVEN,&nbsp;STEREO-B,&nbsp;Venus&nbsp;Express&nbsp;(VEX),&nbsp;MESSENGER,&nbsp;Ulysses.&nbsp;&nbsp;&nbsp;<br>Time&nbsp;range:&nbsp;January&nbsp;1995&nbsp;-&nbsp;November&nbsp;2021.&nbsp;<br>&nbsp;<br>Authors:&nbsp;Christian&nbsp;Moestl,&nbsp;Andreas&nbsp;J.&nbsp;Weiss,&nbsp;Rachel&nbsp;L.&nbsp;Bailey,&nbsp;Martin&nbsp;A.&nbsp;Reiss,&nbsp;<br>Space&nbsp;Research&nbsp;Institute,&nbsp;Austrian&nbsp;Academy&nbsp;of&nbsp;Sciences,&nbsp;Graz,&nbsp;Austria.<br>Contributors:&nbsp;Peter&nbsp;Boakes,&nbsp;Alexey&nbsp;Isavnin,&nbsp;Emilia&nbsp;Kilpua,&nbsp;David&nbsp;Stansby,&nbsp;Reka&nbsp;Winslow,&nbsp;Brian&nbsp;Anderson,&nbsp;Lydia&nbsp;Philpott,&nbsp;<br>Vratislav&nbsp;Krupar,&nbsp;Jonathan&nbsp;Eastwood,&nbsp;Simon&nbsp;Good,&nbsp;Lan&nbsp;Jian,&nbsp;Teresa&nbsp;Nieves-Chinchilla,&nbsp;Cyril&nbsp;Simon&nbsp;Wedlund,&nbsp;Jingnan&nbsp;Guo,&nbsp;<br>Johan&nbsp;von&nbsp;Forstner,&nbsp;Mateja&nbsp;Dumbovic,&nbsp;Benoit&nbsp;Lavraud.&nbsp;&nbsp;<br><br>This&nbsp;catalog&nbsp;has&nbsp;been&nbsp;made&nbsp;by&nbsp;getting&nbsp;the&nbsp;3&nbsp;times&nbsp;of&nbsp;each&nbsp;ICME&nbsp;(shock&nbsp;or&nbsp;disturbance&nbsp;begin,&nbsp;magnetic&nbsp;obstacle&nbsp;start&nbsp;and&nbsp;end)&nbsp;<br>from&nbsp;the&nbsp;individual&nbsp;catalogs&nbsp;below,&nbsp;and&nbsp;then&nbsp;calculating&nbsp;all&nbsp;parameters&nbsp;again&nbsp;consistently&nbsp;from&nbsp;the&nbsp;data&nbsp;by&nbsp;us.&nbsp;<br>The&nbsp;selection&nbsp;criteria&nbsp;are&nbsp;relatively&nbsp;simple:&nbsp;the&nbsp;event&nbsp;needs&nbsp;to&nbsp;have&nbsp;a&nbsp;clearly&nbsp;organized&nbsp;large-scale&nbsp;magnetic&nbsp;structure,<br>&nbsp;which&nbsp;manifests&nbsp;itself&nbsp;through&nbsp;(1)&nbsp;an&nbsp;elevated&nbsp;total&nbsp;magnetic&nbsp;field&nbsp;and&nbsp;(2)&nbsp;a&nbsp;rotation&nbsp;in&nbsp;the&nbsp;field&nbsp;observed&nbsp;through&nbsp;the&nbsp;field&nbsp;components.&nbsp;<br><br>The&nbsp;in&nbsp;situ&nbsp;data&nbsp;that&nbsp;were&nbsp;used&nbsp;for&nbsp;the&nbsp;catalog,&nbsp;with&nbsp;a&nbsp;size&nbsp;of&nbsp;8&nbsp;GB&nbsp;in&nbsp;total,&nbsp;including&nbsp;extra&nbsp;data&nbsp;files&nbsp;with&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;<br>in&nbsp;RTN&nbsp;coordinates&nbsp;that&nbsp;are&nbsp;not&nbsp;used&nbsp;for&nbsp;producing&nbsp;the&nbsp;catalog,&nbsp;can&nbsp;be&nbsp;downloaded&nbsp;in&nbsp;python&nbsp;pickle&nbsp;format&nbsp;as&nbsp;recarrays&nbsp;from&nbsp;https://doi.org/10.6084/m9.figshare.11973693&nbsp;<br><br>The&nbsp;python&nbsp;source&nbsp;code&nbsp;for&nbsp;producing&nbsp;this&nbsp;catalog&nbsp;is&nbsp;available&nbsp;at&nbsp;https://github.com/cmoestl/heliocats&nbsp;icmecat.ipynb<br><br>Each&nbsp;event&nbsp;has&nbsp;unique&nbsp;identifier&nbsp;-&nbsp;the&nbsp;icmecat_id&nbsp;-&nbsp;which&nbsp;has&nbsp;a&nbsp;tag&nbsp;in&nbsp;it&nbsp;that&nbsp;indicates&nbsp;from&nbsp;which&nbsp;catalog&nbsp;the&nbsp;ICME&nbsp;times&nbsp;were&nbsp;taken:&nbsp;<br><br>Wind:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nieves-Chinchilla&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;NASA.&nbsp;<br>STEREO-A:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;JIAN.&nbsp;<br>STEREO-B:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;JIAN.&nbsp;<br>VEX:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;SGOOD&nbsp;<br>MESSENGER:&nbsp;&nbsp;&nbsp;&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;Winslow&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;SGOOD,&nbsp;WINSLOW.&nbsp;<br>MAVEN:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Made&nbsp;by&nbsp;us&nbsp;according&nbsp;to&nbsp;the&nbsp;method&nbsp;in&nbsp;the&nbsp;comments,&nbsp;tag:&nbsp;MOESTL.<br>Ulysses:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br>SolarOrbiter:&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br>BepiColomo:&nbsp;&nbsp;&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br>PSP:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL.&nbsp;<br><br>We&nbsp;have&nbsp;also&nbsp;added&nbsp;extra&nbsp;events&nbsp;at&nbsp;VEX,&nbsp;MESSENGER,&nbsp;Wind&nbsp;and&nbsp;STEREO-A&nbsp;(all&nbsp;tagged&nbsp;with&nbsp;MOESTL&nbsp;in&nbsp;icmecat_id).<br><br>References:&nbsp;<br>Nieves-Chinchilla,&nbsp;T.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;&nbsp;https://doi.org/10.1007/s11207-018-1247-z&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php&nbsp;<br>Jian,&nbsp;L.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;https://doi.org/10.3847/1538-4357/aab189&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/&nbsp;<br>Good,&nbsp;S.&nbsp;et&nbsp;al.&nbsp;(2018)&nbsp;https://doi.org/10.1007/s11207-015-0828-3&nbsp;<br>Winslow,&nbsp;R.&nbsp;et&nbsp;al.&nbsp;(2015),&nbsp;https://doi.org/10.1002/2015JA021200&nbsp;<br><br><br>Comments:&nbsp;<br><br>-&nbsp;Spacecraft&nbsp;positions&nbsp;are&nbsp;given&nbsp;in&nbsp;Heliocentric&nbsp;Earth&nbsp;Equatorial&nbsp;Coordinates&nbsp;(HEEQ)&nbsp;coordinates.&nbsp;<br><br>-&nbsp;The&nbsp;coordinate&nbsp;system&nbsp;for&nbsp;all&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;is&nbsp;SCEQ,&nbsp;except&nbsp;for&nbsp;Wind&nbsp;(HEEQ,&nbsp;which&nbsp;is&nbsp;the&nbsp;equivalent&nbsp;for&nbsp;SCEQ&nbsp;for&nbsp;Earth)&nbsp;and&nbsp;Ulysses&nbsp;(RTN,&nbsp;because&nbsp;of&nbsp;high&nbsp;latitude&nbsp;positions)&nbsp;and&nbsp;MAVEN&nbsp;(MSO).&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Definition&nbsp;of&nbsp;SpaceCraft&nbsp;Equatorial&nbsp;Coordinates&nbsp;(SCEQ):&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z&nbsp;is&nbsp;the&nbsp;solar&nbsp;rotation&nbsp;axis.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y&nbsp;is&nbsp;the&nbsp;cross&nbsp;product&nbsp;of&nbsp;Z&nbsp;and&nbsp;R,&nbsp;with&nbsp;R&nbsp;being&nbsp;the&nbsp;vector&nbsp;that&nbsp;points&nbsp;from&nbsp;the&nbsp;Sun&nbsp;to&nbsp;the&nbsp;spacecraft.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;completes&nbsp;the&nbsp;right&nbsp;handed&nbsp;triad&nbsp;(and&nbsp;points&nbsp;away&nbsp;from&nbsp;the&nbsp;Sun).&nbsp;<br>This&nbsp;system&nbsp;is&nbsp;thus&nbsp;like&nbsp;HEEQ&nbsp;but&nbsp;centered&nbsp;on&nbsp;the&nbsp;respective&nbsp;in&nbsp;situ&nbsp;spacecraft,&nbsp;so&nbsp;the&nbsp;SCEQ&nbsp;X&nbsp;and&nbsp;Y&nbsp;<br>base&nbsp;vectors&nbsp;are&nbsp;rotated&nbsp;by&nbsp;the&nbsp;HEEQ&nbsp;longitude&nbsp;of&nbsp;the&nbsp;in&nbsp;situ&nbsp;spacecraft&nbsp;from&nbsp;HEEQ&nbsp;X&nbsp;and&nbsp;Y.<br>The&nbsp;Y&nbsp;vector&nbsp;is&nbsp;similar&nbsp;to&nbsp;the&nbsp;T&nbsp;vector&nbsp;in&nbsp;an&nbsp;RTN&nbsp;system&nbsp;for&nbsp;each&nbsp;spacecraft,&nbsp;but&nbsp;the&nbsp;X&nbsp;and&nbsp;Z&nbsp;vectors&nbsp;<br>are&nbsp;rotated&nbsp;around&nbsp;Y&nbsp;compared&nbsp;to&nbsp;an&nbsp;RTN&nbsp;system.&nbsp;The&nbsp;differences&nbsp;between&nbsp;RTN&nbsp;and&nbsp;SCEQ&nbsp;for&nbsp;spacecraft&nbsp;within&nbsp;<br>a&nbsp;few&nbsp;degrees&nbsp;of&nbsp;the&nbsp;solar&nbsp;equatorial&nbsp;plane&nbsp;are&nbsp;very&nbsp;small&nbsp;(within&nbsp;a&nbsp;few&nbsp;0.1&nbsp;nT&nbsp;usually).<br>We&nbsp;choose&nbsp;SCEQ&nbsp;for&nbsp;the&nbsp;advantage&nbsp;that&nbsp;a&nbsp;comparison&nbsp;of&nbsp;the&nbsp;data&nbsp;of&nbsp;multipoint&nbsp;CME&nbsp;events&nbsp;<br>and&nbsp;comparisons&nbsp;to&nbsp;simulations&nbsp;are&nbsp;simpler&nbsp;because&nbsp;there&nbsp;is&nbsp;always&nbsp;a&nbsp;similar&nbsp;reference&nbsp;plane&nbsp;(the&nbsp;solar&nbsp;equatorial&nbsp;plane).<br><br>-&nbsp;Venus&nbsp;Express&nbsp;and&nbsp;MESSENGER&nbsp;do&nbsp;not&nbsp;have&nbsp;plasma&nbsp;parameters&nbsp;available.&nbsp;For&nbsp;events&nbsp;that&nbsp;do&nbsp;not&nbsp;have&nbsp;plasma&nbsp;parameters&nbsp;at&nbsp;Solar&nbsp;Orbiter&nbsp;or&nbsp;PSP,&nbsp;they&nbsp;may&nbsp;become&nbsp;available&nbsp;in&nbsp;the&nbsp;future.<br><br>-&nbsp;If&nbsp;there&nbsp;is&nbsp;no&nbsp;sheath&nbsp;or&nbsp;density&nbsp;pileup&nbsp;region,&nbsp;so&nbsp;the&nbsp;ICME&nbsp;starts&nbsp;immediately&nbsp;with&nbsp;a&nbsp;magnetic&nbsp;obstacle,&nbsp;the&nbsp;icme_start_time&nbsp;is&nbsp;similar&nbsp;to&nbsp;mo_start_time.<br><br>-&nbsp;At&nbsp;MESSENGER&nbsp;and&nbsp;VEX,&nbsp;for&nbsp;events&nbsp;cataloged&nbsp;by&nbsp;Simon&nbsp;Good,&nbsp;icme_start_time&nbsp;has&nbsp;been&nbsp;added&nbsp;by&nbsp;V.&nbsp;Krupar&nbsp;(Imperial&nbsp;College)&nbsp;and&nbsp;C.&nbsp;Moestl&nbsp;(IWF&nbsp;Graz).&nbsp;<br><br>-&nbsp;For&nbsp;the&nbsp;calculation&nbsp;of&nbsp;the&nbsp;parameters&nbsp;at&nbsp;MESSENGER&nbsp;during&nbsp;the&nbsp;orbit&nbsp;around&nbsp;Mercury,&nbsp;all&nbsp;data&nbsp;points&nbsp;inside&nbsp;the&nbsp;bowshock&nbsp;of&nbsp;Mercury&nbsp;have&nbsp;been&nbsp;removed,&nbsp;<br>according&nbsp;to&nbsp;a&nbsp;list&nbsp;thankfully&nbsp;provided&nbsp;to&nbsp;us&nbsp;by&nbsp;by&nbsp;R.&nbsp;Winslow,&nbsp;UNH,&nbsp;B.&nbsp;Anderson,&nbsp;APL,&nbsp;and&nbsp;Lydia&nbsp;Philpott,&nbsp;UBC.&nbsp;<br><br>-&nbsp;Calculation&nbsp;of&nbsp;the&nbsp;magnetic&nbsp;obstacle&nbsp;parameters&nbsp;at&nbsp;VEX&nbsp;is&nbsp;done&nbsp;after&nbsp;approximate&nbsp;removal&nbsp;of&nbsp;the&nbsp;induced&nbsp;magnetosphere,&nbsp;with&nbsp;a&nbsp;modified&nbsp;equation&nbsp;as&nbsp;in&nbsp;<br>Zhang&nbsp;et&nbsp;al.&nbsp;2008&nbsp;(doi:&nbsp;10.1016/j.pss.2007.09.012),&nbsp;with&nbsp;a&nbsp;constant&nbsp;of&nbsp;3.5&nbsp;instead&nbsp;of&nbsp;2.14/2.364,&nbsp;<br>in&nbsp;order&nbsp;to&nbsp;account&nbsp;for&nbsp;a&nbsp;larger&nbsp;bowshock&nbsp;distance&nbsp;during&nbsp;solar&nbsp;maximum&nbsp;than&nbsp;studied&nbsp;in&nbsp;the&nbsp;Zhang&nbsp;et&nbsp;al.&nbsp;(2008)&nbsp;paper.&nbsp;<br><br>-&nbsp;For&nbsp;MAVEN,&nbsp;all&nbsp;data&nbsp;inside&nbsp;the&nbsp;bow&nbsp;shock&nbsp;were&nbsp;removed&nbsp;with&nbsp;the&nbsp;model&nbsp;from&nbsp;Gruesbeck&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:10.1029/2018JA025366)&nbsp;by&nbsp;C.&nbsp;Simon&nbsp;Wedlund&nbsp;(IWF&nbsp;Graz,&nbsp;Austria).&nbsp;<br>From&nbsp;the&nbsp;remaining&nbsp;data,&nbsp;the&nbsp;median&nbsp;for&nbsp;each&nbsp;orbit&nbsp;is&nbsp;taken&nbsp;as&nbsp;1&nbsp;data&nbsp;point,&nbsp;resulting&nbsp;in&nbsp;a&nbsp;solar&nbsp;wind&nbsp;<br>dataset&nbsp;at&nbsp;Mars&nbsp;with&nbsp;4.5&nbsp;hour&nbsp;time&nbsp;resolution.&nbsp;This&nbsp;is&nbsp;a&nbsp;far&nbsp;lower&nbsp;resolution&nbsp;than&nbsp;available&nbsp;at&nbsp;1&nbsp;AU,&nbsp;so&nbsp;the&nbsp;identification&nbsp;<br>of&nbsp;ICMEs&nbsp;in&nbsp;the&nbsp;MAVEN&nbsp;data&nbsp;is&nbsp;not&nbsp;as&nbsp;straightforward&nbsp;as&nbsp;for&nbsp;data&nbsp;sets&nbsp;with&nbsp;higher&nbsp;time&nbsp;resolution.<br><br>-&nbsp;The&nbsp;identification&nbsp;of&nbsp;ICMEs&nbsp;for&nbsp;MAVEN&nbsp;was&nbsp;done&nbsp;as&nbsp;follows:&nbsp;(1)&nbsp;We&nbsp;looked&nbsp;for&nbsp;typical&nbsp;profiles&nbsp;for&nbsp;ICMEs&nbsp;in&nbsp;magnetic&nbsp;field&nbsp;(B)&nbsp;and&nbsp;speed&nbsp;(V).<br>(2)&nbsp;B&nbsp;needs&nbsp;to&nbsp;be&nbsp;elevated&nbsp;in&nbsp;ICMEs&nbsp;accompanied&nbsp;by&nbsp;a&nbsp;flat&nbsp;or&nbsp;declining&nbsp;profile&nbsp;in&nbsp;V.&nbsp;An&nbsp;elevation&nbsp;in&nbsp;B&nbsp;accompanied&nbsp;by&nbsp;a&nbsp;later&nbsp;gradual&nbsp;rise&nbsp;<br>in&nbsp;V&nbsp;is&nbsp;a&nbsp;strong&nbsp;indicator&nbsp;for&nbsp;a&nbsp;high&nbsp;speed&nbsp;stream&nbsp;(HSS).&nbsp;(3)&nbsp;The&nbsp;discrimination&nbsp;between&nbsp;HSS&nbsp;and&nbsp;ICMEs&nbsp;was&nbsp;further&nbsp;strengthened&nbsp;with&nbsp;<br>the&nbsp;help&nbsp;of&nbsp;a&nbsp;stream&nbsp;interaction&nbsp;region&nbsp;list&nbsp;for&nbsp;MAVEN&nbsp;by&nbsp;Huang&nbsp;et&nbsp;al.&nbsp;(2019,&nbsp;doi:&nbsp;10.3847/1538-4357/ab25e9).&nbsp;<br>(4)&nbsp;We&nbsp;additionally&nbsp;plotted&nbsp;the&nbsp;predicted&nbsp;CME&nbsp;arrivals&nbsp;with&nbsp;STEREO/HI&nbsp;(ARRCATv2.0),&nbsp;the&nbsp;dose&nbsp;rate&nbsp;measured&nbsp;on&nbsp;the&nbsp;Mars&nbsp;surface&nbsp;<br>by&nbsp;MSL/RAD&nbsp;(e.g.&nbsp;Guo&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:&nbsp;10.1051/0004-6361/201732087))&nbsp;and&nbsp;the&nbsp;speed&nbsp;of&nbsp;the&nbsp;WSA/HUX&nbsp;model&nbsp;for&nbsp;the&nbsp;<br>background&nbsp;solar&nbsp;wind&nbsp;(Reiss&nbsp;et&nbsp;al.&nbsp;2019,&nbsp;doi:&nbsp;10.3847/1538-4365/aaf8b3).&nbsp;<br>General&nbsp;guidance&nbsp;on&nbsp;space&nbsp;weather&nbsp;observed&nbsp;by&nbsp;MAVEN&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;Lee&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:10.1002/2016JA023495).<br><br><br><br></p><p>Parameters:<br>00: icmecat_id: The unique identifier for the observed ICME. unit: string. <br>01: sc insitu: The name of the in situ observing spacecraft. unit: string. <br>02: icme_start_time: Shock arrival or density enhancement time, can be similar to mo_start_time. unit: UTC. <br>03: mo_start_time: Start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. <br>04: mo_end_time: End time of the magnetic obstacle. unit: UTC. <br>05: mo_sc_heliodistance: Heliocentric distance of the spacecraft at mo_start_time. unit: AU.<br>06: mo_sc_long_heeq: Heliospheric longitude of the spacecraft at mo_start_time, range [-180,180]. unit: degree (HEEQ).<br>07: mo_sc_lat_heeq: Heliospheric latitude of the spacecraft at mo_start_time, range [-90,90]. unit: degree (HEEQ).<br>08: icme_duration: Duration of the interval between icme_start_time and mo_endtime. unit: hours.<br>09: icme_bmax: Maximum total magnetic field in the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>10: icme_bmean: Mean total magnetic field during the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>11: icme_bstd: Standard deviation of the total magnetic field from icme_start_time to mo_end_time. unit: nT.<br>12: icme_speed_mean: Mean proton speed from icme_start_time to mo_end_time. unit: km/s.<br>13: icme_speed_std: Standard deviation of proton speed from icme_start_time to mo_end_time. unit: km/s.<br>14: mo_duration: Duration of the interval between mo_start_time and mo_endtime. unit: hours.<br>15: mo_bmax: Maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.<br>16: mo_bmean: Mean total magnetic field in the magnetic obstacle. unit: nT.<br>17: mo_bstd: Standard deviation of the total magnetic field in the magnetic obstacle. unit: nT.<br>18: mo_bzmean: Mean magnetic field Bz component in the magnetic obstacle. unit: nT.<br>19: mo_bzmin: Minimum magnetic field Bz component in the magnetic obstacle. unit: nT.<br>20: mo_bzstd: Standard deviation of the magnetic field Bz component in the magnetic obstacle. unit: nT.<br>21: mo_bymean: Mean magnetic field By component in the magnetic obstacle. unit: nT.<br>22: mo_bystd: Standard deviation of the magnetic field By component in the magnetic obstacle. unit: nT.<br>23: mo_speed_mean: Mean proton speed from mo_start_time to mo_end_time. unit: km/s.<br>24: mo_speed_std: Standard deviation of proton speed from mo_start_time to mo_end_time. unit: km/s.<br>25: mo_expansion_speed: Difference between proton speed at mo_start_time to proton speed at mo_end_time. unit: km/s.<br>26: mo_pdyn_mean: Mean proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>27: mo_pdyn_std: Standard deviation of proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>28: mo_density_mean: Mean proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>29: mo_density_std: Standard deviation of proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>30: mo_temperature_mean: Mean proton temperature from mo_start_time to mo_start_time. unit: K.<br>31: mo_temperature_std: Standard deviation of proton temperature from mo_start_time to mo_end_time. unit: K.<br>32: sheath_speed_mean: Mean proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>33: sheath_speed_std: Standard deviation of proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>34: sheath_density_mean: Mean proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>35: sheath_density_std: Standard deviation of proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>36: sheath_pdyn_mean: Mean proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br>37: sheath_pdyn_std: Standard deviation of proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br><br><br></p><table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th></th>
@@ -6487,24 +6487,24 @@
       <td>2017-12-24T19:30Z</td>
       <td>2017-12-25T00:02Z</td>
       <td>2017-12-25T09:57Z</td>
-      <td>0.9751</td>
-      <td>-0.14</td>
-      <td>-2.20</td>
+      <td>0.9752</td>
+      <td>-0.16</td>
+      <td>-2.21</td>
       <td>14.45</td>
-      <td>8.1</td>
-      <td>8.0</td>
-      <td>0.1</td>
+      <td>7.1</td>
+      <td>5.5</td>
+      <td>1.0</td>
       <td>529.0</td>
       <td>21.7</td>
       <td>9.92</td>
-      <td>8.1</td>
-      <td>8.0</td>
-      <td>0.0</td>
-      <td>-5.9</td>
-      <td>-5.9</td>
-      <td>0.0</td>
-      <td>2.4</td>
-      <td>0.0</td>
+      <td>7.1</td>
+      <td>6.0</td>
+      <td>0.5</td>
+      <td>-1.3</td>
+      <td>-3.2</td>
+      <td>0.9</td>
+      <td>1.0</td>
+      <td>0.9</td>
       <td>516.9</td>
       <td>12.2</td>
       <td>25.3</td>
@@ -8254,20 +8254,20 @@
       <td>-0.04</td>
       <td>-2.98</td>
       <td>35.62</td>
-      <td>14.9</td>
-      <td>13.6</td>
-      <td>1.9</td>
+      <td>17.1</td>
+      <td>12.5</td>
+      <td>2.3</td>
       <td>447.0</td>
       <td>23.7</td>
       <td>17.17</td>
-      <td>14.9</td>
-      <td>12.5</td>
-      <td>2.2</td>
-      <td>-8.8</td>
-      <td>-13.4</td>
-      <td>6.1</td>
-      <td>2.4</td>
-      <td>3.5</td>
+      <td>17.1</td>
+      <td>12.9</td>
+      <td>2.6</td>
+      <td>-9.3</td>
+      <td>-16.1</td>
+      <td>6.5</td>
+      <td>2.1</td>
+      <td>4.0</td>
       <td>445.2</td>
       <td>16.7</td>
       <td>20.5</td>
@@ -8291,24 +8291,24 @@
       <td>2015-12-19T15:35Z</td>
       <td>2015-12-20T13:40Z</td>
       <td>2015-12-21T23:02Z</td>
-      <td>0.9754</td>
-      <td>0.05</td>
+      <td>0.9755</td>
+      <td>0.06</td>
       <td>-1.59</td>
       <td>55.45</td>
-      <td>10.5</td>
-      <td>10.0</td>
-      <td>0.3</td>
+      <td>19.7</td>
+      <td>14.0</td>
+      <td>3.7</td>
       <td>416.7</td>
       <td>35.6</td>
       <td>33.37</td>
-      <td>10.5</td>
-      <td>10.2</td>
-      <td>0.2</td>
-      <td>-8.9</td>
-      <td>-9.2</td>
-      <td>0.2</td>
-      <td>-1.3</td>
-      <td>0.1</td>
+      <td>19.7</td>
+      <td>15.6</td>
+      <td>2.3</td>
+      <td>-10.1</td>
+      <td>-19.0</td>
+      <td>6.7</td>
+      <td>7.0</td>
+      <td>5.8</td>
       <td>398.2</td>
       <td>17.6</td>
       <td>-23.5</td>
@@ -13088,24 +13088,24 @@
       <td>2013-12-24T20:36Z</td>
       <td>2013-12-25T04:47Z</td>
       <td>2013-12-25T17:59Z</td>
-      <td>0.9749</td>
-      <td>0.15</td>
+      <td>0.9751</td>
+      <td>0.18</td>
       <td>-2.22</td>
       <td>21.38</td>
-      <td>5.5</td>
-      <td>5.4</td>
-      <td>0.0</td>
+      <td>11.5</td>
+      <td>8.7</td>
+      <td>2.5</td>
       <td>305.0</td>
       <td>14.2</td>
       <td>13.20</td>
-      <td>5.4</td>
-      <td>5.4</td>
-      <td>0.0</td>
-      <td>0.7</td>
-      <td>0.7</td>
-      <td>0.0</td>
-      <td>-5.1</td>
-      <td>0.0</td>
+      <td>11.5</td>
+      <td>10.6</td>
+      <td>0.8</td>
+      <td>-4.5</td>
+      <td>-8.2</td>
+      <td>3.7</td>
+      <td>-4.1</td>
+      <td>5.8</td>
       <td>299.9</td>
       <td>14.4</td>
       <td>20.3</td>
@@ -13211,24 +13211,24 @@
       <td>2013-12-14T16:47Z</td>
       <td>2013-12-15T16:47Z</td>
       <td>2013-12-16T05:31Z</td>
-      <td>0.9752</td>
-      <td>0.19</td>
+      <td>0.9755</td>
+      <td>0.23</td>
       <td>-1.01</td>
       <td>36.73</td>
-      <td>7.1</td>
-      <td>7.0</td>
-      <td>0.1</td>
+      <td>11.9</td>
+      <td>7.2</td>
+      <td>1.8</td>
       <td>504.0</td>
       <td>49.7</td>
       <td>12.73</td>
-      <td>6.9</td>
-      <td>6.9</td>
-      <td>0.0</td>
-      <td>2.2</td>
-      <td>2.1</td>
-      <td>0.0</td>
-      <td>-6.5</td>
-      <td>0.0</td>
+      <td>9.3</td>
+      <td>7.2</td>
+      <td>1.6</td>
+      <td>1.1</td>
+      <td>-4.5</td>
+      <td>2.7</td>
+      <td>-5.8</td>
+      <td>3.1</td>
       <td>460.2</td>
       <td>13.4</td>
       <td>13.0</td>
@@ -13334,24 +13334,24 @@
       <td>2013-12-08T07:31Z</td>
       <td>2013-12-08T16:47Z</td>
       <td>2013-12-09T02:09Z</td>
-      <td>0.9758</td>
-      <td>0.22</td>
+      <td>0.9759</td>
+      <td>0.24</td>
       <td>-0.09</td>
       <td>18.63</td>
-      <td>8.3</td>
-      <td>8.2</td>
-      <td>0.0</td>
+      <td>6.0</td>
+      <td>4.9</td>
+      <td>0.6</td>
       <td>589.9</td>
       <td>40.2</td>
       <td>9.37</td>
-      <td>8.2</td>
-      <td>8.2</td>
-      <td>0.0</td>
-      <td>3.3</td>
-      <td>3.2</td>
-      <td>0.0</td>
-      <td>-7.5</td>
-      <td>0.0</td>
+      <td>6.0</td>
+      <td>5.0</td>
+      <td>0.5</td>
+      <td>-1.4</td>
+      <td>-5.5</td>
+      <td>1.8</td>
+      <td>-1.5</td>
+      <td>1.3</td>
       <td>553.4</td>
       <td>19.0</td>
       <td>39.1</td>
@@ -13420,20 +13420,20 @@
       <td>0.25</td>
       <td>0.89</td>
       <td>54.97</td>
-      <td>13.2</td>
-      <td>9.7</td>
-      <td>0.4</td>
+      <td>13.5</td>
+      <td>9.1</td>
+      <td>1.3</td>
       <td>454.1</td>
       <td>46.7</td>
       <td>46.55</td>
-      <td>9.8</td>
-      <td>9.6</td>
-      <td>0.1</td>
-      <td>4.3</td>
-      <td>4.1</td>
-      <td>0.1</td>
-      <td>-8.5</td>
-      <td>0.1</td>
+      <td>10.4</td>
+      <td>8.7</td>
+      <td>1.0</td>
+      <td>3.7</td>
+      <td>-3.9</td>
+      <td>2.8</td>
+      <td>-1.6</td>
+      <td>3.9</td>
       <td>442.9</td>
       <td>41.3</td>
       <td>30.8</td>
@@ -22062,47 +22062,6 @@
     </tr>
     <tr>
       <th>537</th>
-      <td>ICME_MES_WINSLOW_20120304_01</td>
-      <td>MESSENGER</td>
-      <td>2012-03-04T10:34Z</td>
-      <td>2012-03-04T14:36Z</td>
-      <td>2012-03-05T07:16Z</td>
-      <td>0.3093</td>
-      <td>-71.44</td>
-      <td>2.78</td>
-      <td>20.70</td>
-      <td>89.2</td>
-      <td>48.0</td>
-      <td>14.2</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>16.67</td>
-      <td>82.1</td>
-      <td>42.1</td>
-      <td>8.8</td>
-      <td>-0.5</td>
-      <td>-46.8</td>
-      <td>27.0</td>
-      <td>23.4</td>
-      <td>13.0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>538</th>
       <td>ICME_STEREO_A_JIAN_20120304_01</td>
       <td>STEREO-A</td>
       <td>2012-03-04T10:34Z</td>
@@ -22135,6 +22094,47 @@
       <td>2.6</td>
       <td>20307.9</td>
       <td>5303.5</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>538</th>
+      <td>ICME_MES_WINSLOW_20120304_01</td>
+      <td>MESSENGER</td>
+      <td>2012-03-04T10:34Z</td>
+      <td>2012-03-04T14:36Z</td>
+      <td>2012-03-05T07:16Z</td>
+      <td>0.3093</td>
+      <td>-71.44</td>
+      <td>2.78</td>
+      <td>20.70</td>
+      <td>89.2</td>
+      <td>48.0</td>
+      <td>14.2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>16.67</td>
+      <td>82.1</td>
+      <td>42.1</td>
+      <td>8.8</td>
+      <td>-0.5</td>
+      <td>-46.8</td>
+      <td>27.0</td>
+      <td>23.4</td>
+      <td>13.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -27972,23 +27972,23 @@
       <td>2010-12-19T22:33Z</td>
       <td>2010-12-20T22:04Z</td>
       <td>0.9739</td>
-      <td>0.19</td>
-      <td>-1.49</td>
+      <td>0.21</td>
+      <td>-1.48</td>
       <td>25.48</td>
-      <td>3.4</td>
-      <td>3.3</td>
-      <td>0.0</td>
+      <td>9.6</td>
+      <td>7.1</td>
+      <td>1.0</td>
       <td>385.0</td>
       <td>14.2</td>
       <td>23.52</td>
-      <td>3.4</td>
-      <td>3.3</td>
-      <td>0.0</td>
-      <td>-0.7</td>
-      <td>-0.8</td>
-      <td>0.0</td>
-      <td>-3.1</td>
-      <td>0.0</td>
+      <td>9.6</td>
+      <td>7.3</td>
+      <td>0.8</td>
+      <td>-1.6</td>
+      <td>-8.2</td>
+      <td>3.8</td>
+      <td>-1.0</td>
+      <td>4.5</td>
       <td>385.2</td>
       <td>14.7</td>
       <td>1.7</td>
@@ -30636,24 +30636,24 @@
       <td>2009-12-12T04:47Z</td>
       <td>2009-12-12T19:26Z</td>
       <td>2009-12-14T04:47Z</td>
-      <td>0.9740</td>
-      <td>0.09</td>
-      <td>-0.59</td>
+      <td>0.9738</td>
+      <td>0.11</td>
+      <td>-0.58</td>
       <td>48.00</td>
-      <td>2.0</td>
-      <td>1.9</td>
-      <td>0.0</td>
+      <td>8.2</td>
+      <td>5.8</td>
+      <td>1.0</td>
       <td>275.3</td>
       <td>12.4</td>
       <td>33.35</td>
-      <td>2.0</td>
-      <td>1.9</td>
-      <td>0.0</td>
-      <td>-0.3</td>
-      <td>-0.4</td>
-      <td>0.0</td>
-      <td>-1.6</td>
-      <td>0.0</td>
+      <td>8.2</td>
+      <td>6.1</td>
+      <td>0.9</td>
+      <td>0.1</td>
+      <td>-6.2</td>
+      <td>2.8</td>
+      <td>-5.0</td>
+      <td>1.6</td>
       <td>270.1</td>
       <td>10.4</td>
       <td>10.7</td>
@@ -32932,24 +32932,24 @@
       <td>2008-12-17T03:35Z</td>
       <td>2008-12-17T03:35Z</td>
       <td>2008-12-17T15:35Z</td>
-      <td>0.9734</td>
-      <td>0.06</td>
-      <td>-1.18</td>
+      <td>0.9731</td>
+      <td>0.07</td>
+      <td>-1.17</td>
       <td>12.00</td>
-      <td>3.3</td>
-      <td>3.3</td>
-      <td>0.0</td>
+      <td>9.7</td>
+      <td>8.0</td>
+      <td>1.4</td>
       <td>337.3</td>
       <td>8.5</td>
       <td>12.00</td>
-      <td>3.3</td>
-      <td>3.3</td>
-      <td>0.0</td>
-      <td>1.9</td>
-      <td>1.9</td>
-      <td>0.0</td>
-      <td>0.9</td>
-      <td>0.0</td>
+      <td>9.7</td>
+      <td>8.0</td>
+      <td>1.4</td>
+      <td>-2.7</td>
+      <td>-6.6</td>
+      <td>2.6</td>
+      <td>6.5</td>
+      <td>2.6</td>
       <td>337.3</td>
       <td>8.5</td>
       <td>21.5</td>
@@ -32977,20 +32977,20 @@
       <td>-0.04</td>
       <td>0.44</td>
       <td>22.80</td>
-      <td>2.7</td>
-      <td>2.7</td>
-      <td>0.0</td>
+      <td>8.2</td>
+      <td>6.9</td>
+      <td>0.6</td>
       <td>398.2</td>
       <td>22.2</td>
       <td>18.00</td>
-      <td>2.7</td>
-      <td>2.7</td>
-      <td>0.0</td>
-      <td>2.0</td>
-      <td>2.0</td>
-      <td>0.0</td>
-      <td>1.1</td>
-      <td>0.0</td>
+      <td>8.2</td>
+      <td>7.0</td>
+      <td>0.4</td>
+      <td>-1.4</td>
+      <td>-6.1</td>
+      <td>1.6</td>
+      <td>-5.1</td>
+      <td>1.6</td>
       <td>389.6</td>
       <td>16.4</td>
       <td>22.1</td>
@@ -33752,24 +33752,24 @@
       <td>2007-12-25T16:19Z</td>
       <td>2007-12-25T16:19Z</td>
       <td>2007-12-26T09:35Z</td>
-      <td>0.9727</td>
+      <td>0.9726</td>
       <td>0.05</td>
       <td>-2.16</td>
       <td>17.27</td>
-      <td>3.9</td>
-      <td>3.9</td>
-      <td>0.0</td>
+      <td>6.0</td>
+      <td>4.3</td>
+      <td>1.1</td>
       <td>349.4</td>
       <td>10.7</td>
       <td>17.27</td>
-      <td>3.9</td>
-      <td>3.9</td>
-      <td>0.0</td>
-      <td>-0.5</td>
-      <td>-0.5</td>
-      <td>0.0</td>
-      <td>-1.6</td>
-      <td>0.0</td>
+      <td>6.0</td>
+      <td>4.3</td>
+      <td>1.1</td>
+      <td>-0.3</td>
+      <td>-3.3</td>
+      <td>1.2</td>
+      <td>3.8</td>
+      <td>1.0</td>
       <td>349.4</td>
       <td>10.7</td>
       <td>14.4</td>
@@ -35105,24 +35105,24 @@
       <td>2006-12-16T17:34Z</td>
       <td>2006-12-17T00:25Z</td>
       <td>2006-12-17T19:11Z</td>
-      <td>0.9736</td>
-      <td>-0.09</td>
+      <td>0.9733</td>
+      <td>-0.11</td>
       <td>-1.10</td>
       <td>25.62</td>
-      <td>1.1</td>
-      <td>1.1</td>
-      <td>0.0</td>
+      <td>13.2</td>
+      <td>5.3</td>
+      <td>2.8</td>
       <td>600.7</td>
       <td>61.8</td>
       <td>18.77</td>
-      <td>1.1</td>
-      <td>1.1</td>
-      <td>0.0</td>
+      <td>7.5</td>
+      <td>3.9</td>
+      <td>0.9</td>
       <td>0.6</td>
-      <td>0.6</td>
-      <td>0.0</td>
-      <td>-0.4</td>
-      <td>0.1</td>
+      <td>-1.6</td>
+      <td>0.8</td>
+      <td>-0.1</td>
+      <td>0.5</td>
       <td>584.5</td>
       <td>53.1</td>
       <td>55.7</td>
@@ -35146,24 +35146,24 @@
       <td>2006-12-14T13:51Z</td>
       <td>2006-12-14T22:36Z</td>
       <td>2006-12-15T13:40Z</td>
-      <td>0.9738</td>
-      <td>-0.11</td>
-      <td>-0.84</td>
+      <td>0.9736</td>
+      <td>-0.12</td>
+      <td>-0.83</td>
       <td>23.82</td>
-      <td>1.4</td>
-      <td>1.3</td>
-      <td>0.0</td>
+      <td>18.4</td>
+      <td>12.6</td>
+      <td>3.4</td>
       <td>817.8</td>
       <td>101.7</td>
       <td>15.07</td>
-      <td>1.3</td>
-      <td>1.3</td>
-      <td>0.0</td>
-      <td>0.6</td>
-      <td>0.6</td>
-      <td>0.0</td>
-      <td>0.1</td>
-      <td>0.0</td>
+      <td>18.0</td>
+      <td>12.5</td>
+      <td>3.6</td>
+      <td>-7.9</td>
+      <td>-17.4</td>
+      <td>4.7</td>
+      <td>-7.3</td>
+      <td>3.4</td>
       <td>755.5</td>
       <td>74.6</td>
       <td>109.2</td>
@@ -36295,23 +36295,23 @@
       <td>2004-12-10T04:47Z</td>
       <td>2004-12-10T21:35Z</td>
       <td>0.9752</td>
-      <td>-0.21</td>
+      <td>-0.24</td>
       <td>-0.31</td>
       <td>16.80</td>
-      <td>2.4</td>
-      <td>2.3</td>
-      <td>0.0</td>
+      <td>10.5</td>
+      <td>8.3</td>
+      <td>1.0</td>
       <td>416.9</td>
       <td>17.2</td>
       <td>16.80</td>
-      <td>2.4</td>
-      <td>2.3</td>
+      <td>10.5</td>
+      <td>8.3</td>
+      <td>1.0</td>
       <td>0.0</td>
+      <td>-7.2</td>
       <td>2.2</td>
-      <td>2.2</td>
-      <td>0.0</td>
-      <td>0.7</td>
-      <td>0.1</td>
+      <td>-7.2</td>
+      <td>2.6</td>
       <td>416.9</td>
       <td>17.2</td>
       <td>NaN</td>
@@ -37237,24 +37237,24 @@
       <td>2002-12-21T03:21Z</td>
       <td>2002-12-21T10:20Z</td>
       <td>2002-12-22T15:36Z</td>
-      <td>0.9782</td>
-      <td>0.20</td>
-      <td>-1.71</td>
+      <td>0.9770</td>
+      <td>0.24</td>
+      <td>-1.70</td>
       <td>36.25</td>
-      <td>6.8</td>
-      <td>6.7</td>
-      <td>0.0</td>
+      <td>21.4</td>
+      <td>9.1</td>
+      <td>3.8</td>
       <td>439.5</td>
       <td>35.8</td>
       <td>29.27</td>
-      <td>6.8</td>
-      <td>6.7</td>
-      <td>0.0</td>
-      <td>2.1</td>
-      <td>2.0</td>
-      <td>0.0</td>
-      <td>-3.2</td>
-      <td>0.0</td>
+      <td>21.4</td>
+      <td>9.8</td>
+      <td>3.8</td>
+      <td>1.0</td>
+      <td>-5.8</td>
+      <td>5.5</td>
+      <td>2.5</td>
+      <td>4.8</td>
       <td>428.2</td>
       <td>30.5</td>
       <td>-3.3</td>
@@ -37478,7 +37478,7 @@
     </tr>
     <tr>
       <th>913</th>
-      <td>ICME_Wind_NASA_20020801_01</td>
+      <td>ICME_Wind_NASA_20020801_02</td>
       <td>Wind</td>
       <td>2002-08-01T23:09Z</td>
       <td>2002-08-02T07:12Z</td>
@@ -37560,47 +37560,6 @@
     </tr>
     <tr>
       <th>915</th>
-      <td>ICME_Wind_NASA_20020717_01</td>
-      <td>Wind</td>
-      <td>2002-07-17T15:56Z</td>
-      <td>2002-07-18T13:26Z</td>
-      <td>2002-07-19T09:35Z</td>
-      <td>1.0172</td>
-      <td>-0.14</td>
-      <td>4.65</td>
-      <td>41.65</td>
-      <td>17.9</td>
-      <td>8.4</td>
-      <td>2.8</td>
-      <td>440.7</td>
-      <td>34.2</td>
-      <td>20.15</td>
-      <td>11.7</td>
-      <td>9.6</td>
-      <td>0.8</td>
-      <td>7.2</td>
-      <td>-4.8</td>
-      <td>3.4</td>
-      <td>-1.9</td>
-      <td>3.0</td>
-      <td>416.5</td>
-      <td>8.5</td>
-      <td>-14.8</td>
-      <td>0.8</td>
-      <td>0.1</td>
-      <td>2.6</td>
-      <td>0.2</td>
-      <td>144065.9</td>
-      <td>9348.5</td>
-      <td>463.7</td>
-      <td>33.6</td>
-      <td>7.6</td>
-      <td>4.3</td>
-      <td>2.9</td>
-      <td>2.0</td>
-    </tr>
-    <tr>
-      <th>916</th>
       <td>ICME_Wind_NASA_20020523_01</td>
       <td>Wind</td>
       <td>2002-05-23T10:44Z</td>
@@ -37641,7 +37600,7 @@
       <td>4.5</td>
     </tr>
     <tr>
-      <th>917</th>
+      <th>916</th>
       <td>ICME_Wind_NASA_20020520_01</td>
       <td>Wind</td>
       <td>2002-05-20T03:35Z</td>
@@ -37682,7 +37641,7 @@
       <td>1.0</td>
     </tr>
     <tr>
-      <th>918</th>
+      <th>917</th>
       <td>ICME_Wind_NASA_20020518_01</td>
       <td>Wind</td>
       <td>2002-05-18T19:45Z</td>
@@ -37723,7 +37682,7 @@
       <td>3.2</td>
     </tr>
     <tr>
-      <th>919</th>
+      <th>918</th>
       <td>ICME_Wind_NASA_20020511_01</td>
       <td>Wind</td>
       <td>2002-05-11T10:30Z</td>
@@ -37764,7 +37723,7 @@
       <td>5.5</td>
     </tr>
     <tr>
-      <th>920</th>
+      <th>919</th>
       <td>ICME_Wind_NASA_20020510_01</td>
       <td>Wind</td>
       <td>2002-05-10T11:09Z</td>
@@ -37805,7 +37764,7 @@
       <td>2.3</td>
     </tr>
     <tr>
-      <th>921</th>
+      <th>920</th>
       <td>ICME_Wind_NASA_20020423_01</td>
       <td>Wind</td>
       <td>2002-04-23T05:00Z</td>
@@ -37846,7 +37805,7 @@
       <td>2.4</td>
     </tr>
     <tr>
-      <th>922</th>
+      <th>921</th>
       <td>ICME_Wind_NASA_20020419_01</td>
       <td>Wind</td>
       <td>2002-04-19T08:24Z</td>
@@ -37887,7 +37846,7 @@
       <td>1.8</td>
     </tr>
     <tr>
-      <th>923</th>
+      <th>922</th>
       <td>ICME_Wind_NASA_20020417_01</td>
       <td>Wind</td>
       <td>2002-04-17T11:01Z</td>
@@ -37928,7 +37887,7 @@
       <td>4.2</td>
     </tr>
     <tr>
-      <th>924</th>
+      <th>923</th>
       <td>ICME_Wind_NASA_20020414_01</td>
       <td>Wind</td>
       <td>2002-04-14T12:56Z</td>
@@ -37969,7 +37928,7 @@
       <td>4.0</td>
     </tr>
     <tr>
-      <th>925</th>
+      <th>924</th>
       <td>ICME_Wind_NASA_20020323_01</td>
       <td>Wind</td>
       <td>2002-03-23T11:24Z</td>
@@ -38010,7 +37969,7 @@
       <td>1.4</td>
     </tr>
     <tr>
-      <th>926</th>
+      <th>925</th>
       <td>ICME_Wind_NASA_20020318_01</td>
       <td>Wind</td>
       <td>2002-03-18T13:14Z</td>
@@ -38051,7 +38010,7 @@
       <td>4.3</td>
     </tr>
     <tr>
-      <th>927</th>
+      <th>926</th>
       <td>ICME_Wind_NASA_20020228_01</td>
       <td>Wind</td>
       <td>2002-02-28T05:06Z</td>
@@ -38092,30 +38051,30 @@
       <td>1.3</td>
     </tr>
     <tr>
-      <th>928</th>
+      <th>927</th>
       <td>ICME_Wind_NASA_20011230_01</td>
       <td>Wind</td>
       <td>2001-12-30T20:05Z</td>
       <td>2001-12-30T23:10Z</td>
       <td>2001-12-31T07:46Z</td>
       <td>0.9812</td>
-      <td>0.62</td>
+      <td>0.63</td>
       <td>-2.85</td>
       <td>11.68</td>
-      <td>8.7</td>
-      <td>8.7</td>
-      <td>0.0</td>
+      <td>25.6</td>
+      <td>14.3</td>
+      <td>3.8</td>
       <td>591.8</td>
       <td>40.8</td>
       <td>8.60</td>
-      <td>8.7</td>
-      <td>8.7</td>
-      <td>0.0</td>
-      <td>-1.8</td>
-      <td>-1.8</td>
-      <td>0.0</td>
-      <td>6.4</td>
-      <td>0.0</td>
+      <td>17.2</td>
+      <td>12.6</td>
+      <td>2.0</td>
+      <td>1.9</td>
+      <td>-14.3</td>
+      <td>3.7</td>
+      <td>9.2</td>
+      <td>2.7</td>
       <td>597.1</td>
       <td>40.2</td>
       <td>82.1</td>
@@ -38133,30 +38092,30 @@
       <td>1.8</td>
     </tr>
     <tr>
-      <th>929</th>
+      <th>928</th>
       <td>ICME_Wind_NASA_20011229_01</td>
       <td>Wind</td>
       <td>2001-12-29T05:16Z</td>
       <td>2001-12-30T03:24Z</td>
       <td>2001-12-30T19:10Z</td>
       <td>0.9813</td>
-      <td>0.61</td>
-      <td>-2.76</td>
+      <td>0.62</td>
+      <td>-2.75</td>
       <td>37.90</td>
-      <td>8.6</td>
-      <td>8.5</td>
-      <td>0.1</td>
+      <td>25.0</td>
+      <td>16.3</td>
+      <td>3.6</td>
       <td>407.1</td>
       <td>30.4</td>
       <td>15.77</td>
-      <td>8.6</td>
-      <td>8.6</td>
-      <td>0.0</td>
-      <td>-1.7</td>
-      <td>-1.8</td>
-      <td>0.0</td>
+      <td>20.1</td>
+      <td>17.0</td>
+      <td>2.0</td>
+      <td>5.0</td>
+      <td>-8.6</td>
       <td>6.3</td>
-      <td>0.0</td>
+      <td>8.4</td>
+      <td>11.7</td>
       <td>400.8</td>
       <td>21.7</td>
       <td>-21.9</td>
@@ -38174,7 +38133,7 @@
       <td>4.8</td>
     </tr>
     <tr>
-      <th>930</th>
+      <th>929</th>
       <td>ICME_Wind_NASA_20011124_01</td>
       <td>Wind</td>
       <td>2001-11-24T05:51Z</td>
@@ -38215,7 +38174,7 @@
       <td>20.6</td>
     </tr>
     <tr>
-      <th>931</th>
+      <th>930</th>
       <td>ICME_Wind_NASA_20011031_01</td>
       <td>Wind</td>
       <td>2001-10-31T13:46Z</td>
@@ -38256,7 +38215,7 @@
       <td>1.3</td>
     </tr>
     <tr>
-      <th>932</th>
+      <th>931</th>
       <td>ICME_Wind_NASA_20011028_01</td>
       <td>Wind</td>
       <td>2001-10-28T03:13Z</td>
@@ -38297,7 +38256,7 @@
       <td>1.0</td>
     </tr>
     <tr>
-      <th>933</th>
+      <th>932</th>
       <td>ICME_Wind_NASA_20011021_01</td>
       <td>Wind</td>
       <td>2001-10-21T16:39Z</td>
@@ -38338,7 +38297,7 @@
       <td>8.5</td>
     </tr>
     <tr>
-      <th>934</th>
+      <th>933</th>
       <td>ICME_Wind_NASA_20010930_01</td>
       <td>Wind</td>
       <td>2001-09-30T19:14Z</td>
@@ -38379,7 +38338,7 @@
       <td>1.0</td>
     </tr>
     <tr>
-      <th>935</th>
+      <th>934</th>
       <td>ICME_Wind_NASA_20010929_01</td>
       <td>Wind</td>
       <td>2001-09-29T09:28Z</td>
@@ -38420,7 +38379,7 @@
       <td>1.0</td>
     </tr>
     <tr>
-      <th>936</th>
+      <th>935</th>
       <td>ICME_Wind_NASA_20010925_01</td>
       <td>Wind</td>
       <td>2001-09-25T20:16Z</td>
@@ -38461,7 +38420,7 @@
       <td>9.6</td>
     </tr>
     <tr>
-      <th>937</th>
+      <th>936</th>
       <td>ICME_Wind_NASA_20010817_01</td>
       <td>Wind</td>
       <td>2001-08-17T11:01Z</td>
@@ -38502,7 +38461,7 @@
       <td>4.9</td>
     </tr>
     <tr>
-      <th>938</th>
+      <th>937</th>
       <td>ICME_Wind_NASA_20010805_01</td>
       <td>Wind</td>
       <td>2001-08-05T12:28Z</td>
@@ -38543,7 +38502,7 @@
       <td>1.1</td>
     </tr>
     <tr>
-      <th>939</th>
+      <th>938</th>
       <td>ICME_Wind_NASA_20010627_01</td>
       <td>Wind</td>
       <td>2001-06-27T05:59Z</td>
@@ -38584,7 +38543,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>940</th>
+      <th>939</th>
       <td>ICME_Wind_NASA_20010527_01</td>
       <td>Wind</td>
       <td>2001-05-27T14:45Z</td>
@@ -38625,7 +38584,7 @@
       <td>0.4</td>
     </tr>
     <tr>
-      <th>941</th>
+      <th>940</th>
       <td>ICME_Wind_NASA_20010428_01</td>
       <td>Wind</td>
       <td>2001-04-28T05:00Z</td>
@@ -38666,7 +38625,7 @@
       <td>2.5</td>
     </tr>
     <tr>
-      <th>942</th>
+      <th>941</th>
       <td>ICME_Wind_NASA_20010421_01</td>
       <td>Wind</td>
       <td>2001-04-21T15:29Z</td>
@@ -38707,7 +38666,7 @@
       <td>1.4</td>
     </tr>
     <tr>
-      <th>943</th>
+      <th>942</th>
       <td>ICME_Wind_NASA_20010413_01</td>
       <td>Wind</td>
       <td>2001-04-13T07:26Z</td>
@@ -38748,7 +38707,7 @@
       <td>6.2</td>
     </tr>
     <tr>
-      <th>944</th>
+      <th>943</th>
       <td>ICME_Wind_NASA_20010411_01</td>
       <td>Wind</td>
       <td>2001-04-11T14:09Z</td>
@@ -38789,7 +38748,7 @@
       <td>10.0</td>
     </tr>
     <tr>
-      <th>945</th>
+      <th>944</th>
       <td>ICME_Wind_NASA_20010404_01</td>
       <td>Wind</td>
       <td>2001-04-04T14:39Z</td>
@@ -38830,7 +38789,7 @@
       <td>1.9</td>
     </tr>
     <tr>
-      <th>946</th>
+      <th>945</th>
       <td>ICME_Wind_NASA_20010327_01</td>
       <td>Wind</td>
       <td>2001-03-27T01:59Z</td>
@@ -38871,7 +38830,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>947</th>
+      <th>946</th>
       <td>ICME_Wind_NASA_20010320_01</td>
       <td>Wind</td>
       <td>2001-03-20T18:17Z</td>
@@ -38912,7 +38871,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>948</th>
+      <th>947</th>
       <td>ICME_Wind_NASA_20010319_01</td>
       <td>Wind</td>
       <td>2001-03-19T11:33Z</td>
@@ -38953,7 +38912,7 @@
       <td>3.0</td>
     </tr>
     <tr>
-      <th>949</th>
+      <th>948</th>
       <td>ICME_Wind_NASA_20010304_01</td>
       <td>Wind</td>
       <td>2001-03-04T05:45Z</td>
@@ -38994,7 +38953,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>950</th>
+      <th>949</th>
       <td>ICME_Wind_NASA_20010123_01</td>
       <td>Wind</td>
       <td>2001-01-23T10:47Z</td>
@@ -39035,30 +38994,30 @@
       <td>1.6</td>
     </tr>
     <tr>
-      <th>951</th>
+      <th>950</th>
       <td>ICME_Wind_NASA_20001203_01</td>
       <td>Wind</td>
       <td>2000-12-03T03:59Z</td>
       <td>2000-12-03T03:59Z</td>
       <td>2000-12-05T03:06Z</td>
-      <td>0.9834</td>
-      <td>-0.36</td>
+      <td>0.9836</td>
+      <td>-0.37</td>
       <td>0.55</td>
       <td>47.12</td>
-      <td>4.7</td>
-      <td>4.4</td>
-      <td>0.2</td>
+      <td>13.1</td>
+      <td>8.5</td>
+      <td>1.9</td>
       <td>393.7</td>
       <td>49.1</td>
       <td>47.12</td>
-      <td>4.7</td>
-      <td>4.4</td>
-      <td>0.2</td>
-      <td>3.2</td>
-      <td>3.0</td>
-      <td>0.1</td>
-      <td>0.6</td>
-      <td>0.0</td>
+      <td>13.1</td>
+      <td>8.5</td>
+      <td>1.9</td>
+      <td>1.0</td>
+      <td>-10.1</td>
+      <td>4.0</td>
+      <td>-6.1</td>
+      <td>3.9</td>
       <td>393.7</td>
       <td>49.1</td>
       <td>32.8</td>
@@ -39076,7 +39035,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>952</th>
+      <th>951</th>
       <td>ICME_Wind_NASA_20001126_01</td>
       <td>Wind</td>
       <td>2000-11-26T11:43Z</td>
@@ -39117,7 +39076,7 @@
       <td>6.0</td>
     </tr>
     <tr>
-      <th>953</th>
+      <th>952</th>
       <td>ICME_Wind_NASA_20001111_01</td>
       <td>Wind</td>
       <td>2000-11-11T04:11Z</td>
@@ -39158,7 +39117,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>954</th>
+      <th>953</th>
       <td>ICME_Wind_NASA_20001110_01</td>
       <td>Wind</td>
       <td>2000-11-10T06:20Z</td>
@@ -39199,7 +39158,7 @@
       <td>7.1</td>
     </tr>
     <tr>
-      <th>955</th>
+      <th>954</th>
       <td>ICME_Wind_NASA_20001106_01</td>
       <td>Wind</td>
       <td>2000-11-06T09:30Z</td>
@@ -39240,7 +39199,7 @@
       <td>5.4</td>
     </tr>
     <tr>
-      <th>956</th>
+      <th>955</th>
       <td>ICME_Wind_NASA_20001028_01</td>
       <td>Wind</td>
       <td>2000-10-28T06:38Z</td>
@@ -39281,7 +39240,7 @@
       <td>3.1</td>
     </tr>
     <tr>
-      <th>957</th>
+      <th>956</th>
       <td>ICME_Wind_NASA_20001012_01</td>
       <td>Wind</td>
       <td>2000-10-12T22:33Z</td>
@@ -39322,7 +39281,7 @@
       <td>3.8</td>
     </tr>
     <tr>
-      <th>958</th>
+      <th>957</th>
       <td>ICME_Wind_NASA_20001005_01</td>
       <td>Wind</td>
       <td>2000-10-05T03:28Z</td>
@@ -39363,7 +39322,7 @@
       <td>5.0</td>
     </tr>
     <tr>
-      <th>959</th>
+      <th>958</th>
       <td>ICME_Wind_NASA_20001003_01</td>
       <td>Wind</td>
       <td>2000-10-03T01:02Z</td>
@@ -39404,7 +39363,7 @@
       <td>1.0</td>
     </tr>
     <tr>
-      <th>960</th>
+      <th>959</th>
       <td>ICME_Wind_NASA_20000917_01</td>
       <td>Wind</td>
       <td>2000-09-17T16:04Z</td>
@@ -39445,7 +39404,7 @@
       <td>5.8</td>
     </tr>
     <tr>
-      <th>961</th>
+      <th>960</th>
       <td>ICME_Wind_NASA_20000906_01</td>
       <td>Wind</td>
       <td>2000-09-06T17:02Z</td>
@@ -39486,7 +39445,7 @@
       <td>2.8</td>
     </tr>
     <tr>
-      <th>962</th>
+      <th>961</th>
       <td>ICME_Wind_NASA_20000904_01</td>
       <td>Wind</td>
       <td>2000-09-04T13:13Z</td>
@@ -39527,7 +39486,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>963</th>
+      <th>962</th>
       <td>ICME_Wind_NASA_20000902_01</td>
       <td>Wind</td>
       <td>2000-09-02T23:16Z</td>
@@ -39568,7 +39527,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>964</th>
+      <th>963</th>
       <td>ICME_Wind_NASA_20000811_01</td>
       <td>Wind</td>
       <td>2000-08-11T18:49Z</td>
@@ -39609,7 +39568,7 @@
       <td>0.0</td>
     </tr>
     <tr>
-      <th>965</th>
+      <th>964</th>
       <td>ICME_Wind_NASA_20000810_01</td>
       <td>Wind</td>
       <td>2000-08-10T05:13Z</td>
@@ -39650,7 +39609,7 @@
       <td>0.8</td>
     </tr>
     <tr>
-      <th>966</th>
+      <th>965</th>
       <td>ICME_Wind_NASA_20000731_01</td>
       <td>Wind</td>
       <td>2000-07-31T23:28Z</td>
@@ -39691,7 +39650,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>967</th>
+      <th>966</th>
       <td>ICME_Wind_NASA_20000728_01</td>
       <td>Wind</td>
       <td>2000-07-28T06:38Z</td>
@@ -39732,7 +39691,7 @@
       <td>2.4</td>
     </tr>
     <tr>
-      <th>968</th>
+      <th>967</th>
       <td>ICME_Wind_NASA_20000719_01</td>
       <td>Wind</td>
       <td>2000-07-19T15:30Z</td>
@@ -39773,7 +39732,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>969</th>
+      <th>968</th>
       <td>ICME_Wind_NASA_20000715_02</td>
       <td>Wind</td>
       <td>2000-07-15T14:23Z</td>
@@ -39814,7 +39773,7 @@
       <td>0.0</td>
     </tr>
     <tr>
-      <th>970</th>
+      <th>969</th>
       <td>ICME_Wind_NASA_20000715_01</td>
       <td>Wind</td>
       <td>2000-07-15T02:23Z</td>
@@ -39855,7 +39814,7 @@
       <td>0.0</td>
     </tr>
     <tr>
-      <th>971</th>
+      <th>970</th>
       <td>ICME_Wind_NASA_20000713_01</td>
       <td>Wind</td>
       <td>2000-07-13T09:59Z</td>
@@ -39896,7 +39855,7 @@
       <td>6.4</td>
     </tr>
     <tr>
-      <th>972</th>
+      <th>971</th>
       <td>ICME_Wind_NASA_20000711_01</td>
       <td>Wind</td>
       <td>2000-07-11T22:35Z</td>
@@ -39937,7 +39896,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>973</th>
+      <th>972</th>
       <td>ICME_Wind_NASA_20000701_01</td>
       <td>Wind</td>
       <td>2000-07-01T07:12Z</td>
@@ -39978,7 +39937,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>974</th>
+      <th>973</th>
       <td>ICME_Wind_NASA_20000623_01</td>
       <td>Wind</td>
       <td>2000-06-23T12:57Z</td>
@@ -40019,7 +39978,7 @@
       <td>2.5</td>
     </tr>
     <tr>
-      <th>975</th>
+      <th>974</th>
       <td>ICME_Wind_NASA_20000608_01</td>
       <td>Wind</td>
       <td>2000-06-08T09:07Z</td>
@@ -40060,7 +40019,7 @@
       <td>5.8</td>
     </tr>
     <tr>
-      <th>976</th>
+      <th>975</th>
       <td>ICME_Wind_NASA_20000507_01</td>
       <td>Wind</td>
       <td>2000-05-07T03:53Z</td>
@@ -40101,7 +40060,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>977</th>
+      <th>976</th>
       <td>ICME_Wind_NASA_20000328_01</td>
       <td>Wind</td>
       <td>2000-03-28T02:52Z</td>
@@ -40142,7 +40101,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>978</th>
+      <th>977</th>
       <td>ICME_Wind_NASA_20000301_01</td>
       <td>Wind</td>
       <td>2000-03-01T01:58Z</td>
@@ -40183,7 +40142,7 @@
       <td>0.7</td>
     </tr>
     <tr>
-      <th>979</th>
+      <th>978</th>
       <td>ICME_Wind_NASA_20000220_01</td>
       <td>Wind</td>
       <td>2000-02-20T21:03Z</td>
@@ -40224,7 +40183,7 @@
       <td>3.3</td>
     </tr>
     <tr>
-      <th>980</th>
+      <th>979</th>
       <td>ICME_Wind_NASA_20000214_01</td>
       <td>Wind</td>
       <td>2000-02-14T07:11Z</td>
@@ -40265,7 +40224,7 @@
       <td>0.7</td>
     </tr>
     <tr>
-      <th>981</th>
+      <th>980</th>
       <td>ICME_Wind_NASA_20000211_01</td>
       <td>Wind</td>
       <td>2000-02-11T23:34Z</td>
@@ -40306,48 +40265,48 @@
       <td>4.0</td>
     </tr>
     <tr>
-      <th>982</th>
-      <td>ICME_Wind_NASA_19991113_01</td>
+      <th>981</th>
+      <td>ICME_Wind_NASA_19991212_01</td>
       <td>Wind</td>
-      <td>1999-11-13T12:48Z</td>
-      <td>1999-11-14T14:23Z</td>
-      <td>1999-11-16T07:17Z</td>
-      <td>0.9891</td>
-      <td>-0.03</td>
-      <td>2.95</td>
-      <td>66.48</td>
-      <td>34.4</td>
-      <td>18.3</td>
-      <td>6.9</td>
-      <td>480.7</td>
-      <td>21.1</td>
-      <td>40.90</td>
-      <td>34.4</td>
-      <td>22.8</td>
-      <td>4.1</td>
-      <td>2.9</td>
-      <td>-21.0</td>
-      <td>6.6</td>
-      <td>-6.3</td>
-      <td>8.8</td>
-      <td>493.0</td>
-      <td>14.7</td>
-      <td>-25.5</td>
-      <td>1.5</td>
-      <td>0.0</td>
-      <td>3.8</td>
-      <td>0.1</td>
-      <td>171224.0</td>
-      <td>31038.0</td>
-      <td>460.6</td>
-      <td>12.9</td>
-      <td>4.2</td>
-      <td>1.0</td>
-      <td>1.5</td>
+      <td>1999-12-12T15:50Z</td>
+      <td>1999-12-12T17:31Z</td>
+      <td>1999-12-13T18:28Z</td>
+      <td>0.9851</td>
+      <td>0.14</td>
+      <td>-0.52</td>
+      <td>26.63</td>
+      <td>25.6</td>
+      <td>11.6</td>
+      <td>3.2</td>
+      <td>542.0</td>
+      <td>78.2</td>
+      <td>24.95</td>
+      <td>25.6</td>
+      <td>11.7</td>
+      <td>3.2</td>
+      <td>-0.7</td>
+      <td>-10.3</td>
+      <td>5.0</td>
+      <td>-7.1</td>
+      <td>7.4</td>
+      <td>546.6</td>
+      <td>74.9</td>
+      <td>-29.6</td>
+      <td>2.6</td>
+      <td>1.2</td>
+      <td>5.4</td>
+      <td>2.8</td>
+      <td>157487.5</td>
+      <td>332876.0</td>
+      <td>460.3</td>
+      <td>89.2</td>
+      <td>1.4</td>
+      <td>0.6</td>
+      <td>0.5</td>
       <td>0.3</td>
     </tr>
     <tr>
-      <th>983</th>
+      <th>982</th>
       <td>ICME_Wind_NASA_19991021_01</td>
       <td>Wind</td>
       <td>1999-10-21T02:19Z</td>
@@ -40388,7 +40347,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>984</th>
+      <th>983</th>
       <td>ICME_Wind_NASA_19990922_01</td>
       <td>Wind</td>
       <td>1999-09-22T12:09Z</td>
@@ -40429,7 +40388,7 @@
       <td>3.8</td>
     </tr>
     <tr>
-      <th>985</th>
+      <th>984</th>
       <td>ICME_Wind_NASA_19990921_01</td>
       <td>Wind</td>
       <td>1999-09-21T18:57Z</td>
@@ -40470,7 +40429,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>986</th>
+      <th>985</th>
       <td>ICME_Wind_NASA_19990915_01</td>
       <td>Wind</td>
       <td>1999-09-15T07:43Z</td>
@@ -40511,7 +40470,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>987</th>
+      <th>986</th>
       <td>ICME_Wind_NASA_19990809_01</td>
       <td>Wind</td>
       <td>1999-08-09T10:12Z</td>
@@ -40552,7 +40511,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>988</th>
+      <th>987</th>
       <td>ICME_Wind_NASA_19990806_01</td>
       <td>Wind</td>
       <td>1999-08-06T01:55Z</td>
@@ -40593,7 +40552,7 @@
       <td>1.1</td>
     </tr>
     <tr>
-      <th>989</th>
+      <th>988</th>
       <td>ICME_Wind_NASA_19990730_01</td>
       <td>Wind</td>
       <td>1999-07-30T19:12Z</td>
@@ -40634,7 +40593,7 @@
       <td>10.8</td>
     </tr>
     <tr>
-      <th>990</th>
+      <th>989</th>
       <td>ICME_Wind_NASA_19990706_01</td>
       <td>Wind</td>
       <td>1999-07-06T14:23Z</td>
@@ -40675,7 +40634,7 @@
       <td>0.4</td>
     </tr>
     <tr>
-      <th>991</th>
+      <th>990</th>
       <td>ICME_Wind_NASA_19990702_01</td>
       <td>Wind</td>
       <td>1999-07-02T00:27Z</td>
@@ -40716,7 +40675,7 @@
       <td>1.2</td>
     </tr>
     <tr>
-      <th>992</th>
+      <th>991</th>
       <td>ICME_Wind_NASA_19990626_01</td>
       <td>Wind</td>
       <td>1999-06-26T02:31Z</td>
@@ -40757,7 +40716,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>993</th>
+      <th>992</th>
       <td>ICME_Wind_NASA_19990528_01</td>
       <td>Wind</td>
       <td>1999-05-28T21:50Z</td>
@@ -40798,7 +40757,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>994</th>
+      <th>993</th>
       <td>ICME_Wind_NASA_19990416_01</td>
       <td>Wind</td>
       <td>1999-04-16T11:14Z</td>
@@ -40839,7 +40798,7 @@
       <td>0.2</td>
     </tr>
     <tr>
-      <th>995</th>
+      <th>994</th>
       <td>ICME_Wind_NASA_19990218_01</td>
       <td>Wind</td>
       <td>1999-02-18T02:48Z</td>
@@ -40880,7 +40839,7 @@
       <td>1.4</td>
     </tr>
     <tr>
-      <th>996</th>
+      <th>995</th>
       <td>ICME_Wind_NASA_19990211_01</td>
       <td>Wind</td>
       <td>1999-02-11T17:41Z</td>
@@ -40921,7 +40880,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>997</th>
+      <th>996</th>
       <td>ICME_Wind_NASA_19990122_01</td>
       <td>Wind</td>
       <td>1999-01-22T20:21Z</td>
@@ -40962,7 +40921,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>998</th>
+      <th>997</th>
       <td>ICME_Wind_NASA_19981109_01</td>
       <td>Wind</td>
       <td>1998-11-09T00:44Z</td>
@@ -41003,7 +40962,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>999</th>
+      <th>998</th>
       <td>ICME_Wind_NASA_19981108_01</td>
       <td>Wind</td>
       <td>1998-11-08T04:41Z</td>
@@ -41044,7 +41003,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1000</th>
+      <th>999</th>
       <td>ICME_Wind_NASA_19981023_01</td>
       <td>Wind</td>
       <td>1998-10-23T12:57Z</td>
@@ -41085,7 +41044,7 @@
       <td>1.0</td>
     </tr>
     <tr>
-      <th>1001</th>
+      <th>1000</th>
       <td>ICME_Wind_NASA_19981018_01</td>
       <td>Wind</td>
       <td>1998-10-18T19:30Z</td>
@@ -41126,7 +41085,7 @@
       <td>4.7</td>
     </tr>
     <tr>
-      <th>1002</th>
+      <th>1001</th>
       <td>ICME_Wind_NASA_19981002_01</td>
       <td>Wind</td>
       <td>1998-10-02T07:10Z</td>
@@ -41167,7 +41126,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1003</th>
+      <th>1002</th>
       <td>ICME_Wind_NASA_19980924_01</td>
       <td>Wind</td>
       <td>1998-09-24T23:18Z</td>
@@ -41208,7 +41167,7 @@
       <td>3.8</td>
     </tr>
     <tr>
-      <th>1004</th>
+      <th>1003</th>
       <td>ICME_Wind_NASA_19980923_01</td>
       <td>Wind</td>
       <td>1998-09-23T01:12Z</td>
@@ -41249,7 +41208,7 @@
       <td>0.4</td>
     </tr>
     <tr>
-      <th>1005</th>
+      <th>1004</th>
       <td>ICME_Wind_NASA_19980826_01</td>
       <td>Wind</td>
       <td>1998-08-26T06:40Z</td>
@@ -41290,7 +41249,7 @@
       <td>1.8</td>
     </tr>
     <tr>
-      <th>1006</th>
+      <th>1005</th>
       <td>ICME_Wind_NASA_19980819_01</td>
       <td>Wind</td>
       <td>1998-08-19T18:40Z</td>
@@ -41331,7 +41290,7 @@
       <td>1.6</td>
     </tr>
     <tr>
-      <th>1007</th>
+      <th>1006</th>
       <td>ICME_Wind_NASA_19980810_01</td>
       <td>Wind</td>
       <td>1998-08-10T00:31Z</td>
@@ -41372,7 +41331,7 @@
       <td>0.5</td>
     </tr>
     <tr>
-      <th>1008</th>
+      <th>1007</th>
       <td>ICME_Wind_NASA_19980710_01</td>
       <td>Wind</td>
       <td>1998-07-10T22:36Z</td>
@@ -41413,7 +41372,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1009</th>
+      <th>1008</th>
       <td>ICME_Wind_NASA_19980624_01</td>
       <td>Wind</td>
       <td>1998-06-24T10:47Z</td>
@@ -41454,7 +41413,7 @@
       <td>0.6</td>
     </tr>
     <tr>
-      <th>1010</th>
+      <th>1009</th>
       <td>ICME_Wind_NASA_19980602_01</td>
       <td>Wind</td>
       <td>1998-06-02T10:28Z</td>
@@ -41495,7 +41454,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1011</th>
+      <th>1010</th>
       <td>ICME_Wind_NASA_19980504_01</td>
       <td>Wind</td>
       <td>1998-05-04T02:30Z</td>
@@ -41536,7 +41495,7 @@
       <td>11.0</td>
     </tr>
     <tr>
-      <th>1012</th>
+      <th>1011</th>
       <td>ICME_Wind_NASA_19980501_01</td>
       <td>Wind</td>
       <td>1998-05-01T21:21Z</td>
@@ -41577,7 +41536,7 @@
       <td>2.9</td>
     </tr>
     <tr>
-      <th>1013</th>
+      <th>1012</th>
       <td>ICME_Wind_NASA_19980401_01</td>
       <td>Wind</td>
       <td>1998-04-01T21:07Z</td>
@@ -41618,7 +41577,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1014</th>
+      <th>1013</th>
       <td>ICME_Wind_NASA_19980331_01</td>
       <td>Wind</td>
       <td>1998-03-31T07:11Z</td>
@@ -41659,7 +41618,7 @@
       <td>0.7</td>
     </tr>
     <tr>
-      <th>1015</th>
+      <th>1014</th>
       <td>ICME_Wind_NASA_19980325_01</td>
       <td>Wind</td>
       <td>1998-03-25T10:48Z</td>
@@ -41700,7 +41659,7 @@
       <td>0.5</td>
     </tr>
     <tr>
-      <th>1016</th>
+      <th>1015</th>
       <td>ICME_Wind_NASA_19980306_01</td>
       <td>Wind</td>
       <td>1998-03-06T11:59Z</td>
@@ -41741,7 +41700,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1017</th>
+      <th>1016</th>
       <td>ICME_Wind_NASA_19980304_01</td>
       <td>Wind</td>
       <td>1998-03-04T11:02Z</td>
@@ -41782,7 +41741,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1018</th>
+      <th>1017</th>
       <td>ICME_Wind_NASA_19980218_01</td>
       <td>Wind</td>
       <td>1998-02-18T14:52Z</td>
@@ -41823,7 +41782,7 @@
       <td>1.2</td>
     </tr>
     <tr>
-      <th>1019</th>
+      <th>1018</th>
       <td>ICME_Wind_NASA_19980217_01</td>
       <td>Wind</td>
       <td>1998-02-17T06:28Z</td>
@@ -41864,7 +41823,7 @@
       <td>0.6</td>
     </tr>
     <tr>
-      <th>1020</th>
+      <th>1019</th>
       <td>ICME_Wind_NASA_19980204_01</td>
       <td>Wind</td>
       <td>1998-02-04T04:48Z</td>
@@ -41905,7 +41864,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1021</th>
+      <th>1020</th>
       <td>ICME_Wind_NASA_19980202_01</td>
       <td>Wind</td>
       <td>1998-02-02T10:27Z</td>
@@ -41946,7 +41905,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1022</th>
+      <th>1021</th>
       <td>ICME_Wind_NASA_19980128_01</td>
       <td>Wind</td>
       <td>1998-01-28T16:04Z</td>
@@ -41987,7 +41946,7 @@
       <td>0.6</td>
     </tr>
     <tr>
-      <th>1023</th>
+      <th>1022</th>
       <td>ICME_Wind_NASA_19980121_01</td>
       <td>Wind</td>
       <td>1998-01-21T04:47Z</td>
@@ -42028,7 +41987,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1024</th>
+      <th>1023</th>
       <td>ICME_Wind_NASA_19980109_01</td>
       <td>Wind</td>
       <td>1998-01-09T08:23Z</td>
@@ -42069,7 +42028,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1025</th>
+      <th>1024</th>
       <td>ICME_Wind_NASA_19980108_01</td>
       <td>Wind</td>
       <td>1998-01-08T15:35Z</td>
@@ -42110,7 +42069,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1026</th>
+      <th>1025</th>
       <td>ICME_Wind_NASA_19980106_01</td>
       <td>Wind</td>
       <td>1998-01-06T13:29Z</td>
@@ -42151,7 +42110,89 @@
       <td>1.3</td>
     </tr>
     <tr>
+      <th>1026</th>
+      <td>ICME_Wind_NASA_19971230_01</td>
+      <td>Wind</td>
+      <td>1997-12-30T01:13Z</td>
+      <td>1997-12-30T09:35Z</td>
+      <td>1997-12-31T08:51Z</td>
+      <td>0.9738</td>
+      <td>-0.05</td>
+      <td>-2.85</td>
+      <td>31.63</td>
+      <td>14.1</td>
+      <td>11.0</td>
+      <td>2.0</td>
+      <td>367.3</td>
+      <td>20.7</td>
+      <td>23.27</td>
+      <td>14.1</td>
+      <td>11.5</td>
+      <td>1.7</td>
+      <td>2.3</td>
+      <td>-11.6</td>
+      <td>8.4</td>
+      <td>-6.2</td>
+      <td>2.2</td>
+      <td>366.2</td>
+      <td>23.7</td>
+      <td>10.4</td>
+      <td>2.0</td>
+      <td>1.3</td>
+      <td>8.7</td>
+      <td>5.8</td>
+      <td>79110.9</td>
+      <td>40522.3</td>
+      <td>370.3</td>
+      <td>6.6</td>
+      <td>26.3</td>
+      <td>7.3</td>
+      <td>6.0</td>
+      <td>1.6</td>
+    </tr>
+    <tr>
       <th>1027</th>
+      <td>ICME_Wind_NASA_19971210_01</td>
+      <td>Wind</td>
+      <td>1997-12-10T04:33Z</td>
+      <td>1997-12-10T19:11Z</td>
+      <td>1997-12-12T00:00Z</td>
+      <td>0.9758</td>
+      <td>-0.03</td>
+      <td>-0.33</td>
+      <td>43.45</td>
+      <td>16.5</td>
+      <td>12.0</td>
+      <td>3.0</td>
+      <td>345.3</td>
+      <td>18.3</td>
+      <td>28.82</td>
+      <td>16.2</td>
+      <td>11.7</td>
+      <td>2.8</td>
+      <td>-6.6</td>
+      <td>-13.4</td>
+      <td>4.9</td>
+      <td>6.4</td>
+      <td>3.5</td>
+      <td>351.7</td>
+      <td>18.0</td>
+      <td>NaN</td>
+      <td>0.8</td>
+      <td>0.4</td>
+      <td>3.8</td>
+      <td>1.8</td>
+      <td>34896.9</td>
+      <td>22189.7</td>
+      <td>333.4</td>
+      <td>11.5</td>
+      <td>29.2</td>
+      <td>8.7</td>
+      <td>5.4</td>
+      <td>1.6</td>
+    </tr>
+    <tr>
+      <th>1028</th>
       <td>ICME_Wind_NASA_19971122_01</td>
       <td>Wind</td>
       <td>1997-11-22T09:12Z</td>
@@ -42192,7 +42233,7 @@
       <td>4.7</td>
     </tr>
     <tr>
-      <th>1028</th>
+      <th>1029</th>
       <td>ICME_Wind_NASA_19971106_01</td>
       <td>Wind</td>
       <td>1997-11-06T22:25Z</td>
@@ -42233,7 +42274,7 @@
       <td>1.5</td>
     </tr>
     <tr>
-      <th>1029</th>
+      <th>1030</th>
       <td>ICME_Wind_NASA_19971010_01</td>
       <td>Wind</td>
       <td>1997-10-10T03:08Z</td>
@@ -42274,7 +42315,7 @@
       <td>0.6</td>
     </tr>
     <tr>
-      <th>1030</th>
+      <th>1031</th>
       <td>ICME_Wind_NASA_19971001_01</td>
       <td>Wind</td>
       <td>1997-10-01T11:45Z</td>
@@ -42315,7 +42356,7 @@
       <td>0.1</td>
     </tr>
     <tr>
-      <th>1031</th>
+      <th>1032</th>
       <td>ICME_Wind_NASA_19970921_01</td>
       <td>Wind</td>
       <td>1997-09-21T16:42Z</td>
@@ -42356,7 +42397,7 @@
       <td>3.9</td>
     </tr>
     <tr>
-      <th>1032</th>
+      <th>1033</th>
       <td>ICME_Wind_NASA_19970918_01</td>
       <td>Wind</td>
       <td>1997-09-18T00:30Z</td>
@@ -42397,7 +42438,7 @@
       <td>1.7</td>
     </tr>
     <tr>
-      <th>1033</th>
+      <th>1034</th>
       <td>ICME_Wind_NASA_19970902_01</td>
       <td>Wind</td>
       <td>1997-09-02T22:40Z</td>
@@ -42438,7 +42479,7 @@
       <td>0.7</td>
     </tr>
     <tr>
-      <th>1034</th>
+      <th>1035</th>
       <td>ICME_Wind_NASA_19970817_01</td>
       <td>Wind</td>
       <td>1997-08-17T01:56Z</td>
@@ -42479,7 +42520,7 @@
       <td>0.3</td>
     </tr>
     <tr>
-      <th>1035</th>
+      <th>1036</th>
       <td>ICME_Wind_NASA_19970803_01</td>
       <td>Wind</td>
       <td>1997-08-03T10:10Z</td>
@@ -42520,7 +42561,7 @@
       <td>2.3</td>
     </tr>
     <tr>
-      <th>1036</th>
+      <th>1037</th>
       <td>ICME_Wind_NASA_19970715_01</td>
       <td>Wind</td>
       <td>1997-07-15T03:10Z</td>
@@ -42561,7 +42602,7 @@
       <td>1.5</td>
     </tr>
     <tr>
-      <th>1037</th>
+      <th>1038</th>
       <td>ICME_Wind_NASA_19970619_01</td>
       <td>Wind</td>
       <td>1997-06-19T00:00Z</td>
@@ -42602,7 +42643,7 @@
       <td>0.5</td>
     </tr>
     <tr>
-      <th>1038</th>
+      <th>1039</th>
       <td>ICME_Wind_NASA_19970608_01</td>
       <td>Wind</td>
       <td>1997-06-08T15:43Z</td>
@@ -42643,7 +42684,7 @@
       <td>0.7</td>
     </tr>
     <tr>
-      <th>1039</th>
+      <th>1040</th>
       <td>ICME_Wind_NASA_19970526_01</td>
       <td>Wind</td>
       <td>1997-05-26T09:09Z</td>
@@ -42684,7 +42725,7 @@
       <td>1.2</td>
     </tr>
     <tr>
-      <th>1040</th>
+      <th>1041</th>
       <td>ICME_Wind_NASA_19970516_01</td>
       <td>Wind</td>
       <td>1997-05-16T06:01Z</td>
@@ -42725,7 +42766,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1041</th>
+      <th>1042</th>
       <td>ICME_Wind_NASA_19970515_01</td>
       <td>Wind</td>
       <td>1997-05-15T01:15Z</td>
@@ -42766,7 +42807,7 @@
       <td>2.4</td>
     </tr>
     <tr>
-      <th>1042</th>
+      <th>1043</th>
       <td>ICME_Wind_NASA_19970421_01</td>
       <td>Wind</td>
       <td>1997-04-21T10:11Z</td>
@@ -42807,7 +42848,7 @@
       <td>1.1</td>
     </tr>
     <tr>
-      <th>1043</th>
+      <th>1044</th>
       <td>ICME_Wind_NASA_19970410_01</td>
       <td>Wind</td>
       <td>1997-04-10T17:02Z</td>
@@ -42848,7 +42889,7 @@
       <td>1.9</td>
     </tr>
     <tr>
-      <th>1044</th>
+      <th>1045</th>
       <td>ICME_Wind_NASA_19970209_01</td>
       <td>Wind</td>
       <td>1997-02-09T12:50Z</td>
@@ -42889,7 +42930,7 @@
       <td>1.2</td>
     </tr>
     <tr>
-      <th>1045</th>
+      <th>1046</th>
       <td>ICME_Wind_NASA_19970110_01</td>
       <td>Wind</td>
       <td>1997-01-10T00:52Z</td>
@@ -42930,7 +42971,48 @@
       <td>0.8</td>
     </tr>
     <tr>
-      <th>1046</th>
+      <th>1047</th>
+      <td>ICME_Wind_NASA_19961224_01</td>
+      <td>Wind</td>
+      <td>1996-12-24T01:26Z</td>
+      <td>1996-12-24T03:07Z</td>
+      <td>1996-12-25T11:44Z</td>
+      <td>0.9804</td>
+      <td>-0.06</td>
+      <td>-2.13</td>
+      <td>34.30</td>
+      <td>13.5</td>
+      <td>10.1</td>
+      <td>2.2</td>
+      <td>351.9</td>
+      <td>27.6</td>
+      <td>32.62</td>
+      <td>13.5</td>
+      <td>10.4</td>
+      <td>1.7</td>
+      <td>3.4</td>
+      <td>-7.3</td>
+      <td>4.5</td>
+      <td>-5.7</td>
+      <td>4.8</td>
+      <td>348.4</td>
+      <td>23.4</td>
+      <td>38.7</td>
+      <td>2.3</td>
+      <td>0.8</td>
+      <td>11.5</td>
+      <td>4.1</td>
+      <td>29551.1</td>
+      <td>14518.8</td>
+      <td>419.4</td>
+      <td>10.0</td>
+      <td>12.8</td>
+      <td>3.8</td>
+      <td>3.8</td>
+      <td>1.2</td>
+    </tr>
+    <tr>
+      <th>1048</th>
       <td>ICME_Wind_NASA_19960807_01</td>
       <td>Wind</td>
       <td>1996-08-07T08:23Z</td>
@@ -42971,7 +43053,7 @@
       <td>0.3</td>
     </tr>
     <tr>
-      <th>1047</th>
+      <th>1049</th>
       <td>ICME_Wind_NASA_19960702_01</td>
       <td>Wind</td>
       <td>1996-07-02T16:04Z</td>
@@ -43012,7 +43094,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1048</th>
+      <th>1050</th>
       <td>ICME_Wind_NASA_19960701_01</td>
       <td>Wind</td>
       <td>1996-07-01T13:05Z</td>
@@ -43053,7 +43135,7 @@
       <td>0.8</td>
     </tr>
     <tr>
-      <th>1049</th>
+      <th>1051</th>
       <td>ICME_Wind_NASA_19960527_01</td>
       <td>Wind</td>
       <td>1996-05-27T14:45Z</td>
@@ -43094,7 +43176,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1050</th>
+      <th>1052</th>
       <td>ICME_Wind_NASA_19960516_01</td>
       <td>Wind</td>
       <td>1996-05-16T22:47Z</td>
@@ -43135,7 +43217,7 @@
       <td>0.3</td>
     </tr>
     <tr>
-      <th>1051</th>
+      <th>1053</th>
       <td>ICME_Wind_NASA_19960404_01</td>
       <td>Wind</td>
       <td>1996-04-04T11:59Z</td>
@@ -43176,7 +43258,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1052</th>
+      <th>1054</th>
       <td>ICME_Wind_NASA_19960215_01</td>
       <td>Wind</td>
       <td>1996-02-15T15:07Z</td>
@@ -43217,7 +43299,48 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1053</th>
+      <th>1055</th>
+      <td>ICME_Wind_NASA_19951215_01</td>
+      <td>Wind</td>
+      <td>1995-12-15T14:52Z</td>
+      <td>1995-12-16T07:11Z</td>
+      <td>1995-12-16T19:11Z</td>
+      <td>0.9812</td>
+      <td>-0.07</td>
+      <td>-1.01</td>
+      <td>28.32</td>
+      <td>12.7</td>
+      <td>10.3</td>
+      <td>1.5</td>
+      <td>391.6</td>
+      <td>20.1</td>
+      <td>12.00</td>
+      <td>12.7</td>
+      <td>11.0</td>
+      <td>1.4</td>
+      <td>3.0</td>
+      <td>-1.5</td>
+      <td>2.1</td>
+      <td>-7.3</td>
+      <td>2.5</td>
+      <td>396.2</td>
+      <td>7.0</td>
+      <td>9.5</td>
+      <td>3.3</td>
+      <td>1.3</td>
+      <td>12.4</td>
+      <td>4.6</td>
+      <td>31630.4</td>
+      <td>12211.0</td>
+      <td>388.2</td>
+      <td>25.4</td>
+      <td>13.6</td>
+      <td>6.7</td>
+      <td>3.5</td>
+      <td>1.9</td>
+    </tr>
+    <tr>
+      <th>1056</th>
       <td>ICME_Wind_NASA_19951018_01</td>
       <td>Wind</td>
       <td>1995-10-18T10:40Z</td>
@@ -43258,7 +43381,7 @@
       <td>3.2</td>
     </tr>
     <tr>
-      <th>1054</th>
+      <th>1057</th>
       <td>ICME_Wind_NASA_19950926_01</td>
       <td>Wind</td>
       <td>1995-09-26T15:57Z</td>
@@ -43299,7 +43422,7 @@
       <td>0.3</td>
     </tr>
     <tr>
-      <th>1055</th>
+      <th>1058</th>
       <td>ICME_Wind_NASA_19950822_01</td>
       <td>Wind</td>
       <td>1995-08-22T12:56Z</td>
@@ -43340,7 +43463,7 @@
       <td>0.7</td>
     </tr>
     <tr>
-      <th>1056</th>
+      <th>1059</th>
       <td>ICME_Wind_NASA_19950630_01</td>
       <td>Wind</td>
       <td>1995-06-30T09:21Z</td>
@@ -43381,7 +43504,7 @@
       <td>2.1</td>
     </tr>
     <tr>
-      <th>1057</th>
+      <th>1060</th>
       <td>ICME_Wind_NASA_19950513_01</td>
       <td>Wind</td>
       <td>1995-05-13T10:19Z</td>
@@ -43422,7 +43545,7 @@
       <td>NaN</td>
     </tr>
     <tr>
-      <th>1058</th>
+      <th>1061</th>
       <td>ICME_Wind_NASA_19950405_01</td>
       <td>Wind</td>
       <td>1995-04-05T07:11Z</td>
@@ -43463,7 +43586,7 @@
       <td>0.7</td>
     </tr>
     <tr>
-      <th>1059</th>
+      <th>1062</th>
       <td>ICME_Wind_NASA_19950403_01</td>
       <td>Wind</td>
       <td>1995-04-03T06:43Z</td>
@@ -43504,7 +43627,7 @@
       <td>0.1</td>
     </tr>
     <tr>
-      <th>1060</th>
+      <th>1063</th>
       <td>ICME_Wind_NASA_19950306_01</td>
       <td>Wind</td>
       <td>1995-03-06T02:11Z</td>
@@ -43545,7 +43668,7 @@
       <td>0.3</td>
     </tr>
     <tr>
-      <th>1061</th>
+      <th>1064</th>
       <td>ICME_Wind_NASA_19950304_01</td>
       <td>Wind</td>
       <td>1995-03-04T00:36Z</td>
@@ -43586,7 +43709,7 @@
       <td>2.1</td>
     </tr>
     <tr>
-      <th>1062</th>
+      <th>1065</th>
       <td>ICME_Wind_NASA_19950207_01</td>
       <td>Wind</td>
       <td>1995-02-07T19:11Z</td>

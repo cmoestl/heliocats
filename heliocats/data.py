@@ -105,7 +105,7 @@ def wind_download_ascii():
 
 
     wind_years_strings=[]
-    for j in np.arange(1994,2030):
+    for j in np.arange(1994,2022):
         wind_years_strings.append(str(j))
 
 
@@ -116,7 +116,7 @@ def wind_download_ascii():
 
     for i in np.arange(0,len(wind_years_strings)):    
 
-        for k in np.arange(1,12):    
+        for k in np.arange(1,13):    
 
             a=str(k).zfill(2) #add leading zeros
 
@@ -326,8 +326,9 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,heeq):
 
             file=wind_data_path+wind_years_strings[i]+a+'_wind_mag_1min.asc' #199504_wind_mag_1min.asc	
             print(file)
-            #get data from file
-            mfi_data=np.genfromtxt(file,dtype="i8,i8,i8,i8,i8,i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,")
+            #get data from file, no 2021 12 available yet
+            if file!='/nas/helio/data/Wind/mfi_1min_ascii/202112_wind_mag_1min.asc':
+                mfi_data=np.genfromtxt(file,dtype="i8,i8,i8,i8,i8,i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,")
 
 
             #put data in array
