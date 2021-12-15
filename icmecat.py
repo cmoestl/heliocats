@@ -10,7 +10,9 @@
 # **Author**: C. Möstl, IWF Graz, Austria
 # https://twitter.com/chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# **latest release: version 2.1, 2021 November 29, updated 2021 December 6 doi: 10.6084/m9.figshare.6356420**
+# **latest release: version 2.1, 2021 November 29, updated 2021 December 7**
+# 
+# **doi 10.6084/m9.figshare.6356420**  https://10.6084/m9.figshare.6356420
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -25,7 +27,7 @@
 # - Bepi Colombo manual download, then read_bepi.ipynb
 # - PSP use cell in this notebook, beware of unfinished file downloads - redo!
 # - STEREO-Ahead prel. PLASTIC ASCII files, IMPACT as usual (via heliosat), beacon data automatic every day
-# - Wind automatic everyday, add spike and gap times under hd.remove_wind_spikes_gaps
+# - Wind automatic everyday, add spike and gap times under hd.remove_wind_spikes_gaps, or use ascii files 
 # 
 # 
 # 
@@ -33,13 +35,13 @@
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
-# In[28]:
+# In[2]:
 
 
-last_update='2021-December-6'
+last_update='2021-December-+*'
 
 
-# In[29]:
+# In[3]:
 
 
 import numpy as np
@@ -135,7 +137,7 @@ print(heliosat.__version__)
 
 # ## Parker Solar Probe
 
-# In[2]:
+# In[103]:
 
 
 ################### FIELDS
@@ -475,7 +477,7 @@ plt.savefig('results/parker_orbit8.png')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[30]:
+# In[3]:
 
 
 load_data=1
@@ -852,16 +854,35 @@ if data_to_numpy_2 > 0:
  
 
     print('done')
+    
+    
+    
+    
+#for Wind 1995 data    
+data_to_numpy_3=1 
+
+
+if data_to_numpy_3 > 0:
+      
+    print('Wind')
+    hwind_att='dtype=[((time [matplotlib format]), (bt [nT], <f8), (bx  [nT, HEEQ], <f8), (by  [nT, HEEQ], <f8),                         (bz  [nT, HEEQ], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8),                         (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),                        (lat [deg, HEEQ], <f8), (lon [deg, HEEQ],<f8 )]'
+    win_nd=hd.recarray_to_numpy_array(win)
+    win_nd=win_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
+    pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_1995_2021_heeq_ndarray.p", "wb" ) )
+
+
+    
+    
 
 
 # ### 1b  Wind data for whole dataset and add full NASA catalog
 
 # #### read all wind mfi data as ascii
 
-# In[10]:
+# In[35]:
 
 
-get_ipython().run_cell_magic('time', '', "\nfrom heliocats import data as hd\nimportlib.reload(hd) #reload again while debugging\n\n#download ascii files\n#hd.wind_download_ascii()\n\nstart=datetime.datetime(1995,1,1)\nend=datetime.datetime(2021,10,31)\n\n\n#end=datetime.datetime.utcnow() \npath='/nas/helio/data/insitu_python/'\n\nfile='wind_1995_2021_gse.p'\nhd.save_wind_data_ascii(path,file,start,end,heeq=False)\n\nfile='wind_1995_2021_heeq.p'\nhd.save_wind_data_ascii(path,file,start,end,heeq=True)\n\n")
+get_ipython().run_cell_magic('time', '', '\nfrom heliocats import data as hd\nimportlib.reload(hd) #reload again while debugging\n\n#download ascii files\n#hd.wind_download_ascii()\n\nstart=datetime.datetime(1995,1,1)\nend=datetime.datetime(2021,11,30)\n\n\n#end=datetime.datetime.utcnow() \npath=\'/nas/helio/data/insitu_python/\'\n\n#file=\'wind_1995_2021_gse.p\'\n#hd.save_wind_data_ascii(path,file,start,end,coord=\'GSE\')\n\n#file=\'wind_1995_2021_heeq.p\'\n#hd.save_wind_data_ascii(path,file,start,end,coord=\'HEEQ\')\n\n\n#file=\'wind_1995_2021_gsm.p\'\n#hd.save_wind_data_ascii(path,file,start,end,coord=\'GSM\')\n\nfilewin="wind_1995_2021_gsm.p" \n[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\nwin=win[3000000:7056000]\n\nfilewin="wind_1995_2021_heeq.p" \n[winh,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\nwinh=winh[3000000:7056000]\n\n\nnp.nanstd(winh.bz-win.bz)\nnp.nanmean(winh.bz-win.bz)\n\n')
 
 
 # ## (2) measure new events 
@@ -999,7 +1020,7 @@ plt.ion()
 
 # ## (3) make ICMECAT 
 
-# In[79]:
+# In[5]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -1112,7 +1133,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[91]:
+# In[6]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -1148,7 +1169,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[92]:
+# In[7]:
 
 
 ########## python formats
@@ -1324,7 +1345,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[93]:
+# In[8]:
 
 
 #load icmecat as pandas dataframe
@@ -1336,26 +1357,26 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[94]:
+# In[9]:
 
 
 print(ic_pandas.keys())
 
 
-# In[95]:
+# In[10]:
 
 
 ic_pandas
 
 
-# In[96]:
+# In[11]:
 
 
 #
 ic_nprec
 
 
-# In[97]:
+# In[12]:
 
 
 ic_nprec.icmecat_id
@@ -1363,7 +1384,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[98]:
+# In[13]:
 
 
 ic=ic_pandas
@@ -1473,7 +1494,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[99]:
+# In[14]:
 
 
 #markersize
@@ -1518,7 +1539,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[100]:
+# In[15]:
 
 
 #make distribution plots

@@ -263,7 +263,7 @@ def read_wind_icme_catalog():
 
 
 
-def save_wind_data_ascii(path,finalfile,start_date,end_date,heeq):
+def save_wind_data_ascii(path,finalfile,start_date,end_date,coord):
     
     '''
     description of data sources used in this function
@@ -272,7 +272,7 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,heeq):
     https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike
     
     MFI 1 min    
-    https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike
+    https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/
     
     examples:
     
@@ -336,10 +336,19 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,heeq):
                 #time
                 win_mag.time[p+counter]=datetime.datetime(mfi_data[p][0],mfi_data[p][1],mfi_data[p][2],mfi_data[p][3],mfi_data[p][4],mfi_data[p][5])
                 win_mag.bx[p+counter]=mfi_data[p][6]
-                win_mag.by[p+counter]=mfi_data[p][7]
-                win_mag.bz[p+counter]=mfi_data[p][8]
-                win_mag.bt[p+counter]=mfi_data[p][11]
                 
+                if coord=='GSE':
+                    win_mag.by[p+counter]=mfi_data[p][7]
+                    win_mag.bz[p+counter]=mfi_data[p][8]
+                    win_mag.bt[p+counter]=mfi_data[p][11]
+
+                if coord=='GSM':
+                    win_mag.by[p+counter]=mfi_data[p][9]
+                    win_mag.bz[p+counter]=mfi_data[p][10]
+                    win_mag.bt[p+counter]=mfi_data[p][11]
+
+    
+                    
                 #gse position
                 win_mag.x[p+counter]=mfi_data[p][17]
                 win_mag.y[p+counter]=mfi_data[p][18]
@@ -621,11 +630,9 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,heeq):
     
     
      
-    coord='GSE'
     #convert magnetic field to SCEQ
-    if heeq==True:
+    if coord=='HEEQ':
         win=convert_GSE_to_HEEQ(win)
-        coord='HEEQ'
    
     
         
