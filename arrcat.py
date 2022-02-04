@@ -8,7 +8,7 @@
 # Authors: C. Möstl, IWF Graz, Austria, D. Barnes, J. A. Davies, R. A. Harrison, RAL Space, UK.
 # twitter @chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# current version ARRCAT 2.0, released 2020 May 13, updated 2021 Aug 23
+# current version ARRCAT 2.0, released 2020 May 13, updated 2021 November 25
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -20,7 +20,7 @@
 # In[1]:
 
 
-last_update='2021-De'
+last_update='2021-November-25'
 
 
 # In[2]:

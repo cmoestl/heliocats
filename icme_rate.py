@@ -26,7 +26,7 @@
 # 
 # **MIT LICENSE**
 # 
-# Copyright 2020, Christian Moestl
+# Copyright 2020-2022, Christian Moestl
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this 
 # software and associated documentation files (the "Software"), to deal in the Software
@@ -45,7 +45,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[62]:
+# In[1]:
 
 
 #real time updates: icme_rate.py
@@ -53,16 +53,17 @@
 import matplotlib
 
 #for server runs
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 #for notebook use
-#%matplotlib inline
+get_ipython().run_line_magic('matplotlib', 'inline')
 
 
+
+
+outputdirectory='results/icme_rate_cycle_update'
 
 #set directory for daily update
-
-#outputdirectory='results/icme_rate_cycle_update'
-outputdirectory='/nas/helio/data/insitu_python/icme_rate_cycle_update'
+#outputdirectory='/nas/helio/data/insitu_python/icme_rate_cycle_update'
 
 
 #Convert this notebook to a script with:
@@ -414,7 +415,7 @@ if load_data > 0:
    
     ##############################################
     print('load Solar Orbiter SCEQ')
-    filesolo='solo_2020_april_december_sceq.p'
+    filesolo='solo_2020_april_2021_sep_sceq.p'
     solo=pickle.load(open(data_path+filesolo, "rb" ) )    
     #set all plasma data to NaN
     solo.vt=np.nan
@@ -429,12 +430,12 @@ if load_data > 0:
     
 
 
-# In[4]:
+# In[6]:
 
 
 
 ########### load ICMECAT v2.0, made with icmecat.py or ipynb
-file='icmecat/HELCATS_ICMECAT_v20_pandas.p'
+file='icmecat/HELIO4CAST_ICMECAT_v21_pandas.p'
 print()
 print('loaded ', file)
 print()
@@ -537,7 +538,7 @@ print(len(ic))
 print('done')
 
 
-# In[5]:
+# In[7]:
 
 
 ic
@@ -547,7 +548,7 @@ ic
 
 # ### Check data days available each year for each planet or spacecraft
 
-# In[6]:
+# In[8]:
 
 
 ######################## make bin for each year for yearly histograms
@@ -737,7 +738,7 @@ print('done')
 
 # ### get yearly ICME rates at each spacecraft
 
-# In[7]:
+# In[9]:
 
 
 #define dates of January 1 from 2007 to 2022
@@ -886,7 +887,7 @@ icrate
 
 # ### get Richardson and Cane ICME rate for comparison
 
-# In[8]:
+# In[10]:
 
 
 #convert times in dataframe from richardson and cane list to numpy array
@@ -934,7 +935,7 @@ print(yearly_mid_times_rc)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[9]:
+# In[11]:
 
 
 sns.set_context("talk")     
@@ -1079,7 +1080,7 @@ plt.savefig(outputdirectory+'/icmecat_icme_rate.png', dpi=100)
 
 # ## solar cycle 23
 
-# In[10]:
+# In[12]:
 
 
 print('cycle 23\n')
@@ -1163,7 +1164,7 @@ print()
 
 # ## solar cycle 24
 
-# In[11]:
+# In[13]:
 
 
 print('cycle 24\n')
@@ -1223,7 +1224,7 @@ print(np.round(np.mean(rc_rate24/ic_rate24),2))
 
 # ## solar cycle 25
 
-# In[12]:
+# In[14]:
 
 
 print('cycle 25\n')
@@ -1283,7 +1284,7 @@ print()
 # ## **Figure 2** correlation SSN with ICME rate and fit
 # plot SSN vs ICME rate, linear fit with confidence interval
 
-# In[13]:
+# In[15]:
 
 
 #add spots23/24 and rc_rate23/24 into 1 array for correlation
@@ -1407,7 +1408,7 @@ plt.savefig(outputdirectory+'/fig2_rate_ssn.png', dpi=300)
 # ## predictions for solar cycle 25: SSN and ICME rate
 # ### 1. Mean cycle model
 
-# In[14]:
+# In[16]:
 
 
 # from heliocats import stats as hs
@@ -1526,7 +1527,7 @@ print('Std in ICME rate from fit and ICMECAT range for each year:')
 print(ic_rate_25_m_std)
 
 
-# In[15]:
+# In[17]:
 
 
 ########################################################### 2. SC25 panel prediction (SC25PP)
@@ -1646,7 +1647,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_pp_std)
 
 
-# In[16]:
+# In[18]:
 
 
 ################################### SC25MC
@@ -1741,7 +1742,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_mc20_std)
 
 
-# In[17]:
+# In[19]:
 
 
 ################################### SC25MC
@@ -1848,7 +1849,7 @@ print(ic_rate_25_mc20_std)
 
 # ## **Figure 3** ICME rate predictions
 
-# In[18]:
+# In[20]:
 
 
 sns.set_context("talk")     
@@ -1966,7 +1967,7 @@ plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.png', dpi=100)
 
 # ### with new hathaway function for cycle by McIntosh et al. shifted max 
 
-# In[19]:
+# In[21]:
 
 
 sns.set_context("talk")     
@@ -2062,7 +2063,7 @@ plt.tight_layout()
 plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions_shiftmax.png', dpi=100)
 
 
-# In[59]:
+# In[53]:
 
 
 
@@ -2086,7 +2087,7 @@ max_spot=500
 ax1 = plt.subplot(111) 
 ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.4,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
 #ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
-ax1.plot(ssn_m.time,ssn_m.spot,'-k',alpha=1,linewidth=1.5,label='Observed sunspot number (SIDC, monthly mean)')
+ax1.plot(ssn_m.time+15,ssn_m.spot,'-k',alpha=1,linewidth=1.5,label='Observed sunspot number (SIDC, monthly mean)')
 
 
 
@@ -2141,7 +2142,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short.png',dpi=100)
 plt.savefig(outputdirectory+'/cycle25_prediction_short.pdf')
 
 
-# In[60]:
+# In[54]:
 
 
 #with shortest interval
@@ -2170,7 +2171,9 @@ ax1 = plt.subplot(111)
 ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.5,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
 ax1.plot(ssn_p.time,ssn_p.spot,color='coral',alpha=0.9,linewidth=1.0,label='Observed sunspot number (SIDC, daily, estimated)')
 #ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
-ax1.plot(ssn_m.time,ssn_m.spot,'-k',alpha=1,linewidth=2,label='Observed sunspot number (SIDC, monthly mean)')
+
+#move average to monthly midpoint
+ax1.plot(ssn_m.time+15,ssn_m.spot,'-k',alpha=1,linewidth=2,label='Observed sunspot number (SIDC, monthly mean)')
 
     
 #PP19 prediction
@@ -2217,7 +2220,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # ### make PSP and Solar Orbiter position
 
-# In[22]:
+# In[24]:
 
 
 frame='HEEQ'
@@ -2322,7 +2325,7 @@ plt.ylim(0,5)
 plt.xlabel('AU')
 
 
-# In[23]:
+# In[25]:
 
 
 #get the speed in hourly resolution
@@ -2352,7 +2355,7 @@ plt.xlabel('AU')
 print('psp maximum speed ',np.max(psp_highres_speed),' km/s at ',psp_highres_r[np.argmax(psp_highres_speed)], ' AU')
 
 
-# In[24]:
+# In[26]:
 
 
 #%matplotlib inline
@@ -2421,7 +2424,7 @@ plt.figtext(0.99,0.008,'C. Möstl @chrisoutofspace', fontsize=10, ha='right',col
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[25]:
+# In[27]:
 
 
 #same thing for Solar Orbiter
@@ -2525,7 +2528,7 @@ plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 # first calculate smooth functions for the icme rate including the derived error bars in Figure 3
 
-# In[26]:
+# In[28]:
 
 
 #fit yearly ICME rates again with hathaway function to get to daily resolution including errors
@@ -2585,7 +2588,7 @@ plt.plot(times_25_daily_icrange_num,fmc_low(times_25_daily_icrange_num))
 
 # Figure out how many ICMEs PSP sees < 0.1 AU, < 0.2 AU, < 0.3 AU for the predicted ICME rates
 
-# In[27]:
+# In[29]:
 
 
 #make position new in order to be of similar range with ICME rate spline fits
@@ -2716,7 +2719,7 @@ print('days < 0.3 AU:',solo_l03.size)
 
 # ## **Figure 4** PSP Solar Orbiter distance and ICME rate
 
-# In[28]:
+# In[30]:
 
 
 sns.set_context("talk")     
@@ -2818,7 +2821,7 @@ plt.savefig(outputdirectory+'/cycle25_icme_rate_psp_orbiter_bepi.png', dpi=100)
 # first homogenize spacecraft positions, load hourly position data
 # 
 
-# In[29]:
+# In[31]:
 
 
 [psp, bepi, solo, sta, earth, venus, mars, mercury,frame]=       pickle.load( open( '/nas/helio/data/insitu_python/positions_psp_solo_bepi_sta_planets_HEEQ_1hour.p', "rb" ))
@@ -2899,7 +2902,7 @@ print('PSP   ',len(psp.lon))
 
 # ### first until end of PSP nominal, so make arrays all similar
 
-# In[30]:
+# In[32]:
 
 
 solo1=solo[0:len(psp)]
@@ -2919,7 +2922,7 @@ a=a+180
 sns.distplot(a)
 
 
-# In[31]:
+# In[33]:
 
 
 ####lineup counter arrays for all spacecraft
@@ -3098,7 +3101,7 @@ for i in np.arange(0,len(a)):
 # 
 # ### lineup results
 
-# In[32]:
+# In[34]:
 
 
 #Möstl et al. 2020    #until middle 2025 total ICME
@@ -3178,7 +3181,7 @@ plt.ylim(0,35)
 
 # ### second interval from end of PSP nominal to 2029
 
-# In[33]:
+# In[35]:
 
 
 solo2=solo[len(psp):-1]
@@ -3195,7 +3198,7 @@ a2=a2+180
 sns.distplot(a2)
 
 
-# In[34]:
+# In[36]:
 
 
 alldiff2=np.zeros((len(a2),6))
@@ -3371,7 +3374,7 @@ for i in np.arange(0,len(a2)):
 
 # ### Results for 2nd interval
 
-# In[35]:
+# In[37]:
 
 
 #Möstl et al. 2020    #until middle 2025 total ICME, assume middle 2025 to end of 2029 is similar, also because of declining phase
@@ -3450,7 +3453,7 @@ plt.ylim(0,30)
 
 # ## lineups and icme rate figure
 
-# In[36]:
+# In[38]:
 
 
 #times for at least 2 spacecraft in lineups
@@ -3532,7 +3535,7 @@ plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_lineups.pdf', dpi=
 
 # ## Figure with longitude for lineups
 
-# In[37]:
+# In[39]:
 
 
 sns.set_context("talk")     
@@ -3650,7 +3653,7 @@ plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_psp_orbiter_bepi_o
 plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_psp_orbiter_bepi_one_panel.pdf', dpi=100)
 
 
-# In[38]:
+# In[40]:
 
 
 #sns.set_style('darkgrid')

@@ -35,13 +35,13 @@
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
-# In[2]:
+# In[1]:
 
 
 last_update='2021-December-+*'
 
 
-# In[3]:
+# In[2]:
 
 
 import numpy as np
@@ -143,7 +143,7 @@ print(heliosat.__version__)
 ################### FIELDS
 #generate datestrings for filenames
 time1=[]
-tstart1=datetime.datetime(2021, 3, 30)
+tstart1=datetime.datetime(2021, 4, 20)
 tend1=datetime.datetime(2021, 10, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
@@ -165,7 +165,7 @@ os.chdir('/home/cmoestl/pycode/heliocats')
 ############# SWEAP
 
 time1=[]
-tstart1=datetime.datetime(2021, 3, 30)
+tstart1=datetime.datetime(2021, 4, 25)
 tend1=datetime.datetime(2021, 10, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
@@ -182,7 +182,7 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[24]:
+# In[5]:
 
 
 from heliocats import data as hd
@@ -199,15 +199,21 @@ importlib.reload(hd) #reload again while debugging
 #print('sceq done')
 
 print('load PSP data RTN') 
-filepsp='psp_2018_2021_rtn_new.p'
+filepsp='psp_2018_2021_rtn.p'
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
 
 #start=datetime.datetime(2018,10,1)
 #end=datetime.datetime(2021,6,30)
 
-start=datetime.datetime(2021,4,25)
-end=datetime.datetime(2021,5,3)
+start=datetime.datetime(2021,4,27)
+end=datetime.datetime(2021,5,1)
+
+
+# In[13]:
+
+
+
 
 
 #start=datetime.datetime(2021,4,29)
@@ -221,7 +227,7 @@ sns.set_style('darkgrid')
 
 fig=plt.figure(3,figsize=(15,10),dpi=100)
 
-ax1=plt.subplot(211)
+ax1=plt.subplot(311)
 
 #  #ax1.plot(psp.time,psp.bt,'-k',lw=0.5,label='Btotal')
 # #ax1.plot(psp.time,psp.bx,'-r',lw=0.2,label='Br')
@@ -232,25 +238,29 @@ ax1.plot(psp.time,psp.bt,'-k',lw=1,label='Btotal')
 ax1.plot(psp.time,psp.bx,'-r',lw=1,label='Br')
 ax1.plot(psp.time,psp.by,'-g',lw=1,label='Bt')
 ax1.plot(psp.time,psp.bz,'-b',lw=1,label='Bn')
-
-
-#ax1.plot(psp.time,psp.vt,'--',lw=1,label='Vt')
-
-
 ax1.set_xlim(start,end)
 ax1.set_ylabel('FIELDS magnetic field [nT]')
 ax1.legend(loc=2)
 #ax1.set_ylim(-20,20)
 
 
-ax2=plt.subplot(212,sharex=ax1)
-ax2.plot(psp.time,psp.r,'-b')
-ax2.set_ylim(0.07,0.08)
 
-ax2.set_ylabel('Heliocentric distance [AU]')
+from astropy.constants import mu0,m_p
+va=(psp.bt*1e-9)/np.sqrt(mu0.value*(psp.np*1e6)*m_p.value)*1e-3
+
+ax2=plt.subplot(312,sharex=ax1)
+ax2.plot(psp.time,psp.vt/va,'--',lw=1,label='M_A')
+ax2.set_ylim(0.5,1.5)
+
+
+ax3=plt.subplot(313,sharex=ax1)
+ax3.plot(psp.time,psp.r,'-b')
+ax3.set_ylim(0.07,0.09)
+
+ax3.set_ylabel('Heliocentric distance [AU]')
 
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
-ax2.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
+ax3.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
 
 plt.title('Parker Solar Probe orbit Nr. 8, April / May 2021')
 plt.tight_layout()
