@@ -45,17 +45,21 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[1]:
+# In[61]:
 
 
 #real time updates: icme_rate.py
 
-import matplotlib
+#import matplotlib
 
 #for server runs
 #matplotlib.use('Agg')
+
 #for notebook use
-get_ipython().run_line_magic('matplotlib', 'inline')
+
+
+#when saving script comment:
+#%matplotlib inline
 
 
 
@@ -68,8 +72,8 @@ outputdirectory='results/icme_rate_cycle_update'
 
 #Convert this notebook to a script with:
 
-#import os
-#os.system('jupyter nbconvert --to script icme_rate.ipynb')    
+import os
+os.system('jupyter nbconvert --to script icme_rate.ipynb')    
 
 
 # In[2]:
