@@ -45,7 +45,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[61]:
+# In[64]:
 
 
 #real time updates: icme_rate.py
@@ -55,19 +55,19 @@
 #for server runs
 #matplotlib.use('Agg')
 
-#for notebook use
+##############!!!!for notebook use
 
-
-#when saving script comment:
 #%matplotlib inline
+#outputdirectory='results/icme_rate_cycle_update'
 
 
 
 
-outputdirectory='results/icme_rate_cycle_update'
 
-#set directory for daily update
-#outputdirectory='/nas/helio/data/insitu_python/icme_rate_cycle_update'
+#############!!!!!!!!!!!!!!!!!!
+#for automatic updates
+
+outputdirectory='/nas/helio/data/insitu_python/icme_rate_cycle_update'
 
 
 #Convert this notebook to a script with:
