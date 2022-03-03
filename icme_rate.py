@@ -45,7 +45,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[ ]:
+# In[1]:
 
 
 #real time updates: icme_rate.py
@@ -72,11 +72,11 @@ outputdirectory='/nas/helio/data/insitu_python/icme_rate_cycle_update'
 
 #Convert this notebook to a script with:
 
-import os
-os.system('jupyter nbconvert --to script icme_rate.ipynb')    
+#import os
+#os.system('jupyter nbconvert --to script icme_rate.ipynb')    
 
 
-# In[ ]:
+# In[2]:
 
 
 from scipy import stats
@@ -149,7 +149,7 @@ print('done')
 
 # ## 1 Settings and load data
 
-# In[ ]:
+# In[3]:
 
 
 plt.close('all')
@@ -434,7 +434,7 @@ if load_data > 0:
     
 
 
-# In[ ]:
+# In[4]:
 
 
 
@@ -542,7 +542,7 @@ print(len(ic))
 print('done')
 
 
-# In[ ]:
+# In[5]:
 
 
 ic
@@ -552,7 +552,7 @@ ic
 
 # ### Check data days available each year for each planet or spacecraft
 
-# In[ ]:
+# In[6]:
 
 
 ######################## make bin for each year for yearly histograms
@@ -742,7 +742,7 @@ print('done')
 
 # ### get yearly ICME rates at each spacecraft
 
-# In[ ]:
+# In[7]:
 
 
 #define dates of January 1 from 2007 to 2022
@@ -891,7 +891,7 @@ icrate
 
 # ### get Richardson and Cane ICME rate for comparison
 
-# In[ ]:
+# In[8]:
 
 
 #convert times in dataframe from richardson and cane list to numpy array
@@ -939,7 +939,7 @@ print(yearly_mid_times_rc)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[ ]:
+# In[9]:
 
 
 sns.set_context("talk")     
@@ -1084,7 +1084,7 @@ plt.savefig(outputdirectory+'/icmecat_icme_rate.png', dpi=100)
 
 # ## solar cycle 23
 
-# In[ ]:
+# In[10]:
 
 
 print('cycle 23\n')
@@ -1168,7 +1168,7 @@ print()
 
 # ## solar cycle 24
 
-# In[ ]:
+# In[11]:
 
 
 print('cycle 24\n')
@@ -1228,7 +1228,7 @@ print(np.round(np.mean(rc_rate24/ic_rate24),2))
 
 # ## solar cycle 25
 
-# In[ ]:
+# In[12]:
 
 
 print('cycle 25\n')
@@ -1288,7 +1288,7 @@ print()
 # ## **Figure 2** correlation SSN with ICME rate and fit
 # plot SSN vs ICME rate, linear fit with confidence interval
 
-# In[ ]:
+# In[13]:
 
 
 #add spots23/24 and rc_rate23/24 into 1 array for correlation
@@ -1412,7 +1412,7 @@ plt.savefig(outputdirectory+'/fig2_rate_ssn.png', dpi=300)
 # ## predictions for solar cycle 25: SSN and ICME rate
 # ### 1. Mean cycle model
 
-# In[ ]:
+# In[14]:
 
 
 # from heliocats import stats as hs
@@ -1531,7 +1531,7 @@ print('Std in ICME rate from fit and ICMECAT range for each year:')
 print(ic_rate_25_m_std)
 
 
-# In[ ]:
+# In[15]:
 
 
 ########################################################### 2. SC25 panel prediction (SC25PP)
@@ -1651,7 +1651,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_pp_std)
 
 
-# In[ ]:
+# In[16]:
 
 
 ################################### SC25MC
@@ -1746,24 +1746,29 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_mc20_std)
 
 
-# In[ ]:
+# In[17]:
 
 
 ################################### SC25MC
 #SC25MC prediction or MC20 (see paper)
 #https://arxiv.org/abs/2006.15263
 
+#90 ± 20.
+#https://spaceweatherarchive.com/2022/02/25/the-termination-event-has-arrived/
 
-print('-------------------------- 4. SC25 MC 2020  v2 shift max to 2023')
-a=444
-aerr68=48 #MC20: 204-254 68, 153 305 95
-aerr95=147 #153 305 95, +/- 76 95
+
+print('-------------------------- 4. SC25 MC 2022 based on terminator ')
+a=363
+aerr68=38 #MC20: 325 -> 170 max, 
 b=60#b=60
 c=0.8 #c=0.8
 print('a,b,c:', a,b,c)
 print('range for a:',a-aerr68,a+aerr68)
 
-shift_t02=timedelta(days=4*30+1+12*30)
+#shift_t02=timedelta(days=4*30+1+12*30)
+
+shift_t02=timedelta(days=121)
+
 
 print('start of sc25 here in MC20 v2',start_25-shift_t02)
 
@@ -1853,7 +1858,7 @@ print(ic_rate_25_mc20_std)
 
 # ## **Figure 3** ICME rate predictions
 
-# In[ ]:
+# In[18]:
 
 
 sns.set_context("talk")     
@@ -1971,7 +1976,7 @@ plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.png', dpi=100)
 
 # ### with new hathaway function for cycle by McIntosh et al. shifted max 
 
-# In[ ]:
+# In[19]:
 
 
 sns.set_context("talk")     
@@ -2067,7 +2072,7 @@ plt.tight_layout()
 plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions_shiftmax.png', dpi=100)
 
 
-# In[ ]:
+# In[20]:
 
 
 
@@ -2086,7 +2091,7 @@ file='ssn_m.p'
 ssn_m=pickle.load(open(data_path+file, "rb"))
 
 fsize=15
-max_spot=500
+max_spot=450
 
 ax1 = plt.subplot(111) 
 ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.4,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
@@ -2103,16 +2108,16 @@ for i in np.arange(len(times_25_daily_shift)):
     times_25_daily_shift[i]=times_25_daily_shift[i]-timedelta(days=6*30)
 
 #PP19 prediction
-ax1.plot(times_25_daily_shift,spots_predict_25pp_daily,'-b',alpha=1,linewidth=1.5,label='Prediction Panel NOAA/NASA/ISES shifted -6 months')
+ax1.plot(times_25_daily_shift,spots_predict_25pp_daily,'-b',alpha=1,linewidth=1.5,label='Prediction NOAA/NASA/ISES shifted -6 months')
 ax1.fill_between(times_25_daily_shift,spots_predict_25pp_daily_low,spots_predict_25pp_daily_high,alpha=0.2)
 
 #MC20 prediction
-ax1.plot(times_25_daily,spots_predict_25_daily,'-r',alpha=1,linewidth=1.5,label='McIntosh et al. (2020)')
-ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
+#ax1.plot(times_25_daily,spots_predict_25_daily,'--r',alpha=0.5,linewidth=1.0,label='McIntosh et al. (2020)')
+#ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
 
-#MC20 prediction max 2023
-#ax1.plot(times_25_daily,spots_predict_25_daily_mc2,'--r',alpha=1,linewidth=2.5,label='McIntosh et al. (2020), max in July 2023')
-#ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68_mc2, spots_predict_25_daily_upper68_mc2, alpha=0.2)
+#MC22 prediction
+ax1.plot(times_25_daily,spots_predict_25_daily_mc2,'-r',alpha=1,linewidth=1.5,label='McIntosh/Leamon 2022')
+ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68_mc2, spots_predict_25_daily_upper68_mc2, alpha=0.1, color='red')
 
 
 
@@ -2127,7 +2132,7 @@ ax1.set_xlim(datetime.datetime(1749,1,1),datetime.datetime(2035,1,1))
 ax1.set_ylim(0,max_spot)
 ax1.set_ylabel('Sunspot number')
 
-plt.legend(loc='upper right',fontsize=10)
+plt.legend(loc='upper right',fontsize=8)
 plt.tight_layout()
 
 plt.savefig(outputdirectory+'/cycle25_prediction.png',dpi=100)
@@ -2137,7 +2142,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction.png',dpi=100)
 
 plt.legend(loc='upper right',fontsize=13)
 ax1.set_xlim(datetime.datetime(1975,1,1),datetime.datetime(2033,1,1))
-ax1.set_ylim(0,400)
+ax1.set_ylim(0,320)
 years = mdates.YearLocator(5)   # every year
 ax1.xaxis.set_major_locator(years)
 myformat = mdates.DateFormatter('%Y')
@@ -2146,7 +2151,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short.png',dpi=100)
 plt.savefig(outputdirectory+'/cycle25_prediction_short.pdf')
 
 
-# In[ ]:
+# In[21]:
 
 
 #with shortest interval
@@ -2190,14 +2195,15 @@ ax1.fill_between(times_25_daily_shift,spots_predict_25pp_daily_low,spots_predict
 
 
 #MC20
-ax1.plot(times_25_daily,spots_predict_25_daily,'-r',alpha=1,linewidth=2.5,label='McIntosh et al. (2020)')
-ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.1, color='red')
+#ax1.plot(times_25_daily,spots_predict_25_daily,'--r',alpha=0.5,linewidth=2.5,label='McIntosh et al. (2020)')
+#ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.1, color='red')
 
 
-#MC20 prediction max 2023
-#ax1.plot(times_25_daily,spots_predict_25_daily_mc2,'--r',alpha=1,linewidth=2.5,label='McIntosh et al. (2020), max in July 2023')
-#ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68_mc2, spots_predict_25_daily_upper68_mc2, alpha=0.2)
+#MC22
 
+
+ax1.plot(times_25_daily,spots_predict_25_daily_mc2,'-r',alpha=1,linewidth=2.5,label='McIntosh/Leamon 2022')
+ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68_mc2, spots_predict_25_daily_upper68_mc2, alpha=0.1, color='red')
 
 
 
@@ -2211,8 +2217,8 @@ ax1.set_ylabel('Sunspot number')
 
 plt.legend(loc='upper left',fontsize=12)
 plt.annotate('C. Möstl  helioforecast.space/solarcycle',xy=(0.995,0.02),xycoords='axes fraction',fontsize=9,ha='right')
-ax1.set_xlim(datetime.datetime(2019,1,1),datetime.datetime(2024,1,1))
-ax1.set_ylim(0,150)
+ax1.set_xlim(datetime.datetime(2019,1,1),datetime.datetime(2024,6,1))
+ax1.set_ylim(0,180)
 months = mdates.MonthLocator()   # every year
 ax1.xaxis.set_minor_locator(months)
 ax1.grid(linestyle='--')
@@ -2224,7 +2230,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # ### make PSP and Solar Orbiter position
 
-# In[ ]:
+# In[22]:
 
 
 frame='HEEQ'
@@ -2329,7 +2335,7 @@ plt.ylim(0,5)
 plt.xlabel('AU')
 
 
-# In[ ]:
+# In[23]:
 
 
 #get the speed in hourly resolution
@@ -2359,7 +2365,7 @@ plt.xlabel('AU')
 print('psp maximum speed ',np.max(psp_highres_speed),' km/s at ',psp_highres_r[np.argmax(psp_highres_speed)], ' AU')
 
 
-# In[ ]:
+# In[24]:
 
 
 #%matplotlib inline
@@ -2428,7 +2434,7 @@ plt.figtext(0.99,0.008,'C. Möstl @chrisoutofspace', fontsize=10, ha='right',col
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[ ]:
+# In[25]:
 
 
 #same thing for Solar Orbiter
@@ -2532,7 +2538,7 @@ plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 # first calculate smooth functions for the icme rate including the derived error bars in Figure 3
 
-# In[ ]:
+# In[26]:
 
 
 #fit yearly ICME rates again with hathaway function to get to daily resolution including errors
@@ -2592,7 +2598,7 @@ plt.plot(times_25_daily_icrange_num,fmc_low(times_25_daily_icrange_num))
 
 # Figure out how many ICMEs PSP sees < 0.1 AU, < 0.2 AU, < 0.3 AU for the predicted ICME rates
 
-# In[ ]:
+# In[27]:
 
 
 #make position new in order to be of similar range with ICME rate spline fits
@@ -2723,7 +2729,7 @@ print('days < 0.3 AU:',solo_l03.size)
 
 # ## **Figure 4** PSP Solar Orbiter distance and ICME rate
 
-# In[ ]:
+# In[28]:
 
 
 sns.set_context("talk")     
@@ -2825,7 +2831,7 @@ plt.savefig(outputdirectory+'/cycle25_icme_rate_psp_orbiter_bepi.png', dpi=100)
 # first homogenize spacecraft positions, load hourly position data
 # 
 
-# In[ ]:
+# In[29]:
 
 
 [psp, bepi, solo, sta, earth, venus, mars, mercury,frame]=       pickle.load( open( '/nas/helio/data/insitu_python/positions_psp_solo_bepi_sta_planets_HEEQ_1hour.p', "rb" ))
@@ -2906,7 +2912,7 @@ print('PSP   ',len(psp.lon))
 
 # ### first until end of PSP nominal, so make arrays all similar
 
-# In[ ]:
+# In[30]:
 
 
 solo1=solo[0:len(psp)]
@@ -2926,7 +2932,7 @@ a=a+180
 sns.distplot(a)
 
 
-# In[ ]:
+# In[31]:
 
 
 ####lineup counter arrays for all spacecraft
@@ -3105,7 +3111,7 @@ for i in np.arange(0,len(a)):
 # 
 # ### lineup results
 
-# In[ ]:
+# In[32]:
 
 
 #Möstl et al. 2020    #until middle 2025 total ICME
@@ -3185,7 +3191,7 @@ plt.ylim(0,35)
 
 # ### second interval from end of PSP nominal to 2029
 
-# In[ ]:
+# In[33]:
 
 
 solo2=solo[len(psp):-1]
@@ -3202,7 +3208,7 @@ a2=a2+180
 sns.distplot(a2)
 
 
-# In[ ]:
+# In[34]:
 
 
 alldiff2=np.zeros((len(a2),6))
@@ -3378,7 +3384,7 @@ for i in np.arange(0,len(a2)):
 
 # ### Results for 2nd interval
 
-# In[ ]:
+# In[35]:
 
 
 #Möstl et al. 2020    #until middle 2025 total ICME, assume middle 2025 to end of 2029 is similar, also because of declining phase
@@ -3457,7 +3463,7 @@ plt.ylim(0,30)
 
 # ## lineups and icme rate figure
 
-# In[ ]:
+# In[36]:
 
 
 #times for at least 2 spacecraft in lineups
@@ -3524,22 +3530,22 @@ ax2.fill_between(times_25_daily_icrange_num, fpp_low(times_25_daily_icrange_num)
 ax2.set_ylabel('monthly ICME rate')
 plt.legend(loc=1,fontsize=10)
 
-plotstart=datetime.datetime(2020, 7, 1)
-plotend=datetime.datetime(2029, 6,30)
+plotstart=datetime.datetime(2021, 7, 1)
+plotend=datetime.datetime(2030, 1,30)
 plt.xlim(plotstart,plotend)
 ax2.set_ylim(0,8)
 
 
 plt.tight_layout()
 
-plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_lineups.png', dpi=100)
+plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_lineups.png', dpi=300)
 plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_lineups.pdf', dpi=100)
 
 
 
 # ## Figure with longitude for lineups
 
-# In[ ]:
+# In[37]:
 
 
 sns.set_context("talk")     
@@ -3580,8 +3586,8 @@ ax4.set_ylabel('monthly ICME rate')
 plt.legend(loc=1,fontsize=12)
 
 plotstart=datetime.datetime(2020, 7, 1)
-plotend=datetime.datetime(2028, 6,30)
-plt.xlim(plotstart,plotend)
+plotend=datetime.datetime(2030, 1,10)
+ax4.set_xlim(plotstart,plotend)
 
 
 ################# lower
@@ -3599,13 +3605,13 @@ ax1.plot(solo.time,np.zeros(len(solo.r)),linestyle='-',color='b',alpha=0.8,lw=2)
 
 ax1.set_ylabel('HEEQ longitude [°]')
 ax1.set_xlim(starttime,endtime)
-ax1.set_ylim(-200,200)
+ax1.set_ylim(-180,180)
 
 
 ##############
 
 plotstart=datetime.datetime(2020, 7, 1)
-plotend=datetime.datetime(2028, 6,30)
+plotend=datetime.datetime(2030, 1,10)
 plt.xlim(plotstart,plotend)
 
 
@@ -3621,7 +3627,7 @@ ax6.plot(solo.time,np.zeros(len(solo.r)),linestyle='-',color='b',alpha=0.8,lw=2)
 
 ax6.set_ylabel('HEEQ latitude [°]')
 ax6.set_xlim(starttime,endtime)
-ax6.set_ylim(-32,32)
+ax6.set_ylim(-35,35)
 
 
 #lineups
@@ -3633,7 +3639,7 @@ ax6.set_ylim(-32,32)
 
 
 plotstart=datetime.datetime(2020, 7, 1)
-plotend=datetime.datetime(2028, 6,30)
+plotend=datetime.datetime(2030, 1,10)
 plt.xlim(plotstart,plotend)
 
 plt.grid('on')
@@ -3651,13 +3657,13 @@ plt.annotate('Earth',[0.73,ylevel],xycoords='figure fraction',weight='bold',colo
 
 
 
-plt.tight_layout()
+#plt.tight_layout()
 
 plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_psp_orbiter_bepi_one_panel.png', dpi=100)
 plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_psp_orbiter_bepi_one_panel.pdf', dpi=100)
 
 
-# In[ ]:
+# In[38]:
 
 
 #sns.set_style('darkgrid')
@@ -3708,6 +3714,30 @@ plt.tight_layout()
 
 plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_psp_orbiter_bepi_b1.png', dpi=100)
 plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_psp_orbiter_bepi_b1.pdf', dpi=100)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
