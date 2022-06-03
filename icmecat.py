@@ -10,7 +10,7 @@
 # **Author**: C. Möstl, IWF Graz, Austria
 # https://twitter.com/chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# **latest release: version 2.1, 2021 November 29, updated 2021 December 7**
+# **latest release: version 2.1, 2021 November 29, updated 2022 June TO DO **
 # 
 # **doi 10.6084/m9.figshare.6356420**  https://10.6084/m9.figshare.6356420
 # 
@@ -38,7 +38,7 @@
 # In[1]:
 
 
-last_update='2022-January-+*'
+last_update='2022-June-10'
 
 
 # In[2]:
@@ -127,6 +127,27 @@ print('done')
 print(heliosat.__version__)
 
 
+# In[6]:
+
+
+#read JUNO catalog from Emma Davies
+
+
+junocat='data/HELIO4CAST_ICMECAT_juno_davies.csv'
+
+jc=pd.read_csv(junocat)
+
+jc
+
+#convert all times to datetime objects
+#for i in np.arange(0,ic.shape[0]):    
+        #remove leading and ending blank spaces if any and write datetime object into dataframe
+#        ic.at[i,'icme_start_time']= parse_time(str(ic.icme_start_time[i]).strip()).datetime 
+#        ic.at[i,'mo_start_time']=parse_time(str(ic.mo_start_time[i]).strip()).datetime
+#        ic.at[i,'mo_end_time']=parse_time(str(ic.mo_end_time[i]).strip()).datetime
+       
+
+
 # ## (0) process new in situ data into similar format
 # 
 # ### for Bepi Colombo, got to read_bepi.ipynb
@@ -137,14 +158,14 @@ print(heliosat.__version__)
 
 # ## Parker Solar Probe
 
-# In[103]:
+# In[3]:
 
 
 ################### FIELDS
 #generate datestrings for filenames
 time1=[]
-tstart1=datetime.datetime(2021, 4, 20)
-tend1=datetime.datetime(2021, 10, 1)
+tstart1=datetime.datetime(2021, 6, 30)
+tend1=datetime.datetime(2022, 5, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -165,8 +186,8 @@ os.chdir('/home/cmoestl/pycode/heliocats')
 ############# SWEAP
 
 time1=[]
-tstart1=datetime.datetime(2021, 4, 25)
-tend1=datetime.datetime(2021, 10, 1)
+tstart1=datetime.datetime(2021, 7, 25)
+tend1=datetime.datetime(2022, 5, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -182,42 +203,37 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[5]:
+# In[ ]:
 
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
-#print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
+print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
 #+**change end date in function
-#filepsp='psp_2018_2021_rtn_new.p'
-#hd.save_psp_data(data_path,filepsp, sceq=False)   
-#print('rtn done')
+filepsp='psp_2018_2022_rtn_new.p'
+hd.save_psp_data(data_path,filepsp, sceq=False)   
+print('rtn done')
 
-#filepsp='psp_2018_2021_sceq_new.p'
-#hd.save_psp_data(data_path,filepsp, sceq=True)   
-#print('sceq done')
+filepsp='psp_2018_2022_sceq_new.p'
+hd.save_psp_data(data_path,filepsp, sceq=True)   
+print('sceq done')
 
 print('load PSP data RTN') 
-filepsp='psp_2018_2021_rtn.p'
+filepsp='psp_2018_2022_rtn.p'
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
 
 #start=datetime.datetime(2018,10,1)
 #end=datetime.datetime(2021,6,30)
-
-start=datetime.datetime(2021,4,27)
-end=datetime.datetime(2021,5,1)
+        
 
 
 # In[13]:
 
 
-
-
-
-#start=datetime.datetime(2021,4,29)
-#end=datetime.datetime(2021,4,30)
+start=datetime.datetime(2021,6,1)
+end=datetime.datetime(2021,12,31)
 
 
 
@@ -262,7 +278,7 @@ ax3.set_ylabel('Heliocentric distance [AU]')
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
 ax3.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
 
-plt.title('Parker Solar Probe orbit Nr. 8, April / May 2021')
+plt.title('Parker Solar Probe orbit Nr. 10, Nov / Dec 2021')
 plt.tight_layout()
 
 # plt.savefig('results/parker_orbit_venus.png',dpi=200)
@@ -573,7 +589,7 @@ if load_data > 0:
     
     #data from 2021 Aug 3
 
-    filebepi2='bepi_2021_aug_2021_nov_sceq.p'
+    filebepi2='bepi_2021_2022_sceq.p'
     bepi2=pickle.load(open(data_path+filebepi2, "rb" ) )   
 
     

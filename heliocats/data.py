@@ -1333,7 +1333,7 @@ def save_psp_data(path, file, sceq):
     #t_end = datetime.datetime(2019, 4, 30)    
     #t_end = datetime.datetime(2019, 10, 15)
     
-    t_end = datetime.datetime(2021, 6, 30)    
+    t_end = datetime.datetime(2021, 12, 31)    
     psp2=get_psp_data(t_start,t_end)
 
     #add both
