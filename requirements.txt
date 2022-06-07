@@ -11,5 +11,6 @@ openpyxl==3.0.3
 xlrd==1.2.0
 lxml==4.6.3
 zeep==3.4.0
+pickle5
 drms
 glymur

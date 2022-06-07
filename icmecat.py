@@ -74,6 +74,8 @@ import heliopy.spice as spice
 import cdflib
 
 
+import pickle5
+
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 from sunpy.coordinates import frames
@@ -125,27 +127,6 @@ warnings.filterwarnings('ignore')
 print('done')
 
 print(heliosat.__version__)
-
-
-# In[6]:
-
-
-#read JUNO catalog from Emma Davies
-
-
-junocat='data/HELIO4CAST_ICMECAT_juno_davies.csv'
-
-jc=pd.read_csv(junocat)
-
-jc
-
-#convert all times to datetime objects
-#for i in np.arange(0,ic.shape[0]):    
-        #remove leading and ending blank spaces if any and write datetime object into dataframe
-#        ic.at[i,'icme_start_time']= parse_time(str(ic.icme_start_time[i]).strip()).datetime 
-#        ic.at[i,'mo_start_time']=parse_time(str(ic.mo_start_time[i]).strip()).datetime
-#        ic.at[i,'mo_end_time']=parse_time(str(ic.mo_end_time[i]).strip()).datetime
-       
 
 
 # ## (0) process new in situ data into similar format
@@ -203,24 +184,24 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[ ]:
+# In[5]:
 
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
-print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
+#print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
 #+**change end date in function
-filepsp='psp_2018_2022_rtn_new.p'
-hd.save_psp_data(data_path,filepsp, sceq=False)   
-print('rtn done')
+#filepsp='psp_2018_2022_rtn_new.p'
+#hd.save_psp_data(data_path,filepsp, sceq=False)   
+#print('rtn done')
 
-filepsp='psp_2018_2022_sceq_new.p'
-hd.save_psp_data(data_path,filepsp, sceq=True)   
-print('sceq done')
+#filepsp='psp_2018_2022_sceq_new.p'
+#hd.save_psp_data(data_path,filepsp, sceq=True)   
+#print('sceq done')
 
 print('load PSP data RTN') 
-filepsp='psp_2018_2022_rtn.p'
+filepsp='psp_2018_2022_rtn_new.p'
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
 
@@ -229,11 +210,17 @@ filepsp='psp_2018_2022_rtn.p'
         
 
 
-# In[13]:
+# In[14]:
 
 
-start=datetime.datetime(2021,6,1)
-end=datetime.datetime(2021,12,31)
+
+#orbit 10
+#start=datetime.datetime(2021,11,15)
+#end=datetime.datetime(2021,11,25)
+
+start=datetime.datetime(2021,8,3)
+end=datetime.datetime(2021,8,12)
+
 
 
 
@@ -241,7 +228,7 @@ end=datetime.datetime(2021,12,31)
 sns.set_context("talk")     
 sns.set_style('darkgrid')
 
-fig=plt.figure(3,figsize=(15,10),dpi=100)
+fig=plt.figure(3,figsize=(20,10),dpi=100)
 
 ax1=plt.subplot(311)
 
@@ -282,8 +269,8 @@ plt.title('Parker Solar Probe orbit Nr. 10, Nov / Dec 2021')
 plt.tight_layout()
 
 # plt.savefig('results/parker_orbit_venus.png',dpi=200)
-plt.savefig('results/parker_orbit8.png')
-#plt.savefig('results/parker_icme.pdf')
+plt.savefig('results/parker_orbit9.png')
+plt.savefig('results/parker_orbit9.pdf')
 
 
 # ## Other spacecraft
@@ -503,14 +490,14 @@ plt.savefig('results/parker_orbit8.png')
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[3]:
+# In[17]:
 
 
 load_data=1
 
 load_wind_2007=False
 
-load_wind_1995=True
+load_wind_from_1995=True
 
 
 
@@ -531,7 +518,12 @@ if load_data > 0:
     print('load STEREO-B data SCEQ') #yearly magplasma files from stereo science center, conversion to SCEQ 
     filestb='stereob_2007_2014_sceq.p'
     [stb,hstb]=pickle.load(open(data_path+filestb, "rb" ) )      
- 
+    
+    import pickle5
+    print('load Juno data ') #Emma Davies https://figshare.com/articles/dataset/Juno_Cruise_Phase_Magnetometer_and_Position_Data/19517257
+    juno_df = pd.read_pickle(data_path+'juno_2011_2016_rtn.pkl') 
+
+    
 
     ########### CURRENT ACTIVE SPACECRAFT    
 
@@ -589,7 +581,7 @@ if load_data > 0:
     
     #data from 2021 Aug 3
 
-    filebepi2='bepi_2021_2022_sceq.p'
+    filebepi2='bepi_2021_2022_ob_sceq.p'
     bepi2=pickle.load(open(data_path+filebepi2, "rb" ) )   
 
     
@@ -618,7 +610,7 @@ if load_data > 0:
    
     ##############################################
     print('load Solar Orbiter SCEQ')
-    filesolo='solo_2020_april_2021_sep_sceq.p'
+    filesolo='solo_2020_april_2022_feb_sceq.p'
     solo=pickle.load(open(data_path+filesolo, "rb" ) )    
     
     #set all plasma data to NaN
@@ -629,7 +621,7 @@ if load_data > 0:
 
     ##############################################
     print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
-    filepsp='psp_2018_2021_sceq.p'
+    filepsp='psp_2018_2022_sceq_new.p'
     [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
     
@@ -711,9 +703,43 @@ if load_data > 0:
         print('Wind merging done')
     
 
-    if load_wind_1995:
+    if load_wind_from_1995:
             filewin="wind_1995_2021_heeq.p" 
-            [win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+            [win1,hwin1]=pickle.load(open(data_path+filewin, "rb" ) )  
+            
+            
+            #add new data from 2021 October 31
+            
+            filewin2="wind_2018_now_heeq.p" 
+            [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
+
+            #function for spike removal, see list with times in that function
+            win2=hd.remove_wind_spikes_gaps(win2)
+
+            #merge Wind old and new data 
+            win1=win1[np.where(win1.time < parse_time('2021-Oct-31 00:00').datetime)[0]]
+            #make array
+            win=np.zeros(np.size(win1.time)+np.size(win2.time),dtype=[('time',object),('bx', float),('by', float),                        ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),                        ('x', float),('y', float),('z', float),                        ('r', float),('lat', float),('lon', float)])   
+
+            #convert to recarray
+            win = win.view(np.recarray)  
+            win.time=np.hstack((win1.time,win2.time))
+            win.bx=np.hstack((win1.bx,win2.bx))
+            win.by=np.hstack((win1.by,win2.by))
+            win.bz=np.hstack((win1.bz,win2.bz))
+            win.bt=np.hstack((win1.bt,win2.bt))
+            win.vt=np.hstack((win1.vt,win2.vt))
+            win.np=np.hstack((win1.np,win2.np))
+            win.tp=np.hstack((win1.tp,win2.tp))
+            win.x=np.hstack((win1.x,win2.x))
+            win.y=np.hstack((win1.y,win2.y))
+            win.z=np.hstack((win1.z,win2.z))
+            win.r=np.hstack((win1.r,win2.r))
+            win.lon=np.hstack((win1.lon,win2.lon))
+            win.lat=np.hstack((win1.lat,win2.lat))
+
+            print('Wind merging done')
+            
 
     
 #wind data from 1995    
@@ -751,6 +777,9 @@ print('VEX                  ',str(vex.time[0])[0:10],str(vex.time[-1])[0:10])
 print('MESSENGER            ',str(mes.time[0])[0:10],str(mes.time[-1])[0:10])
 print('STEREO-B             ',str(stb.time[0])[0:10],str(stb.time[-1])[0:10])
 print('Ulysses              ',str(uly.time[0])[0:10],str(uly.time[-1])[0:10])
+#print('Juno cruise phase    ',str(uly.time[0])[0:10],str(uly.time[-1])[0:10])
+
+
 print()
 print('catalogs:')
 print()
@@ -1631,5 +1660,20 @@ plt.savefig('icmecat/icmecat_overview3.png', dpi=150,bbox_inches='tight')
 # In[ ]:
 
 
+#read JUNO catalog from Emma Davies
 
+
+junocat='data/HELIO4CAST_ICMECAT_juno_davies_chris.csv'
+
+jc=pd.read_csv(junocat)
+
+jc
+
+#convert all times to datetime objects
+#for i in np.arange(0,ic.shape[0]):    
+        #remove leading and ending blank spaces if any and write datetime object into dataframe
+#        ic.at[i,'icme_start_time']= parse_time(str(ic.icme_start_time[i]).strip()).datetime 
+#        ic.at[i,'mo_start_time']=parse_time(str(ic.mo_start_time[i]).strip()).datetime
+#        ic.at[i,'mo_end_time']=parse_time(str(ic.mo_end_time[i]).strip()).datetime
+       
 
