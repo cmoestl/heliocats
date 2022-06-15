@@ -27,7 +27,7 @@
 # - Bepi Colombo manual download, then read_bepi.ipynb
 # - PSP use cell in this notebook, beware of unfinished file downloads - redo!
 # - STEREO-Ahead prel. PLASTIC ASCII files, IMPACT as usual (via heliosat), beacon data automatic every day
-# - Wind automatic everyday, add spike and gap times under hd.remove_wind_spikes_gaps, or use ascii files 
+# - Wind automatic everyday, add spike and gap times under hd.remove_wind_spikes_gaps, or use ascii files (cell in this notebook)
 # 
 # 
 # 
@@ -38,7 +38,7 @@
 # In[1]:
 
 
-last_update='2022-June-10'
+last_update='2022-June-15'
 
 
 # In[2]:
@@ -488,9 +488,17 @@ plt.savefig('results/parker_orbit9.pdf')
 # print('done')
 
 
+# ### process Wind data since 1995
+
+# In[ ]:
+
+
+get_ipython().run_cell_magic('time', '', '\nfrom heliocats import data as hd\nimportlib.reload(hd) #reload again while debugging\n\n#download ascii files\n#hd.wind_download_ascii()\n\nstart=datetime.datetime(1995,1,1)\nend=datetime.datetime(2022,5,30)\n\n\n#end=datetime.datetime.utcnow() \npath=\'/nas/helio/data/insitu_python/\'\n\n\nfile=\'wind_1995_2022_heeq.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'HEEQ\')\n\nfile=\'wind_1995_2022_gse.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'GSE\')\n\n\nfile=\'wind_1995_2022_gsm.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'GSM\')\n\n#filewin="wind_1995_2021_gsm.p" \n#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\n\n\n#GSE GSM comparison\n\n#win=win[3000000:7056000]\n\n#filewin="wind_1995_2021_heeq.p" \n#[winh,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\n#winh=winh[3000000:7056000]\n\n\n#np.nanstd(winh.bz-win.bz)\n#np.nanmean(winh.bz-win.bz)\n\n')
+
+
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[17]:
+# In[ ]:
 
 
 load_data=1
@@ -519,9 +527,9 @@ if load_data > 0:
     filestb='stereob_2007_2014_sceq.p'
     [stb,hstb]=pickle.load(open(data_path+filestb, "rb" ) )      
     
-    import pickle5
-    print('load Juno data ') #Emma Davies https://figshare.com/articles/dataset/Juno_Cruise_Phase_Magnetometer_and_Position_Data/19517257
-    juno_df = pd.read_pickle(data_path+'juno_2011_2016_rtn.pkl') 
+    #use pickle5 to read
+    #print('load Juno data ') #Emma Davies https://figshare.com/articles/dataset/Juno_Cruise_Phase_Magnetometer_and_Position_Data/19517257
+    #juno_df = pd.read_pickle(data_path+'juno_2011_2016_rtn.pkl') 
 
     
 
@@ -581,7 +589,7 @@ if load_data > 0:
     
     #data from 2021 Aug 3
 
-    filebepi2='bepi_2021_2022_ob_sceq.p'
+    filebepi2='bepi_2021_2022_ib_sceq.p'
     bepi2=pickle.load(open(data_path+filebepi2, "rb" ) )   
 
     
@@ -930,16 +938,6 @@ if data_to_numpy_3 > 0:
     
 
 
-# ### 1b  Wind data for whole dataset and add full NASA catalog
-
-# #### read all wind mfi data as ascii
-
-# In[35]:
-
-
-get_ipython().run_cell_magic('time', '', '\nfrom heliocats import data as hd\nimportlib.reload(hd) #reload again while debugging\n\n#download ascii files\n#hd.wind_download_ascii()\n\nstart=datetime.datetime(1995,1,1)\nend=datetime.datetime(2021,11,30)\n\n\n#end=datetime.datetime.utcnow() \npath=\'/nas/helio/data/insitu_python/\'\n\n#file=\'wind_1995_2021_gse.p\'\n#hd.save_wind_data_ascii(path,file,start,end,coord=\'GSE\')\n\n#file=\'wind_1995_2021_heeq.p\'\n#hd.save_wind_data_ascii(path,file,start,end,coord=\'HEEQ\')\n\n\n#file=\'wind_1995_2021_gsm.p\'\n#hd.save_wind_data_ascii(path,file,start,end,coord=\'GSM\')\n\nfilewin="wind_1995_2021_gsm.p" \n[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\nwin=win[3000000:7056000]\n\nfilewin="wind_1995_2021_heeq.p" \n[winh,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\nwinh=winh[3000000:7056000]\n\n\nnp.nanstd(winh.bz-win.bz)\nnp.nanmean(winh.bz-win.bz)\n\n')
-
-
 # ## (2) measure new events 
 
 # In[6]:
@@ -1075,7 +1073,7 @@ plt.ion()
 
 # ## (3) make ICMECAT 
 
-# In[4]:
+# In[5]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -1093,7 +1091,7 @@ importlib.reload(hc) #reload again while debugging
 
 #master file from 1995
 #for new wind events, load
-ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master2.xlsx')
+ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master4.xlsx')
 
 
 
@@ -1158,9 +1156,9 @@ importlib.reload(hp) #reload again while debugging
 #hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
 
 #mag and plasma
-#hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-#hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
-#hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
+hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
+hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 
 #hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 

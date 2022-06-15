@@ -88,11 +88,29 @@ def remove_wind_spikes_gaps(data):
     nt2=parse_time('2021-02-01T14:04Z').datetime
     gapind5=np.where(np.logical_and(data.time >= nt1,data.time <= nt2 ))[0]
     
+    nt1=parse_time('2022-02-04T07:40Z').datetime 
+    nt2=parse_time('2022-02-04T08:14Z').datetime
+    gapind6=np.where(np.logical_and(data.time >= nt1,data.time <= nt2 ))[0]
+    
+    nt1=parse_time('2021-12-10T17:18Z').datetime 
+    nt2=parse_time('2021-12-11T14:52Z').datetime
+    gapind7=np.where(np.logical_and(data.time >= nt1,data.time <= nt2 ))[0]    
+    
+    nt1=parse_time('2021-12-14T17:02Z').datetime 
+    nt2=parse_time('2021-12-15T13:12Z').datetime
+    gapind8=np.where(np.logical_and(data.time >= nt1,data.time <= nt2 ))[0]
 
-    data.bt[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5])]=np.nan
-    data.bx[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5])]=np.nan
-    data.by[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5])]=np.nan
-    data.bz[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5])]=np.nan
+    nt1=parse_time('2021-12-29T16:56Z').datetime 
+    nt2=parse_time('2021-12-30T02:54Z').datetime
+    gapind9=np.where(np.logical_and(data.time >= nt1,data.time <= nt2 ))[0]
+
+    
+    
+
+    data.bt[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5,gapind6,gapind7,gapind8,gapind9])]=np.nan
+    data.bx[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5,gapind6,gapind7,gapind8,gapind9])]=np.nan
+    data.by[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5,gapind6,gapind7,gapind8,gapind9])]=np.nan
+    data.bz[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5,gapind6,gapind7,gapind8,gapind9])]=np.nan
     
     
     return data
@@ -105,7 +123,7 @@ def wind_download_ascii():
 
 
     wind_years_strings=[]
-    for j in np.arange(1994,2022):
+    for j in np.arange(2021,2023):
         wind_years_strings.append(str(j))
 
 
@@ -129,7 +147,7 @@ def wind_download_ascii():
     #download plasma ascii data
 
     wind_years_strings=[]
-    for j in np.arange(1995,2022):
+    for j in np.arange(2021,2023):
         wind_years_strings.append(str(j))
 
 
