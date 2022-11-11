@@ -6,9 +6,11 @@
 # makes the HELCATS HI ARRIVAL catalog
 # 
 # Authors: C. Möstl, IWF Graz, Austria, D. Barnes, J. A. Davies, R. A. Harrison, RAL Space, UK.
-# twitter @chrisoutofspace, part of https://github.com/cmoestl/heliocats
+# twitter @chrisoutofspace, https://mastodon.social/@chrisoutofspace
 # 
-# **current version ARRCAT 2.0, released 2020 May 13, updated 2022 June 3**
+# This code is part of https://github.com/cmoestl/heliocats
+# 
+# **current version ARRCAT 2.0, released 2020 May 13, updated 2022 November 11**
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
@@ -17,13 +19,13 @@
 # https://figshare.com/articles/dataset/Arrival_catalog_of_coronal_mass_ejections_observed_with_STEREO_Heliospheric_Imagers_HELCATS_ARRCAT_2_0_/12271292
 # 
 
-# In[17]:
+# In[1]:
 
 
-last_update='2022-June-3'
+last_update='2022-November-11'
 
 
-# In[18]:
+# In[2]:
 
 
 import numpy as np
@@ -90,7 +92,7 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[19]:
+# In[3]:
 
 
 from heliocats import cats as hc
@@ -110,7 +112,11 @@ higeocat_t0=parse_time(higeocat['SSE Launch']).datetime   #backprojected launch 
 
 #define empty pandas dataframe for arrival catalog with column names
 
-column_list=['id', 'sc','target_name','sse_launch_time','target_arrival_time','target_arrival_time_err',                                 'target_distance','target_heeq_lon','target_heeq_lat',                                 'target_delta','sse_heeq_lon','sse_heeq_lat',                                 'sse_speed','sse_speed_err','target_speed','target_speed_err',                                 'pa_fit','pa_n','pa_s','pa_center']
+column_list=['id', 'sc','target_name','sse_launch_time','target_arrival_time','target_arrival_time_err',\
+                                 'target_distance','target_heeq_lon','target_heeq_lat',\
+                                 'target_delta','sse_heeq_lon','sse_heeq_lat',\
+                                 'sse_speed','sse_speed_err','target_speed','target_speed_err',\
+                                 'pa_fit','pa_n','pa_s','pa_center']
              
 #pandas dataframe for current version with iteration in calculating arrival time
 ac = pd.DataFrame([], columns = column_list)
@@ -152,11 +158,61 @@ ac
 
 # #### save header
 
-# In[20]:
+# In[4]:
 
 
 #save header and parameters as text file and prepare for html website
-header='ARRIVAL CATALOGUE 2.0 \n\nIn this ARRival CATalog (ARRCAT), the arrivals of solar coronal mass ejections that were \ntracked in the STEREO heliospheric imagers in the HELCATS project are calculated.\nARRCAT lists modeled arrivals of CMEs at various spacecraft and planets, \nbased on the HIGeoCAT catalog of CMEs established at RAL Space, UK (D. Barnes, J. A. Davies, R. A. Harrison). \n\nThis is version 2.0, released 2020-May-13, updated '+last_update+'. https://doi.org/10.6084/m9.figshare.12271292\n\nIt is based on this HIGeoCAT version: '+url_higeocat+' using the SSEF30 model.\n\nThe catalog is available as python pandas dataframe (pickle), \npython numpy arrays (pickle, as recarray and structured array), \nnpy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at \nhttps://helioforecast.space/arrcat and https://www.helcats-fp7.eu\n\nNumber of events in ARRCAT: '+str(len(ac))+'\nTargets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.\n\nAuthors: Christian Moestl, D. Barnes, R. A. Harrison, J. A. Davies, Andreas J. Weiss, David Stansby;\nSpace Research Institute (IWF), Austrian Academy of Sciences, Graz, Austria; RAL Space, UK; Mullard Space Science Laboratory, UK.\n\nRules: If results are produced with this catalog for peer-reviewed scientific publications,\nplease contact christian.moestl@oeaw.ac.at for co-authorships.\n\nParameters \n\n    0: id: From HIGeoCAT, the unique identifier for the observed CME.\n    1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)\n    2: target_name: Name of in situ target.\n    3: sse_launch_time: From HIGeoCAT, launch time of the CME at Sun center, unit: UTC.\n    4: target_arrival_time: CME arrival time at target location calculated with the SSEF30 model, corrected for SSE shape (Moestl and Davies, 2013). unit: UTC.\n    5: target_arrival_time_err: Error of CME arrival time at target location from SSEF30 model, solely based on error in parameter sse_speed_err. unit: hours.\n    6: target_distance: Target distance from Sun, at model CME arrival time. unit: AU.\n    7: target_heeq_lon: Target longitude in HEEQ, at model CME arrival time. unit: degree.\n    8: target_heeq_lat: Target latitude in HEEQ, at model CME arrival time. unit: degree.\n    9: target_delta: Difference in HEEQ longitude between central CME direction and target location at model CME arrival time, \n       positive values: spacecraft is west of CME apex. unit: degree.\n    10: sse_heeq_lon: From HIGeoCAT, the HEEQ longitude of the CME apex propagation direction, unit: degree.\n    11: sse_heeq_lat: From HIGeoCAT, the HEEQ latitude of the CME apex propagation direction, unit: degree.\n    12: sse_speed: From HIGeoCAT, speed of the CME apex, unit: km/s.\n    13: sse_speed_err: From HIGeoCAT, error in the speed of the CME apex, unit: km/s.\n    14: target_speed: CME arrival speed at target location, corrected for SSE shape (Moestl and Davies, 2013). unit: km/s.\n    15: target_speed_err: Error in CME arrival speed at target location, corrected for SSE shape (Moestl and Davies, 2013). unit: km/s.\n    16: pa_fit: From HIGeoCAT, PA along which time-elongation profile is extracted, unit: degree.\n    17: pa_n: From HIGeoCAT, northern position angle of CME, unit: degree.\n    18: pa_s: From HIGeoCAT, southernmost position angle of CME, unit: degree.\n    19: pa_center: average of pa_n and pa_s, unit: degree.\n\nComments\n\n    - We have modified the calculation of CME arrival time here by a new iterative method compared to Moestl et al. (2014, 2017). \n      In the first iteration, the sse_launch_time is used to calculate the target HEEQ position. \n      In subsequent three iterations, we use the arrival time from the previous iteration (instead of sse_launch time) \n      to calculate the target HEEQ position. \n      In this way we avoid an error of a few degrees in the arrival target location (see also Moestl et al. 2017). \n    - The analytical formulas for calculating the speeds and arrival times of the CMEs modeled with SSEF30, \n      corrected for the SSEF30 circular shape, can be found in Moestl & Davies (2013). \n\n\nReferences \n\nMoestl & Davies (2013) https://doi.org/10.1007/s11207-012-9978-8 arxiv: https://arxiv.org/abs/1202.1299\nMoestl et al. (2014)   https://doi.org/10.1088/0004-637X/787/2/119 (open access) \nMoestl et al. (2017)   https://doi.org/10.1002/2017SW001614 (open access)\n'
+header='ARRIVAL CATALOGUE 2.0 \n\n\
+In this ARRival CATalog (ARRCAT), the arrivals of solar coronal mass ejections that were \n\
+tracked in the STEREO heliospheric imagers in the HELCATS project are calculated.\n\
+ARRCAT lists modeled arrivals of CMEs at various spacecraft and planets, \n\
+based on the HIGeoCAT catalog of CMEs established at RAL Space, UK (D. Barnes, J. A. Davies, R. A. Harrison). \n\n\
+This is version 2.0, released 2020-May-13, updated '+last_update+'. https://doi.org/10.6084/m9.figshare.12271292\n\n\
+It is based on this HIGeoCAT version: '+url_higeocat+' using the SSEF30 model.\n\n\
+The catalog is available as python pandas dataframe (pickle), \n\
+python numpy arrays (pickle, as recarray and structured array), \n\
+npy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at \n\
+https://helioforecast.space/arrcat\n\n\
+Number of events in ARRCAT: '+str(len(ac))+'\n\
+Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.\n\n\
+Authors: Christian Moestl (1), D. Barnes (2), R. A. Harrison (2), J. A. Davies (2), Andreas J. Weiss (1,3), David Stansby (4);\n\
+(1) Austrian Space Weather Office, ZAMG, Graz, Austria, (2) RAL Space, UK, (3) NASA Goddard Space Flight Center, USA (4) University College London, UK.\n\n\
+Rules: If results are produced with this catalog for peer-reviewed scientific publications,\n\
+please contact christian.moestl@oeaw.ac.at for co-authorships.\n\n\
+Parameters \n\n\
+    0: id: From HIGeoCAT, the unique identifier for the observed CME.\n\
+    1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)\n\
+    2: target_name: Name of in situ target.\n\
+    3: sse_launch_time: From HIGeoCAT, launch time of the CME at Sun center, unit: UTC.\n\
+    4: target_arrival_time: CME arrival time at target location calculated with the SSEF30 model, corrected for SSE shape (Moestl and Davies, 2013). unit: UTC.\n\
+    5: target_arrival_time_err: Error of CME arrival time at target location from SSEF30 model, solely based on error in parameter sse_speed_err. unit: hours.\n\
+    6: target_distance: Target distance from Sun, at model CME arrival time. unit: AU.\n\
+    7: target_heeq_lon: Target longitude in HEEQ, at model CME arrival time. unit: degree.\n\
+    8: target_heeq_lat: Target latitude in HEEQ, at model CME arrival time. unit: degree.\n\
+    9: target_delta: Difference in HEEQ longitude between central CME direction and target location at model CME arrival time, \n\
+       positive values: spacecraft is west of CME apex. unit: degree.\n\
+    10: sse_heeq_lon: From HIGeoCAT, the HEEQ longitude of the CME apex propagation direction, unit: degree.\n\
+    11: sse_heeq_lat: From HIGeoCAT, the HEEQ latitude of the CME apex propagation direction, unit: degree.\n\
+    12: sse_speed: From HIGeoCAT, speed of the CME apex, unit: km/s.\n\
+    13: sse_speed_err: From HIGeoCAT, error in the speed of the CME apex, unit: km/s.\n\
+    14: target_speed: CME arrival speed at target location, corrected for SSE shape (Moestl and Davies, 2013). unit: km/s.\n\
+    15: target_speed_err: Error in CME arrival speed at target location, corrected for SSE shape (Moestl and Davies, 2013). unit: km/s.\n\
+    16: pa_fit: From HIGeoCAT, PA along which time-elongation profile is extracted, unit: degree.\n\
+    17: pa_n: From HIGeoCAT, northern position angle of CME, unit: degree.\n\
+    18: pa_s: From HIGeoCAT, southernmost position angle of CME, unit: degree.\n\
+    19: pa_center: average of pa_n and pa_s, unit: degree.\n\n\
+Comments\n\n\
+    - We have modified the calculation of CME arrival time here by a new iterative method compared to Moestl et al. (2014, 2017). \n\
+      In the first iteration, the sse_launch_time is used to calculate the target HEEQ position. \n\
+      In subsequent three iterations, we use the arrival time from the previous iteration (instead of sse_launch time) \n\
+      to calculate the target HEEQ position. \n\
+      In this way we avoid an error of a few degrees in the arrival target location (see also Moestl et al. 2017). \n\
+    - The analytical formulas for calculating the speeds and arrival times of the CMEs modeled with SSEF30, \n\
+      corrected for the SSEF30 circular shape, can be found in Moestl & Davies (2013). \n\n\n\
+References \n\n\
+Moestl & Davies (2013) https://doi.org/10.1007/s11207-012-9978-8 arxiv: https://arxiv.org/abs/1202.1299\n\
+Moestl et al. (2014)   https://doi.org/10.1088/0004-637X/787/2/119 (open access) \n\
+Moestl et al. (2017)   https://doi.org/10.1002/2017SW001614 (open access)\n'
 
 print(header)
 
@@ -182,7 +238,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[21]:
+# In[5]:
 
 
 ########## python formats
@@ -359,7 +415,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[ ]:
+# In[6]:
 
 
 #load arrcat as pandas dataframe
@@ -379,33 +435,33 @@ ac5 = f['arrcat']
 ac5['sse_launch_time']
 
 
-# In[ ]:
+# In[7]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[ ]:
+# In[8]:
 
 
 ac
 
 
-# In[ ]:
+# In[9]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[ ]:
+# In[10]:
 
 
 ac_struct
 
 
-# In[ ]:
+# In[11]:
 
 
 ac_struct['id']
@@ -418,8 +474,7 @@ print(deltata)
 
 # ### plot directions and targets
 
-# In[ ]:
-
+# In[12]:
 
 
 plt.rcParams["figure.figsize"] = (19,11)
@@ -465,18 +520,22 @@ ax.scatter(np.radians(ac.target_heeq_lon[soloi]),ac.target_distance[soloi],s=ms,
 ax.scatter(np.radians(ac.target_heeq_lon[bepii]),ac.target_distance[bepii],s=ms,c='violet', alpha=al)
 ax.scatter(np.radians(ac.target_heeq_lon[ulyi]),ac.target_distance[ulyi],s=ms,c='brown', alpha=al)
 
-plt.ylim([0,np.max(ac.target_distance)+0.03])
+plt.ylim([0,np.max(ac.target_distance)+0.02])
 
+#ax.set_theta_zero_location("W")
+ax.set_rlabel_position(180)
 
 
 ax = plt.subplot(122,projection='polar')
-plt.title('HIGeoCAT SSE speed')
+plt.title('HIGeoCAT SSE speed [km/s]')
 hiai=np.where(ac.sc=='A')[0]
 hibi=np.where(ac.sc=='B')[0]
 
 ax.scatter(np.radians(ac.sse_heeq_lon[hiai].astype(float)),ac.sse_speed[hiai],s=ms,c='red', alpha=al)
 ax.scatter(np.radians(ac.sse_heeq_lon[hibi].astype(float)),ac.sse_speed[hibi],s=ms,c='blue', alpha=al)
 
+ax.set_rlabel_position(160)
+#plt.ylim([0,np.max(ac.sse_speed)+100])
 plt.ylim([0,2000])
 
 plt.tight_layout()
@@ -488,7 +547,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[ ]:
+# In[13]:
 
 
 fig=plt.figure(2, figsize=(18,8), dpi=100)
@@ -523,7 +582,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[ ]:
+# In[14]:
 
 
 '''
@@ -550,11 +609,10 @@ hibi=np.where(ac.sc=='B')[0]
 '''
 
 
+# In[15]:
 
-# In[ ]:
 
-
-last_year=2022
+last_year=2023
 #define dates of January 1 from 2007 to 2020
 years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,last_year+1) ] 
 yearly_bin_edges=parse_time(years_jan_1_str).plot_date

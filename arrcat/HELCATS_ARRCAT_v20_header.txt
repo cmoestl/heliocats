@@ -5,20 +5,20 @@ tracked in the STEREO heliospheric imagers in the HELCATS project are calculated
 ARRCAT lists modeled arrivals of CMEs at various spacecraft and planets, 
 based on the HIGeoCAT catalog of CMEs established at RAL Space, UK (D. Barnes, J. A. Davies, R. A. Harrison). 
 
-This is version 2.0, released 2020-May-13, updated 2022-June-3. https://doi.org/10.6084/m9.figshare.12271292
+This is version 2.0, released 2020-May-13, updated 2022-November-11. https://doi.org/10.6084/m9.figshare.12271292
 
 It is based on this HIGeoCAT version: https://www.helcats-fp7.eu/catalogues/data/HCME_WP3_V06.vot using the SSEF30 model.
 
 The catalog is available as python pandas dataframe (pickle), 
 python numpy arrays (pickle, as recarray and structured array), 
 npy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at 
-https://helioforecast.space/arrcat and https://www.helcats-fp7.eu
+https://helioforecast.space/arrcat
 
-Number of events in ARRCAT: 1810
+Number of events in ARRCAT: 1961
 Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.
 
-Authors: Christian Moestl, D. Barnes, R. A. Harrison, J. A. Davies, Andreas J. Weiss, David Stansby;
-Space Research Institute (IWF), Austrian Academy of Sciences, Graz, Austria; RAL Space, UK; Mullard Space Science Laboratory, UK.
+Authors: Christian Moestl (1), D. Barnes (2), R. A. Harrison (2), J. A. Davies (2), Andreas J. Weiss (1,3), David Stansby (4);
+(1) Austrian Space Weather Office, ZAMG, Graz, Austria, (2) RAL Space, UK, (3) NASA Goddard Space Flight Center, USA (4) University College London, UK.
 
 Rules: If results are produced with this catalog for peer-reviewed scientific publications,
 please contact christian.moestl@oeaw.ac.at for co-authorships.

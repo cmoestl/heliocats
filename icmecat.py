@@ -10,7 +10,7 @@
 # **Author**: C. Möstl, IWF Graz, Austria
 # https://twitter.com/chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# **latest release: version 2.1, 2021 November 29, updated 2022 June TO DO **
+# latest release: version 2.1, 2021 November 29, updated **2022 November .... **
 # 
 # **doi 10.6084/m9.figshare.6356420**  https://10.6084/m9.figshare.6356420
 # 
@@ -38,7 +38,7 @@
 # In[1]:
 
 
-last_update='2022-June-15'
+last_update='2022-November-15'
 
 
 # In[2]:
@@ -213,7 +213,6 @@ filepsp='psp_2018_2022_rtn_new.p'
 # In[14]:
 
 
-
 #orbit 10
 #start=datetime.datetime(2021,11,15)
 #end=datetime.datetime(2021,11,25)
@@ -271,6 +270,7 @@ plt.tight_layout()
 # plt.savefig('results/parker_orbit_venus.png',dpi=200)
 plt.savefig('results/parker_orbit9.png')
 plt.savefig('results/parker_orbit9.pdf')
+
 
 
 # ## Other spacecraft
@@ -493,19 +493,15 @@ plt.savefig('results/parker_orbit9.pdf')
 # In[ ]:
 
 
-get_ipython().run_cell_magic('time', '', '\nfrom heliocats import data as hd\nimportlib.reload(hd) #reload again while debugging\n\n#download ascii files\n#hd.wind_download_ascii()\n\nstart=datetime.datetime(1995,1,1)\nend=datetime.datetime(2022,5,30)\n\n\n#end=datetime.datetime.utcnow() \npath=\'/nas/helio/data/insitu_python/\'\n\n\nfile=\'wind_1995_2022_heeq.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'HEEQ\')\n\nfile=\'wind_1995_2022_gse.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'GSE\')\n\n\nfile=\'wind_1995_2022_gsm.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'GSM\')\n\n#filewin="wind_1995_2021_gsm.p" \n#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\n\n\n#GSE GSM comparison\n\n#win=win[3000000:7056000]\n\n#filewin="wind_1995_2021_heeq.p" \n#[winh,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\n#winh=winh[3000000:7056000]\n\n\n#np.nanstd(winh.bz-win.bz)\n#np.nanmean(winh.bz-win.bz)\n\n')
+get_ipython().run_cell_magic('time', '', '\nfrom heliocats import data as hd\nimportlib.reload(hd) #reload again while debugging\n\n#download ascii files\n#hd.wind_download_ascii()\n\nstart=datetime.datetime(1995,1,1)\nend=datetime.datetime(2022,5,30)\n\n\n#end=datetime.datetime.utcnow() \npath=\'/nas/helio/data/insitu_python/\'\n\n\nfile=\'wind_1995_2022_heeq.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'HEEQ\')\n\nfile=\'wind_1995_2022_gse.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'GSE\')\n\n\nfile=\'wind_1995_2022_gsm.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'GSM\')\n\n#filewin="wind_1995_2021_gsm.p" \n#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\n\n\n#GSE GSM comparison\n\n#win=win[3000000:7056000]\n\n#filewin="wind_1995_2021_heeq.p" \n#[winh,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\n#winh=winh[3000000:7056000]\n\n\n#np.nanstd(winh.bz-win.bz)\n#np.nanmean(winh.bz-win.bz)\n\n\n')
 
 
 # ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
 
-# In[ ]:
+# In[6]:
 
 
 load_data=1
-
-load_wind_2007=False
-
-load_wind_from_1995=True
 
 
 
@@ -594,7 +590,10 @@ if load_data > 0:
 
     
     #make array
-    bepi=np.zeros(np.size(bepi1.time)+np.size(bepi2.time),dtype=[('time',object),('bx', float),('by', float),                ('bz', float),('bt', float),                ('x', float),('y', float),('z', float),                ('r', float),('lat', float),('lon', float)])   
+    bepi=np.zeros(np.size(bepi1.time)+np.size(bepi2.time),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
 
     #convert to recarray
     bepi = bepi.view(np.recarray)  
@@ -629,7 +628,7 @@ if load_data > 0:
 
     ##############################################
     print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
-    filepsp='psp_2018_2022_sceq_new.p'
+    filepsp='psp_2018_2022_sceq.p'
     [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
     
@@ -652,7 +651,10 @@ if load_data > 0:
     sta2=sta2[np.where(sta2.time >= parse_time('2020-Aug-01 00:00').datetime)[0]]
 
     #make array
-    sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),                ('x', float),('y', float),('z', float),                ('r', float),('lat', float),('lon', float)])   
+    sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
 
     #convert to recarray
     sta = sta.view(np.recarray)  
@@ -672,81 +674,47 @@ if load_data > 0:
     sta.lat=np.hstack((sta1.lat,sta2.lat))
     print('STA Merging done')
 
-    if load_wind_2007:
-        ########### Wind
-        print('load and merge Wind data HEEQ') 
-        #from HELCATS HEEQ until 2018 1 1 + new self-processed data with heliosat and hd.save_wind_data
-        filewin="wind_2007_2018_heeq_helcats.p" 
-        [win1,hwin1]=pickle.load(open(data_path+filewin, "rb" ) )  
+   
 
-        filewin2="wind_2018_now_heeq.p" 
-        [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
+    #### Wind
 
-        #function for spike removal, see list with times in that function
-        win2=hd.remove_wind_spikes_gaps(win2)
+    filewin="wind_1995_2021_heeq.p" 
+    [win1,hwin1]=pickle.load(open(data_path+filewin, "rb" ) )  
 
-        #merge Wind old and new data 
-        #cut off HELCATS data at end of 2017, win2 begins exactly after this
-        win1=win1[np.where(win1.time < parse_time('2018-Jan-01 00:00').datetime)[0]]
-        #make array
-        win=np.zeros(np.size(win1.time)+np.size(win2.time),dtype=[('time',object),('bx', float),('by', float),                    ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),                    ('x', float),('y', float),('z', float),                    ('r', float),('lat', float),('lon', float)])   
+    #add new data from 2021 October 31
 
-        #convert to recarray
-        win = win.view(np.recarray)  
-        win.time=np.hstack((win1.time,win2.time))
-        win.bx=np.hstack((win1.bx,win2.bx))
-        win.by=np.hstack((win1.by,win2.by))
-        win.bz=np.hstack((win1.bz,win2.bz))
-        win.bt=np.hstack((win1.bt,win2.bt))
-        win.vt=np.hstack((win1.vt,win2.vt))
-        win.np=np.hstack((win1.np,win2.np))
-        win.tp=np.hstack((win1.tp,win2.tp))
-        win.x=np.hstack((win1.x,win2.x))
-        win.y=np.hstack((win1.y,win2.y))
-        win.z=np.hstack((win1.z,win2.z))
-        win.r=np.hstack((win1.r,win2.r))
-        win.lon=np.hstack((win1.lon,win2.lon))
-        win.lat=np.hstack((win1.lat,win2.lat))
+    filewin2="wind_2018_now_heeq.p" 
+    [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
 
-        print('Wind merging done')
-    
+    #function for spike removal, see list with times in that function
+    win2=hd.remove_wind_spikes_gaps(win2)
 
-    if load_wind_from_1995:
-            filewin="wind_1995_2021_heeq.p" 
-            [win1,hwin1]=pickle.load(open(data_path+filewin, "rb" ) )  
-            
-            
-            #add new data from 2021 October 31
-            
-            filewin2="wind_2018_now_heeq.p" 
-            [win2,hwin2]=pickle.load(open(data_path+filewin2, "rb" ) )  
+    #merge Wind old and new data 
+    win1=win1[np.where(win1.time < parse_time('2021-Oct-31 00:00').datetime)[0]]
+    #make array
+    win=np.zeros(np.size(win1.time)+np.size(win2.time),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
 
-            #function for spike removal, see list with times in that function
-            win2=hd.remove_wind_spikes_gaps(win2)
+    #convert to recarray
+    win = win.view(np.recarray)  
+    win.time=np.hstack((win1.time,win2.time))
+    win.bx=np.hstack((win1.bx,win2.bx))
+    win.by=np.hstack((win1.by,win2.by))
+    win.bz=np.hstack((win1.bz,win2.bz))
+    win.bt=np.hstack((win1.bt,win2.bt))
+    win.vt=np.hstack((win1.vt,win2.vt))
+    win.np=np.hstack((win1.np,win2.np))
+    win.tp=np.hstack((win1.tp,win2.tp))
+    win.x=np.hstack((win1.x,win2.x))
+    win.y=np.hstack((win1.y,win2.y))
+    win.z=np.hstack((win1.z,win2.z))
+    win.r=np.hstack((win1.r,win2.r))
+    win.lon=np.hstack((win1.lon,win2.lon))
+    win.lat=np.hstack((win1.lat,win2.lat))
 
-            #merge Wind old and new data 
-            win1=win1[np.where(win1.time < parse_time('2021-Oct-31 00:00').datetime)[0]]
-            #make array
-            win=np.zeros(np.size(win1.time)+np.size(win2.time),dtype=[('time',object),('bx', float),('by', float),                        ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),                        ('x', float),('y', float),('z', float),                        ('r', float),('lat', float),('lon', float)])   
-
-            #convert to recarray
-            win = win.view(np.recarray)  
-            win.time=np.hstack((win1.time,win2.time))
-            win.bx=np.hstack((win1.bx,win2.bx))
-            win.by=np.hstack((win1.by,win2.by))
-            win.bz=np.hstack((win1.bz,win2.bz))
-            win.bt=np.hstack((win1.bt,win2.bt))
-            win.vt=np.hstack((win1.vt,win2.vt))
-            win.np=np.hstack((win1.np,win2.np))
-            win.tp=np.hstack((win1.tp,win2.tp))
-            win.x=np.hstack((win1.x,win2.x))
-            win.y=np.hstack((win1.y,win2.y))
-            win.z=np.hstack((win1.z,win2.z))
-            win.r=np.hstack((win1.r,win2.r))
-            win.lon=np.hstack((win1.lon,win2.lon))
-            win.lat=np.hstack((win1.lat,win2.lat))
-
-            print('Wind merging done')
+    print('Wind merging done')
             
 
     
@@ -817,34 +785,50 @@ if data_to_numpy_1 > 0:
     print('STEREO-B')
     #STEREO-B
     #make extra header with variable attributes
-    hstb_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
+    hstb_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),\
+    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),\
+    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
     stb_nd=hd.recarray_to_numpy_array(stb)
     #change dtype everywhere to float
-    stb_nd=stb_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
+    stb_nd=stb_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
+                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
+                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
     pickle.dump([stb_nd,hstb_att], open(data_path_ML+ "stereob_2007_2014_sceq_ndarray.p", "wb" ) )
     
      
     
     print('Ulysses')
-    huly_att='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, RTN], <f8), (by  [nT, RTN], <f8),     (bz  [nT, RTN], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8),    (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
+    huly_att='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, RTN], <f8), (by  [nT, RTN], <f8), \
+    (bz  [nT, RTN], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8),\
+    (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
     uly_nd=hd.recarray_to_numpy_array(uly)
-    uly_nd=uly_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
+    uly_nd=uly_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
+                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
+                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
     pickle.dump([uly_nd,huly_att], open(data_path_ML+ "ulysses_1990_2009_rtn_ndarray.p", "wb" ) )
        
     
 
     print('VEX')
     #header no plasma, with planetary orbit
-    hatt6='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),     (bz  [nT, SCEQ], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),     (lat [deg, HEEQ], <f8), (lon [deg, HEEQ]), (xo [km, VSO], <f8), (yo [km, VSO], <f8), (zo [km, VSO], <f8),     (ro [km], <f8), (lato [deg, VSO], <f8), (lono [deg, VSO], <f8)]'
+    hatt6='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8), \
+    (bz  [nT, SCEQ], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8), \
+    (lat [deg, HEEQ], <f8), (lon [deg, HEEQ]), (xo [km, VSO], <f8), (yo [km, VSO], <f8), (zo [km, VSO], <f8), \
+    (ro [km], <f8), (lato [deg, VSO], <f8), (lono [deg, VSO], <f8)]'
     vex_nd=hd.recarray_to_numpy_array(vex)
-    vex_nd=vex_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                ('x', '<f8'), ('y', '<f8'),  ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8'),                                ('xo', '<f8'), ('yo', '<f8'),  ('zo', '<f8'), ('ro', '<f8'), ('lato', '<f8'), ('lono', '<f8')])    
+    vex_nd=vex_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),\
+                                ('x', '<f8'), ('y', '<f8'),  ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8'),\
+                                ('xo', '<f8'), ('yo', '<f8'),  ('zo', '<f8'), ('ro', '<f8'), ('lato', '<f8'), ('lono', '<f8')])    
     pickle.dump([vex_nd,hatt6], open(data_path_ML+ "vex_2007_2014_sceq_removed_ndarray.p", "wb" ) )
 
 
     print('MESSENGER') #no plasma, no planetary orbit
-    hatt7='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),     (bz  [nT, SCEQ], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),     (lat [deg, HEEQ], <f8), (lon [deg, HEEQ])'
+    hatt7='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8), \
+    (bz  [nT, SCEQ], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8), \
+    (lat [deg, HEEQ], <f8), (lon [deg, HEEQ])'
     mes_nd=hd.recarray_to_numpy_array(mes)
-    mes_nd=mes_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                ('x', '<f8'), ('y', '<f8'),  ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])    
+    mes_nd=mes_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),\
+                                ('x', '<f8'), ('y', '<f8'),  ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])    
     pickle.dump([mes_nd,hatt7], open(data_path_ML+ "mes_2007_2015_sceq_removed_ndarray.p", "wb" ) ) 
 
     
@@ -860,9 +844,13 @@ if data_to_numpy_2 > 0:
         
     
     print('STEREO-A')
-    hsta_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
+    hsta_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),\
+    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),\
+    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
     sta_nd=hd.recarray_to_numpy_array(sta)
-    sta_nd=sta_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
+    sta_nd=sta_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
+                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
+                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
     pickle.dump([sta_nd,hsta_att], open(data_path_ML+ "stereoa_2007_2021_sceq_ndarray.p", "wb" ) )
     
     
@@ -891,25 +879,39 @@ if data_to_numpy_2 > 0:
         
   
     print('Wind')
-    hwind_att='dtype=[((time [matplotlib format]), (bt [nT], <f8), (bx  [nT, HEEQ], <f8), (by  [nT, HEEQ], <f8),                         (bz  [nT, HEEQ], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8),                         (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),                        (lat [deg, HEEQ], <f8), (lon [deg, HEEQ],<f8 )]'
+    hwind_att='dtype=[((time [matplotlib format]), (bt [nT], <f8), (bx  [nT, HEEQ], <f8), (by  [nT, HEEQ], <f8), \
+                        (bz  [nT, HEEQ], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), \
+                        (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),\
+                        (lat [deg, HEEQ], <f8), (lon [deg, HEEQ],<f8 )]'
     win_nd=hd.recarray_to_numpy_array(win)
-    win_nd=win_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
+    win_nd=win_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
+                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
+                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
     pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_2007_2021_heeq_ndarray.p", "wb" ) )
 
    
     
     print('PSP')  
-    hpsp_att='dtype=[(time, matplotlib), (bt [nT], <f8), (bx, SCEQ  [nT], <f8), (by  [nT, SCEQ], <f8),                        (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8),(vx  [km/s, SCEQ], <f8)(vy  [km/s, SCEQ], <f8),                        (vz  [km/s, SCEQ], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),                        (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8])'
+    hpsp_att='dtype=[(time, matplotlib), (bt [nT], <f8), (bx, SCEQ  [nT], <f8), (by  [nT, SCEQ], <f8),\
+                        (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8),(vx  [km/s, SCEQ], <f8)(vy  [km/s, SCEQ], <f8),\
+                        (vz  [km/s, SCEQ], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),\
+                        (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8])'
 
     psp_nd=hd.recarray_to_numpy_array(psp)
-    psp_nd=psp_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'),('vx', '<f8'),('vy', '<f8'),('vz', '<f8'), ('np', '<f8'), ('tp', '<f8'),                                ('x', '<f8'), ('y', '<f8'), ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
+    psp_nd=psp_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
+                                ('vt', '<f8'),('vx', '<f8'),('vy', '<f8'),('vz', '<f8'), ('np', '<f8'), ('tp', '<f8'),\
+                                ('x', '<f8'), ('y', '<f8'), ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
     pickle.dump([psp_nd,hpsp_att], open(data_path_ML+ "psp_2018_2021_sceq_ndarray.p", "wb" ) ) 
     
     
     print('Solar Orbiter')
-    hsolo_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
+    hsolo_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),\
+    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),\
+    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
     solo_nd=hd.recarray_to_numpy_array(solo)
-    solo_nd=solo_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
+    solo_nd=solo_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
+                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
+                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
     pickle.dump([solo_nd,hsolo_att], open(data_path_ML+ "solo_2020_2021_sceq_ndarray.p", "wb" ) )
     
     
@@ -928,9 +930,14 @@ data_to_numpy_3=1
 if data_to_numpy_3 > 0:
       
     print('Wind')
-    hwind_att='dtype=[((time [matplotlib format]), (bt [nT], <f8), (bx  [nT, HEEQ], <f8), (by  [nT, HEEQ], <f8),                         (bz  [nT, HEEQ], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8),                         (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),                        (lat [deg, HEEQ], <f8), (lon [deg, HEEQ],<f8 )]'
+    hwind_att='dtype=[((time [matplotlib format]), (bt [nT], <f8), (bx  [nT, HEEQ], <f8), (by  [nT, HEEQ], <f8), \
+                        (bz  [nT, HEEQ], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), \
+                        (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),\
+                        (lat [deg, HEEQ], <f8), (lon [deg, HEEQ],<f8 )]'
     win_nd=hd.recarray_to_numpy_array(win)
-    win_nd=win_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'),                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
+    win_nd=win_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
+                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
+                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
     pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_1995_2021_heeq_ndarray.p", "wb" ) )
 
 
@@ -1073,7 +1080,7 @@ plt.ion()
 
 # ## (3) make ICMECAT 
 
-# In[5]:
+# In[20]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -1083,17 +1090,8 @@ print('data loaded')
 from heliocats import cats as hc
 importlib.reload(hc) #reload again while debugging
 
-
-
-#master file from 2007
-#ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master.xlsx')
-
-
 #master file from 1995
-#for new wind events, load
 ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master4.xlsx')
-
-
 
 
 ####### 3a get indices for all spacecraft
@@ -1156,9 +1154,9 @@ importlib.reload(hp) #reload again while debugging
 #hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
 
 #mag and plasma
-hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
-hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
+#hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
+#hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+#hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 
 #hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
@@ -1186,14 +1184,129 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[6]:
+# In[21]:
 
 
 #save header and parameters as text file and prepare for html website
-header='ICME CATALOGUE v2.1 \n\nThis is the HELIO4CAST interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. \n\nThis is version 2.1, released 2021-November-29, updated '+last_update+', doi: 10.6084/m9.figshare.6356420 \n\nRules: If results are produced with this catalog for peer-reviewed scientific publications, please contact christian.moestl@oeaw.ac.at for possible co-authorship. \nReferences for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017SW001614) and Moestl et al. 2020 (https://doi.org/10.3847/1538-4357/abb9a1).  \n\nThe catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at \nhttps://helioforecast.space/icmecat \n\nNumber of events in ICMECAT: '+str(len(ic))+' \nICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   \nTime range: January 1995 - November 2021. \n \nAuthors: Christian Moestl, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, \nSpace Research Institute, Austrian Academy of Sciences, Graz, Austria.\nContributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, \nVratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, \nJohan von Forstner, Mateja Dumbovic, Benoit Lavraud.  \n\nThis catalog has been made by getting the 3 times of each ICME (shock or disturbance begin, magnetic obstacle start and end) \nfrom the individual catalogs below, and then calculating all parameters again consistently from the data by us. \nThe selection criteria are relatively simple: the event needs to have a clearly organized large-scale magnetic structure,\n which manifests itself through (1) an elevated total magnetic field and (2) a rotation in the field observed through the field components. \n\nThe in situ data that were used for the catalog, with a size of 8 GB in total, including extra data files with magnetic field components \nin RTN coordinates that are not used for producing the catalog, can be downloaded in python pickle format as recarrays from https://doi.org/10.6084/m9.figshare.11973693 \n\nThe python source code for producing this catalog is available at https://github.com/cmoestl/heliocats icmecat.ipynb\n\nEach event has unique identifier - the icmecat_id - which has a tag in it that indicates from which catalog the ICME times were taken: \n\nWind:         Nieves-Chinchilla et al. (2018), tag: NASA. \nSTEREO-A:     Jian et al. (2018), tag: JIAN. \nSTEREO-B:     Jian et al. (2018), tag: JIAN. \nVEX:          Good et al. (2018), tag: SGOOD \nMESSENGER:    Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW. \nMAVEN:        Made by us according to the method in the comments, tag: MOESTL.\nUlysses:      Added by us, tag: MOESTL. \nSolarOrbiter: Added by us, tag: MOESTL. \nBepiColomo:   Added by us, tag: MOESTL. \nPSP:          Added by us, tag: MOESTL. \n\nWe have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL in icmecat_id).\n\nReferences: \nNieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z \n                                      https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php \nJian, L. et al. (2018), https://doi.org/10.3847/1538-4357/aab189 \n                        https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/ \nGood, S. et al. (2018) https://doi.org/10.1007/s11207-015-0828-3 \nWinslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 \n\n\nComments: \n\n- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n\n- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth) and Ulysses (RTN, because of high latitude positions) and MAVEN (MSO). \n        Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n        Z is the solar rotation axis. \n        Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.\n        X completes the right handed triad (and points away from the Sun). \nThis system is thus like HEEQ but centered on the respective in situ spacecraft, so the SCEQ X and Y \nbase vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\nThe Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \nare rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \na few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).\nWe choose SCEQ for the advantage that a comparison of the data of multipoint CME events \nand comparisons to simulations are simpler because there is always a similar reference plane (the solar equatorial plane).\n\n- Venus Express and MESSENGER do not have plasma parameters available. For events that do not have plasma parameters at Solar Orbiter or PSP, they may become available in the future.\n\n- If there is no sheath or density pileup region, so the ICME starts immediately with a magnetic obstacle, the icme_start_time is similar to mo_start_time.\n\n- At MESSENGER and VEX, for events cataloged by Simon Good, icme_start_time has been added by V. Krupar (Imperial College) and C. Moestl (IWF Graz). \n\n- For the calculation of the parameters at MESSENGER during the orbit around Mercury, all data points inside the bowshock of Mercury have been removed, \naccording to a list thankfully provided to us by by R. Winslow, UNH, B. Anderson, APL, and Lydia Philpott, UBC. \n\n- Calculation of the magnetic obstacle parameters at VEX is done after approximate removal of the induced magnetosphere, with a modified equation as in \nZhang et al. 2008 (doi: 10.1016/j.pss.2007.09.012), with a constant of 3.5 instead of 2.14/2.364, \nin order to account for a larger bowshock distance during solar maximum than studied in the Zhang et al. (2008) paper. \n\n- For MAVEN, all data inside the bow shock were removed with the model from Gruesbeck et al. (2018, doi:10.1029/2018JA025366) by C. Simon Wedlund (IWF Graz, Austria). \nFrom the remaining data, the median for each orbit is taken as 1 data point, resulting in a solar wind \ndataset at Mars with 4.5 hour time resolution. This is a far lower resolution than available at 1 AU, so the identification \nof ICMEs in the MAVEN data is not as straightforward as for data sets with higher time resolution.\n\n- The identification of ICMEs for MAVEN was done as follows: (1) We looked for typical profiles for ICMEs in magnetic field (B) and speed (V).\n(2) B needs to be elevated in ICMEs accompanied by a flat or declining profile in V. An elevation in B accompanied by a later gradual rise \nin V is a strong indicator for a high speed stream (HSS). (3) The discrimination between HSS and ICMEs was further strengthened with \nthe help of a stream interaction region list for MAVEN by Huang et al. (2019, doi: 10.3847/1538-4357/ab25e9). \n(4) We additionally plotted the predicted CME arrivals with STEREO/HI (ARRCATv2.0), the dose rate measured on the Mars surface \nby MSL/RAD (e.g. Guo et al. (2018, doi: 10.1051/0004-6361/201732087)) and the speed of the WSA/HUX model for the \nbackground solar wind (Reiss et al. 2019, doi: 10.3847/1538-4365/aaf8b3). \nGeneral guidance on space weather observed by MAVEN can be found in Lee et al. (2018, doi:10.1002/2016JA023495).\n\n\n\n'
+header='ICME CATALOGUE v2.1 \n\n\
+This is the HELIO4CAST interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. \n\n\
+This is version 2.1, released 2021-November-29, updated '+last_update+', doi: 10.6084/m9.figshare.6356420 \n\n\
+Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact christian.moestl@oeaw.ac.at for possible co-authorship. \n\
+References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017SW001614) and Moestl et al. 2020 (https://doi.org/10.3847/1538-4357/abb9a1).  \n\n\
+The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at \n\
+https://helioforecast.space/icmecat \n\n\
+Number of events in ICMECAT: '+str(len(ic))+' \n\
+ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   \n\
+Time range: January 1995 - May 2022. \n \n\
+Authors: Christian Moestl, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, \n\
+Space Research Institute, Austrian Academy of Sciences, Graz, Austria.\n\
+Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, \n\
+Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, \n\
+Johan von Forstner, Mateja Dumbovic, Benoit Lavraud.  \n\n\
+This catalog has been made by getting the 3 times of each ICME (shock or disturbance begin, magnetic obstacle start and end) \n\
+from the individual catalogs below, and then calculating all parameters again consistently from the data by us. \n\
+The selection criteria are relatively simple: the event needs to have a clearly organized large-scale magnetic structure,\n \
+which manifests itself through (1) an elevated total magnetic field and (2) a rotation in the field observed through the field components. \n\n\
+The in situ data that were used for the catalog, with a size of 8 GB in total, including extra data files with magnetic field components \n\
+in RTN coordinates that are not used for producing the catalog, can be downloaded in python pickle format as recarrays from \
+https://doi.org/10.6084/m9.figshare.11973693 \n\n\
+The python source code for producing this catalog is available at https://github.com/cmoestl/heliocats icmecat.ipynb\n\n\
+Each event has unique identifier - the icmecat_id - which has a tag in it that indicates from which catalog the ICME times were taken: \n\n\
+Wind:         Nieves-Chinchilla et al. (2018), tag: NASA. \n\
+STEREO-A:     Jian et al. (2018), tag: JIAN. \n\
+STEREO-B:     Jian et al. (2018), tag: JIAN. \n\
+VEX:          Good et al. (2018), tag: SGOOD \n\
+MESSENGER:    Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW. \n\
+MAVEN:        Made by us according to the method in the comments, tag: MOESTL.\n\
+Ulysses:      Added by us, tag: MOESTL. \n\
+SolarOrbiter: Added by us, tag: MOESTL. \n\
+BepiColomo:   Added by us, tag: MOESTL. \n\
+PSP:          Added by us, tag: MOESTL. \n\n\
+We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL in icmecat_id).\n\n\
+References: \n\
+Nieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z \n\
+                                      https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php \n\
+Jian, L. et al. (2018), https://doi.org/10.3847/1538-4357/aab189 \n\
+                        https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/ \n\
+Good, S. et al. (2018) https://doi.org/10.1007/s11207-015-0828-3 \n\
+Winslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 \n\n\n\
+Comments: \n\n\
+- Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n\n\
+- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth) and Ulysses (RTN, because of high latitude positions) and MAVEN (MSO). \n\
+        Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n\
+        Z is the solar rotation axis. \n\
+        Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.\n\
+        X completes the right handed triad (and points away from the Sun). \n\
+This system is thus like HEEQ but centered on the respective in situ spacecraft, so the SCEQ X and Y \n\
+base vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\n\
+The Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \n\
+are rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \n\
+a few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).\n\
+We choose SCEQ for the advantage that a comparison of the data of multipoint CME events \n\
+and comparisons to simulations are simpler because there is always a similar reference plane (the solar equatorial plane).\n\n\
+- Venus Express and MESSENGER do not have plasma parameters available. For events that do not have plasma parameters at Solar Orbiter or PSP, they may become available in the future.\n\n\
+- If there is no sheath or density pileup region, so the ICME starts immediately with a magnetic obstacle, the icme_start_time is similar to mo_start_time.\n\n\
+- At MESSENGER and VEX, for events cataloged by Simon Good, icme_start_time has been added by V. Krupar (Imperial College) and C. Moestl (IWF Graz). \n\n\
+- For the calculation of the parameters at MESSENGER during the orbit around Mercury, all data points inside the bowshock of Mercury have been removed, \n\
+according to a list thankfully provided to us by by R. Winslow, UNH, B. Anderson, APL, and Lydia Philpott, UBC. \n\n\
+- Calculation of the magnetic obstacle parameters at VEX is done after approximate removal of the induced magnetosphere, with a modified equation \
+as in \n\
+Zhang et al. 2008 (doi: 10.1016/j.pss.2007.09.012), with a constant of 3.5 instead of 2.14/2.364, \n\
+in order to account for a larger bowshock distance during solar maximum than studied in the Zhang et al. (2008) paper. \n\n\
+- For MAVEN, all data inside the bow shock were removed with the model from Gruesbeck et al. (2018, doi:10.1029/2018JA025366) by C. Simon \
+Wedlund (IWF Graz, Austria). \n\
+From the remaining data, the median for each orbit is taken as 1 data point, resulting in a solar wind \n\
+dataset at Mars with 4.5 hour time resolution. This is a far lower resolution than available at 1 AU, so the identification \n\
+of ICMEs in the MAVEN data is not as straightforward as for data sets with higher time resolution.\n\n\
+- The identification of ICMEs for MAVEN was done as follows: (1) We looked for typical profiles for ICMEs in magnetic field (B) and speed (V).\n\
+(2) B needs to be elevated in ICMEs accompanied by a flat or declining profile in V. An elevation in B accompanied by a later gradual rise \n\
+in V is a strong indicator for a high speed stream (HSS). (3) The discrimination between HSS and ICMEs was further strengthened with \n\
+the help of a stream interaction region list for MAVEN by Huang et al. (2019, doi: 10.3847/1538-4357/ab25e9). \n\
+(4) We additionally plotted the predicted CME arrivals with STEREO/HI (ARRCATv2.0), the dose rate measured on the Mars surface \n\
+by MSL/RAD (e.g. Guo et al. (2018, doi: 10.1051/0004-6361/201732087)) and the speed of the WSA/HUX model for the \n\
+background solar wind (Reiss et al. 2019, doi: 10.3847/1538-4365/aaf8b3). \n\
+General guidance on space weather observed by MAVEN can be found in Lee et al. (2018, doi:10.1002/2016JA023495).\n\n\n\n'
 
 
-parameters='Parameters:\n00: icmecat_id: The unique identifier for the observed ICME. unit: string. \n01: sc insitu: The name of the in situ observing spacecraft. unit: string. \n02: icme_start_time: Shock arrival or density enhancement time, can be similar to mo_start_time. unit: UTC. \n03: mo_start_time: Start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. \n04: mo_end_time: End time of the magnetic obstacle. unit: UTC. \n05: mo_sc_heliodistance: Heliocentric distance of the spacecraft at mo_start_time. unit: AU.\n06: mo_sc_long_heeq: Heliospheric longitude of the spacecraft at mo_start_time, range [-180,180]. unit: degree (HEEQ).\n07: mo_sc_lat_heeq: Heliospheric latitude of the spacecraft at mo_start_time, range [-90,90]. unit: degree (HEEQ).\n08: icme_duration: Duration of the interval between icme_start_time and mo_endtime. unit: hours.\n09: icme_bmax: Maximum total magnetic field in the full icme interval (icme_start_time to mo_end_time). unit: nT.\n10: icme_bmean: Mean total magnetic field during the full icme interval (icme_start_time to mo_end_time). unit: nT.\n11: icme_bstd: Standard deviation of the total magnetic field from icme_start_time to mo_end_time. unit: nT.\n12: icme_speed_mean: Mean proton speed from icme_start_time to mo_end_time. unit: km/s.\n13: icme_speed_std: Standard deviation of proton speed from icme_start_time to mo_end_time. unit: km/s.\n14: mo_duration: Duration of the interval between mo_start_time and mo_endtime. unit: hours.\n15: mo_bmax: Maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.\n16: mo_bmean: Mean total magnetic field in the magnetic obstacle. unit: nT.\n17: mo_bstd: Standard deviation of the total magnetic field in the magnetic obstacle. unit: nT.\n18: mo_bzmean: Mean magnetic field Bz component in the magnetic obstacle. unit: nT.\n19: mo_bzmin: Minimum magnetic field Bz component in the magnetic obstacle. unit: nT.\n20: mo_bzstd: Standard deviation of the magnetic field Bz component in the magnetic obstacle. unit: nT.\n21: mo_bymean: Mean magnetic field By component in the magnetic obstacle. unit: nT.\n22: mo_bystd: Standard deviation of the magnetic field By component in the magnetic obstacle. unit: nT.\n23: mo_speed_mean: Mean proton speed from mo_start_time to mo_end_time. unit: km/s.\n24: mo_speed_std: Standard deviation of proton speed from mo_start_time to mo_end_time. unit: km/s.\n25: mo_expansion_speed: Difference between proton speed at mo_start_time to proton speed at mo_end_time. unit: km/s.\n26: mo_pdyn_mean: Mean proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.\n27: mo_pdyn_std: Standard deviation of proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.\n28: mo_density_mean: Mean proton density from mo_start_time to mo_start_time. unit: cm^-3.\n29: mo_density_std: Standard deviation of proton density from mo_start_time to mo_start_time. unit: cm^-3.\n30: mo_temperature_mean: Mean proton temperature from mo_start_time to mo_start_time. unit: K.\n31: mo_temperature_std: Standard deviation of proton temperature from mo_start_time to mo_end_time. unit: K.\n32: sheath_speed_mean: Mean proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.\n33: sheath_speed_std: Standard deviation of proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.\n34: sheath_density_mean: Mean proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.\n35: sheath_density_std: Standard deviation of proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.\n36: sheath_pdyn_mean: Mean proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.\n37: sheath_pdyn_std: Standard deviation of proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.\n\n\n'
+parameters='Parameters:\n\
+00: icmecat_id: The unique identifier for the observed ICME. unit: string. \n\
+01: sc insitu: The name of the in situ observing spacecraft. unit: string. \n\
+02: icme_start_time: Shock arrival or density enhancement time, can be similar to mo_start_time. unit: UTC. \n\
+03: mo_start_time: Start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. \n\
+04: mo_end_time: End time of the magnetic obstacle. unit: UTC. \n\
+05: mo_sc_heliodistance: Heliocentric distance of the spacecraft at mo_start_time. unit: AU.\n\
+06: mo_sc_long_heeq: Heliospheric longitude of the spacecraft at mo_start_time, range [-180,180]. unit: degree (HEEQ).\n\
+07: mo_sc_lat_heeq: Heliospheric latitude of the spacecraft at mo_start_time, range [-90,90]. unit: degree (HEEQ).\n\
+08: icme_duration: Duration of the interval between icme_start_time and mo_endtime. unit: hours.\n\
+09: icme_bmax: Maximum total magnetic field in the full icme interval (icme_start_time to mo_end_time). unit: nT.\n\
+10: icme_bmean: Mean total magnetic field during the full icme interval (icme_start_time to mo_end_time). unit: nT.\n\
+11: icme_bstd: Standard deviation of the total magnetic field from icme_start_time to mo_end_time. unit: nT.\n\
+12: icme_speed_mean: Mean proton speed from icme_start_time to mo_end_time. unit: km/s.\n\
+13: icme_speed_std: Standard deviation of proton speed from icme_start_time to mo_end_time. unit: km/s.\n\
+14: mo_duration: Duration of the interval between mo_start_time and mo_endtime. unit: hours.\n\
+15: mo_bmax: Maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.\n\
+16: mo_bmean: Mean total magnetic field in the magnetic obstacle. unit: nT.\n\
+17: mo_bstd: Standard deviation of the total magnetic field in the magnetic obstacle. unit: nT.\n\
+18: mo_bzmean: Mean magnetic field Bz component in the magnetic obstacle. unit: nT.\n\
+19: mo_bzmin: Minimum magnetic field Bz component in the magnetic obstacle. unit: nT.\n\
+20: mo_bzstd: Standard deviation of the magnetic field Bz component in the magnetic obstacle. unit: nT.\n\
+21: mo_bymean: Mean magnetic field By component in the magnetic obstacle. unit: nT.\n\
+22: mo_bystd: Standard deviation of the magnetic field By component in the magnetic obstacle. unit: nT.\n\
+23: mo_speed_mean: Mean proton speed from mo_start_time to mo_end_time. unit: km/s.\n\
+24: mo_speed_std: Standard deviation of proton speed from mo_start_time to mo_end_time. unit: km/s.\n\
+25: mo_expansion_speed: Difference between proton speed at mo_start_time to proton speed at mo_end_time. unit: km/s.\n\
+26: mo_pdyn_mean: Mean proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.\n\
+27: mo_pdyn_std: Standard deviation of proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.\n\
+28: mo_density_mean: Mean proton density from mo_start_time to mo_start_time. unit: cm^-3.\n\
+29: mo_density_std: Standard deviation of proton density from mo_start_time to mo_start_time. unit: cm^-3.\n\
+30: mo_temperature_mean: Mean proton temperature from mo_start_time to mo_start_time. unit: K.\n\
+31: mo_temperature_std: Standard deviation of proton temperature from mo_start_time to mo_end_time. unit: K.\n\
+32: sheath_speed_mean: Mean proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.\n\
+33: sheath_speed_std: Standard deviation of proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.\n\
+34: sheath_density_mean: Mean proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.\n\
+35: sheath_density_std: Standard deviation of proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.\n\
+36: sheath_pdyn_mean: Mean proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.\n\
+37: sheath_pdyn_std: Standard deviation of proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.\n\n\n'
 
 
 
@@ -1222,7 +1335,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[7]:
+# In[22]:
 
 
 ########## python formats
@@ -1398,7 +1511,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[8]:
+# In[23]:
 
 
 #load icmecat as pandas dataframe
@@ -1410,26 +1523,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[9]:
+# In[24]:
 
 
 print(ic_pandas.keys())
 
 
-# In[10]:
+
+# In[25]:
 
 
 ic_pandas
 
 
-# In[11]:
+# In[26]:
 
 
 #
 ic_nprec
 
 
-# In[12]:
+# In[27]:
 
 
 ic_nprec.icmecat_id
@@ -1437,7 +1551,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[13]:
+# In[28]:
 
 
 ic=ic_pandas
@@ -1547,7 +1661,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[14]:
+# In[29]:
 
 
 #markersize
@@ -1592,7 +1706,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[15]:
+# In[30]:
 
 
 #make distribution plots
@@ -1674,4 +1788,5 @@ jc
 #        ic.at[i,'mo_start_time']=parse_time(str(ic.mo_start_time[i]).strip()).datetime
 #        ic.at[i,'mo_end_time']=parse_time(str(ic.mo_end_time[i]).strip()).datetime
        
+
 
