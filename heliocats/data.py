@@ -1351,7 +1351,7 @@ def save_psp_data(path, file, sceq):
     #t_end = datetime.datetime(2019, 4, 30)    
     #t_end = datetime.datetime(2019, 10, 15)
     
-    t_end = datetime.datetime(2021, 12, 31)    
+    t_end = datetime.datetime(2022, 3, 31)    
     psp2=get_psp_data(t_start,t_end)
 
     #add both
@@ -1418,12 +1418,12 @@ def get_psp_data(t_start,t_end):
     time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
     time_mat=mdates.date2num(time) 
     
-    tm, mag = psp_sat.get_data_raw(t_start, t_end, "psp_fields_l2")#,return_datetimes=True)
-    tp, pro = psp_sat.get_data_raw(t_start, t_end, "psp_spc_l3")#,return_datetimes=True)
+    tm, mag = psp_sat.get_data(time, "psp_fields_l2",return_datetimes=True)
+    tp, pro = psp_sat.get_data(time, "psp_spc_l3",return_datetimes=True)
     
     
-    tm=parse_time(tm,format='unix').datetime 
-    tp=parse_time(tp,format='unix').datetime 
+    #tm=parse_time(tm,format='unix').datetime 
+    #tp=parse_time(tp,format='unix').datetime 
     
     print('download complete')
     
@@ -1561,8 +1561,8 @@ def save_psp_data_non_merged(path, file):
     #t_end = datetime.datetime(2019, 5, 1,23,59,30)
 
     
-    timeb, mag = psp_sat.get_data_raw(t_start, t_end, "psp_fields_l2")
-    timep, pro = psp_sat.get_data_raw(t_start, t_end, "psp_spc_l3")
+    timeb, mag = psp_sat.get_data(t_start, t_end, "psp_fields_l2")
+    timep, pro = psp_sat.get_data(t_start, t_end, "psp_spc_l3")
     print('download complete')
     
     #create an array with 1 minute resolution between t start and end for position

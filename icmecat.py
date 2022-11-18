@@ -38,7 +38,7 @@
 # In[1]:
 
 
-last_update='2022-November-15'
+last_update='2022-November-25'
 
 
 # In[2]:
@@ -139,14 +139,14 @@ print(heliosat.__version__)
 
 # ## Parker Solar Probe
 
-# In[3]:
+# In[ ]:
 
 
 ################### FIELDS
 #generate datestrings for filenames
 time1=[]
-tstart1=datetime.datetime(2021, 6, 30)
-tend1=datetime.datetime(2022, 5, 1)
+tstart1=datetime.datetime(2021, 12, 1)
+tend1=datetime.datetime(2022, 11, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -167,8 +167,8 @@ os.chdir('/home/cmoestl/pycode/heliocats')
 ############# SWEAP
 
 time1=[]
-tstart1=datetime.datetime(2021, 7, 25)
-tend1=datetime.datetime(2022, 5, 1)
+tstart1=datetime.datetime(2021, 12, 1)
+tend1=datetime.datetime(2022, 11, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -184,7 +184,7 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[5]:
+# In[3]:
 
 
 from heliocats import data as hd
@@ -192,16 +192,16 @@ importlib.reload(hd) #reload again while debugging
 
 #print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
 #+**change end date in function
-#filepsp='psp_2018_2022_rtn_new.p'
-#hd.save_psp_data(data_path,filepsp, sceq=False)   
-#print('rtn done')
+filepsp='psp_2018_2022_rtn_new_nov22.p'
+hd.save_psp_data(data_path,filepsp, sceq=False)   
+print('rtn done')
 
-#filepsp='psp_2018_2022_sceq_new.p'
-#hd.save_psp_data(data_path,filepsp, sceq=True)   
-#print('sceq done')
+filepsp='psp_2018_2022_sceq_new.p'
+hd.save_psp_data(data_path,filepsp, sceq=True)   
+print('sceq done')
 
 print('load PSP data RTN') 
-filepsp='psp_2018_2022_rtn_new.p'
+filepsp='psp_2018_2022_rtn_new_nov22.p'
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
 
