@@ -2,21 +2,21 @@ ICME CATALOGUE v2.1
 
 This is the HELIO4CAST interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 
-This is version 2.1, released 2021-November-29, updated 2022-June-15, doi: 10.6084/m9.figshare.6356420 
+This is version 2.1, released 2021-November-29, updated 2022-November-29, doi: 10.6084/m9.figshare.6356420 
 
-Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact christian.moestl@oeaw.ac.at for possible co-authorship. 
+Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact chris.moestl@outlook.com for possible co-authorship. 
 References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017SW001614) and Moestl et al. 2020 (https://doi.org/10.3847/1538-4357/abb9a1).  
 
 The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at 
 https://helioforecast.space/icmecat 
 
-Number of events in ICMECAT: 1114 
+Number of events in ICMECAT: 1152 
 ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   
-Time range: January 1995 - May 2022. 
+Time range: January 1995 - October 2022. 
  
 Authors: Christian Moestl, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, 
-Space Research Institute, Austrian Academy of Sciences, Graz, Austria.
-Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, 
+Austrian Space Weather Office, ZAMG, Graz, Austria; NASA CCMC, USA.
+Contributors: Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, 
 Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, 
 Johan von Forstner, Mateja Dumbovic, Benoit Lavraud.  
 
@@ -43,7 +43,7 @@ SolarOrbiter: Added by us, tag: MOESTL.
 BepiColomo:   Added by us, tag: MOESTL. 
 PSP:          Added by us, tag: MOESTL. 
 
-We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL in icmecat_id).
+We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL or MOESTL_SALMAN in icmecat_id).
 
 References: 
 Nieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z 

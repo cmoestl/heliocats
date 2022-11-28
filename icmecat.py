@@ -3,14 +3,17 @@
 
 # ## icmecat
 # 
-# makes the interplanetary coronal mass ejection catalog ICMECAT
+# Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat.
 # 
-# available at https://helioforecast.space/icmecat
+# **latest release: version 2.1, 2021 November 29, updated 2022 December 1**
 # 
-# **Author**: C. Möstl, IWF Graz, Austria
-# https://twitter.com/chrisoutofspace, part of https://github.com/cmoestl/heliocats
 # 
-# latest release: version 2.1, 2021 November 29, updated **2022 November .... **
+# **Author**: C. Möstl, Austrian Space Weather Office, Geosphere Austria
+# 
+# https://twitter.com/chrisoutofspace / https://mastodon.social/@chrisoutofspace
+# 
+# This notebook is part of the heliocats package https://github.com/cmoestl/heliocats
+# 
 # 
 # **doi 10.6084/m9.figshare.6356420**  https://10.6084/m9.figshare.6356420
 # 
@@ -31,17 +34,15 @@
 # 
 # 
 # 
-# 
-# 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
-# In[1]:
-
-
-last_update='2022-November-25'
-
-
 # In[2]:
+
+
+last_update='2022-December-1'
+
+
+# In[3]:
 
 
 import numpy as np
@@ -137,7 +138,9 @@ print(heliosat.__version__)
 # 
 # 
 
-# ## Parker Solar Probe
+# ### Parker Solar Probe
+
+# #### file downloads
 
 # In[ ]:
 
@@ -184,7 +187,9 @@ for i in np.arange(0,len(time1)):
 os.chdir('/home/cmoestl/pycode/heliocats')
 
 
-# In[3]:
+# #### process to pickle file
+
+# In[ ]:
 
 
 from heliocats import data as hd
@@ -192,34 +197,40 @@ importlib.reload(hd) #reload again while debugging
 
 #print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
 #+**change end date in function
-filepsp='psp_2018_2022_rtn_new_nov22.p'
-hd.save_psp_data(data_path,filepsp, sceq=False)   
+filepsp='psp_2022_rtn_new_nov2022.p'
+hd.save_psp_data_mag_only(data_path,filepsp, sceq=False)   
 print('rtn done')
 
-filepsp='psp_2018_2022_sceq_new.p'
-hd.save_psp_data(data_path,filepsp, sceq=True)   
+filepsp='psp_2022_sceq_new_nov2022.p'
+hd.save_psp_data_mag_only(data_path,filepsp, sceq=True)   
 print('sceq done')
 
-print('load PSP data RTN') 
-filepsp='psp_2018_2022_rtn_new_nov22.p'
+#filepsp='psp_2022_sceq_new_nov2022.p'
+#hd.save_psp_data(data_path,filepsp, sceq=True)   
+#print('sceq done')
+
+
+#print('load PSP data RTN') 
+#
+import warnings
+warnings.filterwarnings('ignore')
+
+filepsp='psp_2022_rtn_new_nov2022.p'
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
 
-#start=datetime.datetime(2018,10,1)
-#end=datetime.datetime(2021,6,30)
-        
 
+# #### plot PSP data
 
-# In[14]:
+# In[8]:
 
 
 #orbit 10
 #start=datetime.datetime(2021,11,15)
 #end=datetime.datetime(2021,11,25)
 
-start=datetime.datetime(2021,8,3)
-end=datetime.datetime(2021,8,12)
-
+start=datetime.datetime(2022,1,1)
+end=datetime.datetime(2022,3,31)
 
 
 
@@ -257,7 +268,7 @@ ax2.set_ylim(0.5,1.5)
 
 ax3=plt.subplot(313,sharex=ax1)
 ax3.plot(psp.time,psp.r,'-b')
-ax3.set_ylim(0.07,0.09)
+ax3.set_ylim(0.034,0.09)
 
 ax3.set_ylabel('Heliocentric distance [AU]')
 
@@ -496,13 +507,14 @@ plt.savefig('results/parker_orbit9.pdf')
 get_ipython().run_cell_magic('time', '', '\nfrom heliocats import data as hd\nimportlib.reload(hd) #reload again while debugging\n\n#download ascii files\n#hd.wind_download_ascii()\n\nstart=datetime.datetime(1995,1,1)\nend=datetime.datetime(2022,5,30)\n\n\n#end=datetime.datetime.utcnow() \npath=\'/nas/helio/data/insitu_python/\'\n\n\nfile=\'wind_1995_2022_heeq.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'HEEQ\')\n\nfile=\'wind_1995_2022_gse.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'GSE\')\n\n\nfile=\'wind_1995_2022_gsm.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'GSM\')\n\n#filewin="wind_1995_2021_gsm.p" \n#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\n\n\n#GSE GSM comparison\n\n#win=win[3000000:7056000]\n\n#filewin="wind_1995_2021_heeq.p" \n#[winh,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\n#winh=winh[3000000:7056000]\n\n\n#np.nanstd(winh.bz-win.bz)\n#np.nanmean(winh.bz-win.bz)\n\n\n')
 
 
-# ## (1) load data from HELCATS, or made with HelioSat and heliocats.data
+# ## (1) load data 
 
-# In[6]:
+# In[4]:
 
+
+#made with HelioSat and heliocats.data
 
 load_data=1
-
 
 
 if load_data > 0:
@@ -617,7 +629,7 @@ if load_data > 0:
    
     ##############################################
     print('load Solar Orbiter SCEQ')
-    filesolo='solo_2020_april_2022_feb_sceq.p'
+    filesolo='solo_2020_april_2022_june_sceq.p'
     solo=pickle.load(open(data_path+filesolo, "rb" ) )    
     
     #set all plasma data to NaN
@@ -629,7 +641,40 @@ if load_data > 0:
     ##############################################
     print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
     filepsp='psp_2018_2022_sceq.p'
-    [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
+    [psp1,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
+    
+    #add file with mag only for 2022, plasma needs to be added in heliosat
+    #psp_2022_sceq_new_nov2022.p
+    
+    filepsp2='psp_2022_sceq_new_nov2022.p'
+    [psp2,hpsp2]=pickle.load(open(data_path+filepsp2, "rb" ) )   
+
+  
+    psp=np.zeros(np.size(psp1.time)+np.size(psp2.time),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    psp = psp.view(np.recarray)  
+    psp.time=np.hstack((psp1.time,psp2.time))
+    psp.bx=np.hstack((psp1.bx,psp2.bx))
+    psp.by=np.hstack((psp1.by,psp2.by))
+    psp.bz=np.hstack((psp1.bz,psp2.bz))
+    psp.bt=np.hstack((psp1.bt,psp2.bt))
+    psp.vt=np.hstack((psp1.vt,psp2.vt))
+    psp.np=np.hstack((psp1.np,psp2.np))
+    psp.tp=np.hstack((psp1.tp,psp2.tp))
+    psp.x=np.hstack((psp1.x,psp2.x))
+    psp.y=np.hstack((psp1.y,psp2.y))
+    psp.z=np.hstack((psp1.z,psp2.z))
+    psp.r=np.hstack((psp1.r,psp2.r))
+    psp.lon=np.hstack((psp1.lon,psp2.lon))
+    psp.lat=np.hstack((psp1.lat,psp2.lat))
+    print('psp Merging done')
+
+    
+    
     
     
     
@@ -769,19 +814,19 @@ print('done')
 
 # ### 1a save data as numpy structured arrays for machine learning 
 
-# In[5]:
+# In[ ]:
 
 
-# save data as numpy structured arrays for machine learning
 data_to_numpy_1=0
-
-
 
 if data_to_numpy_1 > 0:  
 
     print('convert data to numpy structured arrays suitable for machine learning')
     
-
+    
+    
+    ####################### These are finished missions
+    
     print('STEREO-B')
     #STEREO-B
     #make extra header with variable attributes
@@ -794,9 +839,8 @@ if data_to_numpy_1 > 0:
                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
     pickle.dump([stb_nd,hstb_att], open(data_path_ML+ "stereob_2007_2014_sceq_ndarray.p", "wb" ) )
-    
      
-    
+    #####
     print('Ulysses')
     huly_att='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, RTN], <f8), (by  [nT, RTN], <f8), \
     (bz  [nT, RTN], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8),\
@@ -808,7 +852,7 @@ if data_to_numpy_1 > 0:
     pickle.dump([uly_nd,huly_att], open(data_path_ML+ "ulysses_1990_2009_rtn_ndarray.p", "wb" ) )
        
     
-
+    #####
     print('VEX')
     #header no plasma, with planetary orbit
     hatt6='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8), \
@@ -821,7 +865,7 @@ if data_to_numpy_1 > 0:
                                 ('xo', '<f8'), ('yo', '<f8'),  ('zo', '<f8'), ('ro', '<f8'), ('lato', '<f8'), ('lono', '<f8')])    
     pickle.dump([vex_nd,hatt6], open(data_path_ML+ "vex_2007_2014_sceq_removed_ndarray.p", "wb" ) )
 
-
+    #####    
     print('MESSENGER') #no plasma, no planetary orbit
     hatt7='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8), \
     (bz  [nT, SCEQ], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8), \
@@ -832,16 +876,12 @@ if data_to_numpy_1 > 0:
     pickle.dump([mes_nd,hatt7], open(data_path_ML+ "mes_2007_2015_sceq_removed_ndarray.p", "wb" ) ) 
 
     
-    
-    
-    ###################################### UPDATED
 
-data_to_numpy_2=1 
+####################### These are live missions
 
+data_to_numpy_2=0 
 
 if data_to_numpy_2 > 0:  
-
-        
     
     print('STEREO-A')
     hsta_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),\
@@ -876,7 +916,7 @@ if data_to_numpy_2 > 0:
     
     #pickle.dump([bepi_nd,hbepi_att], open(data_path_ML+ "bepi_2019_2021_sceq_ndarray.p", "wb" ) )
     
-        
+       
   
     print('Wind')
     hwind_att='dtype=[((time [matplotlib format]), (bt [nT], <f8), (bx  [nT, HEEQ], <f8), (by  [nT, HEEQ], <f8), \
@@ -913,18 +953,14 @@ if data_to_numpy_2 > 0:
                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
     pickle.dump([solo_nd,hsolo_att], open(data_path_ML+ "solo_2020_2021_sceq_ndarray.p", "wb" ) )
-    
-    
 
- 
 
     print('done')
     
-    
-    
+        
     
 #for Wind 1995 data    
-data_to_numpy_3=1 
+data_to_numpy_3=0
 
 
 if data_to_numpy_3 > 0:
@@ -938,160 +974,25 @@ if data_to_numpy_3 > 0:
     win_nd=win_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
                                 ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
                                 ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_1995_2021_heeq_ndarray.p", "wb" ) )
-
-
-    
+    pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_1995_2021_heeq_ndarray.p", "wb" ) )    
     
 
 
-# ## (2) measure new events 
-
-# In[6]:
-
-
-#for measuring new events use these functions from heliocats.plot 
-
-from heliocats import plot as hp
-importlib.reload(hp) #reload again while debugging
-
-from heliocats import data as hd
-importlib.reload(hd) #reload again while debugging
-
-plt.close('all')
-#works in jupyter notebooks
-
-#works in scripts
-#matplotlib.use('qt5agg')  
-get_ipython().run_line_magic('matplotlib', '')
-plt.ion()
-
-
-
-#PSP
-#hp.plot_insitu_measure_mag_notz(psp, '2020-Dec-20','2021-Mar-31', 'PSP', 'results/plots_icmecat/')
-
-
-#SolO
-#hp.plot_insitu_measure_mag(solo, '2020-Aug-20','2020-Dec-31', 'SolarOrbiter', 'results/plots_icmecat/')
-
-
-#STEREO-A
-#hp.plot_insitu_measure_mag_notz(sta, '2020-Oct-15 12:00','2020-Dec-31 12:00', 'STEREO-A', 'results/')
-
-
-#Wind
-#hp.plot_insitu_measure(win, '2020-Oct-1','2021-Apr-27', 'Wind', 'results/')
-
-
-#Bepi Colombo
-#hp.plot_insitu_measure_mag_notz(bepi, '2020-Aug-20','2021-Apr-5', 'Bepi', 'results/plots_icmecat/')
-
-
-# In[122]:
-
-
-#plt.figure(figsize=(15,10), dpi=100)
-#plt.plot(bepi.time,bepi.bt,'-k')
-#plt.plot(bepi.time,bepi.bx,'-r')
-#plt.plot(bepi.time,bepi.by,'-g')
-#plt.plot(bepi.time,bepi.bz,'-b')
-#plt.ylim(-15,15)
-#plt.xlim([datetime.datetime(2020,12,15),datetime.datetime(2020,12,30)])
-
-
-#Solar Orbiter
-#hp.plot_insitu_measure_mag(solo, '2020-Apr-15','2020-Apr-29', 'SolO', 'results/plots_icmecat/')
-#t.figure(figsize=(15,10), dpi=100)
-#plt.plot(solo.time,solo.bt,'-k')
-#plt.plot(solo.time,solo.bx,'-r')
-#plt.plot(solo.time,solo.by,'-g')
-#plt.plot(solo.time,solo.bz,'-b')
-#plt.xlim([datetime.datetime(2020,9,3),datetime.datetime(2020,9,8)])
-#plt.ylim(-10,10)
-
-
-#Bepi Colombo
-##hp.plot_insitu_measure(bepi, '2018-Oct-30','2020-Apr-29', 'PSP', 'results/plots_icmecat/')
-
-
-
-
-
-#for plotting single events
-#hp.plot_insitu(psp, ic.icme,'2018-Nov-15', 'PSP', icplotsdir)
-
-#STEREO-A
-#hp.plot_insitu_measure_mag_notz(sta, '2020-Nov-25 12:00','2020-Dec-15 12:00', 'STEREO-A', 'results/')
-
-#Wind
-#%matplotlib
-#hp.plot_insitu_measure(win, '2020-Oct-21','2021-Apr-15', 'Wind', 'results/')
-
-#hp.plot_insitu_measure(win, '2011-Feb-10','2011-Feb-25', 'Wind', 'results/')
-
-
-
-#STEREO-A
-#hp.plot_insitu_measure(sta, '2019-Nov-01 12:00','2020-Aug-01 12:00', 'STEREO-A', 'results/')
-
-
-
-################### MAVEN needs special attention
-
-# ########### LOAD other data sets
-
-# # 1 load RAD data from Jingnan Guo
-# rad=hd.load_msl_rad()   
-
-# # 2 load HELCATS ARRCAT as numpy recarray
-# file='arrcat/HELCATS_ARRCAT_v20_pandas.p'
-# [arrcat,arrcat_header]=pickle.load( open(file, 'rb'))   
-
-# # 3 load WSA speed file at Mars from Martin Reiss 
-# #save wsa hux file if new
-# #file='wsa_hux_mars_aug2014_jan2018.txt'
-# #hd.save_wsa_hux(file)
-# #get mars wsa hux #Reiss et al., 2019 (DOI: https://doi.org/10.3847/1538-4365/aaf8b3
-# w1=hd.load_mars_wsa_hux()
-
-# #load maven SIR catalog Huang et al. 2019 https://doi.org/10.3847/1538-4357/ab25e9
-# msir=hd.load_maven_sir_huang()
-
-# #mavr are the removed but not smoothed data
-
-# #use for extra window
-# %matplotlib
-
-
-# #plot for measuring overview
-# plt.figure(11)
-# plt.rcParams["figure.figsize"] = (16,8)
-# plt.plot_date(w1.time,w1.vt,'-k')
-# plt.plot_date(rad.time,rad.dose_sol,'-b')
-# plt.plot_date(mav.time,mav.vt,'-r')
-# #plt.plot_date(mavr.time,mavr.vt,'-r')
-
-# #https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2016JA023495%4010.1002/%28ISSN%292169-9402.MAVEN2
-
-# #zoomed plot
-# hp.plot_insitu_measure_maven(mav, '2016-Jan-1','2016-Feb-01', 'MAVEN', icplotsdir,rad,arrcat,w1,msir)
-
+# ## (2) measure new events with notebook measure.ipynb
 
 # ## (3) make ICMECAT 
 
-# In[20]:
+# In[9]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
 print('data loaded')
 
-
 from heliocats import cats as hc
 importlib.reload(hc) #reload again while debugging
 
 #master file from 1995
-ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master4.xlsx')
+ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master.xlsx')
 
 
 ####### 3a get indices for all spacecraft
@@ -1150,24 +1051,24 @@ importlib.reload(hp) #reload again while debugging
 #missions to be updated
 
 #mag only
-#hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
-#hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
+hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
+hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
 
 #mag and plasma
-#hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-#hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
-#hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
+hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
+hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 
-#hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 #finished missions
 #mag only
-#hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
-#hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
+hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
+hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
 
 #mag and plasma
-#hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
-#hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
+hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
+hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
 print('done')
 
 ############### sort ICMECAT by date
@@ -1184,14 +1085,14 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[21]:
+# In[10]:
 
 
 #save header and parameters as text file and prepare for html website
 header='ICME CATALOGUE v2.1 \n\n\
 This is the HELIO4CAST interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. \n\n\
 This is version 2.1, released 2021-November-29, updated '+last_update+', doi: 10.6084/m9.figshare.6356420 \n\n\
-Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact christian.moestl@oeaw.ac.at for possible co-authorship. \n\
+Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact chris.moestl@outlook.com for possible co-authorship. \n\
 References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017SW001614) and Moestl et al. 2020 (https://doi.org/10.3847/1538-4357/abb9a1).  \n\n\
 The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at \n\
 https://helioforecast.space/icmecat \n\n\

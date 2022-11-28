@@ -1333,6 +1333,174 @@ def load_msl_rad():
 
 
 
+def save_psp_data_mag_only(path, file, sceq):
+        
+    print('save PSP data mag only')
+
+    t_start = datetime.datetime(2022, 1, 1)
+    t_end = datetime.datetime(2022, 3, 31)
+    psp=get_psp_data_mag_only(t_start,t_end)
+    
+    
+    #convert magnetic field to SCEQ
+    coord='RTN'
+    if sceq==True:
+        coord='SCEQ'
+        psp=convert_RTN_to_SCEQ(psp,'PSP')
+    
+    
+    header='PSP magnetic field (FIELDS instrument), ' + \
+    'obtained from https://spdf.gsfc.nasa.gov/pub/data/psp/  '+ \
+    'Timerange: '+psp.time[0].strftime("%Y-%b-%d %H:%M")+' to '+psp.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(psp.time)).seconds)+' seconds. '+\
+    'The data are put in a numpy recarray, fields can be accessed by psp.time, psp.bx, psp.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(psp.size)+'. '+\
+    'Units are btxyz [nT,'+coord+'], vtxyz [km/s, RTN], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats (uses https://github.com/ajefweiss/HelioSat '+\
+    'and https://github.com/heliopython/heliopy). '+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+    
+    pickle.dump([psp,header], open(path+file, "wb"))
+
+
+
+def get_psp_data_mag_only(t_start,t_end):
+     
+    print('start PSP')
+     
+    psp_sat = heliosat.PSP()
+    
+    #create an array with 1 minute resolution between t start and end
+    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
+    time_mat=mdates.date2num(time) 
+    
+    tm, mag = psp_sat.get_data(time, "psp_fields_l2",return_datetimes=True)
+    #tp, pro = psp_sat.get_data(time, "psp_spc_l3",return_datetimes=True)
+    
+    
+    #tm=parse_time(tm,format='unix').datetime 
+    #tp=parse_time(tp,format='unix').datetime 
+    
+    print('download complete')
+    
+    print('start nan or interpolate')
+    
+    print('field')
+    #round first each original time to full minutes   original data at 30sec
+    tround=copy.deepcopy(tm)
+    format_str = '%Y-%m-%d %H:%M'  
+    for k in np.arange(np.size(tm)):
+         tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(tm[k], format_str), format_str) 
+    tm_mat=parse_time(tround).plot_date
+    
+    bx = np.interp(time_mat, tm_mat, mag[:,0] )
+    by = np.interp(time_mat, tm_mat, mag[:,1] )
+    bz = np.interp(time_mat, tm_mat, mag[:,2] )
+    
+   
+    #which values are not in original data compared to full time range
+    isin=np.isin(time_mat,tm_mat)      
+    setnan=np.where(isin==False)
+    #set to to nan that is not in original data
+    bx[setnan]=np.nan
+    by[setnan]=np.nan
+    bz[setnan]=np.nan
+
+    bt = np.sqrt(bx**2+by**2+bz**2)
+    
+
+    
+    #    print('plasma')
+        
+    #for plasma round first each original time to full minutes
+    #tround=copy.deepcopy(tp)
+    #format_str = '%Y-%m-%d %H:%M'  
+    #for k in np.arange(np.size(tp)):
+    #     tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(tp[k], format_str), format_str) 
+    #tp_mat=mdates.date2num(tround) 
+    
+    #isin=np.isin(time_mat,tp_mat)      
+    #setnan=np.where(isin==False)
+        
+    #den = np.interp(time_mat, tp_mat, pro[:,0])
+    #vx = np.interp(time_mat, tp_mat, pro[:,1])
+    #vy = np.interp(time_mat, tp_mat, pro[:,2])
+    #vz = np.interp(time_mat, tp_mat, pro[:,3])
+    #temp = np.interp(time_mat, tp_mat, pro[:,4])
+    
+    den = np.zeros(np.size(time_mat))
+    vx = np.zeros(np.size(time_mat))
+    vy = np.zeros(np.size(time_mat))
+    vz = np.zeros(np.size(time_mat))
+    temp = np.zeros(np.size(time_mat))
+    
+    den[:]=np.nan
+    temp[:]=np.nan
+    vx[:]=np.nan
+    vy[:]=np.nan
+    vz[:]=np.nan
+  
+    vt=np.sqrt(vx**2+vy**2+vz**2)
+
+    print('end nan or interpolate')
+
+        
+    print('position start')
+    frame='HEEQ'
+    spice.furnish(spicedata.get_kernel('psp_pred'))
+    psptra=spice.Trajectory('SPP')
+    psptra.generate_positions(time,'Sun',frame)
+    psptra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(psptra.x,psptra.y,psptra.z)
+    print('PSP pos')    
+    print('position end')
+
+        
+    #make array
+    psp=np.zeros(np.size(bx),dtype=[('time',object),('bt', float),('bx', float),\
+                ('by', float),('bz', float),('vt', float),('vx', float),('vy', float),\
+                ('vz', float),('np', float),('tp', float),('x', float),('y', float),\
+                ('z', float),('r', float),('lat', float),('lon', float)])   
+       
+    #convert to recarray
+    psp = psp.view(np.recarray)  
+
+    #fill with data
+    psp.time=time
+    psp.bx=bx
+    psp.by=by
+    psp.bz=bz 
+    psp.bt=bt
+    
+    psp.x=psptra.x
+    psp.y=psptra.y
+    psp.z=psptra.z
+    
+    psp.r=r
+    psp.lat=np.degrees(lat)
+    psp.lon=np.degrees(lon)
+    
+    psp.vt=vt
+    psp.vx=vx    
+    psp.vy=vy  
+    psp.vz=vz
+    psp.np=den
+    #https://en.wikipedia.org/wiki/Thermal_velocity convert from km/s to K
+    #from astropy.constants import m_p,k_B
+    #psp.tp=np.pi*m_p*((temp*1e3)**2)/(8*k_B) 
+    
+    #remove spikes
+    #psp.tp[np.where(psp.tp > 1e10)]=np.nan
+    
+    print('done get psp')
+    print()
+    
+    return psp
+
+    
+    
+    
 
 
 

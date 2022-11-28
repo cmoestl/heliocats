@@ -1,18 +1,18 @@
 # heliocats
 
 
-This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections and their analysis. [This is a link to a google colab notebook](https://colab.research.google.com/drive/1_zJMGJnX3XJx7FCHD04SC3Y0KCMdDGMz) for instructions how to read the catalogs produced with this package.
+This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections (ICMEs) and their analysis. [This is a link to a google colab notebook](https://colab.research.google.com/drive/1_zJMGJnX3XJx7FCHD04SC3Y0KCMdDGMz) for instructions how to read the catalogs produced with this package. The ICMECAT as the main result to be produced with this package is published at https://helioforecast.space/icmecat. It forms the largest living catalog of ICMEs.
 
 
-**Authors**: [C. Möstl](https://www.iwf.oeaw.ac.at/en/user-site/christian-moestl/), A. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow, D. Stansby.
+**Authors**: C. Möstl, Austrian Space Weather Office, Geosphere Austria https:/helioforecast.space; A. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow, D. Stansby.
 
-Current status (October 2021): **work in progress** 
+Current status (November 2022): The ICMECAT is published at https://helioforecast.space/icmecat, but this package is still **work in progress**. The conda environment needs to be updated and the code adjusted accordingly, and it needs to be made more user friendly. **The instructions below also needs to be updated.**
 
 This is a continuation of work done in the EU HELCATS project (2014-2017): 
 [https://www.helcats-fp7.eu](https://www.helcats-fp7.eu). This package is used for updates of the the Interplanetary Coronal Mass ejection CATalog (ICMECAT).
 
 If you want to use parts of this code for generating results for **peer-reviewed scientific publications, 
-please contact me per email** (christian.moestl@oeaw.ac.at) or via https://twitter.com/chrisoutofspace for co-authorships.
+please contact me per email** (chris.moestl@outlook.com) or via https://twitter.com/chrisoutofspace or https://mastodon.social/@chrisoutofspace for co-authorships.
 
 
 
@@ -156,7 +156,7 @@ Install python 3.7.6 with miniconda:
 on Linux:
 
 	  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-	  bash Miniconda3-latest-Linux-x86.sh
+	  bash Miniconda3-latest-Linux-x86_64.sh
 
 on MacOS:
 
@@ -178,3 +178,20 @@ Create a conda environment using the environment.yml and requirements.txt file i
 	  
 
 
+
+MIT LICENSE
+Copyright 2020-2022, Christian Moestl 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this 
+software and associated documentation files (the "Software"), to deal in the Software
+without restriction, including without limitation the rights to use, copy, modify, 
+merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so, subject to the following 
+conditions:
+The above copyright notice and this permission notice shall be included in all copies 
+or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
