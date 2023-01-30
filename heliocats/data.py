@@ -1338,7 +1338,7 @@ def save_psp_data_mag_only(path, file, sceq):
     print('save PSP data mag only')
 
     t_start = datetime.datetime(2022, 1, 1)
-    t_end = datetime.datetime(2022, 3, 31)
+    t_end = datetime.datetime(2022, 7, 31)
     psp=get_psp_data_mag_only(t_start,t_end)
     
     
@@ -1519,7 +1519,7 @@ def save_psp_data(path, file, sceq):
     #t_end = datetime.datetime(2019, 4, 30)    
     #t_end = datetime.datetime(2019, 10, 15)
     
-    t_end = datetime.datetime(2022, 3, 31)    
+    t_end = datetime.datetime(2022, 7, 31)    
     psp2=get_psp_data(t_start,t_end)
 
     #add both

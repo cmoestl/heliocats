@@ -36,13 +36,13 @@
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
+# In[1]:
+
+
+last_update='2023-February-TBD'
+
+
 # In[2]:
-
-
-last_update='2022-December-1'
-
-
-# In[3]:
 
 
 import numpy as np
@@ -148,8 +148,8 @@ print(heliosat.__version__)
 ################### FIELDS
 #generate datestrings for filenames
 time1=[]
-tstart1=datetime.datetime(2021, 12, 1)
-tend1=datetime.datetime(2022, 11, 1)
+tstart1=datetime.datetime(2022, 3, 31)
+tend1=datetime.datetime(2023, 1, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -165,13 +165,13 @@ for i in np.arange(0,len(time1)):
     time1year=time1[i].strftime('%Y')  
     os.system('wget -nc https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/'+time1year+'/psp_fld_l2_mag_rtn_1min_'+time1str+'_v02.cdf')
     
-os.chdir('/home/cmoestl/pycode/heliocats')
+os.chdir('/home/heliofc/pycode/heliocats')
 
 ############# SWEAP
 
 time1=[]
-tstart1=datetime.datetime(2021, 12, 1)
-tend1=datetime.datetime(2022, 11, 1)
+tstart1=datetime.datetime(2022, 7, 31)
+tend1=datetime.datetime(2023, 1, 1)
 while tstart1 < tend1:
     time1.append(tstart1)  
     tstart1 += timedelta(days=1) 
@@ -184,7 +184,7 @@ for i in np.arange(0,len(time1)):
     os.system('wget -nc https://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/'+time1year+'/psp_swp_spc_l3i_'+time1str+'_v02.cdf')
       
 
-os.chdir('/home/cmoestl/pycode/heliocats')
+os.chdir('/home/heliofc/pycode/heliocats')
 
 
 # #### process to pickle file
@@ -197,11 +197,11 @@ importlib.reload(hd) #reload again while debugging
 
 #print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
 #+**change end date in function
-filepsp='psp_2022_rtn_new_nov2022.p'
+filepsp='psp_2022_rtn_new_jan2023.p'
 hd.save_psp_data_mag_only(data_path,filepsp, sceq=False)   
 print('rtn done')
 
-filepsp='psp_2022_sceq_new_nov2022.p'
+filepsp='psp_2022_sceq_new_jan2023.p'
 hd.save_psp_data_mag_only(data_path,filepsp, sceq=True)   
 print('sceq done')
 
@@ -215,22 +215,31 @@ print('sceq done')
 import warnings
 warnings.filterwarnings('ignore')
 
-filepsp='psp_2022_rtn_new_nov2022.p'
+filepsp='psp_2022_rtn_new_jan2023.p'
 [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
 
 
 # #### plot PSP data
 
-# In[8]:
+# In[5]:
 
+
+#print('load PSP data RTN') 
+#
+import warnings
+warnings.filterwarnings('ignore')
+
+filepsp='psp_2022_rtn_new_jan2023.p'
+[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
+    
 
 #orbit 10
 #start=datetime.datetime(2021,11,15)
 #end=datetime.datetime(2021,11,25)
 
 start=datetime.datetime(2022,1,1)
-end=datetime.datetime(2022,3,31)
+end=datetime.datetime(2022,7,31)
 
 
 
@@ -509,7 +518,7 @@ get_ipython().run_cell_magic('time', '', '\nfrom heliocats import data as hd\nim
 
 # ## (1) load data 
 
-# In[4]:
+# In[3]:
 
 
 #made with HelioSat and heliocats.data
@@ -982,7 +991,7 @@ if data_to_numpy_3 > 0:
 
 # ## (3) make ICMECAT 
 
-# In[9]:
+# In[35]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -1051,24 +1060,24 @@ importlib.reload(hp) #reload again while debugging
 #missions to be updated
 
 #mag only
-hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
-hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
+#hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
+#hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
 
 #mag and plasma
-hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
-hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
+#hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
+#hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+#hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 
-hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
+#hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 #finished missions
 #mag only
-hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
-hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
+#hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
+#hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
 
 #mag and plasma
-hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
-hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
+#hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
+#hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
 print('done')
 
 ############### sort ICMECAT by date
@@ -1085,7 +1094,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[10]:
+# In[45]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -1098,10 +1107,10 @@ The catalog is available as a python pandas dataframe (pickle), python numpy str
 https://helioforecast.space/icmecat \n\n\
 Number of events in ICMECAT: '+str(len(ic))+' \n\
 ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   \n\
-Time range: January 1995 - May 2022. \n \n\
+Time range: January 1995 - October 2022. \n \n\
 Authors: Christian Moestl, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, \n\
-Space Research Institute, Austrian Academy of Sciences, Graz, Austria.\n\
-Contributors: Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, \n\
+Austrian Space Weather Office, ZAMG, Graz, Austria; NASA CCMC, USA.\n\
+Contributors: Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, \n\
 Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, \n\
 Johan von Forstner, Mateja Dumbovic, Benoit Lavraud.  \n\n\
 This catalog has been made by getting the 3 times of each ICME (shock or disturbance begin, magnetic obstacle start and end) \n\
@@ -1123,7 +1132,7 @@ Ulysses:      Added by us, tag: MOESTL. \n\
 SolarOrbiter: Added by us, tag: MOESTL. \n\
 BepiColomo:   Added by us, tag: MOESTL. \n\
 PSP:          Added by us, tag: MOESTL. \n\n\
-We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL in icmecat_id).\n\n\
+We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL or MOESTL_SALMAN in icmecat_id).\n\n\
 References: \n\
 Nieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z \n\
                                       https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php \n\
@@ -1236,7 +1245,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[22]:
+# In[37]:
 
 
 ########## python formats
@@ -1412,7 +1421,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[23]:
+# In[38]:
 
 
 #load icmecat as pandas dataframe
@@ -1424,27 +1433,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[24]:
+# In[39]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[25]:
+# In[40]:
 
 
 ic_pandas
 
 
-# In[26]:
+# In[41]:
 
 
 #
 ic_nprec
 
 
-# In[27]:
+# In[42]:
 
 
 ic_nprec.icmecat_id
@@ -1452,7 +1461,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[28]:
+# In[43]:
 
 
 ic=ic_pandas
@@ -1562,7 +1571,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[29]:
+# In[44]:
 
 
 #markersize
@@ -1670,7 +1679,7 @@ plt.savefig('icmecat/icmecat_overview3.png', dpi=150,bbox_inches='tight')
 
 
 
-# In[ ]:
+# In[31]:
 
 
 #read JUNO catalog from Emma Davies
@@ -1689,5 +1698,11 @@ jc
 #        ic.at[i,'mo_start_time']=parse_time(str(ic.mo_start_time[i]).strip()).datetime
 #        ic.at[i,'mo_end_time']=parse_time(str(ic.mo_end_time[i]).strip()).datetime
        
+
+
+
+# In[ ]:
+
+
 
 
