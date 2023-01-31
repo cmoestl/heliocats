@@ -8,6 +8,7 @@ scipy==1.10.0
 scikit-learn==1.2.1
 scikit-image==0.19.3
 astropy==5.2.1
+astrospice==0.2.1
 sunpy==4.1.2
 spiceypy==5.1.2
 heliopy==0.10.0
