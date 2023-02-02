@@ -23,7 +23,7 @@ from astropy.constants import au
 import importlib
 import cdflib
 import matplotlib.pyplot as plt
-import heliosat
+#import heliosat #not compatible with astrospice, problems with spiceypy in astrospice.generate
 
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
