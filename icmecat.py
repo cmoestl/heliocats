@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat.
 # 
-# **latest release: version 2.1, 2021 November 29, updated 2022 December 1**
+# **latest release: version 2.1, 2021 November 29, updated 2023 April TBD**
 # 
 # 
 # **Author**: C. Möstl, Austrian Space Weather Office, Geosphere Austria
@@ -39,7 +39,7 @@
 # In[1]:
 
 
-last_update='2023-February-TBD'
+last_update='2023-April-TBD'
 
 
 # In[2]:
@@ -132,168 +132,16 @@ print(heliosat.__version__)
 
 # ## (0) process new in situ data into similar format
 # 
-# ### for Bepi Colombo, got to read_bepi.ipynb
+# #### for Bepi Colombo, got to read_bepi.ipynb
 # 
-# ### for Solar Orbiter, got to read_solo.ipynb
+# #### for Solar Orbiter, got to read_solo.ipynb
+# 
+# #### for Parker Solar Probe, got to read_psp.ipynb
 # 
 # 
+# 
 
-# ### Parker Solar Probe
-
-# #### file downloads
-
-# In[ ]:
-
-
-################### FIELDS
-#generate datestrings for filenames
-time1=[]
-tstart1=datetime.datetime(2022, 3, 31)
-tend1=datetime.datetime(2023, 1, 1)
-while tstart1 < tend1:
-    time1.append(tstart1)  
-    tstart1 += timedelta(days=1) 
-
-
-#version 1 until 2020 July 31
-#version 2 from 2020 Oct 21
-    
-os.chdir('/nas/helio/data/heliosat/data/psp_fields_l2')
-#download each file
-for i in np.arange(0,len(time1)):    
-    time1str=time1[i].strftime('%Y%m%d')
-    time1year=time1[i].strftime('%Y')  
-    os.system('wget -nc https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/'+time1year+'/psp_fld_l2_mag_rtn_1min_'+time1str+'_v02.cdf')
-    
-os.chdir('/home/heliofc/pycode/heliocats')
-
-############# SWEAP
-
-time1=[]
-tstart1=datetime.datetime(2022, 7, 31)
-tend1=datetime.datetime(2023, 1, 1)
-while tstart1 < tend1:
-    time1.append(tstart1)  
-    tstart1 += timedelta(days=1) 
-
-os.chdir('/nas/helio/data/heliosat/data/psp_spc_l3')
-
-for i in np.arange(0,len(time1)):    
-    time1str=time1[i].strftime('%Y%m%d')
-    time1year=time1[i].strftime('%Y')    
-    os.system('wget -nc https://spdf.gsfc.nasa.gov/pub/data/psp/sweap/spc/l3/l3i/'+time1year+'/psp_swp_spc_l3i_'+time1str+'_v02.cdf')
-      
-
-os.chdir('/home/heliofc/pycode/heliocats')
-
-
-# #### process to pickle file
-
-# In[ ]:
-
-
-from heliocats import data as hd
-importlib.reload(hd) #reload again while debugging
-
-#print('save PSP data') #from heliosat, converted to SCEQ similar to STEREO-A/B
-#+**change end date in function
-filepsp='psp_2022_rtn_new_jan2023.p'
-hd.save_psp_data_mag_only(data_path,filepsp, sceq=False)   
-print('rtn done')
-
-filepsp='psp_2022_sceq_new_jan2023.p'
-hd.save_psp_data_mag_only(data_path,filepsp, sceq=True)   
-print('sceq done')
-
-#filepsp='psp_2022_sceq_new_nov2022.p'
-#hd.save_psp_data(data_path,filepsp, sceq=True)   
-#print('sceq done')
-
-
-#print('load PSP data RTN') 
-#
-import warnings
-warnings.filterwarnings('ignore')
-
-filepsp='psp_2022_rtn_new_jan2023.p'
-[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
-    
-
-
-# #### plot PSP data
-
-# In[5]:
-
-
-#print('load PSP data RTN') 
-#
-import warnings
-warnings.filterwarnings('ignore')
-
-filepsp='psp_2022_rtn_new_jan2023.p'
-[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
-    
-
-#orbit 10
-#start=datetime.datetime(2021,11,15)
-#end=datetime.datetime(2021,11,25)
-
-start=datetime.datetime(2022,1,1)
-end=datetime.datetime(2022,7,31)
-
-
-
-################ plot new psp data for checking
-sns.set_context("talk")     
-sns.set_style('darkgrid')
-
-fig=plt.figure(3,figsize=(20,10),dpi=100)
-
-ax1=plt.subplot(311)
-
-#  #ax1.plot(psp.time,psp.bt,'-k',lw=0.5,label='Btotal')
-# #ax1.plot(psp.time,psp.bx,'-r',lw=0.2,label='Br')
-# #ax1.plot(psp.time,psp.by,'-g',lw=0.2,label='Bt')
-# #ax1.plot(psp.time,psp.bz,'-b',lw=0.2,label='Bn')
-
-ax1.plot(psp.time,psp.bt,'-k',lw=1,label='Btotal')
-ax1.plot(psp.time,psp.bx,'-r',lw=1,label='Br')
-ax1.plot(psp.time,psp.by,'-g',lw=1,label='Bt')
-ax1.plot(psp.time,psp.bz,'-b',lw=1,label='Bn')
-ax1.set_xlim(start,end)
-ax1.set_ylabel('FIELDS magnetic field [nT]')
-ax1.legend(loc=2)
-#ax1.set_ylim(-20,20)
-
-
-
-from astropy.constants import mu0,m_p
-va=(psp.bt*1e-9)/np.sqrt(mu0.value*(psp.np*1e6)*m_p.value)*1e-3
-
-ax2=plt.subplot(312,sharex=ax1)
-ax2.plot(psp.time,psp.vt/va,'--',lw=1,label='M_A')
-ax2.set_ylim(0.5,1.5)
-
-
-ax3=plt.subplot(313,sharex=ax1)
-ax3.plot(psp.time,psp.r,'-b')
-ax3.set_ylim(0.034,0.09)
-
-ax3.set_ylabel('Heliocentric distance [AU]')
-
-ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
-ax3.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
-
-plt.title('Parker Solar Probe orbit Nr. 10, Nov / Dec 2021')
-plt.tight_layout()
-
-# plt.savefig('results/parker_orbit_venus.png',dpi=200)
-plt.savefig('results/parker_orbit9.png')
-plt.savefig('results/parker_orbit9.pdf')
-
-
-
-# ## Other spacecraft
+# #### other spacecraft
 
 # In[5]:
 
@@ -508,7 +356,7 @@ plt.savefig('results/parker_orbit9.pdf')
 # print('done')
 
 
-# ### process Wind data since 1995
+# #### process Wind data since 1995
 
 # In[ ]:
 
