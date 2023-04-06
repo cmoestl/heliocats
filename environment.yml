@@ -1,7 +1,8 @@
-name: helio3
+name: helio5
 dependencies:
-  - python==3.9
-  - jupyterlab
+  - python=3.10.0
+  - jupyterlab=3.5.3
+
 
 
 

@@ -20,7 +20,7 @@ import pickle
 import sys
 import cdflib
 import matplotlib.pyplot as plt
-import heliosat
+#import heliosat   #not compatible with astrospice, problems with spiceypy in astrospice.generate
 from numba import njit
 from astropy.time import Time
 import astropy
