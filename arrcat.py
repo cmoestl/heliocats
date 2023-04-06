@@ -16,7 +16,10 @@
 # 
 # Convert this notebook to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell
 # 
-# https://figshare.com/articles/dataset/Arrival_catalog_of_coronal_mass_ejections_observed_with_STEREO_Heliospheric_Imagers_HELCATS_ARRCAT_2_0_/12271292
+# This catalog is hosted at:
+# https://helioforecast.space/arrcat
+# https://doi.org/10.6084/m9.figshare.12271292
+# 
 # 
 
 # In[1]:
