@@ -28,10 +28,9 @@
 # **Updating data**
 # - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files, then use read_solo.ipynb
 # - Bepi Colombo manual download, then read_bepi.ipynb
-# - PSP use cell in this notebook, beware of unfinished file downloads - redo!
+# - PSP download and process with read_psp.ipynb
 # - STEREO-Ahead prel. PLASTIC ASCII files, IMPACT as usual (via heliosat), beacon data automatic every day
 # - Wind automatic everyday, add spike and gap times under hd.remove_wind_spikes_gaps, or use ascii files (cell in this notebook)
-# 
 # 
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
@@ -39,10 +38,10 @@
 # In[1]:
 
 
-last_update='2023-April-TBD'
+last_update='2023-April-7'
 
 
-# In[2]:
+# In[3]:
 
 
 import numpy as np
@@ -68,12 +67,10 @@ import pandas as pd
 import copy
 import openpyxl
 import h5py
-#get heliosat from github or pip https://pypi.org/project/HelioSat/
-import heliosat
-import heliopy.data.spice as spicedata
-import heliopy.spice as spice
-import cdflib
 
+#import heliopy.data.spice as spicedata
+#import heliopy.spice as spice
+#import cdflib
 
 import pickle5
 
@@ -127,7 +124,6 @@ import warnings
 warnings.filterwarnings('ignore')
 print('done')
 
-print(heliosat.__version__)
 
 
 # ## (0) process new in situ data into similar format
@@ -366,7 +362,7 @@ get_ipython().run_cell_magic('time', '', '\nfrom heliocats import data as hd\nim
 
 # ## (1) load data 
 
-# In[3]:
+# In[ ]:
 
 
 #made with HelioSat and heliocats.data
@@ -453,10 +449,8 @@ if load_data > 0:
     bepi1=pickle.load(open(data_path+filebepi, "rb" ) )  
     
     #data from 2021 Aug 3
-
     filebepi2='bepi_2021_2022_ib_sceq.p'
     bepi2=pickle.load(open(data_path+filebepi2, "rb" ) )   
-
     
     #make array
     bepi=np.zeros(np.size(bepi1.time)+np.size(bepi2.time),dtype=[('time',object),('bx', float),('by', float),\
@@ -486,7 +480,7 @@ if load_data > 0:
    
     ##############################################
     print('load Solar Orbiter SCEQ')
-    filesolo='solo_2020_april_2022_june_sceq.p'
+    filesolo='solo_2020_april_2022_sep_mag_sceq.p'
     solo=pickle.load(open(data_path+filesolo, "rb" ) )    
     
     #set all plasma data to NaN
@@ -495,18 +489,21 @@ if load_data > 0:
     solo.tp=np.nan
 
 
+    
     ##############################################
     print('load PSP data SCEQ') #from heliosat, converted to SCEQ similar to STEREO-A/B
     filepsp='psp_2018_2022_sceq.p'
     [psp1,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
     
-    #add file with mag only for 2022, plasma needs to be added in heliosat
-    #psp_2022_sceq_new_nov2022.p
+    #add file with mag only for 2022, plasma needs to be added read_psp.ipynb
     
-    filepsp2='psp_2022_sceq_new_nov2022.p'
+    
+    filepsp2='psp_2022_add_mag_sceq.p'
     [psp2,hpsp2]=pickle.load(open(data_path+filepsp2, "rb" ) )   
+    #cut off psp2 array so that it continues where psp1 stops
+    psp2=psp2[np.where(psp2.time > parse_time('2021-Dec-30 23:59').datetime)[0]]
 
-  
+    #make merged array
     psp=np.zeros(np.size(psp1.time)+np.size(psp2.time),dtype=[('time',object),('bx', float),('by', float),\
                 ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
                 ('x', float),('y', float),('z', float),\
@@ -530,8 +527,6 @@ if load_data > 0:
     psp.lat=np.hstack((psp1.lat,psp2.lat))
     print('psp Merging done')
 
-    
-    
     
     
     
@@ -619,8 +614,6 @@ if load_data > 0:
     print('Wind merging done')
             
 
-    
-#wind data from 1995    
     
 
     
@@ -909,11 +902,11 @@ importlib.reload(hp) #reload again while debugging
 
 #mag only
 #hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
-#hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
+hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
 
 #mag and plasma
 #hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-#hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 #hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 
 #hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)

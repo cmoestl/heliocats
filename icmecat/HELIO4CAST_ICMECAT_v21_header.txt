@@ -2,7 +2,7 @@ ICME CATALOGUE v2.1
 
 This is the HELIO4CAST interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 
-This is version 2.1, released 2021-November-29, updated 2022-November-29, doi: 10.6084/m9.figshare.6356420 
+This is version 2.1, released 2021-November-29, updated 2023-April-7, doi: 10.6084/m9.figshare.6356420 
 
 Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact chris.moestl@outlook.com for possible co-authorship. 
 References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017SW001614) and Moestl et al. 2020 (https://doi.org/10.3847/1538-4357/abb9a1).  
