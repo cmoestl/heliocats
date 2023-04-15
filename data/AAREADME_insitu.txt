@@ -1,24 +1,47 @@
 Numpy record arrays of solar wind in situ data in python pickle
 
-authors: C. Möstl, Graz, Austria (@chrisoutofspace christian.moestl@oeaw.ac.at), A. J. Weiss, R. L. Bailey,  A. Isavnin, R. M. Winslow, C. L. Simon Wedlund, D. Stansby
+authors: C. Möstl, Austrian Space Weather Office, Graz, Austria (twitter @chrisoutofspace, chris.moestl@outlook.com), A. J. Weiss, M. A. Reiss, R. L. Bailey,  A. Isavnin, R. M. Winslow, C. L. Simon Wedlund, D. Stansby, A. Isavnin
 made with https://github.com/cmoestl/heliocats
 
 files available:
 
-active spacecraft (status April 2020):
+active spacecraft (status April 2023):
 
-psp_2018_2019_rtn.p
-psp_2018_2019_sceq.p
+Solar Orbiter
 
-stereoa_2007_2019_sceq_beacon.p
-stereoa_2007_2019_sceq.p
-stereoa_2007_2019_rtn.p
-
-wind_2007_2019_heeq_helcats.p
-wind_2018_2019_heeq.p
-wind_2018_2019_gse.p
+only magnetic field:
+solo_2020_april_2022_sep_mag_sceq.p
+solo_2020_april_2022_sep_mag_rtn.p
 
 
+Parker Solar Probe until 2021 Dec 30:
+
+psp_2018_2022_rtn.p
+psp_2018_2022_sceq.p
+
+only magnetic field from 2021 Dec 31 onwards:
+(this file has no header)
+psp_2022_add_mag_rtn.p
+psp_2022_add_mag_sceq.p
+
+
+
+STEREO-A science data
+stereoa_2007_2020_sceq.p
+stereoa_2007_2020_rtn.p
+Beacon data
+stereoa_2020_now_rtn_beacon.p
+stereoa_2020_now_sceq_beacon.p
+
+Wind:
+wind_1995_2021_heeq.p
+wind_1995_2021_gse.p
+
+more recent data are included in:
+wind_2018_now_heeq.p
+wind_2018_now_gse.p
+
+MAVEN
 maven_2014_2018_removed_smoothed.p
 maven_2014_2018_removed.p
 maven_2014_2018.p
