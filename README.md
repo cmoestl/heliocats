@@ -1,6 +1,5 @@
 # heliocats
 
-
 This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections (ICMEs) and their analysis. [This is a link to a google colab notebook](https://colab.research.google.com/drive/1_zJMGJnX3XJx7FCHD04SC3Y0KCMdDGMz) for instructions how to read the catalogs produced with this package. The ICMECAT as the main result to be produced with this package is published at https://helioforecast.space/icmecat. It forms the largest living catalog of ICMEs.
 
 

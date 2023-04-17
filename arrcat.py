@@ -5,27 +5,33 @@
 # 
 # makes the HELCATS HI ARRIVAL catalog
 # 
-# Authors: C. Möstl, IWF Graz, Austria, D. Barnes, J. A. Davies, R. A. Harrison, RAL Space, UK.
-# twitter @chrisoutofspace, https://mastodon.social/@chrisoutofspace
+# Authors: C. Möstl, Austrian Space Weather Office, GeoSphere Austria; D. Barnes, J. A. Davies, R. A. Harrison, RAL Space, UK.
+# 
+# https://twitter.com/chrisoutofspace <br />
+# https://mastodon.social/@chrisoutofspace
 # 
 # This code is part of https://github.com/cmoestl/heliocats
 # 
-# **current version ARRCAT 2.0, released 2020 May 13, updated 2022 November 11**
+# **current version ARRCAT 2.0, released 2020 May 13, updated 2023 April 12**
 # 
 # Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
 # Convert this notebook to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell
 # 
 # This catalog is hosted at:
+# 
 # https://helioforecast.space/arrcat
 # https://doi.org/10.6084/m9.figshare.12271292
+# 
+# 
+# TO DO: further change to astrospice in cats.py
 # 
 # 
 
 # In[1]:
 
 
-last_update='2022-November-11'
+last_update='2023-April-12'
 
 
 # In[2]:
@@ -129,19 +135,19 @@ ac_old = pd.DataFrame([], columns = column_list)
 
 #Make arrival catalog from HIGEOCAT for each spacecraft
 
+#active missions
 [ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'PSP',column_list)
 [ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Solo',column_list)
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Bepi',column_list)
-   
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Bepi',column_list)   
 [ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'STA',column_list)
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'STB',column_list)
 [ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Earth',column_list)
 
+#finished missions
+[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'STB',column_list)
 [ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Ulysses',column_list)
 [ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Mercury',column_list)
 [ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Venus',column_list)
 [ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Mars',column_list)
-
 
 
 ac = ac.sort_values(by='target_arrival_time',ascending=False)
@@ -149,9 +155,6 @@ ac = ac.reset_index(drop=True)
 
 ac_old = ac_old.sort_values(by='target_arrival_time',ascending=False)
 ac_old = ac_old.reset_index(drop=True)
-
-
-
 
 ac
 
@@ -179,9 +182,9 @@ https://helioforecast.space/arrcat\n\n\
 Number of events in ARRCAT: '+str(len(ac))+'\n\
 Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.\n\n\
 Authors: Christian Moestl (1), D. Barnes (2), R. A. Harrison (2), J. A. Davies (2), Andreas J. Weiss (1,3), David Stansby (4);\n\
-(1) Austrian Space Weather Office, ZAMG, Graz, Austria, (2) RAL Space, UK, (3) NASA Goddard Space Flight Center, USA (4) University College London, UK.\n\n\
+(1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria, (2) RAL Space, UK, (3) NASA Goddard Space Flight Center, USA (4) University College London, UK.\n\n\
 Rules: If results are produced with this catalog for peer-reviewed scientific publications,\n\
-please contact christian.moestl@oeaw.ac.at for co-authorships.\n\n\
+please contact chris.moestl@outlook.com for co-authorships.\n\n\
 Parameters \n\n\
     0: id: From HIGeoCAT, the unique identifier for the observed CME.\n\
     1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)\n\
@@ -615,7 +618,7 @@ hibi=np.where(ac.sc=='B')[0]
 # In[15]:
 
 
-last_year=2023
+last_year=2024
 #define dates of January 1 from 2007 to 2020
 years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,last_year+1) ] 
 yearly_bin_edges=parse_time(years_jan_1_str).plot_date
