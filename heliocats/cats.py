@@ -20,10 +20,16 @@ import pickle
 import sys
 import astropy
 from astropy.constants import au
+import astropy.units as u
+import astroquery
+
+import sunpy
+
+import astrospice
+
 import importlib
 import cdflib
 import matplotlib.pyplot as plt
-#import heliosat #not compatible with astrospice, problems with spiceypy in astrospice.generate
 
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
@@ -32,6 +38,7 @@ from astropy.io.votable import parse_single_table
 
 from config import data_path
 
+from sunpy.coordinates import frames, get_horizons_coord
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
@@ -95,8 +102,9 @@ def load_higeocat_vot(file):
 
 
 
-def get_insitu_position_time(time1,insitu_location_string,insitu_str,insitu_kernel):
+def get_insitu_position_time_old(time1,insitu_location_string,insitu_str,insitu_kernel):
     
+    #old version only with heliopy
     
     insitu_exist=True
     
@@ -154,6 +162,89 @@ def get_insitu_position_time(time1,insitu_location_string,insitu_str,insitu_kern
 
 
 
+def get_insitu_position_time(time1,insitu_location_string,insitu_str,insitu_kernel):
+    
+    
+    #new version with partly switch to sunpy and/or astrospice
+    
+    insitu_exist=True
+    
+    if insitu_location_string=='PSP': 
+        #exclude if time before launch time
+        if parse_time(time1).plot_date < parse_time(datetime.datetime(2018, 8, 13)).plot_date:
+            insitu_exist=False 
+
+    if insitu_location_string=='Solo': 
+        if parse_time(time1).plot_date < parse_time(datetime.datetime(2020, 4, 15)).plot_date:            
+            insitu_exist=False 
+        
+    if insitu_location_string=='Bepi': 
+        if parse_time(time1).plot_date < parse_time(datetime.datetime(2018, 10, 24)).plot_date:
+            insitu_exist=False
+                    
+    if insitu_location_string=='STB': 
+        if parse_time(time1).plot_date > parse_time(datetime.datetime(2014, 9, 27)).plot_date:
+            insitu_exist=False  
+            
+                               
+    if insitu_location_string=='Ulysses': 
+        #cut off ulysses when no decent in situ data is available anymore
+        if parse_time(time1).plot_date > parse_time(datetime.datetime(2008, 5, 1)).plot_date:
+            insitu_exist=False              
+
+            
+    if insitu_exist == True:
+        
+
+        #this needs to be an array, so make two similar times and take the first entry later
+        insitu_time=[parse_time(time1).datetime,parse_time(time1).datetime]
+        insitu=spice.Trajectory(insitu_str)  
+        frame='HEEQ'
+        insitu.generate_positions(insitu_time,'Sun',frame)  
+        insitu.change_units(astropy.units.AU)  
+        [insitu_r, insitu_lat, insitu_lon]=hd.cart2sphere(insitu.x,insitu.y,insitu.z)
+        
+        #Earth position to Earth L1
+        if insitu_str=='3': insitu_r[0]=insitu_r[0]-1.5*1e6/AU
+
+        insitu_time=np.array(insitu_time)[0]
+        insitu_r=np.array(insitu_r)[0]
+        insitu_lat=np.array(insitu_lat)[0]
+        insitu_lon=np.array(insitu_lon)[0]
+        
+        
+        #quick override for SolO position with sunpy or astrospice
+        if insitu_str=='Solar Orbiter': 
+            
+            
+            ##sunpy version, slow
+            #coord = get_horizons_coord('Solar Orbiter', time=insitu_time)  
+            #solo_heeq = coord.transform_to(frames.HeliographicStonyhurst) #HEEQ            
+            
+            #astrospice version            
+            #solo_astrospice_kernels = astrospice.registry.get_kernels('solar orbiter', 'predict')[0]
+            solo_coords = astrospice.generate_coords('Solar Orbiter', insitu_time)
+            #print(insitu_time)
+            solo_heeq = solo_coords.transform_to(sunpy.coordinates.HeliographicStonyhurst())
+                        
+            
+            insitu_r=solo_heeq.radius.to(u.au).value[0]
+            insitu_lat=solo_heeq.lat.to(u.rad).value[0]
+            insitu_lon=solo_heeq.lon.to(u.rad).value[0]
+            
+            #print([insitu_r,insitu_lat, insitu_lon])
+        
+        
+    else:
+        insitu_time=np.nan
+        insitu_r=np.nan
+        insitu_lat=np.nan
+        insitu_lon=np.nan    
+
+    return [insitu_time,insitu_r,np.degrees(insitu_lat),np.degrees(insitu_lon)]
+
+
+
 
 def calculate_arrival(vsse,delta,lamda,rdist,t0_num):
    
@@ -192,6 +283,8 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
     higeocat_pacenter=abs((higeocat_pan+higeocat_pas)/2)
   
     
+    
+    #astrospice_kernel=''
     
     #load spice here once for each spacecraft
         
@@ -236,6 +329,7 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
         insitu_str='Solar Orbiter'
         insitu_kernel=spicedata.get_kernel('solo_2020')   
         target_name='SolarOrbiter'        
+        astrospice_kernel = astrospice.registry.get_kernels('solar orbiter', 'predict')[0]
         
     if insitu_location_string=='Bepi': 
         insitu_str='BEPICOLOMBO MPO'
@@ -267,6 +361,7 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
     for i in np.arange(len(higeocat_time)):
 
         #get insitu position for launch time t0    
+        
         [insitu_time,insitu_r,insitu_lat,insitu_lon]=get_insitu_position_time(higeocat_t0[i], insitu_location_string,insitu_str, insitu_kernel)            
         delta=abs(higeocat_sse_lon[i]-insitu_lon)
         #print([insitu_time,insitu_r,insitu_lat,insitu_lon])
@@ -340,8 +435,6 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
                         #print(list1)
                         arrcat_insitu_list.append(list1)
 
-
-
                     
 
     #arrcat_insitu=np.array(arrcat_insitu_list)    
@@ -364,6 +457,17 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
         
     
     return [arrcat,ac_old]
+
+
+
+
+
+
+
+
+
+
+
 
 
 
