@@ -373,7 +373,7 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
             [ta,visse]=calculate_arrival(higeocat_vsse[i],delta, lamda, insitu_r,higeocat_t0_num[i])                
             
             #make old version of ARRCAT without iteration and errors
-            list_old=[higeocat_id[i].decode(),higeocat_sc[i].decode(),target_name,\
+            list_old=[higeocat_id[i],higeocat_sc[i],target_name,\
                    parse_time(higeocat_t0[i]).iso[:-7],parse_time(ta).iso[:-7],0,\
                    np.round(insitu_r,3), np.round(insitu_lon,2), np.round(insitu_lat,2),np.round(insitu_lon-higeocat_sse_lon[i],1),\
                    higeocat_sse_lon[i],higeocat_sse_lat[i],higeocat_vsse[i],\
@@ -427,7 +427,7 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
                         #print()
 
                         
-                        list1=[higeocat_id[i].decode(),higeocat_sc[i].decode(),target_name,\
+                        list1=[higeocat_id[i],higeocat_sc[i],target_name,\
                                 parse_time(higeocat_t0[i]).iso[:-7],parse_time(ta4).iso[:-7],ta4_err,\
                                 np.round(insitu_r4,3), np.round(insitu_lon4,2), np.round(insitu_lat4,2),np.round(insitu_lon4-higeocat_sse_lon[i],1),\
                                 higeocat_sse_lon[i],higeocat_sse_lat[i],higeocat_vsse[i],\

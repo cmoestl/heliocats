@@ -3,9 +3,10 @@
 
 # ## arrcat
 # 
-# makes the HELCATS HI ARRIVAL catalog
+# Makes the HELIO4CAST ARRIVAL catalog for solar storms (CMEs) observed with the STEREO heliospheric imager instruments.
 # 
-# Authors: C. Möstl, Austrian Space Weather Office, GeoSphere Austria; D. Barnes, J. A. Davies, R. A. Harrison, RAL Space, UK.
+# Authors: C. Möstl, Austrian Space Weather Office, GeoSphere Austria <br />
+# Loads the HIGeoCat catalog produced by D. Barnes, J. A. Davies, R. A. Harrison, RAL Space, UK.
 # 
 # https://twitter.com/chrisoutofspace <br />
 # https://mastodon.social/@chrisoutofspace
@@ -14,17 +15,18 @@
 # 
 # **current version ARRCAT 2.0, released 2020 May 13, updated 2023 April 12**
 # 
-# Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
+# Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
+# Currently the environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
 # 
-# Convert this notebook to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell
+# This notebook is converted to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell
 # 
 # This catalog is hosted at:
 # 
-# https://helioforecast.space/arrcat
+# https://helioforecast.space/arrcat <br/>
 # https://doi.org/10.6084/m9.figshare.12271292
 # 
 # 
-# TO DO: further change to astrospice in cats.py
+# TO DO: further change to astrospice in cats.py, the catalog still uses heliopy for all positions except Solar Orbiter; if a spice file .bsp does not download, download it manually and place it in the heliopy directory
 # 
 # 
 
@@ -95,8 +97,14 @@ if os.path.isdir(catdir) == False: os.mkdir(catdir)
 icplotsdir='arrcat/plots_arrcat/' 
 if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir) 
 
+import warnings
+warnings.filterwarnings('ignore')
+
 #Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
 os.system('jupyter nbconvert --to script arrcat.ipynb')    
+
+
+
 
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
@@ -244,7 +252,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[5]:
+# In[7]:
 
 
 ########## python formats
@@ -421,7 +429,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[6]:
+# In[8]:
 
 
 #load arrcat as pandas dataframe
@@ -441,33 +449,33 @@ ac5 = f['arrcat']
 ac5['sse_launch_time']
 
 
-# In[7]:
+# In[9]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[8]:
+# In[10]:
 
 
 ac
 
 
-# In[9]:
+# In[11]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[10]:
+# In[12]:
 
 
 ac_struct
 
 
-# In[11]:
+# In[13]:
 
 
 ac_struct['id']
@@ -480,14 +488,13 @@ print(deltata)
 
 # ### plot directions and targets
 
-# In[12]:
+# In[14]:
 
 
 plt.rcParams["figure.figsize"] = (19,11)
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
-
 
 
 fig=plt.figure(1, figsize=(18,10), dpi=100) 
@@ -553,7 +560,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[13]:
+# In[15]:
 
 
 fig=plt.figure(2, figsize=(18,8), dpi=100)
@@ -588,7 +595,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[14]:
+# In[16]:
 
 
 '''
@@ -615,7 +622,7 @@ hibi=np.where(ac.sc=='B')[0]
 '''
 
 
-# In[15]:
+# In[21]:
 
 
 last_year=2024
@@ -624,26 +631,18 @@ years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,last_year+1) ]
 yearly_bin_edges=parse_time(years_jan_1_str).plot_date
 
 #
-hiai=np.where(higeocat['SC']==b'A')[0]
-hibi=np.where(higeocat['SC']==b'B')[0]
-
+hiai=np.where(higeocat['SC']=='A')[0]
+hibi=np.where(higeocat['SC']=='B')[0]
 
 hia_t0=higeocat['SSE Launch'][hiai]
-
 hib_t0=higeocat['SSE Launch'][hibi]
-
 
 (hist_hia, binedges) = np.histogram(parse_time(hia_t0).plot_date, yearly_bin_edges)
 (hist_hib, binedges) = np.histogram(parse_time(hib_t0).plot_date, yearly_bin_edges)
 
-#convert back to datetime and make shape consistent
-binedges1=binedges[:-1]+mdates.date2num(np.datetime64('0000-12-31'))
 
-#change matplotlib time before plotting
-yearly_bin_edges2=yearly_bin_edges + mdates.date2num(np.datetime64('0000-12-31'))
+#-------------
 
-
-#---------------------------------------------------------------
 sns.set_context("talk")     
 #sns.set_style('darkgrid')
 #sns.set_style('whitegrid',{'grid.linestyle': '--'})
@@ -652,7 +651,6 @@ sns.set_style("ticks",{'grid.linestyle': '--'})
 fsize=15
 
 fig=plt.figure(1,figsize=(14,8),dpi=80)
-
 
 
 ax1 = plt.subplot(111) 
@@ -664,21 +662,26 @@ ax1.xaxis.set_major_formatter(myformat)
 
 binweite=365/3
 alp=1.0
-ax1.bar(binedges1+binweite,hist_hia, width=binweite,color='tomato', alpha=alp,label='HI on STEREO-A')
-ax1.bar(binedges1+binweite*2,hist_hib, width=binweite,color='mediumslateblue', alpha=alp,label='HI on STEREO-B')
+ax1.bar(binedges[0:17]+binweite,hist_hia, width=binweite,color='tomato', alpha=alp,label='HI on STEREO-A')
+ax1.bar(binedges[0:17]+binweite*2,hist_hib, width=binweite,color='mediumslateblue', alpha=alp,label='HI on STEREO-B')
 
-ax1.set_xlim(yearly_bin_edges2[0],yearly_bin_edges2[-1])
+ax1.set_xlim(yearly_bin_edges[0],yearly_bin_edges[-1])
 ax1.legend(loc=2,fontsize=14)
 ax1.grid(alpha=0.5)
-ax1.set_xticks(yearly_bin_edges2) 
+ax1.set_xticks(yearly_bin_edges) 
 ax1.set_ylabel('CMEs observed per year')
 
-ax1.text(yearly_bin_edges2[11],165,'last update: '+last_update,fontsize=15,zorder=2,horizontalalignment='center')
-
+ax1.text(yearly_bin_edges[11],165,'last update: '+last_update,fontsize=15,zorder=2,horizontalalignment='center')
 
 plotfile='arrcat/plots_arrcat/higeocat_rate.png'
-plt.savefig(plotfile,dpi=100)
+plt.savefig(plotfile,dpi=50)
 print('saved as ',plotfile)
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
