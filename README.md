@@ -3,12 +3,12 @@
 This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections (ICMEs) and their analysis. [This is a link to a google colab notebook](https://colab.research.google.com/drive/1_zJMGJnX3XJx7FCHD04SC3Y0KCMdDGMz) for instructions how to read the catalogs produced with this package. The ICMECAT as the main result to be produced with this package is published at https://helioforecast.space/icmecat. It forms the largest living catalog of ICMEs.
 
 
-**Authors**: C. Möstl, Austrian Space Weather Office, Geosphere Austria https:/helioforecast.space; A. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow, D. Stansby.
+**Authors**: C. Möstl, Austrian Space Weather Office, Geosphere Austria https:/helioforecast.space; contributions by A. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow, D. Stansby.
 
-Current status (November 2022): The ICMECAT is published at https://helioforecast.space/icmecat, but this package is still **work in progress**. The conda environment needs to be updated and the code adjusted accordingly, and it needs to be made more user friendly. **The instructions below also needs to be updated.**
+Current status (**April 2023**): **work in progress**. I am currently updating the code with a new conda environment (helio4), defined in "/envs/env_helio4.yml" and I currently go through all codes to ensure they work. The instructions below also needs to be updated.
 
 This is a continuation of work done in the EU HELCATS project (2014-2017): 
-[https://www.helcats-fp7.eu](https://www.helcats-fp7.eu). This package is used for updates of the the Interplanetary Coronal Mass ejection CATalog (ICMECAT).
+[https://www.helcats-fp7.eu](https://www.helcats-fp7.eu). 
 
 If you want to use parts of this code for generating results for **peer-reviewed scientific publications, 
 please contact me per email** (chris.moestl@outlook.com) or via https://twitter.com/chrisoutofspace or https://mastodon.social/@chrisoutofspace for co-authorships.
@@ -21,7 +21,7 @@ please contact me per email** (chris.moestl@outlook.com) or via https://twitter.
 
 For running the jupyter notebooks (files with .ipynb) or the python scripts (.py), first activate the helio environment (for installation instructions, see bottom of this readme):
 
-    conda activate helio
+    conda activate helio4
 
 A data folder location can be set in *config.py* (e.g. *data/*) that contains all data files needed during the analysis. Outputs can be found in the folder *results/* or subfolders therein, e.g. the files created for the ICMECAT are in folder *icmecat/*. Jupyter notebooks can be converted to scripts by e.g. for icmecat.ipynb to icmecat.py:
 
@@ -32,27 +32,15 @@ A data folder location can be set in *config.py* (e.g. *data/*) that contains al
 
 
 
-### ICME catalog 
+### ICME catalog (work in progress)
 
 Before running the icmecat scripts, you need to download 10 data files for 8 spacecraft the we made 
-(in total 7.5 GB) from this figshare repository: 
+(in total around 10 GB) from this figshare repository: 
 [https://doi.org/10.6084/m9.figshare.11973693](https://doi.org/10.6084/m9.figshare.11973693)
 and place these files in the a folder e.g. named "data", 
-(the name of this folder is set by the variable *data_path* in file config.py):
+(the name of this folder is set by the variable *data_path* in file config.py).
 
-    data/wind_2018_2019_heeq.p
-    data/wind_2007_2018_heeq_helcats.p
-    data/psp_2018_2019_sceq.p
-    data/stereoa_2007_2019_sceq.p
-    data/stereoa_2019_2020_sceq_beacon.p
-    data/stereob_2007_2014_sceq.p
-    data/maven_2014_2018_removed_smoothed.p
-    data/ulysses_1990_2009_rtn.p
-    data/vex_2007_2014_sceq_removed.p
-    data/messenger_2007_2015_sceq_removed.p
- 
-
-This creates the ICMECAT catalog (also a jupyter notebook *icmecat.ipynb* is available, which can be run by using jupyter notebook or jupyter lab):
+This creates the ICMECAT catalog (also a jupyter notebook *icmecat.ipynb* is available, which can be run and edited by using jupyter notebook or jupyter lab):
 
     python icmecat.py
 
@@ -118,8 +106,7 @@ These codes makes the HELCATS CME arrival catalog, see e.g. Möstl et al. (2017,
 
 
 
-
-### ICME statistics
+### ICME statistics (work in progress)
 
 use either (depending on your preference for jupyter lab, notebook or a script):
 
@@ -132,14 +119,14 @@ use either (depending on your preference for jupyter lab, notebook or a script):
 These codes make CME statistics to obtain results for planetary space weather studies.
 
 
-### Spacecraft positions and data
+### Spacecraft positions and data (work in progress)
 
     python sc_positions_insitu.py
 
 makes movies of spacecraft positions and in situ data, all configuration variables are set in the script.
 
 
-### Real-time data update
+### Real-time data update (work in progress)
 
     python data_update.py
     
@@ -150,7 +137,7 @@ makes real time downloads and plots of various data sources.
 
 ## Installation 
 
-Install python 3.7.6 with miniconda:
+Install python with miniconda:
 
 on Linux:
 
@@ -167,19 +154,17 @@ go to a directory of your choice
 	  git clone https://github.com/cmoestl/heliocats
 	  
 
-Create a conda environment using the environment.yml and requirements.txt file in the heliocats root directory, and activate the environment in between:
+Create a conda environment using the "envs/env_helio4.yml", and activate the environment:
 
-	  conda env create -f environment.yml
+	  conda env create -f env_helio4.yml
 
-	  conda activate helio
+	  conda activate helio4
 
-	  pip install -r requirements.txt
-	  
 
 
 
 MIT LICENSE
-Copyright 2020-2022, Christian Moestl 
+Copyright 2020-2023, Christian Moestl 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this 
 software and associated documentation files (the "Software"), to deal in the Software
 without restriction, including without limitation the rights to use, copy, modify, 

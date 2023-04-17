@@ -18,7 +18,7 @@
 # Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
 # Currently the environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
 # 
-# This notebook is converted to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell
+# This notebook is converted to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell.
 # 
 # This catalog is hosted at:
 # 
@@ -26,7 +26,7 @@
 # https://doi.org/10.6084/m9.figshare.12271292
 # 
 # 
-# TO DO: further change to astrospice in cats.py, the catalog still uses heliopy for all positions except Solar Orbiter; if a spice file .bsp does not download, download it manually and place it in the heliopy directory
+# **TO DO**: further change to astrospice in cats.py, the catalog still uses heliopy for all positions except Solar Orbiter; if a spice file .bsp does not download, download it manually and place it in the heliopy directory
 # 
 # 
 
@@ -36,7 +36,7 @@
 last_update='2023-April-12'
 
 
-# In[2]:
+# In[4]:
 
 
 import numpy as np
@@ -104,12 +104,9 @@ warnings.filterwarnings('ignore')
 os.system('jupyter nbconvert --to script arrcat.ipynb')    
 
 
-
-
-
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[3]:
+# In[5]:
 
 
 from heliocats import cats as hc
@@ -172,7 +169,7 @@ ac
 
 # #### save header
 
-# In[4]:
+# In[6]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -622,7 +619,7 @@ hibi=np.where(ac.sc=='B')[0]
 '''
 
 
-# In[21]:
+# In[17]:
 
 
 last_year=2024

@@ -1,8 +1,0 @@
-name: helio5
-dependencies:
-  - python=3.10.0
-  - jupyterlab=3.5.3
-
-
-
-
