@@ -5,29 +5,28 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat.
 # 
-# **latest release: version 2.1, 2021 November 29, updated 2023 April TBD**
-# 
+# **latest release: version 2.1, 2021 November 29, updated 2023 April TBD (work in progress)**
 # 
 # **Author**: C. Möstl, Austrian Space Weather Office, Geosphere Austria
 # 
-# https://twitter.com/chrisoutofspace / https://mastodon.social/@chrisoutofspace
+# https://twitter.com/chrisoutofspace <br /> https://mastodon.social/@chrisoutofspace
 # 
 # This notebook is part of the heliocats package https://github.com/cmoestl/heliocats
 # 
+# **Cite with the doi 10.6084/m9.figshare.6356420**  <br /> https://10.6084/m9.figshare.6356420 <br />
+# If this catalog is used for results that are published in peer-reviewed international journals, please contact chris.moestl@outlook.com for possible co-authorship. 
 # 
-# **doi 10.6084/m9.figshare.6356420**  https://10.6084/m9.figshare.6356420
-# 
-# Install a specific conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
+# Install the helio4 conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
 # **Adding a new ICME event:** 
-# - edit the file icmecat/HELCATS_ICMECAT_v21_master.xlsx to add 3 times, the id and spacecraft name
+# - manually edit the file icmecat/HELCATS_ICMECAT_v21_master.xlsx to add 3 times for each event, the event id and spacecraft name
 # - delete the file for the respective spacecraft under icmecat/indices_icmecat/
 # - run section 3 in this notebook or script.
 # 
 # 
 # **Updating data**
-# - Solar Orbiter http://soar.esac.esa.int/soar/ 1 min rtn files, then use read_solo.ipynb
-# - Bepi Colombo manual download, then read_bepi.ipynb
+# - Solar Orbiter: download http://soar.esac.esa.int/soar/ 1 min rtn files, then use read_solo.ipynb
+# - Bepi Colombo manual download (need to change to ESA PSA), then read_bepi.ipynb
 # - PSP download and process with read_psp.ipynb
 # - STEREO-Ahead prel. PLASTIC ASCII files, IMPACT as usual (via heliosat), beacon data automatic every day
 # - Wind automatic everyday, add spike and gap times under hd.remove_wind_spikes_gaps, or use ascii files (cell in this notebook)
@@ -38,10 +37,10 @@
 # In[1]:
 
 
-last_update='2023-April-7'
+last_update='2023-April-TBD'
 
 
-# In[3]:
+# In[4]:
 
 
 import numpy as np
@@ -122,22 +121,30 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 import warnings
 warnings.filterwarnings('ignore')
+
+
+print(data_path)
 print('done')
 
 
 
 # ## (0) process new in situ data into similar format
 # 
-# #### for Bepi Colombo, got to read_bepi.ipynb
+# ##### for Bepi Colombo, got to read_bepi.ipynb
 # 
-# #### for Solar Orbiter, got to read_solo.ipynb
+# ##### for Solar Orbiter, got to read_solo.ipynb
 # 
-# #### for Parker Solar Probe, got to read_psp.ipynb
+# ##### for Parker Solar Probe, got to read_psp.ipynb
+# 
+# ##### for Wind, got to read_wind.ipynb
+# 
+# ##### for STEREO-A, got to read_stereoa.ipynb
+# 
 # 
 # 
 # 
 
-# #### other spacecraft
+# #### finished missions
 
 # In[5]:
 
@@ -352,17 +359,9 @@ print('done')
 # print('done')
 
 
-# #### process Wind data since 1995
-
-# In[ ]:
-
-
-get_ipython().run_cell_magic('time', '', '\nfrom heliocats import data as hd\nimportlib.reload(hd) #reload again while debugging\n\n#download ascii files\n#hd.wind_download_ascii()\n\nstart=datetime.datetime(1995,1,1)\nend=datetime.datetime(2022,5,30)\n\n\n#end=datetime.datetime.utcnow() \npath=\'/nas/helio/data/insitu_python/\'\n\n\nfile=\'wind_1995_2022_heeq.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'HEEQ\')\n\nfile=\'wind_1995_2022_gse.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'GSE\')\n\n\nfile=\'wind_1995_2022_gsm.p\'\nhd.save_wind_data_ascii(path,file,start,end,coord=\'GSM\')\n\n#filewin="wind_1995_2021_gsm.p" \n#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\n\n\n#GSE GSM comparison\n\n#win=win[3000000:7056000]\n\n#filewin="wind_1995_2021_heeq.p" \n#[winh,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  \n\n#winh=winh[3000000:7056000]\n\n\n#np.nanstd(winh.bz-win.bz)\n#np.nanmean(winh.bz-win.bz)\n\n\n')
-
-
 # ## (1) load data 
 
-# In[ ]:
+# In[10]:
 
 
 #made with HelioSat and heliocats.data
@@ -499,7 +498,7 @@ if load_data > 0:
     
     
     filepsp2='psp_2022_add_mag_sceq.p'
-    [psp2,hpsp2]=pickle.load(open(data_path+filepsp2, "rb" ) )   
+    psp2=pickle.load(open(data_path+filepsp2, "rb" ) )   
     #cut off psp2 array so that it continues where psp1 stops
     psp2=psp2[np.where(psp2.time > parse_time('2021-Dec-30 23:59').datetime)[0]]
 
@@ -830,9 +829,13 @@ if data_to_numpy_3 > 0:
 
 # ## (2) measure new events with notebook measure.ipynb
 
+# - manually edit the file icmecat/HELCATS_ICMECAT_v21_master.xlsx to add 3 times for each event, the event id and spacecraft name
+# - delete the file for the respective spacecraft under icmecat/indices_icmecat/
+# - run section 3 in this notebook or script.
+
 # ## (3) make ICMECAT 
 
-# In[35]:
+# In[21]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -857,6 +860,14 @@ mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]
 pspi=np.where(ic.sc_insitu == 'PSP')[:][0]    
 soli=np.where(ic.sc_insitu == 'SolarOrbiter')[:][0]    
 beci=np.where(ic.sc_insitu == 'BepiColombo')[:][0]    
+
+
+#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_SolarOrbiter.p')
+ic
+ic=hc.get_cat_parameters(solo,soli,ic,'SolarOrbiter')
+
+
+# In[11]:
 
 
 ####### 3b get parameters for all spacecraft one after another
@@ -902,11 +913,11 @@ importlib.reload(hp) #reload again while debugging
 
 #mag only
 #hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
-hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
+#hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir)
 
 #mag and plasma
 #hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
+#hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
 #hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
 
 #hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
@@ -935,7 +946,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[45]:
+# In[9]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -1086,7 +1097,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[37]:
+# In[10]:
 
 
 ########## python formats
@@ -1262,7 +1273,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[38]:
+# In[11]:
 
 
 #load icmecat as pandas dataframe
@@ -1274,27 +1285,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[39]:
+# In[12]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[40]:
+# In[13]:
 
 
 ic_pandas
 
 
-# In[41]:
+# In[14]:
 
 
 #
 ic_nprec
 
 
-# In[42]:
+# In[15]:
 
 
 ic_nprec.icmecat_id
@@ -1302,7 +1313,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[43]:
+# In[16]:
 
 
 ic=ic_pandas
@@ -1412,7 +1423,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[44]:
+# In[17]:
 
 
 #markersize
@@ -1457,7 +1468,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[30]:
+# In[18]:
 
 
 #make distribution plots

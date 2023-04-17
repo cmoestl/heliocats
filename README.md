@@ -34,7 +34,7 @@ A data folder location can be set in *config.py* (e.g. *data/*) that contains al
 
 ### ICME catalog (work in progress)
 
-Before running the icmecat scripts, you need to download 10 data files for 8 spacecraft the we made 
+Before running the icmecat scripts, you need to download data files for 8 spacecraft the we made 
 (in total around 10 GB) from this figshare repository: 
 [https://doi.org/10.6084/m9.figshare.11973693](https://doi.org/10.6084/m9.figshare.11973693)
 and place these files in the a folder e.g. named "data", 

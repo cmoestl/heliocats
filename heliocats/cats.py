@@ -1045,17 +1045,25 @@ def get_cat_parameters(sc, sci, ic, name):
         #MO latitude
         ic.at[sci[i],'mo_sc_lat_heeq']=np.round(sc.lat[mo_start_ind[i]],2)
 
+    #######durations 
+    
+    for i in np.arange(len(sci))-1:
 
-    ############ ICME    
-    # ICME duration
-    sci_istart=mdates.date2num(ic.icme_start_time[sci])   
-    sci_iend=mdates.date2num(ic.mo_end_time[sci])   
-    ic.at[sci,'icme_duration']=np.round((sci_iend-sci_istart)*24,2)
+        sci_istart=mdates.date2num(ic.icme_start_time[sci[i]])   
+        sci_iend=mdates.date2num(ic.mo_end_time[sci[i]])   
+        ic.at[sci[i],'icme_duration']=np.round((sci_iend-sci_istart)*24,2)
+        
+        # MO duration
+        sci_istart=mdates.date2num(ic.mo_start_time[sci[i]])   
+        sci_iend=mdates.date2num(ic.mo_end_time[sci[i]])   
+        ic.at[sci[i],'mo_duration']=np.round((sci_iend-sci_istart)*24,2)      
     
 
-    for i in np.arange(0,len(sci)):
-        
+    for i in np.arange(len(sci))-1:
 
+        #print(sci[i])
+        #print(ic.mo_start_time[sci[i]] )   
+        #print(ic.mo_end_time[sci[i]] )  
         #ICME B_max
         ic.at[sci[i],'icme_bmax']=np.round(np.nanmax(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
 
@@ -1064,31 +1072,23 @@ def get_cat_parameters(sc, sci, ic, name):
 
         #icme_bstd
         ic.at[sci[i],'icme_bstd']=np.round(np.nanstd(sc.bt[icme_start_ind[i]:mo_end_ind[i]]),1)
+            
+        #ic.at[sci[i],'icme_bmax']=np.nan
+        #ic.at[sci[i],'icme_bmean']=np.nan
+        #ic.at[sci[i],'icme_bstd']=np.nan
         
     if plasma==True:        
         #ICME speed_mean and std
         for i in np.arange(len(sci))-1:
             ic.at[sci[i],'icme_speed_mean']=np.round(np.nanmean(sc.vt[icme_start_ind[i]:mo_end_ind[i]]),1)
-            ic.at[sci[i],'icme_speed_std']=np.round(np.nanstd(sc.vt[icme_start_ind[i]:mo_end_ind[i]]),1)
+            ic.at[sci[i],'icme_speed_std']=np.round(np.nanstd(sc.vt[icme_start_ind[i]:mo_end_ind[i]]),1)            
     else: #set nan    
         for i in np.arange(len(sci))-1:
             ic.at[sci[i],'icme_speed_mean']=np.nan
             ic.at[sci[i],'icme_speed_std']=np.nan
 
-        
-    ########### MO
-    # MO duration
-    sci_istart=mdates.date2num(ic.mo_start_time[sci])   
-    sci_iend=mdates.date2num(ic.mo_end_time[sci])   
-    ic.at[sci,'mo_duration']=np.round((sci_iend-sci_istart)*24,2)      
-    
-    
-    #print(sci_istart)
-    #print(sci_iend)
-    
-    #print(mo_start_ind[i])
-    #print(mo_end_ind[i])
-
+       
+  
 
     
     for i in np.arange(len(sci))-1:

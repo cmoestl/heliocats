@@ -711,8 +711,11 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     sns.set_style('darkgrid')
     sns.set_context('paper')    
     
-    time1=mdates.date2num(time_date1)
-
+    #convert to old matplotlib
+    time1=mdates.date2num(time_date1)-mdates.date2num(np.datetime64('0000-12-31'))
+    
+    
+    #old matplotlib date numbers
     #made with sc_positions_for_vr or [psp,bepi,solo,sta,earth,venus,mars,mercury]=make_positions(time1,frame)
     [psp, bepi, solo, sta, stb, messenger, ulysses, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions_HEEQ_1hr.p', "rb" ) )
     
@@ -967,7 +970,8 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     sns.set_style('darkgrid')
     sns.set_context('paper')    
     
-    time1=mdates.date2num(time_date1)
+    #convert old matplotlib so consistent with the positions file (need to change this)
+    time1=mdates.date2num(time_date1)-mdates.date2num(np.datetime64('0000-12-31'))
 
     #made with sc_positions_for_vr or [psp,bepi,solo,sta,earth,venus,mars,mercury]=make_positions(time1,frame)
     [psp, bepi, solo, sta, stb, messenger, ulysses, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions_HEEQ_1hr.p', "rb" ) )
@@ -1366,6 +1370,8 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, **kwargs):
      end=parse_time(end).datetime
      #print(start)
      #print(end)
+    
+     print('here')
      
      sns.set_style('darkgrid')
      sns.set_context('paper')
