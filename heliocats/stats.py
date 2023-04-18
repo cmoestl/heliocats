@@ -9,6 +9,7 @@ import urllib
 import os
 from config import data_path
 from sunpy.time import parse_time
+import matplotlib.dates as mdates
 
 
 '''
@@ -89,7 +90,7 @@ def hathaway(x,x0, a, b, c):
     #4 free parameters A, b, c, t0
     
     #b=b*12 #months to days    
-    x1=(parse_time(x).plot_date-parse_time(x0).plot_date)/30.42 #days
+    x1=(mdates.date2num(x)-mdates.date2num(x0))/30.42
     #print(len(x1),len(x))
     
     hatfunc=a*(((x1)/b)**3) * 1/(np.exp((((x1)/b)**2))-c)
