@@ -32,6 +32,11 @@
 # - Wind automatic everyday, add spike and gap times under hd.remove_wind_spikes_gaps, or use ascii files (cell in this notebook)
 # 
 # 
+# **TO DO**
+# - fix generating positions file positions_HEEQ_1hr in sc_positions_insitu.py with new matplotlib times and astrospice
+# - plots are not correct for Wind data before 2007
+# - STEREO-A FoVs are not completely correct in the plots
+# 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
 # In[1]:
@@ -40,7 +45,7 @@
 last_update='2023-April-TBD'
 
 
-# In[4]:
+# In[2]:
 
 
 import numpy as np
@@ -67,16 +72,11 @@ import copy
 import openpyxl
 import h5py
 
-#import heliopy.data.spice as spicedata
-#import heliopy.spice as spice
-#import cdflib
-
 import pickle5
 
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 from sunpy.coordinates import frames
-
 
 
 from heliocats import plot as hp
@@ -119,8 +119,8 @@ if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir)
 #Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
 os.system('jupyter nbconvert --to script icmecat.ipynb')    
 
-import warnings
-warnings.filterwarnings('ignore')
+#import warnings
+#warnings.filterwarnings('ignore')
 
 
 print(data_path)
@@ -361,7 +361,7 @@ print('done')
 
 # ## (1) load data 
 
-# In[10]:
+# In[107]:
 
 
 #made with HelioSat and heliocats.data
@@ -524,6 +524,21 @@ if load_data > 0:
     psp.r=np.hstack((psp1.r,psp2.r))
     psp.lon=np.hstack((psp1.lon,psp2.lon))
     psp.lat=np.hstack((psp1.lat,psp2.lat))
+    
+    
+    #set plasma to nan for 2022
+    plasma_nan_time=parse_time('2022-01-01T00:00Z').datetime 
+    plasma_nan_ind=np.where(psp.time >= plasma_nan_time)[0]
+    
+    psp.vt[np.hstack([plasma_nan_ind])]=np.nan
+    psp.np[np.hstack([plasma_nan_ind])]=np.nan
+    psp.tp[np.hstack([plasma_nan_ind])]=np.nan
+    
+    
+        
+    del psp1
+    del psp2
+    
     print('psp Merging done')
 
     
@@ -568,6 +583,10 @@ if load_data > 0:
     sta.r=np.hstack((sta1.r,sta2.r))
     sta.lon=np.hstack((sta1.lon,sta2.lon))
     sta.lat=np.hstack((sta1.lat,sta2.lat))
+    
+    del sta1
+    del sta2
+    
     print('STA Merging done')
 
    
@@ -609,6 +628,21 @@ if load_data > 0:
     win.r=np.hstack((win1.r,win2.r))
     win.lon=np.hstack((win1.lon,win2.lon))
     win.lat=np.hstack((win1.lat,win2.lat))
+    
+    #set plasma to nan thats not here already
+    plasma_nan_time=parse_time('2022-02-20T00:00Z').datetime 
+    plasma_nan_ind=np.where(win.time >= plasma_nan_time)[0]
+    
+    win.vt[np.hstack([plasma_nan_ind])]=np.nan
+    win.np[np.hstack([plasma_nan_ind])]=np.nan
+    win.tp[np.hstack([plasma_nan_ind])]=np.nan
+    
+    
+    
+    
+    del win1
+    del win2
+
 
     print('Wind merging done')
             
@@ -835,7 +869,7 @@ if data_to_numpy_3 > 0:
 
 # ## (3) make ICMECAT 
 
-# In[21]:
+# In[129]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -862,22 +896,16 @@ soli=np.where(ic.sc_insitu == 'SolarOrbiter')[:][0]
 beci=np.where(ic.sc_insitu == 'BepiColombo')[:][0]    
 
 
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_SolarOrbiter.p')
-ic
-ic=hc.get_cat_parameters(solo,soli,ic,'SolarOrbiter')
-
-
-# In[11]:
-
-
 ####### 3b get parameters for all spacecraft one after another
 
 ####### DELETE INDEX files when times are new
 #os.system('rm icmecat/indices_icmecat/ICMECAT_indices_Wind.p')
 #os.system('rm icmecat/indices_icmecat/ICMECAT_indices_STEREO-A.p')
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_BepiColombo.p')
 #os.system('rm icmecat/indices_icmecat/ICMECAT_indices_SolarOrbiter.p')
 #os.system('rm icmecat/indices_icmecat/ICMECAT_indices_PSP.p')
+
+#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_BepiColombo.p')
+
 
 #os.system('rm icmecat/indices_icmecat/ICMECAT_indices_MAVEN.p')
 
@@ -888,12 +916,13 @@ ic=hc.get_cat_parameters(solo,soli,ic,'SolarOrbiter')
 
 
 #missions to be updated
-
+ic=hc.get_cat_parameters(win,wini,ic,'Wind') 
+ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
+ic=hc.get_cat_parameters(sta,stai,ic,'STEREO-A')
 ic=hc.get_cat_parameters(bepi,beci,ic,'BepiColombo')
 ic=hc.get_cat_parameters(solo,soli,ic,'SolarOrbiter')
-ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
-ic=hc.get_cat_parameters(win,wini,ic,'Wind') 
-ic=hc.get_cat_parameters(sta,stai,ic,'STEREO-A')
+
+
 ic=hc.get_cat_parameters(mav,mavi,ic,'MAVEN')
 
 #finished missions
@@ -946,7 +975,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[9]:
+# In[133]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -959,9 +988,9 @@ The catalog is available as a python pandas dataframe (pickle), python numpy str
 https://helioforecast.space/icmecat \n\n\
 Number of events in ICMECAT: '+str(len(ic))+' \n\
 ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   \n\
-Time range: January 1995 - October 2022. \n \n\
+Time range: January 1995 - March 2023. \n \n\
 Authors: Christian Moestl, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, \n\
-Austrian Space Weather Office, ZAMG, Graz, Austria; NASA CCMC, USA.\n\
+Austrian Space Weather Office, GeoSphere Austria, Graz, Austria; NASA CCMC, USA.\n\
 Contributors: Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, \n\
 Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, \n\
 Johan von Forstner, Mateja Dumbovic, Benoit Lavraud.  \n\n\
@@ -969,7 +998,7 @@ This catalog has been made by getting the 3 times of each ICME (shock or disturb
 from the individual catalogs below, and then calculating all parameters again consistently from the data by us. \n\
 The selection criteria are relatively simple: the event needs to have a clearly organized large-scale magnetic structure,\n \
 which manifests itself through (1) an elevated total magnetic field and (2) a rotation in the field observed through the field components. \n\n\
-The in situ data that were used for the catalog, with a size of 8 GB in total, including extra data files with magnetic field components \n\
+The in situ data that were used for the catalog, with a size of around 10 GB in total, including extra data files with magnetic field components \n\
 in RTN coordinates that are not used for producing the catalog, can be downloaded in python pickle format as recarrays from \
 https://doi.org/10.6084/m9.figshare.11973693 \n\n\
 The python source code for producing this catalog is available at https://github.com/cmoestl/heliocats icmecat.ipynb\n\n\
@@ -1097,7 +1126,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[10]:
+# In[134]:
 
 
 ########## python formats
@@ -1273,7 +1302,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[11]:
+# In[135]:
 
 
 #load icmecat as pandas dataframe
@@ -1285,27 +1314,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[12]:
+# In[136]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[13]:
+# In[137]:
 
 
 ic_pandas
 
 
-# In[14]:
+# In[138]:
 
 
 #
 ic_nprec
 
 
-# In[15]:
+# In[139]:
 
 
 ic_nprec.icmecat_id
@@ -1313,7 +1342,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[16]:
+# In[140]:
 
 
 ic=ic_pandas
@@ -1406,16 +1435,20 @@ ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c='black', alpha=al,
 ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c='black', markerfacecolor='white',alpha=al,ms=ms, label='Solar Orbiter',zorder=3)
 
 
-ax3.legend(loc=1)
+ax3.legend(loc=1,fontsize=15)
 
 ax3.set_xticks(np.arange(0,2,0.1))
 ax3.tick_params(axis="x", labelsize=12)
-
-ax3.set_yticks(np.arange(0,180,10))
-ax3.tick_params(axis="y", labelsize=12)
-
 ax3.set_xlim([0,1.7])
-ax3.set_ylim([0,np.max(ic.mo_bmean)+5])
+
+ax3.set_yscale('log')
+
+#ax3.set_ylim([0,np.max(ic.mo_bmean)+50])
+#ax3.set_yticks(np.arange(0,1000,10))
+#ax3.set_ylim([0,1000])
+
+#ax3.tick_params(axis="y", labelsize=12)
+
 
 
 
@@ -1423,7 +1456,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[17]:
+# In[141]:
 
 
 #markersize
@@ -1436,7 +1469,7 @@ sns.set_context("talk")
 sns.set_style('darkgrid')
 
 ###############################################################################
-fig=plt.figure(3,figsize=(10,10),dpi=100)
+fig=plt.figure(3,figsize=(9,9),dpi=200)
 
 #########################################################################
 ax2=plt.subplot(111,projection='polar')
@@ -1461,18 +1494,17 @@ ax2.plot(np.radians(ic.mo_sc_long_heeq[ibep]),ic.mo_sc_heliodistance[ibep],'s',m
 ax2.set_ylim([0,1.8])
 ax2.tick_params(labelsize=12,zorder=3)
 
-
 plt.tight_layout()
-plt.savefig('icmecat/icmecat_overview2.png', dpi=150,bbox_inches='tight')
+plt.savefig('icmecat/icmecat_overview2.png', dpi=100,bbox_inches='tight')
 
 
 # ## Parameter distribution plots
 
-# In[18]:
+# In[142]:
 
 
 #make distribution plots
-plt.figure(10,figsize=(21,12),dpi=75)
+plt.figure(10,figsize=(21,12),dpi=200)
 
 
 
@@ -1530,6 +1562,32 @@ plt.savefig('icmecat/icmecat_overview3.png', dpi=150,bbox_inches='tight')
 
 
 
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# ## TO DO add JUNO
 
 # In[31]:
 

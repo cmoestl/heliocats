@@ -1236,9 +1236,9 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwarg
      ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
         
      #plot vertical lines
-     ax1.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[-500,500],'-k',linewidth=1)            
-     ax1.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[-500,500],'-k',linewidth=1)            
-     ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-500,500],'-k',linewidth=1)            
+     ax1.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[-2000,2000],'-k',linewidth=1)            
+     ax1.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[-2000,2000],'-k',linewidth=1)            
+     ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-2000,2000],'-k',linewidth=1)            
 
      coord_string='SCEQ'   
      if sc_label=='Wind': coord_string='HEEQ'

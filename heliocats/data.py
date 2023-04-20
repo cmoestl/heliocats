@@ -113,6 +113,12 @@ def remove_wind_spikes_gaps(data):
     data.bz[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5,gapind6,gapind7,gapind8,gapind9])]=np.nan
     
     
+    #data.bt[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5,gapind6,gapind7,gapind8,gapind9])]=np.nan
+    #data.bx[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5,gapind6,gapind7,gapind8,gapind9])]=np.nan
+    #data.by[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5,gapind6,gapind7,gapind8,gapind9])]=np.nan
+    #data.bz[np.hstack([gapind1,gapind2,gapind3,gapind4,gapind5,gapind6,gapind7,gapind8,gapind9])]=np.nan
+    
+    
     return data
 
 
