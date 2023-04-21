@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat.
 # 
-# **latest release: version 2.1, 2021 November 29, updated 2023 April TBD (work in progress)**
+# **latest release: version 2.1, 2021 November 29, updated 2023 April 21 (work in progress)**
 # 
 # **Author**: C. Möstl, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -36,16 +36,17 @@
 # - fix generating positions file positions_HEEQ_1hr in sc_positions_insitu.py with new matplotlib times and astrospice
 # - plots are not correct for Wind data before 2007
 # - STEREO-A FoVs are not completely correct in the plots
+# - plasma data needs to be added for more recent STEREO-A, Solar Orbiter and PSP events
 # 
 # Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb (automatically done in first cell)
 
-# In[1]:
+# In[7]:
 
 
-last_update='2023-April-TBD'
+last_update='2023-April-21'
 
 
-# In[2]:
+# In[8]:
 
 
 import numpy as np
@@ -361,7 +362,7 @@ print('done')
 
 # ## (1) load data 
 
-# In[107]:
+# In[14]:
 
 
 #made with HelioSat and heliocats.data
@@ -527,7 +528,7 @@ if load_data > 0:
     
     
     #set plasma to nan for 2022
-    plasma_nan_time=parse_time('2022-01-01T00:00Z').datetime 
+    plasma_nan_time=parse_time('2021-12-30T00:00Z').datetime 
     plasma_nan_ind=np.where(psp.time >= plasma_nan_time)[0]
     
     psp.vt[np.hstack([plasma_nan_ind])]=np.nan
@@ -630,7 +631,7 @@ if load_data > 0:
     win.lat=np.hstack((win1.lat,win2.lat))
     
     #set plasma to nan thats not here already
-    plasma_nan_time=parse_time('2022-02-20T00:00Z').datetime 
+    plasma_nan_time=parse_time('2023-02-20T00:00Z').datetime 
     plasma_nan_ind=np.where(win.time >= plasma_nan_time)[0]
     
     win.vt[np.hstack([plasma_nan_ind])]=np.nan
@@ -869,7 +870,7 @@ if data_to_numpy_3 > 0:
 
 # ## (3) make ICMECAT 
 
-# In[129]:
+# In[16]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -975,7 +976,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[133]:
+# In[17]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -1126,7 +1127,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[134]:
+# In[18]:
 
 
 ########## python formats
@@ -1302,7 +1303,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[135]:
+# In[19]:
 
 
 #load icmecat as pandas dataframe
@@ -1314,27 +1315,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[136]:
+# In[20]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[137]:
+# In[21]:
 
 
 ic_pandas
 
 
-# In[138]:
+# In[22]:
 
 
 #
 ic_nprec
 
 
-# In[139]:
+# In[23]:
 
 
 ic_nprec.icmecat_id
@@ -1342,7 +1343,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[140]:
+# In[24]:
 
 
 ic=ic_pandas
@@ -1456,7 +1457,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[141]:
+# In[25]:
 
 
 #markersize
@@ -1500,7 +1501,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=100,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[142]:
+# In[29]:
 
 
 #make distribution plots
@@ -1521,7 +1522,7 @@ sns.histplot(ic.mo_bzmin,label='MO $min(B_z)$',color='mediumseagreen',kde=True, 
 sns.histplot(ic.mo_bzmean,label='MO $<B_z>$',color='coral',alpha=0.5,kde=True, bins=np.arange(-50,50,2.5),stat='probability')
 plt.legend(loc=1)
 ax3.set_xlabel('magnetic field $B$ [nT]')
-plt.xlim(-50,50)
+plt.xlim(-60,60)
 
 
 ax4=plt.subplot(233)
