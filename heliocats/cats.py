@@ -708,9 +708,12 @@ def get_sircat_parameters(sc, sci, scat, name):
     if (name=='PSP'):
 
         
-        sci_istart=mdates.date2num(scat.hss_start_time[sci])       
-        sci_hss_iend=mdates.date2num(scat.hss_end_time[sci])   
-        scat.at[sci,'hss_duration']=np.round((sci_hss_iend-sci_istart)*24,2)
+        
+        for i in np.arange(len(sci))-1:
+            
+            sci_istart=mdates.date2num(scat.hss_start_time[sci[i]])       
+            sci_hss_iend=mdates.date2num(scat.hss_end_time[sci[i]])   
+            scat.at[sci[i],'hss_duration']=np.round((sci_hss_iend-sci_istart)*24,2)
 
         
         for i in np.arange(0,len(sci)):        
@@ -728,7 +731,7 @@ def get_sircat_parameters(sc, sci, scat, name):
                 #if vmax ok:
                 if np.isnan(vmax)==False:
                         scat.at[sci[i],'hss_vtmax']=vmax
-                        #vtmaxtime - search for index in sliced array and at beginning of array to see the index in the whole dataset
+                        #vtmaxtime - search for index in sliced array and add the beginning of array to see the index in the whole dataset
                         scat.at[sci[i],'hss_vtmax_time']=sc.time[np.nanargmax(sc.vt[hss_start_ind[i]:hss_end_ind[i]])+hss_start_ind[i]]     
                 
             except:     
@@ -738,7 +741,7 @@ def get_sircat_parameters(sc, sci, scat, name):
             try:
                 scat.at[sci[i],'hss_vtmean']=np.round(np.nanmean(sc.vt[hss_start_ind[i]:hss_end_ind[i]]),1)
             except:
-                print()
+                print('hss_vtmean nan')
             #v_bstd
             try:
                 scat.at[sci[i],'hss_vtstd']=np.round(np.nanstd(sc.vt[hss_start_ind[i]:hss_end_ind[i]]),1)
@@ -767,14 +770,15 @@ def get_sircat_parameters(sc, sci, scat, name):
         
     if (name== 'Wind'): 
 
-        ############ HSS duration
-        sci_istart=mdates.date2num(scat.hss_start_time[sci])       
-        sci_hss_iend=mdates.date2num(scat.hss_end_time[sci])   
-        scat.at[sci,'hss_duration']=np.round((sci_hss_iend-sci_istart)*24,2)
-
-
         
         for i in np.arange(0,len(sci)):        
+            
+            
+            ############ HSS duration
+            sci_istart=mdates.date2num(scat.hss_start_time[sci[i]])       
+            sci_hss_iend=mdates.date2num(scat.hss_end_time[sci[i]])   
+            scat.at[sci[i],'hss_duration']=np.round((sci_hss_iend-sci_istart)*24,2)
+
 
             #print(i)
             #print('hss duration in hours ',(hss_end_ind[i]-hss_start_ind[i])/60)
@@ -784,7 +788,7 @@ def get_sircat_parameters(sc, sci, scat, name):
             scat.at[sci[i],'hss_vtmax']=np.round(np.nanmax(sc.vt[hss_start_ind[i]:hss_end_ind[i]]),1)
 
             #vtmaxtime - search for index in sliced array and at beginning of array to see the index in the whole dataset
-            scat.at[sci[i],'hss_vtmax_time']=sc.time[np.nanargmax(sc.vt[hss_start_ind[i]:hss_end_ind[i]])+hss_start_ind[i]]        
+            #scat.at[sci[i],'hss_vtmax_time']=sc.time[np.nanargmax(sc.vt[hss_start_ind[i]:hss_end_ind[i]])]        
             # v_mean
             scat.at[sci[i],'hss_vtmean']=np.round(np.nanmean(sc.vt[hss_start_ind[i]:hss_end_ind[i]]),1)
             #v_bstd
@@ -809,14 +813,15 @@ def get_sircat_parameters(sc, sci, scat, name):
     
     if (name== 'STEREO-B') or (name== 'MAVEN'):
 
-        sci_istart=mdates.date2num(scat.hss_start_time[sci])   ##***Fehler? sir_start?
-        sci_iend=mdates.date2num(scat.sir_end_time[sci])   
-        scat.at[sci,'sir_duration']=np.round((sci_iend-sci_istart)*24,2)
-
 
         ########## SIR general parameters
 
         for i in np.arange(0,len(sci)):
+            
+            
+            sci_istart=mdates.date2num(scat.hss_start_time[sci[i]])   ##***Fehler? sir_start?
+            sci_iend=mdates.date2num(scat.sir_end_time[sci[i]])   
+            scat.at[sci[i],'sir_duration']=np.round((sci_iend-sci_istart)*24,2)
 
             #v_max
             scat.at[sci[i],'sir_vtmax']=np.round(np.nanmax(sc.vt[sir_start_ind[i]:sir_end_ind[i]]),1)

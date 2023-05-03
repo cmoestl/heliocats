@@ -4,20 +4,20 @@ This is the HELIO4CAST stream interaction region (SIR) and high speed stream (HS
 based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 It is a merged catalog created from individual ones made by Robert Allen et al., Lan Jian et al., Maxim Grandin et al. and Hui Huang et al. (see references).
 
-This is version 1.0, released 2020-06-10, updated 2021-July-13 doi: 10.6084/m9.figshare.12416906 
+This is version 1.0, released 2020-06-10, updated 2023-May-3 doi: 10.6084/m9.figshare.12416906 
 
 The catalog is available as  python pandas dataframe (pickle), json, csv, xlsx, txt, html at 
 https://helioforecast.space/sircat 
 
-Number of events in SIRCAT: 1052 
+Number of events in SIRCAT: 1169 
 ICME observatories: Parker Solar Probe, Wind, STEREO-A, STEREO-B, MAVEN   
 Time ranges: Parker Solar Probe: Oct 2018 - May 2020, Wind: Jan 2007 - Sep 2019, STEREO-A/B: Jan 2007 - Sep 2019, MAVEN: Dec 2014 - Jan 2018. 
 
-Authors: Christian Moestl, Andreas J. Weiss, R. L. Bailey, Martin A. Reiss, Space Research Institute, Austrian Academy of Sciences, Graz, Austria. 
+Authors: Christian Moestl, Andreas J. Weiss, R. L. Bailey, Martin A. Reiss, GeoSphere Austria / NASA Goddard. 
 Robert Allen, JHU/APL, USA; Lan Jian, NASA, USA; Maxim Grandin, University of Helsinki, Finland; Hui Huang, Beijing University, China. 
 
 Rules: If results are produced with this catalog for peer-reviewed scientific publications, 
-please contact christian.moestl@oeaw.ac.at, robert.allen@jhuapl.edu, lan.jian@nasa.gov, maxime.grandin@helsinki.fi for possible co-authorships. 
+please contact chris.moestl@outlook.com, robert.allen@jhuapl.edu, lan.jian@nasa.gov, maxime.grandin@helsinki.fi for possible co-authorships. 
 
 This catalog has been made by getting the start and end times of each high speed stream from the 
 individual catalogs, and then calculating all parameters again consistently from the data by us. 

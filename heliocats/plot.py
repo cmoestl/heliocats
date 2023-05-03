@@ -337,6 +337,11 @@ def plot_sircat_events(sc,sci,ic,name,icplotsdir):
                                  ic.hss_start_time[sci[i]]-datetime.timedelta(days=2), \
                                  ic.hss_end_time[sci[i]]+datetime.timedelta(days=3),name, icplotsdir,ic,sci[i])
             plt.close('all') 
+            
+            
+            
+            
+            
 
 
 def plot_insitu_sircat_MAVEN(sc, start, end, sc_label, path, ic,i, **kwargs):
@@ -366,9 +371,9 @@ def plot_insitu_sircat_MAVEN(sc, start, end, sc_label, path, ic,i, **kwargs):
      ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
      ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
      #plot vertical lines    
-     ax1.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[-500,500],linestyle='-',linewidth=1,color=color_sir,marker='')            
-     ax1.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[-500,500],linestyle='--',linewidth=1,color=color_sir,marker='')            
-     ax1.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[-500,500],color=color_sir,linestyle='-',marker='',linewidth=1)            
+     ax1.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[-500,500],linestyle='-',linewidth=1,color=color_sir)            
+     ax1.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[-500,500],linestyle='--',linewidth=1,color=color_sir)            
+     ax1.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[-500,500],color=color_sir,linestyle='-',linewidth=1)            
      #ax1.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[-500,500],color=color_vtmax,linestyle='-',linewidth=1,marker='')            
      #ax1.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[-500,500],'-k',linewidth=1)    
      plt.ylabel('B [nT]')
@@ -387,9 +392,9 @@ def plot_insitu_sircat_MAVEN(sc, start, end, sc_label, path, ic,i, **kwargs):
      ax2 = plt.subplot(412,sharex=ax1) 
      ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
      #plot vertical lines
-     ax2.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,3000],'-k',linewidth=1,color=color_sir)            
-     ax2.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[0,3000],'--k',linewidth=1,color=color_sir)            
-     ax2.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,3000],color=color_sir,linestyle='-',linewidth=1,marker='')            
+     ax2.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,3000],linestyle='-',linewidth=1,color=color_sir)            
+     ax2.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[0,3000],linestyle='--',linewidth=1,color=color_sir)            
+     ax2.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,3000],color=color_sir,linestyle='-',linewidth=1)            
      #ax2.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,3000],color=color_vtmax,linestyle='-',linewidth=1,marker='')            
      #ax2.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,3000],'-k',linewidth=1)    
      plt.ylabel('V [km/s]')
@@ -405,9 +410,9 @@ def plot_insitu_sircat_MAVEN(sc, start, end, sc_label, path, ic,i, **kwargs):
      ax3 = plt.subplot(413,sharex=ax1) 
      ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
      #plot vertical lines
-     ax3.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[-10,1000],color=color_sir,linestyle='-',linewidth=1,marker='')       
-     ax3.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[-10,1000],color=color_sir,linestyle='--',linewidth=1,marker='')            
-     ax3.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[-10,1000],color=color_sir,linestyle='-',linewidth=1,marker='')            
+     ax3.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[-10,1000],color=color_sir,linestyle='-',linewidth=1)       
+     ax3.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[-10,1000],color=color_sir,linestyle='--',linewidth=1)            
+     ax3.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[-10,1000],color=color_sir,linestyle='-',linewidth=1)            
      #ax3.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[-10,1000],color=color_vtmax,linestyle='-',linewidth=1.5,marker='')            
      #ax3.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,1000],'-k',linewidth=1)    
      plt.ylabel('N [ccm-3]')
@@ -425,7 +430,7 @@ def plot_insitu_sircat_MAVEN(sc, start, end, sc_label, path, ic,i, **kwargs):
      #plot vertical lines
      ax4.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,10],'-k',linewidth=1,label='sir_start_time / sir_end_time') 
      ax4.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[0,10],'--k',linewidth=1,label='hss_start_time = stream interface time') 
-     ax4.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,10],color=color_sir,linewidth=1,linestyle='-',label='sir_end_time',marker='')         
+     ax4.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,10],color=color_sir,linewidth=1,linestyle='-',label='sir_end_time')         
      #ax4.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,10],color=color_vtmax,linewidth=1,linestyle='-',label='hss_vtmax_time',marker='')
      #ax4.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,10],'-k',linewidth=1)    
      plt.ylabel('T [MK]')
@@ -482,14 +487,19 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
 
      ax1.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[-500,500],'-k',linewidth=1)            
      ax1.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[-500,500],'--k',linewidth=1)            
-     ax1.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[-500,500],color=color_sir,linestyle='-',linewidth=1,marker='')            
-     ax1.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[-500,500],color=color_vtmax,linestyle='-',linewidth=1,marker='')            
-     ax1.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[-500,500],color=color_sir,linestyle='--',linewidth=1,marker='')    
+     ax1.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[-500,500],color=color_sir,linestyle='-',linewidth=1)            
+     ax1.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[-500,500],color=color_vtmax,linestyle='-',linewidth=1)            
+     ax1.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[-500,500],color=color_sir,linestyle='--',linewidth=1)    
      plt.ylabel('B [nT]')
      plt.legend(loc=1,ncol=4,fontsize=6)
      ax1.set_xlim(start,end)
      #if np.isnan(np.nanmin(sc.bt))==False:
-     ax1.set_ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)   
+     #ax1.set_ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)   
+     try:
+        ax1.set_ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)   
+     except:
+        ax1.set_ylim(-50,50)   
+       
      ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
      #plt.ylim((-20, 20))
      #ax1.set_xticklabels([]) does not work with sharex
@@ -503,15 +513,18 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      #plot vertical lines
      ax2.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,3000],'-k',linewidth=1)            
      ax2.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[0,3000],'--k',linewidth=1)            
-     ax2.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,3000],color=color_sir,linestyle='-',linewidth=1,marker='')            
-     ax2.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,3000],color=color_vtmax,linestyle='-',linewidth=1,marker='')            
+     ax2.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,3000],color=color_sir,linestyle='-',linewidth=1)            
+     ax2.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,3000],color=color_vtmax,linestyle='-',linewidth=1)            
      ax2.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,3000],'--k',linewidth=1)    
      ax2.set_ylabel('V [km s$^{-1}]$')
      ax2.set_xlim(start,end)
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
      ax2.set_ylim(250,800)  
-     if np.isfinite(np.max(sc.vt)):
+     try: 
         ax2.set_ylim(np.nanmin(sc.vt)-20,np.nanmax(sc.vt)+100)  
+     except:
+        ax2.set_ylim(200,1000)  
+        
      plt.setp(ax2.get_xticklabels(), visible=False)
 
     
@@ -520,8 +533,8 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      #plot vertical lines
      ax3.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,1000],'-k',linewidth=1)            
      ax3.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[0,1000],'--k',linewidth=1)            
-     ax3.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,1000],color=color_sir,linestyle='-',linewidth=1,marker='')            
-     ax3.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,1000],color=color_vtmax,linestyle='-',linewidth=1,marker='')            
+     ax3.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,1000],color=color_sir,linestyle='-',linewidth=1)            
+     ax3.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,1000],color=color_vtmax,linestyle='-',linewidth=1)            
      ax3.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,1000],'--k',linewidth=1)    
      plt.ylabel('N [ccm-3]')
      ax3.set_xlim(start,end)
@@ -537,8 +550,8 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      #plot vertical lines
      ax4.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,10],'-k',linewidth=1,label='sir_start_time / sir_end_time') 
      ax4.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[0,10],'--k',linewidth=1,label='hss_start_time / hss_end_time') 
-     ax4.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,10],color=color_sir,linewidth=1,linestyle='-',marker='')              
-     ax4.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,10],color=color_vtmax,linewidth=1.5,linestyle='-',label='hss_vtmax_time',marker='')
+     ax4.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,10],color=color_sir,linewidth=1,linestyle='-')              
+     ax4.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,10],color=color_vtmax,linewidth=1.5,linestyle='-',label='hss_vtmax_time')
      ax4.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,10],'--k',linewidth=1)    
      plt.ylabel('T [MK]')
      ax4.set_xlim(start,end)
