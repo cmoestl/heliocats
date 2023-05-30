@@ -8,7 +8,7 @@
 # Authors: [C. Möstl](https://twitter.com/chrisoutofspace), A. J. Weiss, R. L. Bailey, [Austrian Space Weather Office](https://helioforecast.space) GeoSphere Austria; Lan Jian, NASA, USA, Maxim Grandin, University of Helsinki, Finland; Hui Huang, Beijing  University, China.
 # 
 # 
-# **current status: updating to new environment helio4, including Allen catalog** 
+# **current status: need to include Allen catalog for PSP, and publish again. There are bugs!** 
 # 
 # If you want to use parts of this code for generating results for peer-reviewed scientific publications, please contact us per email (chris.moestl@outlook.com, lan.jian@nasa.gov, maxime.grandin@helsinki.fi) for co-authorships.
 # 
@@ -82,8 +82,6 @@
 # 
 # 
 
-# start with importing packages, get paths from config.py file and make directories 
-
 # In[1]:
 
 
@@ -92,6 +90,8 @@ last_update='2023-May-3'
 
 # In[2]:
 
+
+#start with importing packages, get paths from config.py file and make directories 
 
 import numpy as np
 import scipy.io
@@ -393,14 +393,11 @@ print('done')
 
 # #### read Allen PSP catalogs
 
-# In[160]:
-
-
-########### read PSP SIR catalog file
+# In[4]:
 
 
 #make list for all basic times, ids etc. for master file
-rows_list = []
+rows_list1 = []
 
 def convert_time(p_time):
     
@@ -410,8 +407,7 @@ def convert_time(p_time):
     for i in np.arange(0,len(p_time)):
         p_str=p_time[i][0:10]+'T'+p_time[i][11:16]+'Z'
         p_time_obj.append(parse_time(p_str).datetime)    
-        #print(p_time_obj[i])
-        
+        #print(p_time_obj[i])        
         #dates with year 1 set to nan:
         if mdates.date2num(p_time_obj[i])< 10: p_time_obj[i]=np.nan
             
@@ -433,19 +429,19 @@ pa_raw=pd.read_csv(psp_sta_sir_file, header=51)
 print(p_raw.keys())
 print()
 
-## USE PSP catalog
-print()
+
+
+########## PSP SIR catalog
+
 p_raw['Start time']=convert_time(p_raw['Start time'])
 p_raw['End time']=convert_time(p_raw['End time'])
-p_raw['Time of max P']=convert_time(p_raw['Time of max P'])
-#print(p_raw['Start time'])
-#print(p_raw['End time'])
-#print(p_raw['Time of max P'])
+#p_raw['Time of max P']=convert_time(p_raw['Time of max P'])
 
 
 #generate and put all basic data for this event in a list
 
-for i in np.arange(0,len(p_raw)):
+#skip first event and last 4 due to no data available for us
+for i in np.arange(1,len(p_raw)-4):
     
     #make id for event    
     id_time=parse_time(p_raw['Start time'][i]).isot
@@ -453,24 +449,28 @@ for i in np.arange(0,len(p_raw)):
     sc_string='PSP'        
     sircat_id=sc_idstring+id_time[0:4]+id_time[5:7]+id_time[8:10]+'_01'
     
-    list1 = [sircat_id,sc_string,np.nan,parse_time(p_raw['Start time'][i]).isot, np.nan, parse_time(p_raw['End time'][i]).isot, np.nan,np.nan,np.nan,\
+    list1 = [sircat_id,sc_string,parse_time(p_raw['Start time'][i]).isot,np.nan, parse_time(p_raw['End time'][i]).isot,np.nan, np.nan,np.nan,np.nan,\
              np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,\
              np.nan,np.nan,np.nan]
     
-    
     #print(list1)    
     #append to full list
-    rows_list.append(list1)
+    rows_list1.append(list1)
+    
+
+#remove more events for which we don't have data
+rows_list1.pop(15)
+rows_list1.pop(21)
 
 #print example for row
-print(rows_list[1])
+print(rows_list1[0])
 
 
 ############ Wind catalog
 print()
 pw_raw['Start time']=convert_time(pw_raw['Start time'])
 pw_raw['End time']=convert_time(pw_raw['End time'])
-pw_raw['Time of max P']=convert_time(pw_raw['Time of max P'])
+#pw_raw['Time of max P']=convert_time(pw_raw['Time of max P'])
 #print(pw_raw['Start time'])
 #print(pw_raw['End time'])
 #print(pw_raw['Time of max P'])
@@ -484,16 +484,16 @@ for i in np.arange(0,len(pw_raw)):
     sircat_id=sc_idstring+id_time[0:4]+id_time[5:7]+id_time[8:10]+'_01'
     
     #put all data for this event in a list
-    list2 = [sircat_id,sc_string,np.nan,parse_time(pw_raw['Start time'][i]).isot, np.nan, parse_time(pw_raw['End time'][i]).isot, np.nan,np.nan,np.nan,\
+    list2 = [sircat_id,sc_string,parse_time(pw_raw['Start time'][i]).isot,np.nan,parse_time(pw_raw['End time'][i]).isot,np.nan, np.nan,np.nan,np.nan,\
              np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,\
              np.nan,np.nan,np.nan]
     
     #print(list1)    
     #append to full list
-    rows_list.append(list2)
+    rows_list1.append(list2)
     
     
-print(rows_list[-1])
+print(rows_list1[-1])
 
 
 
@@ -501,7 +501,7 @@ print(rows_list[-1])
 print()
 pa_raw['Start time']=convert_time(pa_raw['Start time'])
 pa_raw['End time']=convert_time(pa_raw['End time'])
-pa_raw['Time of max P']=convert_time(pa_raw['Time of max P'])
+#pa_raw['Time of max P']=convert_time(pa_raw['Time of max P'])
 #print(pa_raw['Start time'])
 #print(pa_raw['End time'])
 #print(pa_raw['Time of max P'])
@@ -516,32 +516,30 @@ for i in np.arange(0,len(pa_raw)):
     sircat_id=sc_idstring+id_time[0:4]+id_time[5:7]+id_time[8:10]+'_01'
     
     #put all data for this event in a list
-    list3 = [sircat_id,sc_string,np.nan,parse_time(pa_raw['Start time'][i]).isot, np.nan, parse_time(pa_raw['End time'][i]).isot, np.nan,np.nan,np.nan,\
+    list3 = [sircat_id,sc_string,parse_time(pa_raw['Start time'][i]).isot,np.nan, parse_time(pa_raw['End time'][i]).isot, np.nan, np.nan,np.nan,np.nan,\
              np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,\
              np.nan,np.nan,np.nan]
     
     
     #print(list1)    
     #append to full list
-    rows_list.append(list3)
+    rows_list1.append(list3)
 
 
 
-print(rows_list[-1])
+print(rows_list1[-1])
 
-
-print(total number
-print(len(rows_list))
-
+print()
+print('total number')
+print(len(rows_list1))
 
 
 # #### read Lan Jian STEREO SIR catalog
 
-# In[159]:
+# In[5]:
 
 
-#in this excel file some times are made into a proper format manually
-
+#in this excel file some times were brought into a proper time format manually
 file='sircat/sources/STEREO_Level3_SIR_data.xlsx'
 print('load Jian STEREO catalog from excel file:', file)
 sraw=pd.read_excel(file, sheet_name='Sheet2')
@@ -551,6 +549,8 @@ sraw=pd.read_excel(file, sheet_name='Sheet2')
 print('Events in STEREO SIR cat:', sraw.shape[0])
 print()
 
+
+rows_list2 = []
 
 sc=sraw.loc[:,'spacecraft']
 year_start=sraw.loc[:,'year_start']
@@ -564,7 +564,6 @@ ptime=sraw.loc[:,'pt_time']
 
 
 for i in np.arange(0,sraw.shape[0]):
-    
     
 
     s=stime[i]    
@@ -605,19 +604,35 @@ for i in np.arange(0,sraw.shape[0]):
     sircat_id=sc_idstring+id_time[0:4]+id_time[5:7]+id_time[8:10]+'_01'
     
     #put all data for this event in a list
-    list4 = [sircat_id,sc_string,parse_time(sir_start_time).isot,parse_time(hss_start_time).isot, parse_time(sir_end_time).isot,np.nan,np.nan,np.nan,np.nan,\
+    #list4 = [sircat_id,sc_string,parse_time(sir_start_time).isot,parse_time(hss_start_time).isot, parse_time(sir_end_time).isot,np.nan,np.nan,np.nan,np.nan,\
+    #         np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,\
+    #         np.nan,np.nan,np.nan]
+    
+    
+    #put all data for this event in a list without hss start time
+    list4 = [sircat_id,sc_string,parse_time(sir_start_time).isot,np.nan, parse_time(sir_end_time).isot,np.nan,np.nan,np.nan,np.nan,\
              np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,\
              np.nan,np.nan,np.nan]
     
     #print(list1)    
     #append to full list
-    rows_list.append(list4)
+    rows_list2.append(list4)
+
+print(rows_list2[-1])    
+    
+print()
+print('total event number')
+print(len(rows_list2))
+
+    
 
 
-# In[159]:
+# #### read Grandin Wind catalog
+
+# In[6]:
 
 
-########################## read raw Wind catalog
+rows_list3 = []
 
 #Grandin et al. 2018 - OMNI
 #removed 2 SIRs due to data gap of Wind in oct 2014
@@ -657,12 +672,17 @@ for i in np.arange(begin2007,len(wraw),1):
     
     #print(list2)
 
-    rows_list.append(list5)
+    rows_list3.append(list5)
 
 
     
     
-########################## read MAVEN catalog   
+
+
+# #### read MAVEN catalog   
+
+# In[7]:
+
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
@@ -692,29 +712,25 @@ for i in mavsir_ind:
     
     #print(list3)
 
-    rows_list.append(list6)
+    rows_list3.append(list6)
 
+print(rows_list3[-1])
 
+print()
+print('total number')
+print(len(rows_list3))
     
     
-###################################  add new events **** to be done
-#for measuring new events use this function from heliocats.plot 
-#plt.close('all')
-#works in jupyter notebooks
 
-#works in scripts
-#matplotlib.use('qt5agg')  
-#plt.ion()
 
-#STEREO-A
-#hp.plot_insitu_measure(sta, '2018-Jan-01 12:00','2018-Feb-01 12:00', 'STEREO-A', 'results/')
+# #### Combine to master file
 
-#Wind
-#hp.plot_insitu_measure(win, '2019-Jan-29','2019-Feb-28', 'Wind', 'results/')
+# In[8]:
 
-    
-    
-    
+
+rows_list=rows_list1+rows_list2+rows_list3
+
+
 ################ make pandas data frame for master file
         
 parameters =['sircat_id','sc_insitu','sir_start_time','hss_start_time','sir_end_time',\
@@ -745,8 +761,11 @@ print('done')
 
 
 # ## (3) make SIRCAT 
+# 
+# 
+# 
 
-# In[110]:
+# In[10]:
 
 
 from heliocats import cats as hc
@@ -758,7 +777,6 @@ importlib.reload(hp) #reload again while debugging
 #load master file
 scat=hc.load_helio4cast_sircat_master_from_excel('sircat/HELIO4CAST_SIRCAT_v10_master.xlsx')
 scat
-
 
 ####### 3a get indices for all spacecraft
 wini=np.where(scat.sc_insitu == 'Wind')[:][0] 
@@ -777,12 +795,25 @@ print('done')
 #os.system('rm sircat/indices_sircat/SIRCAT_indices_MAVEN.p')
 #os.system('rm sircat/indices_sircat/SIRCAT_indices_PSP.p')
 
+#sir times
+scat=hc.get_sircat_parameters(psp,pspi,scat,'PSP')
 
 #hss times
-scat=hc.get_sircat_parameters(psp,pspi,scat,'PSP')
-scat=hc.get_sircat_parameters(win,wini,scat,'Wind')
+#scat=hc.get_sircat_parameters(win,wini,scat,'Wind')
+scat
+
+#save as txt
+file='sircat/HELIO4CAST_SIRCAT_v10.txt'
+np.savetxt(file, scat.values.astype(str), fmt='%s' )
+print('SIRCAT saved as '+file)
+hp.plot_sircat_events(psp,pspi,scat,'PSP',sirplotsdir)
+
+
+# In[104]:
+
 
 #sir times
+scat=hc.get_sircat_parameters(psp,pspi,scat,'PSP')
 scat=hc.get_sircat_parameters(mav,mavi,scat,'MAVEN')
 scat=hc.get_sircat_parameters(stb,stbi,scat,'STEREO-B')
 
@@ -814,7 +845,7 @@ scat = scat.reset_index(drop=True)
 
 # ### 4a save header
 
-# In[111]:
+# In[8]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -930,7 +961,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[112]:
+# In[9]:
 
 
 ########## python formats
@@ -1078,7 +1109,7 @@ print('SIRCAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[60]:
+# In[10]:
 
 
 #load sircat as pandas dataframe
@@ -1092,14 +1123,14 @@ scat
 # [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[61]:
+# In[11]:
 
 
 scat_pandas
 scat_pandas.keys()
 
 
-# In[79]:
+# In[12]:
 
 
 #make distribution plots

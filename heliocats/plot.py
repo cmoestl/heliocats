@@ -333,9 +333,9 @@ def plot_sircat_events(sc,sci,ic,name,icplotsdir):
     
         for i in np.arange(np.size(sci)):            
 
-            plot_insitu_sircat_mag_plasma(sc[hss_start_ind[i]-60*2*24:hss_end_ind[i]+3*60*24],\
-                                 ic.hss_start_time[sci[i]]-datetime.timedelta(days=2), \
-                                 ic.hss_end_time[sci[i]]+datetime.timedelta(days=3),name, icplotsdir,ic,sci[i])
+            plot_insitu_sircat_mag_plasma(sc[sir_start_ind[i]-60*2*24:sir_end_ind[i]+3*60*24],\
+                                 ic.sir_start_time[sci[i]]-datetime.timedelta(days=2), \
+                                 ic.sir_end_time[sci[i]]+datetime.timedelta(days=3),name, icplotsdir,ic,sci[i])
             plt.close('all') 
             
             
@@ -455,7 +455,7 @@ def plot_insitu_sircat_MAVEN(sc, start, end, sc_label, path, ic,i, **kwargs):
             
             
 
-def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs):
+def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i):
      '''
      sc ... data
     
@@ -470,7 +470,7 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      sns.set_context('paper')
         
         
-     color_sir='black'        
+     color_sir='black'         
      color_vtmax='mediumseagreen'
         
 
@@ -481,24 +481,20 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
      ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
      ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
-     ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
-     #plot vertical lines
-     #ax1.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[-500,500],'-k',linewidth=1)            
-
+     ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',linewidth=0.5)
+  
      ax1.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[-500,500],'-k',linewidth=1)            
      ax1.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[-500,500],'--k',linewidth=1)            
+     ax1.plot_date([ic.sir_vtmax_time[i],ic.sir_vtmax_time[i]],[-500,500],color=color_vtmax,linestyle='-',linewidth=1.5)            
      ax1.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[-500,500],color=color_sir,linestyle='-',linewidth=1)            
-     ax1.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[-500,500],color=color_vtmax,linestyle='-',linewidth=1)            
+     ax1.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[-500,500],color=color_vtmax,linestyle='--',linewidth=1)            
      ax1.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[-500,500],color=color_sir,linestyle='--',linewidth=1)    
      plt.ylabel('B [nT]')
-     plt.legend(loc=1,ncol=4,fontsize=6)
+     plt.legend(loc=3,ncol=4,fontsize=8)
      ax1.set_xlim(start,end)
      #if np.isnan(np.nanmin(sc.bt))==False:
      #ax1.set_ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)   
-     try:
-        ax1.set_ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)   
-     except:
-        ax1.set_ylim(-50,50)   
+     ax1.set_ylim(-np.nanmax(sc.bt)-10,np.nanmax(sc.bt)+10)   
        
      ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b-%d') )
      #plt.ylim((-20, 20))
@@ -512,9 +508,10 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
      #plot vertical lines
      ax2.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,3000],'-k',linewidth=1)            
-     ax2.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[0,3000],'--k',linewidth=1)            
+     ax2.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[0,3000],'--k',linewidth=1)                    
+     ax2.plot_date([ic.sir_vtmax_time[i],ic.sir_vtmax_time[i]],[0,3000],color=color_vtmax,linewidth=1.5, linestyle='-')                 
      ax2.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,3000],color=color_sir,linestyle='-',linewidth=1)            
-     ax2.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,3000],color=color_vtmax,linestyle='-',linewidth=1)            
+     ax2.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,3000],color=color_vtmax,linestyle='--',linewidth=1)            
      ax2.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,3000],'--k',linewidth=1)    
      ax2.set_ylabel('V [km s$^{-1}]$')
      ax2.set_xlim(start,end)
@@ -531,11 +528,12 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      ax3 = plt.subplot(413,sharex=ax1) 
      ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
      #plot vertical lines
-     ax3.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,1000],'-k',linewidth=1)            
-     ax3.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[0,1000],'--k',linewidth=1)            
-     ax3.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,1000],color=color_sir,linestyle='-',linewidth=1)            
-     ax3.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,1000],color=color_vtmax,linestyle='-',linewidth=1)            
-     ax3.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,1000],'--k',linewidth=1)    
+     ax3.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[-100,10000],'-k',linewidth=1)            
+     ax3.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[-100,10000],'--k',linewidth=1)            
+     ax3.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[-100,10000],color=color_sir,linestyle='-',linewidth=1)            
+     ax3.plot_date([ic.sir_vtmax_time[i],ic.sir_vtmax_time[i]],[-100,10000],color=color_vtmax,linewidth=1.5, linestyle='-')                 
+     ax3.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[-100,10000],color=color_vtmax,linestyle='-',linewidth=1)            
+     ax3.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[-100,10000],'--k',linewidth=1)    
      plt.ylabel('N [ccm-3]')
      ax3.set_xlim(start,end)
      ax3.set_ylim(0,np.nanmax(sc.np)+10)   
@@ -548,17 +546,22 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs
      ax4 = plt.subplot(414,sharex=ax1) 
      ax4.plot_date(sc.time,sc.tp/1e6,'-k',linewidth=0.7)    
      #plot vertical lines
-     ax4.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[0,10],'-k',linewidth=1,label='sir_start_time / sir_end_time') 
-     ax4.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[0,10],'--k',linewidth=1,label='hss_start_time / hss_end_time') 
-     ax4.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[0,10],color=color_sir,linewidth=1,linestyle='-')              
-     ax4.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[0,10],color=color_vtmax,linewidth=1.5,linestyle='-',label='hss_vtmax_time')
-     ax4.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[0,10],'--k',linewidth=1)    
+     ax4.plot_date([ic.sir_start_time[i],ic.sir_start_time[i]],[-10,10],'-k',linewidth=1,label='sir_start_time / sir_end_time') 
+     ax4.plot_date([ic.hss_start_time[i],ic.hss_start_time[i]],[-10,10],'--k',linewidth=1,label='hss_start_time / hss_end_time') 
+     ax4.plot_date([ic.sir_end_time[i],ic.sir_end_time[i]],[-10,10],color=color_sir,linewidth=1, linestyle='-')              
+     ax4.plot_date([ic.sir_vtmax_time[i],ic.sir_vtmax_time[i]],[-100,100],color=color_vtmax,linewidth=1.5,linestyle='-', label='sir_vtmax_time')    
+     ax4.plot_date([ic.hss_vtmax_time[i],ic.hss_vtmax_time[i]],[-100,100],color=color_vtmax,linewidth=1.5,linestyle='--',label='hss_vtmax_time')
+     ax4.plot_date([ic.hss_end_time[i],ic.hss_end_time[i]],[-10,10],'--k',linewidth=1)    
      plt.ylabel('T [MK]')
      ax4.set_xlim(start,end)
      ax4.set_ylim(0,np.nanmax(sc.tp/1e6)+0.2)   
      ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     plt.legend(loc=1,ncol=1,fontsize=6)
-     #plt.ylim((0, 0.5))
+     legend=ax4.legend(loc=1,ncol=1,fontsize=6)
+    
+     for lh in legend.legendHandles:
+        lh.set_markerfacecolor('none')
+        lh.set_markeredgecolor('none')
+        #plt.ylim((0, 0.5))
      
      plt.tight_layout()
      #plt.show()
