@@ -27,7 +27,6 @@ dependencies:
     - xlrd==2.0.1
     - lxml==4.9.2
     - zeep==4.2.1
-    - pickle5==0.0.11
     - drms==0.6.3
     - glymur==0.12.2
     - h5py==3.8.0

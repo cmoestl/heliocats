@@ -36,7 +36,7 @@
 last_update='2023-April-12'
 
 
-# In[4]:
+# In[2]:
 
 
 import numpy as np
@@ -106,7 +106,7 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[5]:
+# In[3]:
 
 
 from heliocats import cats as hc
@@ -169,7 +169,7 @@ ac
 
 # #### save header
 
-# In[6]:
+# In[4]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -249,7 +249,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[7]:
+# In[5]:
 
 
 ########## python formats
@@ -426,7 +426,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[8]:
+# In[6]:
 
 
 #load arrcat as pandas dataframe
@@ -446,33 +446,33 @@ ac5 = f['arrcat']
 ac5['sse_launch_time']
 
 
-# In[9]:
+# In[7]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[10]:
+# In[8]:
 
 
 ac
 
 
-# In[11]:
+# In[9]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[12]:
+# In[10]:
 
 
 ac_struct
 
 
-# In[13]:
+# In[11]:
 
 
 ac_struct['id']
@@ -485,7 +485,7 @@ print(deltata)
 
 # ### plot directions and targets
 
-# In[14]:
+# In[12]:
 
 
 plt.rcParams["figure.figsize"] = (19,11)
@@ -551,13 +551,13 @@ plt.ylim([0,2000])
 plt.tight_layout()
 
 plotfile='arrcat/plots_arrcat/arrcat_targets.png'
-plt.savefig(plotfile,dpi=100)
+plt.savefig(plotfile,dpi=150)
 print('saved as ',plotfile)
 
 
 # ### plot error distributions
 
-# In[15]:
+# In[13]:
 
 
 fig=plt.figure(2, figsize=(18,8), dpi=100)
@@ -581,7 +581,7 @@ print('mean target arrival time error from sse_speed error',np.mean(ac.target_ar
 plt.tight_layout()
 
 plotfile='arrcat/plots_arrcat/arrcat_errors_dist.png'
-plt.savefig(plotfile,dpi=100)
+plt.savefig(plotfile,dpi=150)
 print('saved as ',plotfile)
 
 
@@ -592,7 +592,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[16]:
+# In[14]:
 
 
 '''
@@ -619,7 +619,7 @@ hibi=np.where(ac.sc=='B')[0]
 '''
 
 
-# In[17]:
+# In[15]:
 
 
 last_year=2024
@@ -670,8 +670,10 @@ ax1.set_ylabel('CMEs observed per year')
 
 ax1.text(yearly_bin_edges[11],165,'last update: '+last_update,fontsize=15,zorder=2,horizontalalignment='center')
 
+plt.tight_layout()
+
 plotfile='arrcat/plots_arrcat/higeocat_rate.png'
-plt.savefig(plotfile,dpi=50)
+plt.savefig(plotfile,dpi=150)
 print('saved as ',plotfile)
 
 
