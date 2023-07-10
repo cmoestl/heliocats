@@ -37,7 +37,7 @@ from config import data_path
 
 heliosat_data_path='/nas/helio/data/heliosat/data/'
 
-data_path_sun='/nas/helio/data/SDO_realtime/'
+#data_path_sun='/nas/helio/data/SDO_realtime/'
 
 '''
 MIT LICENSE
@@ -2381,7 +2381,7 @@ def save_all_stereob_science_data(path,file,sceq):
     
  
 
-def get_sdo_realtime_image():
+def get_sdo_realtime_image(data_path_sun):
     """Downloads latest SDO image."""
 
 

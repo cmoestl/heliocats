@@ -2245,8 +2245,23 @@ def plot_positions(time_date1, path,frame, **kwargs):
     time1=mdates.date2num(time_date1)
 
     #made with sc_positions_for_vr
-    [psp, bepi, solo, sta, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions_HEEQ_1hr.p', "rb" ) )
+    [psp, bepi, solo, sta, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
     #[psp,bepi,solo,sta,earth,venus,mars,mercury]=make_positions(time1,frame)
+    
+    
+    #convert matplotlib times, need to do a new file
+    psp.time=psp.time+mdates.date2num(np.datetime64('0000-12-31'))
+    solo.time=solo.time+mdates.date2num(np.datetime64('0000-12-31'))
+    bepi.time=bepi.time+mdates.date2num(np.datetime64('0000-12-31'))
+    sta.time=sta.time+mdates.date2num(np.datetime64('0000-12-31'))
+    earth.time=earth.time+mdates.date2num(np.datetime64('0000-12-31'))
+    venus.time=venus.time+mdates.date2num(np.datetime64('0000-12-31'))
+    mars.time=mars.time+mdates.date2num(np.datetime64('0000-12-31'))
+    mercury.time=mercury.time+mdates.date2num(np.datetime64('0000-12-31'))
+    jupiter.time=jupiter.time+mdates.date2num(np.datetime64('0000-12-31'))
+    saturn.time=saturn.time+mdates.date2num(np.datetime64('0000-12-31'))
+    uranus.time=uranus.time+mdates.date2num(np.datetime64('0000-12-31'))
+    neptune.time=neptune.time+mdates.date2num(np.datetime64('0000-12-31'))
     
 
     #sidereal solar rotation rate
@@ -2267,6 +2282,10 @@ def plot_positions(time_date1, path,frame, **kwargs):
     fsize=17 
     symsize_planet=140
     symsize_spacecraft=100
+    
+    
+    
+    
     
     #find index for psp
     dct=time1-psp.time
