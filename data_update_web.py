@@ -73,6 +73,10 @@ os.system('jupyter nbconvert --to script data_update_web.ipynb')
 
 from config import data_path
 
+
+print(' ')
+print('------ PATHS ')
+
 print(data_path)
 
 plot_path=data_path+'plots/'
@@ -84,6 +88,12 @@ print(position_path)
 
 from config import noaa_path
 print(noaa_path)
+
+from config import wind_path
+print(wind_path)
+
+from config import stereoa_path
+print(stereoa_path)
 
 from config import data_path_ml
 print(data_path_ml)
@@ -108,8 +118,15 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 # In[3]:
 
 
+print(' ')
+print('------ POSITIONS ')
+
 # spacecraft positions image
 hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
+
+print(' ')
+print('------ SDO realtime images ')
+
 
 # get current SDO images 
 hd.get_sdo_realtime_image(sun_path)
@@ -121,11 +138,19 @@ hd.get_sdo_realtime_image(sun_path)
 # In[4]:
 
 
+print(' ')
+print('------ OMNI2 ')
+
 get_omni=0
+
 
 # OMNI2
 fileomni="omni_1963_now.p"
-if get_omni: hd.save_omni_data(data_path,fileomni)
+#this function downloads and saves the the omni2 data
+if get_omni: 
+    hd.save_omni_data(data_path,fileomni)
+else:
+    print('OMNI data NOT downloaded, turn on switch')
 [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
 
 start=datetime.datetime.utcnow() - datetime.timedelta(days=365)
@@ -135,11 +160,13 @@ hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 
 # ### NOAA real time solar wind and Dst
 
-# In[19]:
+# In[42]:
 
+
+print(' ')
+print('------ NOAA real time solar wind data ')
 
 get_noaa=1
-
 
 if get_noaa > 0:
     print('download NOAA real time solar wind plasma and mag and dst')
@@ -152,64 +179,56 @@ if get_noaa > 0:
 
     try: 
         urllib.request.urlretrieve(plasma, noaa_path+'plasma/plasma-7-day_'+datestr+'.json')
-        print(noaa_path+'plasma-7-day_'+datestr+'.json')
+        print(noaa_path+'plasma/plasma-7-day_'+datestr+'.json')
     except urllib.error.URLError as e:
         print(' ', plasma,' ',e.reason)
 
     try: 
         urllib.request.urlretrieve(mag, noaa_path+'mag/mag-7-day_'+datestr+'.json')
-        print(noaa_path+'mag-7-day_'+datestr+'.json')
+        print(noaa_path+'mag/mag-7-day_'+datestr+'.json')
     except urllib.error.URLError as e:
         print(' ', mag,' ',e.reason)
         
 
     try: 
-        urllib.request.urlretrieve(mag, noaa_path+'dst/dst-7-day_'+datestr+'.json')
-        print(noaa_path+'dst-7-day_'+datestr+'.json')
+        urllib.request.urlretrieve(dst, noaa_path+'dst/dst-7-day_'+datestr+'.json')
+        print(noaa_path+'dst/dst-7-day_'+datestr+'.json')
     except urllib.error.URLError as e:
         print(' ', mag,' ',e.reason)
-
-        
-  
+ 
     print('NOAA download complete')
 
-save_noaa=0
-filenoaa='noaa_rtsw_jan_2023_now.p'
+
+
+######## TO DO SAVE NOAA DATA
+#save_noaa=0
+#filenoaa='noaa_rtsw_jan_2023_now.p'
 #if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
 #[noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+
 
     
 
 
-# In[6]:
-
-
-sys.exit()
-
-
 # ### Wind data
 
-# In[10]:
+# In[41]:
 
 
-#from heliocats import data as hd
-#importlib.reload(hd) #reload again while debugging
-
-#from heliocats import plot as hp
-#importlib.reload(hp) #reload again while debugging
-
-#get_wind=1
+get_wind=1
 
 #filewin="wind_2018_now_heeq.p" 
 #start=datetime.datetime(2022, 12, 1)
 #start=datetime.datetime(2022, 12, 1)
 #end=datetime.datetime.utcnow()
 
-###!!use urllib.request.urlretrieve(plasma, noaa_path+'plasma-7-day_'+datestr+'.json')
+    
+if get_wind > 0:
+    hd.wind_download_ascii(start_year=1995, wind_path=wind_path) 
+    
 
-#if get_wind: 
-    #hd.wind_download_ascii()    
-    #hd.save_wind_data_ascii(data_path,filewin,start,end,coord='HEEQ')
+
+#hd.save_wind_data_ascii(data_path,filewin,start,end,coord='HEEQ')
 
 #[win,winh]=pickle.load(open(data_path+filewin, "rb"))
     
@@ -219,20 +238,29 @@ sys.exit()
 
 
 
+# In[10]:
 
 
-
-
-
-
+sys.exit()
 
 
 # ### STEREO-A beacon data
 
-# In[ ]:
+# In[93]:
 
 
+get_stereoa=1
 
+#filewin="wind_2018_now_heeq.p" 
+#start=datetime.datetime(2022, 12, 1)
+#start=datetime.datetime(2022, 12, 1)
+#end=datetime.datetime.utcnow()
+
+           
+
+
+if get_stereoa > 0:
+    hd.stereoa_download_beacon(start_year=2022,stereoa_path=stereoa_path)   
 
 
 # In[ ]:

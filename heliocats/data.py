@@ -64,6 +64,245 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
+
+def wind_download_ascii(start_year, wind_path):
+
+    #download MFI and SWE in ASCII from SPDF
+        
+    print('downloading Wind ascii data to ', wind_path)
+        
+        
+    read_data_end_year=datetime.datetime.utcnow().year
+    read_data_end_month=datetime.datetime.utcnow().month
+    
+    wind_years_strings=[]
+    for j in np.arange(start_year,read_data_end_year+1):
+        wind_years_strings.append(str(j))
+
+    print('for years', wind_years_strings)
+    
+  
+    ######## MFI
+
+    mfi_url='https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/'
+    print(mfi_url)
+    
+    
+    #for all years
+    for i in np.arange(0,len(wind_years_strings)-1):    
+
+        for k in np.arange(1,13):    
+
+            a=str(k).zfill(2) #add leading zeros            
+            filewind=wind_years_strings[i]+a+'_wind_mag_1min.asc'
+            print(filewind)
+            try: urllib.request.urlretrieve(mfi_url+filewind, wind_path+'mfi_1min_ascii/'+filewind)
+            except urllib.error.URLError as e:
+                print(' ', mfi_url,' ',e.reason) 
+
+    
+    
+    #for latest year
+    for k in np.arange(1,read_data_end_month):    
+
+        a=str(k).zfill(2) #add leading zeros
+        filewind=wind_years_strings[-1]+a+'_wind_mag_1min.asc'
+        print(filewind)
+        try: urllib.request.urlretrieve(mfi_url+filewind, wind_path+'mfi_1min_ascii/'+filewind)
+        except urllib.error.URLError as e:
+            print(' ', mfi_url,' ',e.reason) 
+                      
+
+    
+    ############## SWE
+        
+    swe_url='https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/'
+    print(swe_url)
+        
+    for i in np.arange(0,len(wind_years_strings)):    
+
+        filewind='wind_kp_unspike'+wind_years_strings[i]+'.txt'
+        print(filewind)
+        try: urllib.request.urlretrieve(swe_url+filewind, wind_path+'swe_92sec_ascii/'+filewind)
+        except urllib.error.URLError as e:
+            print(' ', swe_url,' ',e.reason) 
+
+
+      
+def stereoa_download_beacon(start_year, stereoa_path):
+
+    #download MFI and SWE in ASCII from SPDF
+        
+    print('download STEREO-A beacon data to ', stereoa_path)
+        
+        
+        
+    read_data_end_year=datetime.datetime.utcnow().year
+    read_data_end_month=datetime.datetime.utcnow().month
+    
+    
+    sta_years_strings=[]
+    for j in np.arange(start_year,read_data_end_year+1):
+        sta_years_strings.append(str(j))
+
+    print('for years', sta_years_strings)
+    
+    ## BEACON SOURCES
+   
+    
+    impact_url='https://stereo-ssc.nascom.nasa.gov/data/beacon/ahead/impact/'
+    plastic_url='https://stereo-ssc.nascom.nasa.gov/data/beacon/ahead/plastic/'
+    
+    #make a list of all dates from start year onwards until now
+    tstart1=datetime.datetime(start_year,1,1)
+    
+    time_1=[]
+    while tstart1 < datetime.datetime.utcnow():
+        time_1.append(tstart1)  
+        tstart1 += datetime.timedelta(days=1)
+    print(time_1[0:10])
+    
+    for i in np.arange(0,len(time_1)):
+        
+        
+        yearstr=str(time_1[i].year)
+        
+        monthstr=str(time_1[i].month).zfill(2) #add leading zeros 
+
+        daystr=str(time_1[i].day).zfill(2) #add leading zeros 
+
+        filesta='STA_LB_IMPACT_'+yearstr+monthstr+daystr+'_V02.cdf'
+        print(filesta)        
+        try: urllib.request.urlretrieve(impact_url+yearstr+'/'+monthstr+'/'+filesta, stereoa_path+'beacon/impact/'+filesta)
+        except urllib.error.URLError as e:
+                 print(' ', impact_url,' ',e.reason)
+                
+                
+        filesta='STA_LB_PLASTIC_'+yearstr+monthstr+daystr+'_V14.cdf'    
+        try: urllib.request.urlretrieve(plastic_url+yearstr+'/'+monthstr+'/'+filesta, stereoa_path+'beacon/plastic/'+filesta)
+        except urllib.error.URLError as e:
+                   print(' ', plastic_url,' ',e.reason)
+      
+            
+            
+
+
+def download_sta_merged(start_timestamp, end_timestamp, path="/Users/emmadavies/Documents/Data-test"):
+    
+    start = start_timestamp.year
+    
+    end = end_timestamp.year + 1 
+    
+    while start < end:
+        
+        year = start
+        data_item_id = f'STA_L2_MAGPLASMA1m{year}_V03'
+        if os.path.isfile(f"{path}/{data_item_id}.cdf") == True:
+            print(f'{data_item_id}.cdf has already been downloaded.')
+            start += 1
+        else:
+            try:
+                data_url = f'https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/magplasma/'
+                urllib.request.urlretrieve(data_url, f"{path}/{data_item_id}.cdf")
+                print(f'Successfully downloaded {data_item_id}.cdf')
+                start += 1
+            except Exception as e:
+                print('ERROR', e, data_item_id)
+                start += 1
+            
+            
+
+
+    
+
+def wind_download_ascii_old_wget_curl():
+
+    #download MFI and SWE in ASCII from SPDF
+        
+    print('downloading Wind ascii data')
+        
+   
+    read_data_end_year=datetime.datetime.utcnow().year
+    read_data_end_month=datetime.datetime.utcnow().month
+    
+    wind_years_strings=[]
+    for j in np.arange(2022,read_data_end_year+1):
+        wind_years_strings.append(str(j))
+
+    print(wind_years_strings)
+        
+    wind_data_path='/perm/aswo/data/wind/mfi_1min_ascii'
+    if mac   == 1: wind_data_path='/Users/chris/python/data/wind/mfi_1min_ascii'
+
+    os.chdir(wind_data_path)
+
+    mfi_url='https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/'
+    print(mfi_url)
+    
+    #for all years
+    for i in np.arange(0,len(wind_years_strings)-1):    
+
+        for k in np.arange(1,13):    
+
+            a=str(k).zfill(2) #add leading zeros
+            print(wind_years_strings[i],' ',a)
+
+            
+#                omni2_url='https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2_all_years.dat'
+#    print(omni2_url)
+#    try: urllib.request.urlretrieve(omni2_url, 'data/omni2_all_years.dat')
+#    except urllib.error.URLError as e:
+#        print(' ', omni2_url,' ',e.reason) 
+
+            
+            
+            if linux == 1: os.system('wget -nc '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') #199504_wind_mag_1min.asc	
+            if mac   == 1: os.system('curl -s -O -C - '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') 
+
+    #for latest year
+    for k in np.arange(1,read_data_end_month):    
+
+        a=str(k).zfill(2) #add leading zeros
+        print(wind_years_strings[-1],' ',a)
+                      
+            
+        if linux == 1: os.system('wget -nc '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') 
+        if mac   == 1: os.system('curl -s -O -C - '+mfi_url+wind_years_strings[-1]+a+'_wind_mag_1min.asc') 
+
+
+    
+    #download plasma ascii data
+
+    #linux
+    #wind_data_path='/perm/aswo/data/wind/swe_92sec_ascii'
+        
+    #mac
+    wind_data_path='/Users/chris/python/data/wind/swe_92sec_ascii'
+    
+    os.chdir(wind_data_path)
+
+    swe_url='https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/'
+    print(swe_url)
+
+    for i in np.arange(0,len(wind_years_strings)):    
+        
+            print(wind_years_strings[i])
+
+            if linux == 1: os.system('wget -nc '+swe_url+'wind_kp_unspike'+wind_years_strings[i]+'.txt')
+            if mac   == 1: os.system('curl -s -O -C - '+swe_url+'wind_kp_unspike'+wind_years_strings[i]+'.txt')
+
+    if linux == 1: os.chdir('/export/home/aswo/heliofc/code/heliocats')
+    if mac   == 1: os.chdir('/Users/chris/python/heliocats')
+        
+        
+    
+    
+
+
+
+
+
+
 def remove_wind_spikes_gaps(data):
     
     #nan intervals
@@ -237,88 +476,6 @@ def read_wind_icme_catalog():
     
     
     
-    
-    
-    
-
-def wind_download_ascii():
-
-    #download MFI
-    
-    #switch for operating system
-    linux=0
-    mac=1
-    
-    if linux == 1: print('downloading Wind ascii data in Linux mode')
-    if mac == 1: print('downloading Wind ascii data in Mac mode')
-    
-        
-    
-    read_data_end_year=datetime.datetime.utcnow().year
-    read_data_end_month=datetime.datetime.utcnow().month
-
-    
-    wind_years_strings=[]
-    for j in np.arange(2022,read_data_end_year+1):
-        wind_years_strings.append(str(j))
-
-    print(wind_years_strings)
-        
-    if linux == 1: wind_data_path='/perm/aswo/data/wind/mfi_1min_ascii'
-    if mac   == 1: wind_data_path='/Users/chris/python/data/wind/mfi_1min_ascii'
-
-    os.chdir(wind_data_path)
-
-    mfi_url='https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/'
-    print(mfi_url)
-    
-    #for all years
-    for i in np.arange(0,len(wind_years_strings)-1):    
-
-        for k in np.arange(1,13):    
-
-            a=str(k).zfill(2) #add leading zeros
-            print(wind_years_strings[i],' ',a)
-                        
-            if linux == 1: os.system('wget -nc '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') #199504_wind_mag_1min.asc	
-            if mac   == 1: os.system('curl -s -O -C - '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') 
-
-    #for latest year
-    for k in np.arange(1,read_data_end_month):    
-
-        a=str(k).zfill(2) #add leading zeros
-        print(wind_years_strings[-1],' ',a)
-                      
-            
-        if linux == 1: os.system('wget -nc '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') 
-        if mac   == 1: os.system('curl -s -O -C - '+mfi_url+wind_years_strings[-1]+a+'_wind_mag_1min.asc') 
-
-
-    
-    #download plasma ascii data
-
-    #linux
-    #wind_data_path='/perm/aswo/data/wind/swe_92sec_ascii'
-        
-    #mac
-    wind_data_path='/Users/chris/python/data/wind/swe_92sec_ascii'
-    
-    os.chdir(wind_data_path)
-
-    swe_url='https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/'
-    print(swe_url)
-
-    for i in np.arange(0,len(wind_years_strings)):    
-        
-            print(wind_years_strings[i])
-
-            if linux == 1: os.system('wget -nc '+swe_url+'wind_kp_unspike'+wind_years_strings[i]+'.txt')
-            if mac   == 1: os.system('curl -s -O -C - '+swe_url+'wind_kp_unspike'+wind_years_strings[i]+'.txt')
-
-    if linux == 1: os.chdir('/export/home/aswo/heliofc/code/heliocats')
-    if mac   == 1: os.chdir('/Users/chris/python/heliocats')
-        
-        
     
     
 
