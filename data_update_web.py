@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## data_update_web.ipynb
-# 
 # ## data updates for the helioforecast.space website
 # 
 # Main author: C. Möstl, Austrian Space Weather Office, GeoSphere Austria
@@ -11,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[1]:
+# In[10]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -67,7 +65,10 @@ import os
 os.system('jupyter nbconvert --to script data_update_web.ipynb')   
 
 
-# In[7]:
+# ### Configure paths
+# 
+
+# In[11]:
 
 
 from config import data_path
@@ -90,40 +91,143 @@ print(data_path_ml)
 
 ########### make directories first time
 if os.path.isdir(plot_path) == False: os.mkdir(plot_path)
+if os.path.isdir(plot_path+'omni2') == False: os.mkdir(plot_path+'omni2')
+if os.path.isdir(plot_path+'wind') == False: os.mkdir(plot_path+'wind')
+if os.path.isdir(plot_path+'stereoa') == False: os.mkdir(plot_path+'stereoa')
+if os.path.isdir(plot_path+'combined') == False: os.mkdir(plot_path+'combined')
+
+
 if os.path.isdir(position_path) == False: os.mkdir(position_path)
 if os.path.isdir(sun_path) == False: os.mkdir(sun_path)
 if os.path.isdir(noaa_path) == False: os.mkdir(noaa_path)
 if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 
-# In[5]:
+# ### positions and SDO plot
+
+# In[12]:
 
 
-############################################# standard data update each day
-
-from heliocats import data as hd
-importlib.reload(hd) #reload again while debugging
-
-from heliocats import plot as hp
-importlib.reload(hp) #reload again while debugging
-
-################# spacecraft positions image
+# spacecraft positions image
 hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
 
-
-################# SDO images now
+# get current SDO images 
 hd.get_sdo_realtime_image(sun_path)
 
 
-# In[6]:
+# ### OMNI2 data
+# 
+
+# In[13]:
 
 
-import sys
+get_omni=0
+
+# OMNI2
+fileomni="omni_1963_now.p"
+if get_omni: hd.save_omni_data(data_path,fileomni)
+[o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
+
+start=datetime.datetime.utcnow() - datetime.timedelta(days=365)
+end=datetime.datetime.utcnow() 
+hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
+
+
+# ### Wind data
+
+# In[14]:
+
+
+#from heliocats import data as hd
+#importlib.reload(hd) #reload again while debugging
+
+#from heliocats import plot as hp
+#importlib.reload(hp) #reload again while debugging
+
+#get_wind=1
+
+#filewin="wind_2018_now_heeq.p" 
+#start=datetime.datetime(2022, 12, 1)
+#start=datetime.datetime(2022, 12, 1)
+#end=datetime.datetime.utcnow()
+
+
+
+#if get_wind: 
+    #hd.wind_download_ascii()    
+    #hd.save_wind_data_ascii(data_path,filewin,start,end,coord='HEEQ')
+
+#[win,winh]=pickle.load(open(data_path+filewin, "rb"))
+    
+#start=win.time[-1]-datetime.timedelta(days=365)
+#end=datetime.datetime.utcnow()         
+#hp.plot_insitu_update(win, start, end,'Wind',plot_path+'wind/',now=True)
+
+
+
+
+
+
+
+
+
+
+
+# ### STEREO-A beacon data
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# ### NOAA real time
+
+# In[15]:
+
+
+print('download NOAA real time solar wind plasma and mag')
+datestr=str(datetime.datetime.utcnow().strftime("%Y_%b_%d_%H_%M"))
+print(datestr+' UTC')
+
+plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
+mag='http://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json'
+
+try: urllib.request.urlretrieve(plasma, noaa_path+'plasma-7-day_'+datestr+'.json')
+except urllib.error.URLError as e:
+  print(' ', plasma,' ',e.reason)
+
+try: urllib.request.urlretrieve(mag, noaa_path+'mag-7-day_'+datestr+'.json')
+except urllib.error.URLError as e:
+  print(' ', mag,' ',e.reason)
+  
+print()
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
 sys.exit()
 
 
-
-
 # In[ ]:
 
 
@@ -148,10 +252,108 @@ sys.exit()
 
 
 
+# In[19]:
+
+
+
+
+
+
+
+
+
+
+
+
+# In[58]:
+
+
+#on linux
+#print('download new Wind data files without overwriting existing files')
+
+#on mac for testing
+#wind_data_path='/Users/chris/python/data/wind/wind_mfi_k0'
+#os.system('curl -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2020/*.cdf"')
+
+
+
+#wind_data_path='/perm/aswo/data/wind/wind_mfi_k0'
+#print(wind_data_path)
+#os.system('wget -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2020/*.cdf"')
+#wind_data_path='/nas/helio/data/heliosat/data/wind_swe_h1'
+#os.system('wget -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/swe/swe_h1/2020/*.cdf"')
+
+
+# In[ ]:
+
+
+filewin="wind_2018_now_gse.p" 
+start=datetime.datetime(2018, 1, 1)
+end=datetime.datetime.utcnow()
+if get_new_data: hd.save_wind_data(data_path,filewin,start,end,heeq=False)
+[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+
+filewin="wind_2018_now_heeq.p" 
+start=datetime.datetime(2018, 1, 1)
+end=datetime.datetime.utcnow()
+if get_new_data: hd.save_wind_data(data_path,filewin,start,end,heeq=True)
+
+start=win.time[-1]-datetime.timedelta(days=100)
+end=datetime.datetime.utcnow()         
+hp.plot_insitu_update(win, start, end,'Wind',plot_path,now=True)
+
+
 # In[ ]:
 
 
 
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+sys.exit()
+
+
+# In[ ]:
+
+
+############### write header file for daily updates
+text = open('/nas/helio/data/insitu_python/data_update_headers.txt', 'w')
+text.write('Contains headers for the data files which are updated in real time.'+'\n \n')
+text.write('File creation date:  '+datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M") +' \n \n')
+
+
+text.write('NOAA real time solar wind: '+filenoaa+'\n \n'+ hnoaa+' \n \n')
+text.write('load with: >> [noaa,hnoaa]=pickle.load(open("'+data_path+filenoaa+'", "rb"))') 
+text.write(' \n \n \n \n')
+
+text.write('STEREO-A beacon: '+filesta_sceq+'\n \n'+ hsta+' \n \n')
+text.write('load with: >> [sta,hsta]=pickle.load(open("'+data_path+filesta+'", "rb"))') 
+text.write(' \n \n \n \n')
+
+text.write('Wind: '+filewin+'\n \n'+ hwin+' \n \n')
+text.write('load with: >> [win,hwin]=pickle.load(open("'+data_path+filewin+'", "rb" ))') 
+text.write(' \n \n \n \n')
+
+
+text.write('OMNI2: '+fileomni+'\n \n'+ ho+' \n \n')
+text.write('load with: >> [o,ho]=pickle.load(open("'+data_path+fileomni+'", "rb" ))') 
+text.write(' \n \n \n \n')
+
+text.close()
 
 
 # In[4]:
@@ -209,11 +411,6 @@ sys.exit()
 # sftp.put(path+'NOAA_RTSW_PREDSTORM_3days_now.png')
 # sftp.put(path+'OMNI2_and_NOAA_RTSW_now.png')
 # 
-# sftp.put(path_position+'positions_now.png')
-# 
-# 
-# sftp.put(data_path_sun+'latest_1024_0193.jpg')
-# sftp.put(data_path_sun+'latest_1024_HMIB.jpg')
 # 
 # ----------------------------
 

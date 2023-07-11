@@ -72,12 +72,13 @@ def plot_insitu_update(sc, start, end, sc_label, path, **kwargs):
      plt.legend(loc=3,ncol=4,fontsize=fsize-2)
      ax1.set_xlim(start,end)
      ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
-     plt.ylim((-20, 20))
+     plt.ylim((-40, 40))
      #ax1.set_xticklabels([]) does not work with sharex
      #plt.setp(ax1.get_xticklabels(), fontsize=6)
      plt.setp(ax1.get_xticklabels(), visible=False)
 
-     plt.title(sc_label+' data       start: '+start.strftime("%Y-%b-%d %H:%M")+'       end: '+end.strftime("%Y-%b-%d %H:%M"),fontsize=fsize)
+     plt.title(sc_label+' data       start: '+start.strftime("%Y-%b-%d")+'       end: '+end.strftime("%Y-%b-%d"),fontsize=fsize)
+     #plt.title(sc_label+' data       start: '+start.strftime("%Y-%b-%d %H:%M")+'       end: '+end.strftime("%Y-%b-%d %H:%M"),fontsize=fsize)
 
 
      ax2 = plt.subplot(412,sharex=ax1) 
@@ -85,7 +86,7 @@ def plot_insitu_update(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('V [km/s]',fontsize=fsize)
      ax2.set_xlim(start,end)
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     plt.ylim((250, 800))
+     plt.ylim((250, 900))
      #ax2.set_xticklabels([])
      plt.setp(ax2.get_xticklabels(), visible=False)
 
@@ -104,10 +105,19 @@ def plot_insitu_update(sc, start, end, sc_label, path, **kwargs):
      ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
      plt.ylabel('T [MK]',fontsize=fsize)
      ax4.set_xlim(start,end)
+        
+     ax4.xaxis.set_major_locator(mdates.MonthLocator())
+        
      ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
+    
+    
+    
+    
      plt.ylim((0, 1.0))
      
-     plt.figtext(0.99,0.01,'Möstl, Bailey / Helio4Cast', color='black', ha='right',fontsize=fsize-3)
+     plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+
+     plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
      
      plt.tight_layout()
@@ -116,7 +126,12 @@ def plot_insitu_update(sc, start, end, sc_label, path, **kwargs):
      plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
      plt.savefig(plotfile)
      print('saved as ',plotfile)
-   
+
+     plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.pdf'
+     plt.savefig(plotfile)
+     print('saved as ',plotfile)
+
+    
 
      #if now exists as keyword, save as the file with just now in filename:     
      if 'now' in kwargs:
@@ -124,7 +139,12 @@ def plot_insitu_update(sc, start, end, sc_label, path, **kwargs):
         plt.savefig(plotfile)
         print('saved as ',plotfile)
 
-     #if now2 exists as keyword, save as the file with just now in filename:     
+        plotfile=path+sc_label+'_now.pdf'
+        plt.savefig(plotfile)
+        print('saved as ',plotfile)
+
+        
+     #if now2 exists as keyword, save as the file with just now2 in filename:     
      if 'now2' in kwargs:
         plotfile=path+sc_label+'_now2.png'
         plt.savefig(plotfile)
@@ -2420,7 +2440,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
     f8=plt.figtext(0.01,0.82,sta_text, fontsize=fsize, ha='left',c='red')
     
     #time
-    plt.figtext(0.65,0.9,time_date1.strftime("%Y %B %d  %H:%M"),fontsize=fsize+6, ha='left',c='black')
+    plt.figtext(0.65,0.9,time_date1.strftime("%Y %B %d  %H:%M UT"),fontsize=fsize+6, ha='left',c='black')
 
     #parker spiral
     if plot_parker:

@@ -81,7 +81,7 @@ importlib.reload(hs) #reload again while debugging
 import config
 importlib.reload(config)
 from config import data_path
-from config import data_path_ML
+from config import data_path_ml
 
 ########### make directories first time if not there
 
@@ -97,11 +97,14 @@ if os.path.isdir(catdir) == False: os.mkdir(catdir)
 icplotsdir='arrcat/plots_arrcat/' 
 if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir) 
 
-import warnings
-warnings.filterwarnings('ignore')
-
 #Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
 os.system('jupyter nbconvert --to script arrcat.ipynb')    
+
+
+#for server
+matplotlib.use('Agg')
+#for mac
+#%matplotlib inline
 
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
@@ -480,7 +483,7 @@ ac_struct['id'][100]
 
 #comparison old and new method for arrival time prediction
 deltata=(parse_time(ac.target_arrival_time[0:100]).plot_date-parse_time(ac_old.target_arrival_time).plot_date[0:100])*24
-print(deltata)
+#print(deltata)
 
 
 # ### plot directions and targets
@@ -557,26 +560,29 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[13]:
+# In[24]:
 
 
-fig=plt.figure(2, figsize=(18,8), dpi=100)
+fig=plt.figure(2, figsize=(16,7), dpi=100)
 
 ax = plt.subplot(121) 
-sns.distplot(ac.sse_speed_err,bins=200,kde=False,rug=True)
+sns.histplot(ac.sse_speed_err,bins=200,kde=False)
 plt.xlim(0,200)
 plt.ylabel('events')
 plt.xlabel('sse_speed_err [km/s]')
 plt.title('HIGeoCAT SSE speed error distribution')
 print('mean sse_speed error',np.mean(ac.sse_speed_err).astype(int),'+/-',np.std(ac.sse_speed_err).astype(int),' km/s' )
+ax.grid(True)
 
 ax2 = plt.subplot(122) 
-sns.distplot(ac.target_arrival_time_err,bins=800,kde=False,rug=True)
+sns.histplot(ac.target_arrival_time_err,bins=800,kde=False)
 plt.xlim(0,70)
 plt.title('ARRCAT target arrival time error distribution')
 plt.ylabel('events')
 plt.xlabel('target_arrival_time_err [hours]')
 print('mean target arrival time error from sse_speed error',np.mean(ac.target_arrival_time_err).astype(int),'+/-',np.std(ac.target_arrival_time_err).astype(int),'hours' )
+
+ax2.grid(True)
 
 plt.tight_layout()
 
@@ -619,10 +625,10 @@ hibi=np.where(ac.sc=='B')[0]
 '''
 
 
-# In[15]:
+# In[29]:
 
 
-last_year=2024
+last_year=datetime.datetime.utcnow().year+1
 #define dates of January 1 from 2007 to 2020
 years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,last_year+1) ] 
 yearly_bin_edges=parse_time(years_jan_1_str).plot_date
@@ -668,7 +674,7 @@ ax1.grid(alpha=0.5)
 ax1.set_xticks(yearly_bin_edges) 
 ax1.set_ylabel('CMEs observed per year')
 
-ax1.text(yearly_bin_edges[11],165,'last update: '+last_update,fontsize=15,zorder=2,horizontalalignment='center')
+ax1.text(yearly_bin_edges[-5],150,'latest event: '+str(np.sort(ac.sse_launch_time)[-1][0:10]),fontsize=15,zorder=2,horizontalalignment='center')
 
 plt.tight_layout()
 
@@ -677,9 +683,28 @@ plt.savefig(plotfile,dpi=150)
 print('saved as ',plotfile)
 
 
-# In[ ]:
+# In[30]:
 
 
+print(' ')
+print(' ')
+print('-------------------------------')
+print('The last event launch time in the ARRCAT that we just made is')
+print(np.sort(ac.sse_launch_time)[-1])
+
+
+# In[31]:
+
+
+url='https://helioforecast.space/static/sync/arrcat/HELCATS_ARRCAT_v20.csv' 
+arrcat_web=pd.read_csv(url)
+print('  ')
+
+print('The last event launch time in the ARRCAT on the web is')
+print(np.sort(arrcat_web.sse_launch_time)[-1])
+
+print('  ')
+print('-------------------------------')
 
 
 

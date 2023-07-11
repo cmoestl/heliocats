@@ -34,38 +34,12 @@ sftp.put(path+'NOAA_RTSW_PREDSTORM_14days_now.png')
 sftp.put(path+'NOAA_RTSW_PREDSTORM_3days_now.png')
 sftp.put(path+'OMNI2_and_NOAA_RTSW_now.png')
 
-sftp.put(path_position+'positions_now.png')
-
-
-sftp.put(data_path_sun+'latest_1024_0193.jpg')
-sftp.put(data_path_sun+'latest_1024_HMIB.jpg')
-
 
 print()
 
 sftp.chdir('icme_solar_cycle/')  #change dir
 print(sftp.pwd)
 
-
-
-data_path_cycle='/nas/helio/data/insitu_python/icme_rate_cycle_update/'
-
-#sftp.put(data_path_cycle+'icmecat_icme_rate.png')
-#sftp.put(data_path_cycle+'fig2_rate_ssn.png')
-#sftp.put(data_path_cycle+'cycle25_icme_rate_predictions.png')
-sftp.put(data_path_cycle+'cycle25_prediction_focus.png')
-sftp.put(data_path_cycle+'cycle25_prediction_short.png')
-#sftp.put(data_path_cycle+'cycle25_prediction.png')
-#sftp.put(data_path_cycle+'psp_orbits.png')
-#sftp.put(data_path_cycle+'solo_orbits.png')
-#sftp.put(data_path_cycle+'cycle25_icme_rate_psp_orbiter_bepi.png')
-
-
-
-
-#sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20.txt')
-#sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20_header.txt')
-#sftp.put('/home/cmoestl/pycode/heliocats/icmecat/HELCATS_ICMECAT_v20.xlsx')
 
 
 #sftp.get('remote_file')         # get a remote file

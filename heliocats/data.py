@@ -123,50 +123,10 @@ def remove_wind_spikes_gaps(data):
 
 
 
-def wind_download_ascii():
-
-    #download MFI
-
-
-    wind_years_strings=[]
-    for j in np.arange(2021,2023):
-        wind_years_strings.append(str(j))
-
-
-    wind_data_path='/nas/helio/data/Wind/mfi_1min_ascii'
-    os.chdir(wind_data_path)
-
-    mfi_url='https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/'
-
-    for i in np.arange(0,len(wind_years_strings)):    
-
-        for k in np.arange(1,13):    
-
-            a=str(k).zfill(2) #add leading zeros
-
-            os.system('wget -nc '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') #199504_wind_mag_1min.asc	
-
-    os.chdir('/home/cmoestl/pycode/heliocats')
-
-
-
-    #download plasma ascii data
-
-    wind_years_strings=[]
-    for j in np.arange(2021,2023):
-        wind_years_strings.append(str(j))
-
-
-    wind_data_path='/nas/helio/data/Wind/swe_92sec_ascii'
-    os.chdir(wind_data_path)
-
-    swe_url='https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/'
-
-    for i in np.arange(0,len(wind_years_strings)):    
-
-            os.system('wget -nc '+swe_url+'wind_kp_unspike'+wind_years_strings[i]+'.txt')
-
-    os.chdir('/home/cmoestl/pycode/heliocats')
+    
+    
+    
+    
 
 
 
@@ -280,7 +240,85 @@ def read_wind_icme_catalog():
     
     
     
+
+def wind_download_ascii():
+
+    #download MFI
     
+    #switch for operating system
+    linux=0
+    mac=1
+    
+    if linux == 1: print('downloading Wind ascii data in Linux mode')
+    if mac == 1: print('downloading Wind ascii data in Mac mode')
+    
+        
+    
+    read_data_end_year=datetime.datetime.utcnow().year
+    read_data_end_month=datetime.datetime.utcnow().month
+
+    
+    wind_years_strings=[]
+    for j in np.arange(2022,read_data_end_year+1):
+        wind_years_strings.append(str(j))
+
+    print(wind_years_strings)
+        
+    if linux == 1: wind_data_path='/perm/aswo/data/wind/mfi_1min_ascii'
+    if mac   == 1: wind_data_path='/Users/chris/python/data/wind/mfi_1min_ascii'
+
+    os.chdir(wind_data_path)
+
+    mfi_url='https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/'
+    print(mfi_url)
+    
+    #for all years
+    for i in np.arange(0,len(wind_years_strings)-1):    
+
+        for k in np.arange(1,13):    
+
+            a=str(k).zfill(2) #add leading zeros
+            print(wind_years_strings[i],' ',a)
+                        
+            if linux == 1: os.system('wget -nc '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') #199504_wind_mag_1min.asc	
+            if mac   == 1: os.system('curl -s -O -C - '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') 
+
+    #for latest year
+    for k in np.arange(1,read_data_end_month):    
+
+        a=str(k).zfill(2) #add leading zeros
+        print(wind_years_strings[-1],' ',a)
+                      
+            
+        if linux == 1: os.system('wget -nc '+mfi_url+wind_years_strings[i]+a+'_wind_mag_1min.asc') 
+        if mac   == 1: os.system('curl -s -O -C - '+mfi_url+wind_years_strings[-1]+a+'_wind_mag_1min.asc') 
+
+
+    
+    #download plasma ascii data
+
+    #linux
+    #wind_data_path='/perm/aswo/data/wind/swe_92sec_ascii'
+        
+    #mac
+    wind_data_path='/Users/chris/python/data/wind/swe_92sec_ascii'
+    
+    os.chdir(wind_data_path)
+
+    swe_url='https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/'
+    print(swe_url)
+
+    for i in np.arange(0,len(wind_years_strings)):    
+        
+            print(wind_years_strings[i])
+
+            if linux == 1: os.system('wget -nc '+swe_url+'wind_kp_unspike'+wind_years_strings[i]+'.txt')
+            if mac   == 1: os.system('curl -s -O -C - '+swe_url+'wind_kp_unspike'+wind_years_strings[i]+'.txt')
+
+    if linux == 1: os.chdir('/export/home/aswo/heliofc/code/heliocats')
+    if mac   == 1: os.chdir('/Users/chris/python/heliocats')
+        
+        
     
     
 
@@ -303,6 +341,9 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,coord):
     https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/wind_kp_unspike1996.txt    
     https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/201908_wind_mag_1min.asc
     '''
+    
+    
+    
   
     t_start = start_date
     t_end = end_date
@@ -312,24 +353,28 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,coord):
     time_mat=mdates.date2num(time) 
     
     
-    read_data_end_year=2022
+    read_data_end_year=datetime.datetime.utcnow().year
+    read_data_end_month=datetime.datetime.utcnow().month
         
     
     
     ##########################################################################
     
+    
+    
+    #wind_data_path='/perm/aswo/data/wind/mfi_1min_ascii/'
+    wind_data_path='/Users/chris/python/data/wind/mfi_1min_ascii/'
 
+    
     #############mfi
     
-    wind_data_path='/nas/helio/data/Wind/mfi_1min_ascii/'
-
     wind_years_strings=[]
-    for j in np.arange(1995,read_data_end_year):
+    for j in np.arange(start_date.year,end_date.year+1):
         wind_years_strings.append(str(j))
 
-
-    #array for 27 years
-    win_mag=np.zeros(60*24*365*27,dtype=[('time',object),('bx', float),('by', float),\
+    print(wind_years_strings)
+    #array for 40 years
+    win_mag=np.zeros(60*24*365*40,dtype=[('time',object),('bx', float),('by', float),\
                     ('bz', float),('bt', float),('np', float),('vt', float),('vx', float),\
                           ('vy', float),('vz', float),\
                           ('tp', float),('x', float),('y', float),('z', float),\
@@ -341,18 +386,17 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,coord):
 
     counter=0
 
-
-    for i in np.arange(0,len(wind_years_strings)):    
+    #previous years
+    for i in np.arange(0,len(wind_years_strings)-1):    
 
         for k in np.arange(1,13):    
 
             a=str(k).zfill(2) #add leading zeros
 
-            file=wind_data_path+wind_years_strings[i]+a+'_wind_mag_1min.asc' #199504_wind_mag_1min.asc	
+            file=wind_data_path+wind_years_strings[i]+a+'_wind_mag_1min.asc' 
             print(file)
-            #get data from file, no 2021 12 available yet
-            if file!='/nas/helio/data/Wind/mfi_1min_ascii/202112_wind_mag_1min.asc':
-                mfi_data=np.genfromtxt(file,dtype="i8,i8,i8,i8,i8,i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,")
+            #get data from file
+            mfi_data=np.genfromtxt(file,dtype="i8,i8,i8,i8,i8,i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,")
 
 
             #put data in array
@@ -361,7 +405,7 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,coord):
                 win_mag.time[p+counter]=datetime.datetime(mfi_data[p][0],mfi_data[p][1],mfi_data[p][2],mfi_data[p][3],mfi_data[p][4],mfi_data[p][5])
                 win_mag.bx[p+counter]=mfi_data[p][6]
                 
-                if coord=='GSE':
+                if coord=='GSE' or coord=='HEEQ':
                     win_mag.by[p+counter]=mfi_data[p][7]
                     win_mag.bz[p+counter]=mfi_data[p][8]
                     win_mag.bt[p+counter]=mfi_data[p][11]
@@ -379,6 +423,46 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,coord):
                 win_mag.z[p+counter]=mfi_data[p][19]
 
             counter=counter+len(mfi_data)    
+            
+            
+    #current year
+    for k in np.arange(1,read_data_end_month-1):    
+
+        a=str(k).zfill(2) #add leading zeros
+
+        file=wind_data_path+wind_years_strings[-1]+a+'_wind_mag_1min.asc' 
+        print(file)
+        #get data from file
+        mfi_data=np.genfromtxt(file,dtype="i8,i8,i8,i8,i8,i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,")
+
+
+        #put data in array
+        for p in np.arange(0,len(mfi_data)):
+                #time
+                win_mag.time[p+counter]=datetime.datetime(mfi_data[p][0],mfi_data[p][1],mfi_data[p][2],mfi_data[p][3],mfi_data[p][4],mfi_data[p][5])
+                win_mag.bx[p+counter]=mfi_data[p][6]
+                
+                if coord=='GSE' or coord=='HEEQ':
+                    win_mag.by[p+counter]=mfi_data[p][7]
+                    win_mag.bz[p+counter]=mfi_data[p][8]
+                    win_mag.bt[p+counter]=mfi_data[p][11]
+                    
+                    
+
+                if coord=='GSM':
+                    win_mag.by[p+counter]=mfi_data[p][9]
+                    win_mag.bz[p+counter]=mfi_data[p][10]
+                    win_mag.bt[p+counter]=mfi_data[p][11]
+
+    
+                    
+                #gse position
+                win_mag.x[p+counter]=mfi_data[p][17]
+                win_mag.y[p+counter]=mfi_data[p][18]
+                win_mag.z[p+counter]=mfi_data[p][19]
+
+        counter=counter+len(mfi_data)             
+            
 
     #cutoff        
     win_mag2=win_mag[0:counter]    
@@ -399,8 +483,8 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,coord):
     ############################swe
 
     
-    #array for 27 years
-    win_swe=np.zeros(60*24*365*27,dtype=[('time',object),('bx', float),('by', float),\
+    #array for 40 years
+    win_swe=np.zeros(60*24*365*40,dtype=[('time',object),('bx', float),('by', float),\
                     ('bz', float),('bt', float),('np', float),('vt', float),('vx', float),\
                           ('vy', float),('vz', float),\
                           ('tp', float),('x', float),('y', float),('z', float),\
@@ -413,7 +497,9 @@ def save_wind_data_ascii(path,finalfile,start_date,end_date,coord):
     
     counter=0
 
-    wind_data_path='/nas/helio/data/Wind/swe_92sec_ascii/'
+    #wind_data_path='/perm/aswo/data/wind/swe_92sec_ascii/'
+    wind_data_path='/Users/chris/python/data/wind/swe_92sec_ascii/'
+
 
     for i in np.arange(0,len(wind_years_strings)):    
 
