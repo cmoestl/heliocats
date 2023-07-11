@@ -166,7 +166,7 @@ hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 print(' ')
 print('------ NOAA real time solar wind data ')
 
-get_noaa=1
+get_noaa=0
 
 if get_noaa > 0:
     print('download NOAA real time solar wind plasma and mag and dst')
@@ -198,7 +198,8 @@ if get_noaa > 0:
  
     print('NOAA download complete')
 
-
+else:
+    print('NOAA data NOT downloaded, turn on switch')  
 
 ######## TO DO SAVE NOAA DATA AS PICKLE
 #save_noaa=0
@@ -212,13 +213,13 @@ if get_noaa > 0:
 
 # ### Wind data
 
-# In[9]:
+# In[6]:
 
 
 print(' ')
 print('------ download Wind data ')
 
-get_wind=1
+get_wind=0
 
 #filewin="wind_2018_now_heeq.p" 
 #start=datetime.datetime(2022, 12, 1)
@@ -227,8 +228,9 @@ get_wind=1
 
     
 if get_wind > 0:
-    hd.wind_download_ascii(start_year=2021, wind_path=wind_path) 
-    
+    hd.wind_download_ascii(start_year=2023, wind_path=wind_path) 
+else:
+    print('Wind data NOT downloaded, turn on switch')  
 
 #hd.save_wind_data_ascii(data_path,filewin,start,end,coord='HEEQ')
 #[win,winh]=pickle.load(open(data_path+filewin, "rb"))
@@ -240,7 +242,7 @@ if get_wind > 0:
 
 # ### STEREO-A beacon data
 
-# In[10]:
+# In[7]:
 
 
 get_stereoa=1
@@ -254,7 +256,7 @@ get_stereoa=1
 
 
 if get_stereoa > 0:
-    hd.stereoa_download_beacon(start_year=2021,stereoa_path=stereoa_path)   
+    hd.stereoa_download_beacon(start_year=2023,stereoa_path=stereoa_path)   
 
 
 # In[ ]:

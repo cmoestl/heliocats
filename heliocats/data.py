@@ -160,7 +160,6 @@ def stereoa_download_beacon(start_year, stereoa_path):
     while tstart1 < datetime.datetime.utcnow():
         time_1.append(tstart1)  
         tstart1 += datetime.timedelta(days=1)
-    print(time_1[0:10])
     
     for i in np.arange(0,len(time_1)):
         
