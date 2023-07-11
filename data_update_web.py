@@ -133,42 +133,55 @@ end=datetime.datetime.utcnow()
 hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 
 
-# ### NOAA real time solar wind
+# ### NOAA real time solar wind and Dst
 
-# In[8]:
+# In[19]:
 
 
 get_noaa=1
 
 
 if get_noaa > 0:
-    print('download NOAA real time solar wind plasma and mag')
-    datestr=str(datetime.datetime.utcnow().strftime("%Y_%m_%d_%H_%M"))
+    print('download NOAA real time solar wind plasma and mag and dst')
+    datestr=str(datetime.datetime.utcnow().strftime("%Y-%m-%dT%Hh"))
     print(datestr+' UTC')
 
     plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
     mag='http://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json'
+    dst='https://services.swpc.noaa.gov/products/kyoto-dst.json'
 
-    try: urllib.request.urlretrieve(plasma, noaa_path+'plasma-7-day_'+datestr+'.json')
+    try: 
+        urllib.request.urlretrieve(plasma, noaa_path+'plasma/plasma-7-day_'+datestr+'.json')
+        print(noaa_path+'plasma-7-day_'+datestr+'.json')
     except urllib.error.URLError as e:
-      print(' ', plasma,' ',e.reason)
+        print(' ', plasma,' ',e.reason)
 
-    try: urllib.request.urlretrieve(mag, noaa_path+'mag-7-day_'+datestr+'.json')
+    try: 
+        urllib.request.urlretrieve(mag, noaa_path+'mag/mag-7-day_'+datestr+'.json')
+        print(noaa_path+'mag-7-day_'+datestr+'.json')
     except urllib.error.URLError as e:
-      print(' ', mag,' ',e.reason)
+        print(' ', mag,' ',e.reason)
+        
+
+    try: 
+        urllib.request.urlretrieve(mag, noaa_path+'dst/dst-7-day_'+datestr+'.json')
+        print(noaa_path+'dst-7-day_'+datestr+'.json')
+    except urllib.error.URLError as e:
+        print(' ', mag,' ',e.reason)
+
+        
   
     print('NOAA download complete')
 
-save_noaa=1
-    
-#filenoaa='noaa_rtsw_jan_2023_now.p'
+save_noaa=0
+filenoaa='noaa_rtsw_jan_2023_now.p'
 #if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
 #[noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
 
     
 
 
-# In[15]:
+# In[6]:
 
 
 sys.exit()
