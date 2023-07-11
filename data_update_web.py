@@ -9,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[1]:
+# In[18]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -121,7 +121,7 @@ hd.get_sdo_realtime_image(sun_path)
 # In[12]:
 
 
-get_omni=1
+get_omni=0
 
 # OMNI2
 fileomni="omni_1963_now.p"
@@ -138,7 +138,7 @@ hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 # In[17]:
 
 
-get_noaa=0
+get_noaa=1
 
 
 if get_noaa > 0:
@@ -161,9 +161,9 @@ if get_noaa > 0:
 
 save_noaa=1
     
-filenoaa='noaa_rtsw_jan_2023_now.p'
-if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
-[noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+#filenoaa='noaa_rtsw_jan_2023_now.p'
+#if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
+#[noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
 
     
 
