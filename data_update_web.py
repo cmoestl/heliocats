@@ -9,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[1]:
+# In[10]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -141,7 +141,7 @@ hd.get_sdo_realtime_image(sun_path)
 print(' ')
 print('------ OMNI2 ')
 
-get_omni=0
+get_omni=1
 
 
 # OMNI2
@@ -166,7 +166,7 @@ hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 print(' ')
 print('------ NOAA real time solar wind data ')
 
-get_noaa=0
+get_noaa=1
 
 if get_noaa > 0:
     print('download NOAA real time solar wind plasma and mag and dst')
@@ -219,7 +219,7 @@ else:
 print(' ')
 print('------ download Wind data ')
 
-get_wind=0
+get_wind=1
 
 
 #download data for current year only    
@@ -246,7 +246,7 @@ else:
 
 # ### STEREO-A beacon data
 
-# In[ ]:
+# In[9]:
 
 
 print(' ')
@@ -288,7 +288,12 @@ sys.exit()
 # In[11]:
 
 
-#hd.download_stereoa_science_merged()
+print(' ')
+print('------ download STEREO-A science data ')
+get_stereoa_sci=1
+
+
+if get_stereoa_sci >0: hd.download_stereoa_science_merged()
 
 
 # In[ ]:
@@ -298,6 +303,12 @@ sys.exit()
 
 
 # In[58]:
+
+
+sys.exit()
+
+
+# In[ ]:
 
 
 #on linux
@@ -314,10 +325,6 @@ sys.exit()
 #os.system('wget -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2020/*.cdf"')
 #wind_data_path='/nas/helio/data/heliosat/data/wind_swe_h1'
 #os.system('wget -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/swe/swe_h1/2020/*.cdf"')
-
-
-# In[ ]:
-
 
 filewin="wind_2018_now_gse.p" 
 start=datetime.datetime(2018, 1, 1)

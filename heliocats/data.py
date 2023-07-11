@@ -178,6 +178,7 @@ def stereoa_download_beacon(start_year,start_month, stereoa_path):
                 
                 
         filesta='STA_LB_PLASTIC_'+yearstr+monthstr+daystr+'_V14.cdf'    
+        print(filesta) 
         try: urllib.request.urlretrieve(plastic_url+yearstr+'/'+monthstr+'/'+filesta, stereoa_path+'beacon/plastic/'+filesta)
         except urllib.error.URLError as e:
                    print(' ', plastic_url,' ',e.reason)
