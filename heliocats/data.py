@@ -129,7 +129,7 @@ def wind_download_ascii(start_year, wind_path):
 
 
       
-def stereoa_download_beacon(start_year, stereoa_path):
+def stereoa_download_beacon(start_year,start_month, stereoa_path):
 
     #download MFI and SWE in ASCII from SPDF
         
@@ -154,7 +154,7 @@ def stereoa_download_beacon(start_year, stereoa_path):
     plastic_url='https://stereo-ssc.nascom.nasa.gov/data/beacon/ahead/plastic/'
     
     #make a list of all dates from start year onwards until now
-    tstart1=datetime.datetime(start_year,1,1)
+    tstart1=datetime.datetime(start_year,start_month,1)
     
     time_1=[]
     while tstart1 < datetime.datetime.utcnow():

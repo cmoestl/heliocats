@@ -213,7 +213,7 @@ else:
 
 # ### Wind data
 
-# In[6]:
+# In[8]:
 
 
 print(' ')
@@ -221,16 +221,20 @@ print('------ download Wind data ')
 
 get_wind=0
 
+
+#download data for current year only    
+if get_wind > 0:
+    hd.wind_download_ascii(start_year=datetime.datetime.utcnow().year, wind_path=wind_path) 
+else:
+    print('Wind data NOT downloaded, turn on switch')  
+
+    
+    
+    
 #filewin="wind_2018_now_heeq.p" 
 #start=datetime.datetime(2022, 12, 1)
 #start=datetime.datetime(2022, 12, 1)
 #end=datetime.datetime.utcnow()
-
-    
-if get_wind > 0:
-    hd.wind_download_ascii(start_year=2023, wind_path=wind_path) 
-else:
-    print('Wind data NOT downloaded, turn on switch')  
 
 #hd.save_wind_data_ascii(data_path,filewin,start,end,coord='HEEQ')
 #[win,winh]=pickle.load(open(data_path+filewin, "rb"))
@@ -242,9 +246,11 @@ else:
 
 # ### STEREO-A beacon data
 
-# In[7]:
+# In[ ]:
 
 
+print(' ')
+print('------ download STEREO-A beacon data ')
 get_stereoa=1
 
 #filewin="wind_2018_now_heeq.p" 
@@ -254,9 +260,9 @@ get_stereoa=1
 
            
 
-
+#download data starting from current month (takes long otherwise with cdf files)
 if get_stereoa > 0:
-    hd.stereoa_download_beacon(start_year=2023,stereoa_path=stereoa_path)   
+    hd.stereoa_download_beacon(start_year=datetime.datetime.utcnow().year,start_month=datetime.datetime.utcnow().month,stereoa_path=stereoa_path)   
 
 
 # In[ ]:
