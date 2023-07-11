@@ -9,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[10]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -56,9 +56,9 @@ from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
 #for server
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 #for mac
-get_ipython().run_line_magic('matplotlib', 'inline')
+#%matplotlib inline
 
 #Convert this notebook to a script with:
 import os
@@ -68,7 +68,7 @@ os.system('jupyter nbconvert --to script data_update_web.ipynb')
 # ### Configure paths
 # 
 
-# In[11]:
+# In[2]:
 
 
 from config import data_path
@@ -105,7 +105,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[12]:
+# In[3]:
 
 
 # spacecraft positions image
@@ -118,10 +118,10 @@ hd.get_sdo_realtime_image(sun_path)
 # ### OMNI2 data
 # 
 
-# In[13]:
+# In[12]:
 
 
-get_omni=0
+get_omni=1
 
 # OMNI2
 fileomni="omni_1963_now.p"
@@ -133,9 +133,50 @@ end=datetime.datetime.utcnow()
 hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 
 
+# ### NOAA real time solar wind
+
+# In[17]:
+
+
+get_noaa=0
+
+
+if get_noaa > 0:
+    print('download NOAA real time solar wind plasma and mag')
+    datestr=str(datetime.datetime.utcnow().strftime("%Y_%b_%d_%H_%M"))
+    print(datestr+' UTC')
+
+    plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
+    mag='http://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json'
+
+    try: urllib.request.urlretrieve(plasma, noaa_path+'plasma-7-day_'+datestr+'.json')
+    except urllib.error.URLError as e:
+      print(' ', plasma,' ',e.reason)
+
+    try: urllib.request.urlretrieve(mag, noaa_path+'mag-7-day_'+datestr+'.json')
+    except urllib.error.URLError as e:
+      print(' ', mag,' ',e.reason)
+  
+    print('NOAA download complete')
+
+save_noaa=1
+    
+filenoaa='noaa_rtsw_jan_2023_now.p'
+if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
+[noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+
+    
+
+
+# In[15]:
+
+
+sys.exit()
+
+
 # ### Wind data
 
-# In[14]:
+# In[10]:
 
 
 #from heliocats import data as hd
@@ -151,7 +192,7 @@ hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 #start=datetime.datetime(2022, 12, 1)
 #end=datetime.datetime.utcnow()
 
-
+###!!use urllib.request.urlretrieve(plasma, noaa_path+'plasma-7-day_'+datestr+'.json')
 
 #if get_wind: 
     #hd.wind_download_ascii()    
@@ -179,41 +220,6 @@ hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 
 
 
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# ### NOAA real time
-
-# In[15]:
-
-
-print('download NOAA real time solar wind plasma and mag')
-datestr=str(datetime.datetime.utcnow().strftime("%Y_%b_%d_%H_%M"))
-print(datestr+' UTC')
-
-plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
-mag='http://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json'
-
-try: urllib.request.urlretrieve(plasma, noaa_path+'plasma-7-day_'+datestr+'.json')
-except urllib.error.URLError as e:
-  print(' ', plasma,' ',e.reason)
-
-try: urllib.request.urlretrieve(mag, noaa_path+'mag-7-day_'+datestr+'.json')
-except urllib.error.URLError as e:
-  print(' ', mag,' ',e.reason)
-  
-print()
 
 
 # In[ ]:
