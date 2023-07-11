@@ -9,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[19]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -118,7 +118,7 @@ hd.get_sdo_realtime_image(sun_path)
 # ### OMNI2 data
 # 
 
-# In[12]:
+# In[4]:
 
 
 get_omni=0
@@ -135,7 +135,7 @@ hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 
 # ### NOAA real time solar wind
 
-# In[17]:
+# In[8]:
 
 
 get_noaa=1
@@ -143,7 +143,7 @@ get_noaa=1
 
 if get_noaa > 0:
     print('download NOAA real time solar wind plasma and mag')
-    datestr=str(datetime.datetime.utcnow().strftime("%Y_%b_%d_%H_%M"))
+    datestr=str(datetime.datetime.utcnow().strftime("%Y_%m_%d_%H_%M"))
     print(datestr+' UTC')
 
     plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
