@@ -187,29 +187,34 @@ def stereoa_download_beacon(start_year, stereoa_path):
             
 
 
-def download_sta_merged(start_timestamp, end_timestamp, path="/Users/emmadavies/Documents/Data-test"):
+
+
+def download_stereoa_science_merged(start_timestamp, end_timestamp, path="/Users/emmadavies/Documents/Data-test"):
+    
+    ######## TO DO adjust from Emmas code
+    
+    
+    from datetime import datetime, timedelta
+    import urllib.request
+    import os.path
     
     start = start_timestamp.year
-    
-    end = end_timestamp.year + 1 
-    
+    end = end_timestamp.year + 1
     while start < end:
-        
         year = start
-        data_item_id = f'STA_L2_MAGPLASMA1m{year}_V03'
-        if os.path.isfile(f"{path}/{data_item_id}.cdf") == True:
-            print(f'{data_item_id}.cdf has already been downloaded.')
-            start += 1
-        else:
-            try:
-                data_url = f'https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/magplasma/'
-                urllib.request.urlretrieve(data_url, f"{path}/{data_item_id}.cdf")
-                print(f'Successfully downloaded {data_item_id}.cdf')
-                start += 1
-            except Exception as e:
-                print('ERROR', e, data_item_id)
-                start += 1
-            
+        date_str = f'{year}0101'
+        for v in range(6, 0, -1):
+            data_item_id = f'sta_l2_magplasma_1m_{date_str}_v{v:02}'
+            if os.path.isfile(f"{path}/{data_item_id}.cdf") == True:
+                print(f'{data_item_id}.cdf has already been downloaded.')
+            else:
+                try:
+                    data_url = f'https://spdf.gsfc.nasa.gov/pub/data/stereo/ahead/l2/impact/magplasma/1min/{year}/{data_item_id}.cdf'
+                    urllib.request.urlretrieve(data_url, f"{path}/{data_item_id}.cdf")
+                    print(f'Successfully downloaded {data_item_id}.cdf')
+                except Exception as e:
+                    print('ERROR', e, data_item_id)
+        start += 1  
             
 
 

@@ -16,7 +16,7 @@ data_path_ml='/Users/chris/python/data/insitu_python/ML_struct_arrays/'
 #data_path='/perm/aswo/data/insitu_python/'
 #noaa_path='/perm/aswo/ops/data/noaa/'
 #wind_path='/perm/aswo/data/wind/'
-#sta_path='/perm/aswo/data/stereoa/'
+#stereoa_path='/perm/aswo/data/stereoa/'
 #data_path_ml='/perm/aswo/data/insitu_python/ML_struct_arrays/'
 
 

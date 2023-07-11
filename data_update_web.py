@@ -160,7 +160,7 @@ hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 
 # ### NOAA real time solar wind and Dst
 
-# In[42]:
+# In[5]:
 
 
 print(' ')
@@ -200,7 +200,7 @@ if get_noaa > 0:
 
 
 
-######## TO DO SAVE NOAA DATA
+######## TO DO SAVE NOAA DATA AS PICKLE
 #save_noaa=0
 #filenoaa='noaa_rtsw_jan_2023_now.p'
 #if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
@@ -212,8 +212,11 @@ if get_noaa > 0:
 
 # ### Wind data
 
-# In[41]:
+# In[9]:
 
+
+print(' ')
+print('------ download Wind data ')
 
 get_wind=1
 
@@ -224,29 +227,20 @@ get_wind=1
 
     
 if get_wind > 0:
-    hd.wind_download_ascii(start_year=1995, wind_path=wind_path) 
+    hd.wind_download_ascii(start_year=2021, wind_path=wind_path) 
     
-
 
 #hd.save_wind_data_ascii(data_path,filewin,start,end,coord='HEEQ')
-
 #[win,winh]=pickle.load(open(data_path+filewin, "rb"))
-    
 #start=win.time[-1]-datetime.timedelta(days=365)
 #end=datetime.datetime.utcnow()         
 #hp.plot_insitu_update(win, start, end,'Wind',plot_path+'wind/',now=True)
 
 
 
-# In[10]:
-
-
-sys.exit()
-
-
 # ### STEREO-A beacon data
 
-# In[93]:
+# In[10]:
 
 
 get_stereoa=1
@@ -260,7 +254,7 @@ get_stereoa=1
 
 
 if get_stereoa > 0:
-    hd.stereoa_download_beacon(start_year=2022,stereoa_path=stereoa_path)   
+    hd.stereoa_download_beacon(start_year=2021,stereoa_path=stereoa_path)   
 
 
 # In[ ]:
@@ -281,32 +275,15 @@ sys.exit()
 
 
 
-# In[ ]:
+# ### STEREO-A science data
+
+# In[11]:
 
 
-
-
-
-# In[ ]:
-
-
-
+#hd.download_stereoa_science_merged()
 
 
 # In[ ]:
-
-
-
-
-
-# In[19]:
-
-
-
-
-
-
-
 
 
 
