@@ -65,6 +65,16 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
+
+
+
+
+
+
+
+
+
+
 def wind_download_ascii(start_year, wind_path):
 
     #download MFI and SWE in ASCII from SPDF
@@ -129,6 +139,11 @@ def wind_download_ascii(start_year, wind_path):
 
 
       
+    
+    
+    
+    
+    
 def stereoa_download_beacon(start_year,start_month, stereoa_path):
 
     #download MFI and SWE in ASCII from SPDF
@@ -186,8 +201,256 @@ def stereoa_download_beacon(start_year,start_month, stereoa_path):
             
             
 
+def save_stereoa_beacon_data(path,file,t_start,t_end,coord):
+            
+
+    #round tstart to nearest minute
+    t_start=datetime.datetime(t_start.year, t_start.month, t_start.day,t_start.hour,t_start.minute)
+    t_start1=copy.deepcopy(t_start)
+    time_1=[]
+        
+    #make 1 min datetimes
+    while t_start1 < t_end:
+        time_1.append(t_start1)  
+        t_start1 += datetime.timedelta(minutes=1)
+    print(time_1[0])    
+    print(time_1[-1])
+
+    #make array for 1 min data
+    sta=np.zeros(len(time_1),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vx', float),('vy', float),('vz', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    sta = sta.view(np.recarray)  
+    sta.time=time_1
+   
+
+    #make data file names
+    t_start1=copy.deepcopy(t_start)
+    days_sta = []
+    days_str = []
+    i=0
+    while t_start < t_end:
+        days_sta.append(t_start)  
+        days_str.append(str(days_sta[i])[0:4]+str(days_sta[i])[5:7]+str(days_sta[i])[8:10])        
+        i=i+1
+        t_start +=datetime.timedelta(days=1)
+
+    print(days_str)
+    
+
+    bx=np.zeros(int(1e7))
+    by=np.zeros(int(1e7))
+    bz=np.zeros(int(1e7))
+    t2=[]
+    i=0
+    
+    #go through all files    
+    for days_date in days_str:
+        
+        cdf_file = 'STA_LB_IMPACT_{}_V02.cdf'.format(days_date)
+        
+        if os.path.exists(path+'beacon/impact/'+cdf_file):
+            
+            print(cdf_file)
+            f1 = cdflib.CDF(path+'beacon/impact/'+cdf_file)
+            #print(f1)
+            #convert from epoch to datetime
+            t1 = cdflib.cdfepoch.to_datetime(f1.varget('Epoch_MAG')) 
+            
+            t2.extend(t1)
+            bfield=f1.varget('MAGBField') #RTN
+            #bt[i:i+len(bfield[:,3])]=bfield[:,3]
+            bx[i:i+len(bfield[:,0])]=bfield[:,0]
+            by[i:i+len(bfield[:,1])]=bfield[:,1]
+            bz[i:i+len(bfield[:,2])]=bfield[:,2]
+            
+            i=i+len(bfield[:,0])
+            
+    print('done') 
+
+    
+    #cut array
+
+    bx=bx[0:i]
+    by=by[0:i]
+    bz=bz[0:i]
+    
+    tm2=mdates.date2num(t2)
+    time_mat=mdates.date2num(time_1)
 
 
+    #linear interpolation to time_mat times    
+    sta.bx = np.interp(time_mat, tm2, bx )
+    sta.by = np.interp(time_mat, tm2, by )
+    sta.bz = np.interp(time_mat, tm2, bz )
+    #sta.bt = np.sqrt(sta.bx**2+sta.by**2+sta.bz**2)
+    
+    
+    #set missing data to NaN
+    
+    #round first each original time to full minutes   original data at 30sec
+    tround=copy.deepcopy(t2)
+    format_str = '%Y-%m-%d %H:%M'  
+    for k in np.arange(np.size(t2)):
+         tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(t2[k], format_str), format_str) 
+    tm2_round=mdates.date2num(tround)
+
+    #which values are not in original data compared to full time range
+    isin=np.isin(time_mat,tm2_round)      
+    setnan=np.where(isin==False)
+    #set to to nan that is not in original data
+    sta.bx[setnan]=np.nan
+    sta.by[setnan]=np.nan
+    sta.bz[setnan]=np.nan
+    sta.bt = np.sqrt(sta.bx**2+sta.by**2+sta.bz**2)
+    
+    
+    
+    #plt.plot(t2,bx)
+    #plt.plot(t2,by)
+    #plt.plot(t2,bz)
+    #plt.plot(t2,bt,'-k')
+    
+    
+    
+    ########## PLASTIC
+
+    print(days_str)
+    
+    #set variables
+    vx=np.zeros(int(1e7))
+    vy=np.zeros(int(1e7))
+    vz=np.zeros(int(1e7))
+    vt=np.zeros(int(1e7))
+    
+    den=np.zeros(int(1e7))
+    
+    t2=[]
+    i=0
+    
+    #go through all files    
+    for days_date in days_str:
+        
+        cdf_file = 'STA_LB_PLASTIC_{}_V14.cdf'.format(days_date)
+        print(cdf_file)
+        
+        if os.path.exists(path+'beacon/plastic/'+cdf_file):
+            
+
+            f1 = cdflib.CDF(path+'beacon/plastic/'+cdf_file)
+            
+            #print(f1.cdf_info())
+            #print(f1)
+            #convert from epoch to datetime
+            t1 = cdflib.cdfepoch.to_datetime(f1.varget('Epoch1')) 
+            
+            #Velocity_RTN
+            #Density get attributes for this variabel f1.varattsget('Density')
+            
+            t2.extend(t1)
+            vfield=f1.varget('Velocity_RTN') #RTN
+            vx[i:i+len(vfield[:,0])]=vfield[:,0]
+            vy[i:i+len(vfield[:,1])]=vfield[:,1]
+            vz[i:i+len(vfield[:,2])]=vfield[:,2]
+            vt[i:i+len(vfield[:,3])]=vfield[:,3]
+            
+            den1=f1.varget('Density')             
+            den[i:i+len(den1)]=den1            
+            
+            i=i+len(vfield[:,0])
+            
+
+            
+    print('PLASTIC done') 
+
+    
+    #cut arrays
+
+    vx=vx[0:i]
+    vy=vy[0:i]
+    vz=vy[0:i]    
+    vt=vt[0:i]
+    den=den[0:i]
+    
+    tp2=mdates.date2num(t2)
+
+    #set missing data to nan    
+    vx[np.where(vx < -1e30)]=np.nan  
+    vy[np.where(vy < -1e30)]=np.nan  
+    vz[np.where(vy < -1e30)]=np.nan  
+    vt[np.where(vt < -1e30)]=np.nan  
+    den[np.where(den < -1e30)]=np.nan  
+
+
+    #linear interpolation to time_mat times    
+    sta.vx = np.interp(time_mat, tp2, vx )
+    sta.vy = np.interp(time_mat, tp2, vy )
+    sta.vz = np.interp(time_mat, tp2, vz )
+    sta.vt = np.interp(time_mat, tp2, vt )
+    sta.np = np.interp(time_mat, tp2, den )
+    
+    
+    
+    #POSITION
+    
+    
+    
+    #add position
+    
+    print('position start')
+    frame='HEEQ'
+    kernels = spicedata.get_kernel('stereo_a')
+    kernels += spicedata.get_kernel('stereo_a_pred')
+    spice.furnish(kernels)
+    statra=spice.Trajectory('-234') #STEREO-A SPICE NAIF code
+    statra.generate_positions(sta.time,'Sun',frame)
+    statra.change_units(astropy.units.AU)  
+    [r, lat, lon]=cart2sphere(statra.x,statra.y,statra.z)
+    
+    sta.x=statra.x
+    sta.y=statra.y
+    sta.z=statra.z
+    
+    sta.r=r
+    sta.lat=np.degrees(lat)
+    sta.lon=np.degrees(lon)
+
+    print('position end ')
+
+    
+    
+    
+    header='STEREO-A magnetic field (IMPACT instrument, science data) and plasma data (PLASTIC, preliminary science data), ' + \
+    'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/ and   '+ \
+    'https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2020/ '+ \
+    'Timerange: '+sta.time[0].strftime("%Y-%b-%d %H:%M")+' to '+sta.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', with an average time resolution of '+str(np.mean(np.diff(sta.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by sta.time, sta.bx, sta.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(sta.size)+'. '+\
+    'Units are btxyz [nT, '+coord+', vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats '+\
+    'and https://github.com/heliopython/heliopy. '+\
+    'By C. Moestl. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+    print('save pickle file')
+    pickle.dump([sta,header], open(data_path+file, "wb"))
+    
+    print('done sta')
+    
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
 
 def download_stereoa_science_merged(start_timestamp, end_timestamp, path="/Users/emmadavies/Documents/Data-test"):
     
@@ -217,6 +480,36 @@ def download_stereoa_science_merged(start_timestamp, end_timestamp, path="/Users
         start += 1  
             
 
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+#---------------------------------------------------------------            
+            
+            
 
     
 
@@ -3037,185 +3330,6 @@ def save_stereob_beacon_data(path,file,start_time,end_time):
     pickle.dump([stb,header], open(path+file, "wb"))
     
     print('done stb')
-    print()
-
-
-
-
-
- 
-def save_stereoa_beacon_data(path,file,start_time,end_time,sceq):
-
-    print('start STA')
-    sta_sat = heliosat.STA()
-    t_start = start_time
-    t_end = end_time
- 
-    #create an array with 1 minute resolution between t start and end
-    time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*60*24))]  
-    time_mat=mdates.date2num(time) 
-
-    tm, mag = sta_sat.get_data_raw(t_start, t_end, "mag_beacon")
-    tp, pro = sta_sat.get_data_raw(t_start, t_end, "proton_beacon")
-    print('download complete')
-   
-    tm1=parse_time(tm,format='unix').datetime 
-    tp1=parse_time(tp,format='unix').datetime 
-
-    #convert to matplotlib time for linear interpolation
-    tm1_mat=mdates.date2num(tm1) 
-    tp1_mat=mdates.date2num(tp1) 
-    print('time convert done')
-    
-    print('position start')
-    frame='HEEQ'
-    spice.furnish(spicedata.get_kernel('stereo_a_pred'))
-    statra=spice.Trajectory('-234') #STEREO-A SPICE NAIF code
-    statra.generate_positions(time,'Sun',frame)
-    statra.change_units(astropy.units.AU)  
-    [r, lat, lon]=cart2sphere(statra.x,statra.y,statra.z)
-    print('position end ')
-    
-    #linear interpolation to time_mat times    
-    bx = np.interp(time_mat, tm1_mat, mag[:,0] )
-    by = np.interp(time_mat, tm1_mat, mag[:,1] )
-    bz = np.interp(time_mat, tm1_mat, mag[:,2] )
-    bt = np.sqrt(bx**2+by**2+bz**2)
-
-    den = np.interp(time_mat, tp1_mat, pro[:,0])
-    vt = np.interp(time_mat, tp1_mat, pro[:,1])
-    tp = np.interp(time_mat, tp1_mat, pro[:,2])
-    
-    
-    
-    
-    #round first each original time to full minutes
-    troundm=copy.deepcopy(tm1)
-    format_str = '%Y-%m-%d %H:%M'  
-    for k in np.arange(np.size(tm1)):
-         troundm[k] = datetime.datetime.strptime(datetime.datetime.strftime(tm1[k], format_str), format_str) 
-    tm_round=parse_time(troundm).plot_date
-
-    
-    troundp=copy.deepcopy(tp1)
-    format_str = '%Y-%m-%d %H:%M'  
-    for k in np.arange(np.size(tp1)):
-         troundp[k] = datetime.datetime.strptime(datetime.datetime.strftime(tp1[k], format_str), format_str) 
-    tp_round=parse_time(troundp).plot_date
-
-    #check
-    #print('-----')
-    #print(tm1)
-    #print(tp1)
-
-    #print(troundm)
-    #print(troundp)
-
-
-    isin=np.isin(time_mat,tm_round)      
-    setnan=np.where(isin==False)
-    #set to to nan that is not in original data
-    bx[setnan]=np.nan
-    by[setnan]=np.nan
-    bz[setnan]=np.nan
-    bt = np.sqrt(bx**2+by**2+bz**2)
-    
-    
-    isin=np.isin(time_mat,tp_round)      
-    setnan=np.where(isin==False)
-    #set to to nan that is not in original data
-    den[setnan]=np.nan
-    tp[setnan]=np.nan
-    vt[setnan]=np.nan
-    
-
-
-    
-    #make array
-    sta=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
-                ('x', float),('y', float),('z', float),\
-                ('r', float),('lat', float),('lon', float)])   
-       
-    #convert to recarray
-    sta = sta.view(np.recarray)  
-
-    #fill with data
-    sta.time=time
-    sta.bx=bx
-    sta.by=by
-    sta.bz=bz 
-    sta.bt=bt
-
-    sta.x=statra.x
-    sta.y=statra.y
-    sta.z=statra.z
-    
-    sta.r=r
-    sta.lat=np.rad2deg(lat)
-    sta.lon=np.rad2deg(lon)
-
-    sta.np=den
-    sta.tp=tp    
-    sta.vt=vt  
-    
-    
-    #remove spikes from plasma data
-    #median filter
-    sta.vt=scipy.signal.medfilt(sta.vt,9)
-    #set nans to a high number
-    sta.vt[np.where(np.isfinite(sta.vt) == False)]=1e5
-    #get rid of all single spikes with scipy signal find peaks (cannot use nan)
-    peaks,properties = scipy.signal.find_peaks(sta.vt, prominence=200,width=(1,200))
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        sta.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-    #set nan again
-    sta.vt[np.where(sta.vt == 1e5)]=np.nan     
-    sta.tp[np.where(np.isfinite(sta.vt) == False)]=np.nan
-    sta.np[np.where(np.isfinite(sta.vt) == False)]=np.nan   
-    
-    
-    #manual spike removal for magnetic field
-    #remove_start=datetime.datetime(2018, 9, 23, 11, 00)
-    #remove_end=datetime.datetime(2018, 9, 25, 00, 00)
-    #remove_start_ind=np.where(remove_start==sta.time)[0][0]
-    #remove_end_ind=np.where(remove_end==sta.time)[0][0] 
-
-    #sta.bt[remove_start_ind:remove_end_ind]=np.nan
-    #sta.bx[remove_start_ind:remove_end_ind]=np.nan
-    #sta.by[remove_start_ind:remove_end_ind]=np.nan
-    #sta.bz[remove_start_ind:remove_end_ind]=np.nan
-    
-        
-    coord='RTN'
-    #convert magnetic field to SCEQ
-    if sceq==True:
-        sta=convert_RTN_to_SCEQ(sta,'STEREO-A')
-        coord='SCEQ'
-   
-    
-    
-    header='BEACON STEREO-A magnetic field (IMPACT instrument) and plasma data (PLASTIC), ' + \
-    'obtained from https://stereo-ssc.nascom.nasa.gov/data/beacon/ahead/  '+ \
-    'Timerange: '+sta.time[0].strftime("%Y-%b-%d %H:%M")+' to '+sta.time[-1].strftime("%Y-%b-%d %H:%M")+\
-    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(sta.time)).seconds)+' seconds. '+\
-    'A median filter has been applied as scipy.signal.medfilt(sta.vt,9) and then spikes were removed with '+\
-    'scipy.signal.find_peaks(sta.vt, prominence=200,width=(1,200)). '+\
-    'The data are available in a numpy recarray, fields can be accessed by sta.time, sta.bx, sta.vt etc. '+\
-    'Missing data has been set to "np.nan". Total number of data points: '+str(sta.size)+'. '+\
-    'Units are btxyz [nT, '+coord+'], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with https://github.com/cmoestl/heliocats heliocats.data.save_stereoa_beacon_data (uses https://github.com/ajefweiss/HelioSat '+\
-    'and https://github.com/heliopython/heliopy). '+\
-    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
-    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-    
-
-    pickle.dump([sta,header], open(path+file, "wb"))
-    
-    print('done sta')
     print()
 
 

@@ -176,28 +176,30 @@ def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, **kwargs):
      plt.legend(loc=3,ncol=4,fontsize=fsize-2)
      ax1.set_xlim(start,end)
      ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
-     plt.ylim((-20, 20))
+     plt.ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)
      #ax1.set_xticklabels([]) does not work with sharex
      #plt.setp(ax1.get_xticklabels(), fontsize=6)
      plt.setp(ax1.get_xticklabels(), visible=False)
 
-     plt.title(sc_label+' data       start: '+start.strftime("%Y-%b-%d %H:%M")+'       end: '+end.strftime("%Y-%b-%d %H:%M"),fontsize=fsize)
+     plt.title(sc_label+' data       start: '+start.strftime("%Y-%b-%d %H:%M")+' UT       end: '+end.strftime("%Y-%b-%d %H:%M")+' UT',fontsize=fsize)
 
 
      ax2 = plt.subplot(212,sharex=ax1) 
-     ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
+     ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=1.5)
 
      plt.ylabel('V [km/s]',fontsize=fsize)
      ax2.set_xlim(start,end)
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     plt.ylim((250, 800))
+#     plt.ylim(200,np.nanmax(sc.vt)+100)
+     plt.ylim(200,900)
+
      #ax2.set_xticklabels([])
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
 
 
-     
-     plt.figtext(0.99,0.01,'Möstl, Bailey / Helio4Cast', color='black', ha='right',fontsize=fsize-3)
+     plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 
+     plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
      
      plt.tight_layout()
      #plt.show()
