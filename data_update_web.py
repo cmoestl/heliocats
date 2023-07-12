@@ -9,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[1]:
+# In[11]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -277,7 +277,7 @@ else:
 
 # ### STEREO-A beacon data
 
-# In[9]:
+# In[12]:
 
 
 print(' ')
@@ -305,7 +305,7 @@ hd.save_stereoa_beacon_data(stereoa_path,file_sta_beacon,datetime.datetime.utcno
 #plot
 start=datetime.datetime.utcnow() - datetime.timedelta(days=10)
 end=datetime.datetime.utcnow() 
-hp.plot_insitu_update_stereoa_beacon(sta, start, end,'STEREO-A beacon',plot_path+'stereoa/',now=True)
+hp.plot_insitu_update_stereoa_beacon(sta, start, end,'STEREO-A_beacon',plot_path+'stereoa/',now=True)
     
 
 
