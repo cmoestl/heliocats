@@ -8,8 +8,13 @@
 # https://github.com/cmoestl/heliocats
 # 
 # uses environment 'envs/env_helio4.yml'
+# 
+# check:
+# - switches on
+# - plotting set to 'Agg'
+# - .py file is current (execute first cell)
 
-# In[11]:
+# In[10]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -45,6 +50,7 @@ import scipy.signal
 import urllib
 import json
 import os   
+import time
 import h5py
 import pytz
 import copy
@@ -57,22 +63,27 @@ importlib.reload(hd) #reload again while debugging
 from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
 
-#for server
-matplotlib.use('Agg')
-#for mac
-#%matplotlib inline
 
-#Convert this notebook to a script with:
+
+################################################ CHECK  ##############################################
+matplotlib.use('Agg')   #for server
+#%matplotlib inline     #for mac
+
 import os
 os.system('jupyter nbconvert --to script data_update_web.ipynb')   
 
 
 #switches
-
 get_omni=1
 get_noaa=1
 get_wind=1
 get_stereoa=1
+
+####################################################################################################################
+
+
+#test execution times
+t0all = time.time()
 
 
 # ### Configure paths
@@ -127,17 +138,6 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # In[ ]:
 
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
 
 
 
@@ -200,10 +200,13 @@ hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 print(' ')
 print('------ NOAA real time solar wind data ')
 
+#test execution times
+t0 = time.time()
+
 
 if get_noaa > 0:
     print('download NOAA real time solar wind plasma and mag and dst')
-    datestr=str(datetime.datetime.utcnow().strftime("%Y-%m-%dT%Hh"))
+    datestr=str(datetime.datetime.utcnow().strftime("%Y-%m-%d"))
     print(datestr+' UTC')
 
     plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
@@ -234,11 +237,34 @@ if get_noaa > 0:
 else:
     print('NOAA data NOT downloaded, turn on switch')  
 
-######## TO DO SAVE NOAA DATA AS PICKLE
-#save_noaa=0
-#filenoaa='noaa_rtsw_jan_2023_now.p'
-#if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa)
-#[noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+  #import 
+from heliocats import data as hd
+importlib.reload(hd) #reload again while debugging
+
+from heliocats import plot as hp
+importlib.reload(hp) #reload again while debugging
+    
+    
+######## SAVE NOAA DATA AS PICKLE
+save_noaa=1
+filenoaa='noaa_rtsw_latest_300files.p'
+# last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file
+if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,300)
+
+
+[noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+
+ 
+#plot
+start=datetime.datetime.utcnow() - datetime.timedelta(days=10)
+end=datetime.datetime.utcnow() 
+hp.plot_insitu_update_noaa_rtsw(noaa, start, end,'NOAA_RTSW',plot_path+'noaa/',now=True)
+
+
+t1 = time.time()
+
+print()
+print('NOAA download, save as pickle and plotting takes', np.round(t1-t0,2), 'seconds')
 
 
     
@@ -277,27 +303,28 @@ else:
 
 # ### STEREO-A beacon data
 
-# In[12]:
+# In[7]:
 
 
 print(' ')
 print('------ download STEREO-A beacon data ')
 print(' ')
 
+#test execution times
+t0 = time.time()
 
 
-#download data starting from current month (takes long otherwise with cdf files)
 if get_stereoa > 0:
-    hd.stereoa_download_beacon(start_year=datetime.datetime.utcnow().year,start_month=datetime.datetime.utcnow().month,stereoa_path=stereoa_path)   
+    hd.stereoa_download_beacon(start_year=datetime.datetime.utcnow().year,start_month=datetime.datetime.utcnow().month,start_day=datetime.datetime.utcnow().day-5,stereoa_path=stereoa_path)   
 
-
+print(' ')
 print('------ process STEREO-A beacon data to pickle') 
    
 #define filename
-file_sta_beacon='stereoa_beacon_last_10days_now.p'   
+file_sta_beacon='stereoa_beacon_last_60days_now.p'   
 
 #save pickle file
-hd.save_stereoa_beacon_data(stereoa_path,file_sta_beacon,datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow(),coord='RTN' )   
+hd.save_stereoa_beacon_data(stereoa_path,file_sta_beacon,datetime.datetime.utcnow()-datetime.timedelta(days=60),datetime.datetime.utcnow(),coord='RTN' )   
     
 #load pickle    
 [sta,hsta]=pickle.load(open(data_path+file_sta_beacon, "rb" ) )  
@@ -307,11 +334,25 @@ start=datetime.datetime.utcnow() - datetime.timedelta(days=10)
 end=datetime.datetime.utcnow() 
 hp.plot_insitu_update_stereoa_beacon(sta, start, end,'STEREO-A_beacon',plot_path+'stereoa/',now=True)
     
+    
+t1 = time.time()
+
+print()
+print('STEREO-A beacon downloading current month, save as pickle last 30 days and plotting takes', np.round(t1-t0,2), 'seconds')
+    
 
 
-# In[ ]:
+# In[8]:
 
 
+t1all = time.time()
+
+print(' ')
+print(' ')
+print(' ')
+print('------------------')
+print('Runtime for full data update web code:', np.round((t1all-t0all)/60,2), 'minutes')
+print('--------------------------------------------------------------------------------------')
 
 
 

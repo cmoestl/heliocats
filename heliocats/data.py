@@ -65,9 +65,215 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
+def get_noaa_json(magfile, plasmafile):
+    
+    
+    
+    # Read magnetic field data:
+    dm = json.loads(magfile.read())
+    
+    dmn = [[np.nan if x == None else x for x in d] for d in dm]     # Replace None w NaN
+    dtype=[(x, 'float') for x in dmn[0]]
+    datesm = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S.%f")  for x in dmn[1:]]
+    mdatesm=mdates.date2num(datesm)
+    dm_ = [tuple([d]+[float(y) for y in x[1:]]) for d, x in zip(mdatesm, dm[1:])] 
+    noaa_m = np.array(dm_, dtype=dtype)
+    
+     
+    #print(noaa_m)
+    
+    
+    
+    
+    # Read plasma data:
+    dp = json.loads(plasmafile.read())
+    dpn = [[np.nan if x == None else x for x in d] for d in dp]     # Replace None w NaN
+    dtype=[(x, 'float') for x in dp[0]]
+    datesp = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S.%f")  for x in dpn[1:]]
+    #convert datetime to matplotlib times
+    mdatesp=mdates.date2num(datesp)
+    dp_ = [tuple([d]+[float(y) for y in x[1:]]) for d, x in zip(mdatesp, dpn[1:])] 
+    noaa_p = np.array(dp_, dtype=dtype)
+
+    #print(noaa_p)
+    
+    
+    
+    #use mag for times
+    t_start=datesm[0]
+    t_end=datesm[-1]
+
+    #1 minute resolution between t_start and t_end for given mag file
+    itime = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int (((t_end - t_start).days+1)*60*24))]  
+    #print(itime[0])
+    #print(itime[-1])
+    
+    #make date numbers
+    itime_num=mdates.date2num(itime)
+    #interpolate all onto itime_num
+    
+    rbtot_m = np.interp(itime_num, noaa_m['time_tag'], noaa_m['bt'])
+    rbxgsm_m = np.interp(itime_num, noaa_m['time_tag'], noaa_m['bx_gsm'])
+    rbygsm_m = np.interp(itime_num, noaa_m['time_tag'], noaa_m['by_gsm'])
+    rbzgsm_m = np.interp(itime_num, noaa_m['time_tag'], noaa_m['bz_gsm'])
+    rpv_m = np.interp(itime_num, noaa_p['time_tag'], noaa_p['speed'])
+    rpn_m = np.interp(itime_num, noaa_p['time_tag'], noaa_p['density'])
+    rpt_m = np.interp(itime_num, noaa_p['time_tag'], noaa_p['temperature'])
+
+    #make array
+    noaa_data=np.zeros(np.size(rbtot_m),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+                        
+    #convert to recarray
+    noaa_data = noaa_data.view(np.recarray)                             
+
+    noaa_data.time=itime
+    noaa_data.bt=rbtot_m
+    noaa_data.bx=rbxgsm_m
+    noaa_data.by=rbygsm_m
+    noaa_data.bz=rbzgsm_m
+
+    noaa_data.vt=rpv_m
+    noaa_data.np=rpn_m
+    noaa_data.tp=rpt_m
+    
+    
+    
+    #print('NOAA data read completed for file with end time: ',itime[-1])
+    
+    
+      
+    return noaa_data
 
 
 
+def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
+
+
+    print(' ')
+    print('convert NOAA real time solar wind archive to pickle file')
+    
+    print('directories for the json data')
+    
+    #get mag data files
+    print(noaa_path+'mag/')
+    items=os.listdir(noaa_path+'mag/')  
+    maglist = [] 
+    for names in items: 
+       if names.endswith(".json"):
+            maglist.append(names)
+    maglist=np.sort(maglist)
+    #print(maglist)    
+    
+    #cutoff last N files
+    maglist=maglist[-cutoff:]
+    print('Sorted file list to be read with cutoff ',cutoff,' files. ')
+    print(maglist)
+
+    #get mag data files
+    print(noaa_path+'plasma/')
+    items=os.listdir(noaa_path+'plasma/')  
+    plasmalist = [] 
+    for names in items: 
+       if names.endswith(".json"):
+            plasmalist.append(names)
+    plasmalist=np.sort(plasmalist)        
+
+    #cutoff last N files
+    plasmalist=plasmalist[-cutoff:]
+
+    print(plasmalist)
+    print()
+        
+
+    #make array for 1 years
+    noaa=np.zeros(500000,dtype=[('time',object),('bx', float),('by', float),\
+                    ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                    ('x', float),('y', float),('z', float),\
+                    ('r', float),('lat', float),('lon', float)])   
+
+    
+
+    #counter    
+    k=0
+    
+
+    for i in np.arange(len(maglist))-1:
+
+        #read in data of corresponding files
+        
+        m1=open(noaa_path+'mag/'+maglist[i],'r')
+        #print(noaa_path+'mag/'+maglist[i])
+        p1=open(noaa_path+'plasma/'+plasmalist[i],'r')
+        #print(noaa_path+'plasma/'+plasmalist[i])
+      
+        #extract data from files
+        d1=get_noaa_json(m1, p1)
+        
+        #save in large array
+        noaa[k:k+np.size(d1)]=d1
+        k=k+np.size(d1) 
+        
+        #except: 
+        #    print(maglist[i], ' json not working')
+            
+
+
+    #cut zeros, sort, convert to recarray, and find unique times and data
+
+    noaa_cut=noaa[0:k]
+    noaa_cut.sort()
+         
+    nu=noaa_cut.view(np.recarray)
+    [dum,ind]=np.unique(nu.time,return_index=True)  
+    nf=nu[ind]
+    
+    #add positions to the final array
+    #print('position start')
+    frame='HEEQ'
+    planet_kernel=spicedata.get_kernel('planet_trajectories')
+    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
+    earth.generate_positions(nf.time,'Sun',frame)
+    #from km to AU
+    earth.change_units(astropy.units.AU)
+    #add gse position to Earth position
+    x=earth.x-1.5*1e6*astropy.units.km
+    y=earth.y
+    z=earth.z
+    [r, lat, lon]=cart2sphere(x,y,z)
+    #*****with astropy lagrange points exact value? L1 position with 0.01 AU 
+    #[r, lat, lon]=cart2sphere(earth.x-0.01*astropy.units.AU,earth.y,earth.z)
+    #print('position end ')
+       
+    
+    
+    nf.x=x
+    nf.y=y
+    nf.z=z
+    
+    nf.r=r
+    nf.lat=np.rad2deg(lat)
+    nf.lon=np.rad2deg(lon)
+    
+    
+    
+
+    header='Real time solar wind magnetic field and plasma data from NOAA, ' + \
+        'obtained daily from https://services.swpc.noaa.gov/products/solar-wind/  '+ \
+        'Timerange: '+nf.time[0].strftime("%Y-%b-%d %H:%M")+' to '+nf.time[-1].strftime("%Y-%b-%d %H:%M")+\
+        ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(nf.time)).seconds)+' seconds. '+\
+        'The data are available in a numpy recarray, fields can be accessed by nf.time, nf.bx, nf.vt etc. '+\
+        'Total number of data points: '+str(nf.size)+'. '+\
+        'Units are btxyz [nT, RTN], vt  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+        'Made with https://github.com/cmoestl/heliocats save_noaa_rtsw_data  '+\
+        'By C. Moestl (twitter @chrisoutofspace) and R. Bailey. File creation date: '+\
+        datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+
+    pickle.dump([nf,header], open(data_path+filenoaa, "wb"))
+    
 
 
 
@@ -144,7 +350,7 @@ def wind_download_ascii(start_year, wind_path):
     
     
     
-def stereoa_download_beacon(start_year,start_month, stereoa_path):
+def stereoa_download_beacon(start_year,start_month, start_day, stereoa_path):
 
     #download MFI and SWE in ASCII from SPDF
         
@@ -154,13 +360,14 @@ def stereoa_download_beacon(start_year,start_month, stereoa_path):
         
     read_data_end_year=datetime.datetime.utcnow().year
     read_data_end_month=datetime.datetime.utcnow().month
+    read_data_end_day=datetime.datetime.utcnow().day
     
     
     sta_years_strings=[]
     for j in np.arange(start_year,read_data_end_year+1):
         sta_years_strings.append(str(j))
 
-    print('for years', sta_years_strings)
+    #print('for years', sta_years_strings)
     
     ## BEACON SOURCES
    
@@ -168,8 +375,8 @@ def stereoa_download_beacon(start_year,start_month, stereoa_path):
     impact_url='https://stereo-ssc.nascom.nasa.gov/data/beacon/ahead/impact/'
     plastic_url='https://stereo-ssc.nascom.nasa.gov/data/beacon/ahead/plastic/'
     
-    #make a list of all dates from start year onwards until now
-    tstart1=datetime.datetime(start_year,start_month,1)
+    #make a list of all dates from start year,month,day onwards until now
+    tstart1=datetime.datetime(start_year,start_month,start_day,1)
     
     time_1=[]
     while tstart1 < datetime.datetime.utcnow():
@@ -2956,81 +3163,6 @@ def get_sdo_realtime_image(data_path_sun):
         os.system('rm latest_1024_0193.jpg')
     '''    
 
- 
-def save_noaa_rtsw_data(data_path,noaa_path,filenoaa):
-
-
-    print(' ')
-    print('convert NOAA real time solar wind archive to pickle file')
-    items=os.listdir(noaa_path)  
-    newlist = [] 
-    for names in items: 
-       if names.endswith(".json"):
-            newlist.append(names)
-    #print(newlist)
-
-    a=sorted(newlist) #sort so that mag and plasma and dates are separated
-    #print(a)
-    nr_of_files=int(np.size(a)/2)#******************
-    mag=a[0:nr_of_files]  
-    pla=a[nr_of_files:-1]  
-
-    #make array for 10 years
-    noaa=np.zeros(5000000,dtype=[('time',object),('bx', float),('by', float),\
-                    ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
-                    ('x', float),('y', float),('z', float),\
-                    ('r', float),('lat', float),('lon', float)])   
-
-    k=0
-    
-    
-
-    for i in np.arange(nr_of_files)-1:
-
-        #read in data of corresponding files
-        #print(noaa_path+mag[i])
-        m1=open(noaa_path+mag[i],'r')
-        p1=open(noaa_path+pla[i],'r')
-        try: 
-            d1=get_noaa_realtime_data(m1, p1)
-            #save in large array
-            noaa[k:k+np.size(d1)]=d1
-            k=k+np.size(d1) 
-        except: 
-            print(mag[i], ' ', pla[i], ' json not working')
-
-    
-
-    #cut zeros, sort, convert to recarray, and find unique times and data
-
-    noaa_cut=noaa[0:k]
-    noaa_cut.sort()
-         
-    nu=noaa_cut.view(np.recarray)
-    [dum,ind]=np.unique(nu.time,return_index=True)  
-    nf=nu[ind]
-
-    header='Real time solar wind magnetic field and plasma data from NOAA, ' + \
-        'obtained daily from https://services.swpc.noaa.gov/products/solar-wind/  '+ \
-        'Timerange: '+nf.time[0].strftime("%Y-%b-%d %H:%M")+' to '+nf.time[-1].strftime("%Y-%b-%d %H:%M")+\
-        ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(nf.time)).seconds)+' seconds. '+\
-        'The data are available in a numpy recarray, fields can be accessed by nf.time, nf.bx, nf.vt etc. '+\
-        'Total number of data points: '+str(nf.size)+'. '+\
-        'Units are btxyz [nT, RTN], vt  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-        'Made with https://github.com/cmoestl/heliocats save_noaa_rtsw_data  '+\
-        'By C. Moestl (twitter @chrisoutofspace) and R. Bailey. File creation date: '+\
-        datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-
-
-    pickle.dump([nf,header], open(data_path+filenoaa, "wb"))
-    
-    #to read file
-    #import pickle
-    #filenoaa='noaa_rtsw_2020.p'
-    #data_path='/nas/helio/data/insitu_python/'
-    #[n,hn]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
-    
-    print('NOAA done')        
 
     
 
@@ -3076,125 +3208,6 @@ def save_noaa_rtsw_data_predstorm(data_path,noaa_path,filenoaa):
     print('NOAA from predstorm done')        
     
     
-
-def get_noaa_realtime_data(magfile, plasmafile):
-    """
-    Downloads and returns noaa real time solar wind data 
-    data from http://services.swpc.noaa.gov/products/solar-wind/
-    if needed replace with ACE
-    http://legacy-www.swpc.noaa.gov/ftpdir/lists/ace/
-    get 3 or 7 day data
-    url_plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-3-day.json'
-    url_mag='http://services.swpc.noaa.gov/products/solar-wind/mag-3-day.json'
-    
-    Author: R. Bailey, modified for heliocats by C. Moestl
-    
-    Parameters
-    ==========
-    None
-    Returns: recarray with interpolated data
-    =======
-    """
-    
-    # Read plasma data:
-    dp = json.loads(plasmafile.read())
-    dpn = [[np.nan if x == None else x for x in d] for d in dp]     # Replace None w NaN
-    dtype=[(x, 'float') for x in dp[0]]
-    datesp = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S.%f")  for x in dpn[1:]]
-    #convert datetime to matplotlib times
-    mdatesp=mdates.date2num(datesp)
-    dp_ = [tuple([d]+[float(y) for y in x[1:]]) for d, x in zip(mdatesp, dpn[1:])] 
-    DSCOVR_P = np.array(dp_, dtype=dtype)
-
-    
-    # Read magnetic field data:
-    dm = json.loads(magfile.read())
-    dmn = [[np.nan if x == None else x for x in d] for d in dm]     # Replace None w NaN
-    dtype=[(x, 'float') for x in dmn[0]]
-    datesm = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S.%f")  for x in dmn[1:]]
-    mdatesm=mdates.date2num(datesm)
-    dm_ = [tuple([d]+[float(y) for y in x[1:]]) for d, x in zip(mdatesm, dm[1:])] 
-    DSCOVR_M = np.array(dm_, dtype=dtype)
-    
-    
-
-    #first_timestep = np.max([mdatesp[-1], mdatesm[-1]])
-    #last_timestep = np.min([mdatesp[-1], mdatesm[-1]])
-    #nminutes = int((num2date(last_timestep)-num2date(first_timestep)).total_seconds()/60.)
-    #itime = np.asarray([date2num(num2date(first_timestep) + timedelta(minutes=i)) for i in range(nminutes)], dtype=np.float64)
-    
-    #use mag for times
-    t_start=datesm[0]
-    t_end=datesm[-1]
-
-    #1 minute res
-    itime = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int (((t_end - t_start).days+1)*60*24))]   #*******BUG everywhere with this line for last day
-
-        
-    itimeint=mdates.date2num(itime)
-    
-    rbtot_m = np.interp(itimeint, DSCOVR_M['time_tag'], DSCOVR_M['bt'])
-    rbxgsm_m = np.interp(itimeint, DSCOVR_M['time_tag'], DSCOVR_M['bx_gsm'])
-    rbygsm_m = np.interp(itimeint, DSCOVR_M['time_tag'], DSCOVR_M['by_gsm'])
-    rbzgsm_m = np.interp(itimeint, DSCOVR_M['time_tag'], DSCOVR_M['bz_gsm'])
-    rpv_m = np.interp(itimeint, DSCOVR_P['time_tag'], DSCOVR_P['speed'])
-    rpn_m = np.interp(itimeint, DSCOVR_P['time_tag'], DSCOVR_P['density'])
-    rpt_m = np.interp(itimeint, DSCOVR_P['time_tag'], DSCOVR_P['temperature'])
-
-    #make array
-    dscovr_data=np.zeros(np.size(rbtot_m),dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
-                ('x', float),('y', float),('z', float),\
-                ('r', float),('lat', float),('lon', float)])   
-                        
-    #convert to recarray
-    dscovr_data = dscovr_data.view(np.recarray)                             
-
-    dscovr_data.time=itime
-    dscovr_data.bt=rbtot_m
-    dscovr_data.bx=rbxgsm_m
-    dscovr_data.by=rbygsm_m
-    dscovr_data.bz=rbzgsm_m
-
-    dscovr_data.vt=rpv_m
-    dscovr_data.np=rpn_m
-    dscovr_data.tp=rpt_m
-    
-    
-    
-    #print('position start')
-    frame='HEEQ'
-    planet_kernel=spicedata.get_kernel('planet_trajectories')
-    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
-    earth.generate_positions(itime,'Sun',frame)
-    #from km to AU
-    earth.change_units(astropy.units.AU)
-    #add gse position to Earth position
-    x=earth.x-1.5*1e6*astropy.units.km
-    y=earth.y
-    z=earth.z
-    [r, lat, lon]=cart2sphere(x,y,z)
-    #*****with astropy lagrange points exact value? L1 position with 0.01 AU 
-    #[r, lat, lon]=cart2sphere(earth.x-0.01*astropy.units.AU,earth.y,earth.z)
-    #print('position end ')
-       
-    
-    
-    dscovr_data.x=x
-    dscovr_data.y=y
-    dscovr_data.z=z
-    
-    dscovr_data.r=r
-    dscovr_data.lat=np.rad2deg(lat)
-    dscovr_data.lon=np.rad2deg(lon)
-       
-    
-    
-    print('NOAA data read completed for file with end time: ',itime[-1])
-    
-    return dscovr_data
-
-
 
 
 
