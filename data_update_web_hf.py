@@ -9,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[8]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_hf.py
@@ -61,7 +61,7 @@ importlib.reload(hp) #reload again while debugging
 
 
 ################################################ CHECK  ##############################################
-#matplotlib.use('Agg')   #for server
+matplotlib.use('Agg')   #for server
 #%matplotlib inline     
 
 import os
@@ -126,9 +126,38 @@ if os.path.isdir(noaa_path) == False: os.mkdir(noaa_path)
 if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 
-# ### NOAA real time solar wind and Dst
+# ### positions and SDO plot
 
 # In[3]:
+
+
+t0 = time.time()
+print(' ')
+print('------ POSITIONS ')
+
+# spacecraft positions image
+hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
+
+print(' ')
+print('------ SDO realtime images ')
+
+
+# get current SDO images 
+hd.get_sdo_realtime_image(sun_path)
+
+
+
+t1 = time.time()
+
+print()
+print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
+
+
+
+
+# ### NOAA real time solar wind and Dst
+
+# In[4]:
 
 
 print(' ')
@@ -202,7 +231,7 @@ print('NOAA download, save as pickle and plotting takes', np.round(t1-t0,2), 'se
 
 # ### STEREO-A beacon data
 
-# In[4]:
+# In[5]:
 
 
 print(' ')
@@ -229,35 +258,6 @@ start=datetime.datetime.utcnow() - datetime.timedelta(days=10)
 end=datetime.datetime.utcnow() 
 hp.plot_insitu_update_stereoa_beacon(sta, start, end,'STEREO-A_beacon',plot_path+'stereoa/',now=True)
     
-
-
-# ### positions and SDO plot
-
-# In[5]:
-
-
-t0 = time.time()
-print(' ')
-print('------ POSITIONS ')
-
-# spacecraft positions image
-hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
-
-print(' ')
-print('------ SDO realtime images ')
-
-
-# get current SDO images 
-hd.get_sdo_realtime_image(sun_path)
-
-
-
-t1 = time.time()
-
-print()
-print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
-
-
 
 
 # In[6]:
