@@ -210,7 +210,12 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
         #print(noaa_path+'plasma/'+plasmalist[i])
       
         #extract data from files
-        d1=get_noaa_json(m1, p1)
+        try: 
+            d1=get_noaa_json(m1, p1)
+        except:
+            print('one of these json could not be loaded')
+            print(m1)
+            print(p1)
         
         #save in large array
         noaa[k:k+np.size(d1)]=d1
