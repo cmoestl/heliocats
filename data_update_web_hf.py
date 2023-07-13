@@ -61,7 +61,7 @@ importlib.reload(hp) #reload again while debugging
 
 
 ################################################ CHECK  ##############################################
-matplotlib.use('Agg')   #for server
+#matplotlib.use('Agg')   #for server
 #%matplotlib inline     
 
 import os
@@ -138,6 +138,7 @@ print('------ NOAA real time solar wind data ')
 t0 = time.time()
 
 
+get_noaa=1
 if get_noaa > 0:
     print('download NOAA real time solar wind plasma and mag and dst')
     datestr=str(datetime.datetime.utcnow().strftime("%Y-%m-%d"))
@@ -175,11 +176,10 @@ else:
 ######## SAVE NOAA DATA AS PICKLE
 
 
-
 save_noaa=1
-filenoaa='noaa_rtsw_latest_100files.p'
+filenoaa='noaa_rtsw_last_50files_now.p'
 # last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file
-if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,100)
+if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,50)
 
 
 [noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
@@ -260,7 +260,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 
 
-# In[7]:
+# In[6]:
 
 
 t1all = time.time()

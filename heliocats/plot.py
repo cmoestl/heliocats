@@ -172,7 +172,7 @@ def plot_insitu_update_noaa_rtsw(sc, start, end, sc_label, path, **kwargs):
      ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
      ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
      
-     plt.ylabel('B [nT]',fontsize=fsize)
+     plt.ylabel('B [nT] GSM',fontsize=fsize)
      plt.legend(loc=3,ncol=4,fontsize=fsize-2)
      ax1.set_xlim(start,end)
      ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
@@ -242,14 +242,14 @@ def plot_insitu_update_noaa_rtsw(sc, start, end, sc_label, path, **kwargs):
         plt.savefig(plotfile)
         print('saved as ',plotfile)
 
-        plotfile=path+sc_label+'_now.pdf'
-        plt.savefig(plotfile)
-        print('saved as ',plotfile)
-
         
      #if now2 exists as keyword, save as the file with just now2 in filename:     
      if 'now2' in kwargs:
         plotfile=path+sc_label+'_now2.png'
+        plt.savefig(plotfile)
+        print('saved as ',plotfile)
+        
+        plotfile=path+sc_label+'_now2.pdf'
         plt.savefig(plotfile)
         print('saved as ',plotfile)
         
@@ -325,7 +325,16 @@ def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, **kwargs):
      if 'now2' in kwargs:
         plotfile=path+sc_label+'_now2.png'
         plt.savefig(plotfile)
+        print('saved as ',plotfile)                
+       
+        plotfile=path+sc_label+'_now2.pdf'
+        plt.savefig(plotfile)
         print('saved as ',plotfile)
+        
+
+        
+        
+        
       
  
 

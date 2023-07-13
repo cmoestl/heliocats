@@ -149,6 +149,8 @@ def get_noaa_json(magfile, plasmafile):
 
 
 
+
+
 def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
 
 
@@ -189,7 +191,7 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
         
 
     #make array for 1 years
-    noaa=np.zeros(500000,dtype=[('time',object),('bx', float),('by', float),\
+    noaa=np.zeros(int(1e7),dtype=[('time',object),('bx', float),('by', float),\
                     ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
                     ('x', float),('y', float),('z', float),\
                     ('r', float),('lat', float),('lon', float)])   
@@ -212,14 +214,15 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
         #extract data from files
         try: 
             d1=get_noaa_json(m1, p1)
+            #save in large array
+            noaa[k:k+np.size(d1)]=d1
+            k=k+np.size(d1) 
         except:
             print('one of these json could not be loaded')
             print(m1)
             print(p1)
         
-        #save in large array
-        noaa[k:k+np.size(d1)]=d1
-        k=k+np.size(d1) 
+
         
         #except: 
         #    print(maglist[i], ' json not working')
@@ -236,7 +239,7 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
     nf=nu[ind]
     
     #add positions to the final array
-    #print('position start')
+    print('position start')
     frame='HEEQ'
     planet_kernel=spicedata.get_kernel('planet_trajectories')
     earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
@@ -247,10 +250,10 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
     x=earth.x-1.5*1e6*astropy.units.km
     y=earth.y
     z=earth.z
-    [r, lat, lon]=cart2sphere(x,y,z)
+    #[r, lat, lon]=cart2sphere(x,y,z)
     #*****with astropy lagrange points exact value? L1 position with 0.01 AU 
-    #[r, lat, lon]=cart2sphere(earth.x-0.01*astropy.units.AU,earth.y,earth.z)
-    #print('position end ')
+    [r, lat, lon]=cart2sphere(earth.x-0.01*astropy.units.AU,earth.y,earth.z)
+    print('position end ')
        
     
     

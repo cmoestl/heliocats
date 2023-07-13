@@ -14,7 +14,7 @@
 # - plotting set to 'Agg'
 # - .py file is current (execute first cell)
 
-# In[10]:
+# In[8]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -244,21 +244,21 @@ importlib.reload(hd) #reload again while debugging
 from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
     
-    
+        
 ######## SAVE NOAA DATA AS PICKLE
+
+
 save_noaa=1
-filenoaa='noaa_rtsw_latest_300files.p'
+filenoaa='noaa_rtsw_last_300files_now.p'
 # last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file
 if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,300)
 
-
 [noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
-
  
 #plot
-start=datetime.datetime.utcnow() - datetime.timedelta(days=10)
+start=datetime.datetime.utcnow() - datetime.timedelta(days=55)
 end=datetime.datetime.utcnow() 
-hp.plot_insitu_update_noaa_rtsw(noaa, start, end,'NOAA_RTSW',plot_path+'noaa/',now=True)
+hp.plot_insitu_update_noaa_rtsw(noaa, start, end,'NOAA_RTSW',plot_path+'noaa/',now2=True)
 
 
 t1 = time.time()
@@ -321,18 +321,18 @@ print(' ')
 print('------ process STEREO-A beacon data to pickle') 
    
 #define filename
-file_sta_beacon='stereoa_beacon_last_60days_now.p'   
+file_sta_beacon='stereoa_beacon_last_100days_now.p'   
 
 #save pickle file
-hd.save_stereoa_beacon_data(stereoa_path,file_sta_beacon,datetime.datetime.utcnow()-datetime.timedelta(days=60),datetime.datetime.utcnow(),coord='RTN' )   
+hd.save_stereoa_beacon_data(stereoa_path,file_sta_beacon,datetime.datetime.utcnow()-datetime.timedelta(days=100),datetime.datetime.utcnow(),coord='RTN' )   
     
 #load pickle    
 [sta,hsta]=pickle.load(open(data_path+file_sta_beacon, "rb" ) )  
 
 #plot
-start=datetime.datetime.utcnow() - datetime.timedelta(days=10)
+start=datetime.datetime.utcnow() - datetime.timedelta(days=55)
 end=datetime.datetime.utcnow() 
-hp.plot_insitu_update_stereoa_beacon(sta, start, end,'STEREO-A_beacon',plot_path+'stereoa/',now=True)
+hp.plot_insitu_update_stereoa_beacon(sta, start, end,'STEREO-A_beacon',plot_path+'stereoa/',now2=True)
     
     
 t1 = time.time()
@@ -342,7 +342,7 @@ print('STEREO-A beacon downloading current month, save as pickle last 30 days an
     
 
 
-# In[8]:
+# In[ ]:
 
 
 t1all = time.time()
