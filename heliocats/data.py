@@ -7,6 +7,7 @@ import pandas as pd
 import scipy
 import copy
 import matplotlib.dates as mdates
+import matplotlib.image as mpimg
 import datetime
 import urllib
 import json
@@ -31,6 +32,7 @@ import astropy
 import requests
 import math
 import h5py
+
 
 
 '''
@@ -3136,14 +3138,70 @@ def get_sdo_realtime_image(data_path_sun):
     """Downloads latest SDO image."""
 
 
+    ##-------------------------- AIA
     sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193.jpg'
-    #PFSS
     #sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193pfss.jpg'
     try: urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_0193.jpg')
     except urllib.error.URLError as e:
         print('Failed downloading ', sdo_latest,' ',e)
 
     print('saved ',data_path_sun+'latest_1024_0193.jpg')    
+    
+        
+    image_path = data_path_sun+'latest_1024_0193.jpg'
+    image = mpimg.imread(image_path)
+
+    #get the file creation date
+    urldate= 'https://sdo.gsfc.nasa.gov/assets/img/latest/times0193.txt'
+
+    with urllib.request.urlopen(urldate) as response:
+        file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8 
+        date1=file_contents[6:14]
+        time1=file_contents[15:]
+
+        #date1=file_contents[6:10]
+        #time1=
+    timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
+
+
+    #timestamp = datetime.datetime.strftime("%Y-%m-%d %H:%M UT")
+    font_size = 24
+    text_color = 'white'
+    text_bg_color = 'black'
+
+    # Create a figure and axes
+    fig=plt.figure(figsize=(1024 / 80,1024 / 80), dpi=80)
+    ax = fig.add_subplot(111)
+
+    # Display the image
+    ax.imshow(image)
+
+    # Add the timestamp as text
+    ax.text(20, 50, timestamp, fontsize=font_size, color=text_color)
+    ax.text(770, 50, 'SDO/AIA 193', fontsize=font_size, color=text_color)
+
+
+    # Remove the axis ticks and labels
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.axis('off')
+
+
+
+
+
+    # Save the modified image
+    #output_path = data_path_sun+'latest_1024_HMIB_mod.jpg'
+    output_path = data_path_sun+'latest_1024_0193.jpg'
+    plt.savefig(output_path,bbox_inches='tight', pad_inches=0,dpi=110)
+
+    # Show the modified image
+    plt.show()
+
+    
+    
+    
+    #--------------- HMI
     
     
     sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_HMIB.jpg'        
@@ -3152,6 +3210,71 @@ def get_sdo_realtime_image(data_path_sun):
         print('Failed downloading ', sdo_latest,' ',e)
         
     print('saved ',data_path_sun+'latest_1024_HMIB.jpg')    
+
+    #get the file creation date
+    urldate= 'https://sdo.gsfc.nasa.gov/assets/img/latest/timesHMIB.txt    '
+
+    with urllib.request.urlopen(urldate) as response:
+        file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8 
+        date1=file_contents[6:14]
+        time1=file_contents[15:]
+
+        #date1=file_contents[6:10]
+        #time1=
+    timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
+
+
+    
+    
+    # Load the JPEG file
+    image_path = data_path_sun+'latest_1024_HMIB.jpg'
+    image = mpimg.imread(image_path)
+
+    font_size = 24
+    text_color = 'white'
+    text_bg_color = 'black'
+
+    # Create a figure and axes
+    fig=plt.figure(figsize=(1024 / 80,1024 / 80), dpi=80)
+    ax = fig.add_subplot(111)
+
+    # Display the image
+    ax.imshow(image,cmap='gray')
+
+    # Add the timestamp as text
+    ax.text(20, 50, timestamp, fontsize=font_size, color=text_color)
+    ax.text(820, 50, 'SDO/HMI', fontsize=font_size, color=text_color)
+
+
+    # Remove the axis ticks and labels
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.axis('off')
+
+
+    # Save the modified image
+    #output_path = data_path_sun+'latest_1024_HMIB_mod.jpg'
+    output_path = data_path_sun+'latest_1024_HMIB.jpg'
+    plt.savefig(output_path,bbox_inches='tight', pad_inches=0,dpi=110)
+
+    # Show the modified image
+    plt.show()
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
         
     '''    
     #convert to png

@@ -7,6 +7,7 @@ import pandas as pd
 import scipy
 import copy
 import matplotlib.dates as mdates
+import matplotlib.image as mpimg
 from sunpy.time import parse_time
 import matplotlib
 import seaborn as sns
@@ -373,7 +374,7 @@ def plot_insitu_update_noaa_rtsw(sc, start, end, sc_label, path, **kwargs):
      plt.ylabel('N [ccm$^{-3}$]',fontsize=fsize)
      ax3.set_xlim(start,end)
      ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     ax3.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
+     #ax3.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
      ax3.set_ylim((0, np.nanmax(sc.np)+10))
     
      plt.setp(ax3.get_xticklabels(), visible=False)

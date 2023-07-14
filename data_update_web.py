@@ -10,7 +10,7 @@
 # uses environment 'envs/env_helio4.yml'
 # 
 
-# In[2]:
+# In[11]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -74,7 +74,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[3]:
+# In[12]:
 
 
 if sys.platform == 'linux': 
@@ -345,7 +345,7 @@ if get_stereoa > 0:
     file_sta_beacon='stereoa_beacon_last_100days_now.p'   
 
     #save pickle file
-    hd.save_stereoa_beacon_data(data_path,stereoa_path,file_sta_beacon,datetime.datetime.utcnow()-datetime.timedelta(days=100),datetime.datetime.utcnow(),coord='RTN' )   
+    hd.save_stereoa_beacon_data(data_path,stereoa_path,file_sta_beacon,datetime.datetime.utcnow()-datetime.timedelta(days=300),datetime.datetime.utcnow(),coord='RTN' )   
     
 #load pickle    
 [sta,hsta]=pickle.load(open(data_path+file_sta_beacon, "rb" ) )  
