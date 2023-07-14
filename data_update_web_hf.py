@@ -9,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[1]:
+# In[6]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_hf.py
@@ -70,7 +70,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[7]:
 
 
 if sys.platform == 'linux': 
@@ -124,7 +124,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[5]:
+# In[8]:
 
 
 if debug_mode > 0: 
