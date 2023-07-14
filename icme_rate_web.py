@@ -40,7 +40,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[1]:
+# In[3]:
 
 
 from scipy import stats
@@ -78,8 +78,15 @@ from heliocats import cats as hc
 
 #where the 6 in situ data files are located is read from input.py
 #as data_path=....
-from config import data_path
-#reload again while debugging
+
+
+if sys.platform == 'linux': 
+    from config_server import data_path
+
+    
+if sys.platform =='darwin':  
+    from config_local import data_path
+
  
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
@@ -105,8 +112,8 @@ if os.path.isdir(resdir) == False: os.mkdir(resdir)
 outputdirectory=resdir
 
 #Convert this notebook to a script with:
-#import os
-#os.system('jupyter nbconvert --to script icme_rate.ipynb')    
+import os
+os.system('jupyter nbconvert --to script icme_rate_web.ipynb')    
     
 #animdirectory='results/plots_rate/anim'
 #if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
