@@ -36,7 +36,7 @@ import heliopy.spice as spice
 
 from astropy.io.votable import parse_single_table
 
-from config import data_path
+#from config import data_path
 
 from sunpy.coordinates import frames, get_horizons_coord
 

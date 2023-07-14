@@ -20,7 +20,6 @@ import pickle
 import sys
 import cdflib
 import matplotlib.pyplot as plt
-#import heliosat   #not compatible with astrospice, problems with spiceypy in astrospice.generate
 from numba import njit
 from astropy.time import Time
 import astropy
@@ -29,7 +28,10 @@ import importlib
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 
-from config import data_path
+
+
+#import heliosat   #not compatible with astrospice, problems with spiceypy in astrospice.generate
+#from config import data_path
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
@@ -39,6 +41,24 @@ from heliocats import cats as hc
 importlib.reload(hc) #reload again while debugging
 
 
+'''
+MIT LICENSE
+Copyright 2020-2023, Christian Moestl, Rachel L. Bailey 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this 
+software and associated documentation files (the "Software"), to deal in the Software
+without restriction, including without limitation the rights to use, copy, modify, 
+merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so, subject to the following 
+conditions:
+The above copyright notice and this permission notice shall be included in all copies 
+or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+'''
 
 
     
@@ -151,12 +171,164 @@ def plot_insitu_update(sc, start, end, sc_label, path, **kwargs):
         print('saved as ',plotfile)
         
         
+        
+        
+def plot_insitu_update_stereoa_noaa(sc1, sc2, start, end, sc_label, path, **kwargs):
+     '''
+     sc = data
+    
+     '''
+        
+     #cut out data starting with start time that will be plotted, for better scaling
+     startind=np.where(sc1.time > start)[0][0]  
+     sc1=sc1[startind:]    
+
+     startind=np.where(sc2.time > start)[0][0]  
+     sc2=sc2[startind:]    
+
+    
+     sns.set_style('darkgrid')
+     sns.set_context('paper')
+     
+     fsize=10
+
+     #take maximum from both arrays
+     bscale=np.nanmax(np.hstack((sc1.bt, sc2.bt))) +5
+     vscale=np.nanmax(np.hstack((sc1.vt, sc2.vt)))
+    
+                       
+     fig=plt.figure(figsize=(9,6), dpi=150)
+
+     plt.suptitle(sc_label+' data       start: '+start.strftime("%Y-%b-%d %H:%M UT")+'       end: '+end.strftime("%Y-%b-%d %H:%M UT"),fontsize=fsize+2)
+    
+     ax1 = plt.subplot(311) 
+
+
+        
+     ax1.plot_date(sc1.time,sc1.bx,'-r',label='Bx',linewidth=0.8)
+     ax1.plot_date(sc1.time,sc1.by,'-g',label='By',linewidth=0.8)
+     ax1.plot_date(sc1.time,sc1.bz,'-b',label='Bz',linewidth=0.8)
+     ax1.plot_date(sc1.time,sc1.bt,'-k',label='Btotal',lw=0.8)
+     plt.ylabel('B [nT] GSM',fontsize=fsize)
+     plt.legend(loc=3,ncol=4,fontsize=fsize-2)
+     ax1.set_xlim(start,end)
+     ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
+     ax1.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
+     ax1.set_ylim((-bscale,bscale))
+     plt.setp(ax1.get_xticklabels(), visible=False)
+     ax1.text(sc2.time[40], bscale, 'NOAA L1 real time solar wind', fontsize=fsize, color='black')
+     pos_string='R '+str(np.round(sc1.r[-1],3))+' AU   '+ 'lon '+str(np.round(sc1.lon[-1],2))+'  ' + 'lat '+str(np.round(sc1.lat[-1],2))+'' 
+     ax1.text(sc1.time[-1050], bscale, pos_string, fontsize=fsize, color='black')
+
+
+    
+     ax2 = plt.subplot(312,sharex=ax1)  
+     ax2.plot_date(sc2.time,-sc2.bx,'-r',label='Bx',linewidth=0.8)
+     ax2.plot_date(sc2.time,-sc2.by,'-g',label='- By',linewidth=0.8)
+     ax2.plot_date(sc2.time,sc2.bz,'-b',label='- Bz',linewidth=0.8)
+     ax2.plot_date(sc2.time,sc2.bt,'-k',label='Btotal',lw=0.8)
+     plt.ylabel('B [nT] RTN (RT sign flipped)',fontsize=fsize)
+     plt.legend(loc=3,ncol=4,fontsize=fsize-2)
+     ax2.set_xlim(start,end)
+     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
+     ax2.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))    
+     ax2.set_ylim((-bscale,bscale))
+     ax2.text(sc2.time[40], bscale, 'STEREO-A beacon data', fontsize=fsize, color='black')
+     pos_string='R '+str(np.round(sc2.r[-1],3))+' AU   '+ 'lon '+str(np.round(sc2.lon[-1],2))+'  ' + 'lat '+str(np.round(sc2.lat[-1],2))+'' 
+     ax2.text(sc2.time[-1050], bscale, pos_string, fontsize=fsize, color='black')
+
+
+     plt.setp(ax2.get_xticklabels(), visible=False)
+
+     ax3 = plt.subplot(313,sharex=ax1)  
+     ax3.plot_date(sc1.time,sc1.vt,'-k',label='NOAA RTSW',linewidth=1)
+     ax3.plot_date(sc2.time,sc2.vt,'-r',label='STEREO-A beacon',linewidth=1)
+     plt.ylabel('V [km s$^{-1}$]',fontsize=fsize)
+     ax3.set_xlim(start,end)
+     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+     ax3.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(100))
+     #set after maximum in both   
+     ax3.set_ylim(250, vscale)
+     ax3.text(sc1.time[40], vscale-40, 'NOAA L1', fontsize=fsize, color='black')
+     ax3.text(sc1.time[540], vscale-40, 'STEREO-A', fontsize=fsize, color='red')
+
+
+    
+     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+
+    
+     
+     plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+     plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+
+     
+     plt.tight_layout()
+     #plt.show()
+
+     plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
+     plt.savefig(plotfile)
+     print('saved as ',plotfile)
+
+
+    
+
+     #if now exists as keyword, save as the file with just now in filename:     
+     if 'now' in kwargs:
+        plotfile=path+sc_label+'_now.png'
+        plt.savefig(plotfile)
+        print('saved as ',plotfile)
+
+        
+     #if now2 exists as keyword, save as the file with just now2 in filename:     
+     if 'now2' in kwargs:
+        plotfile=path+sc_label+'_now2.png'
+        plt.savefig(plotfile)
+        print('saved as ',plotfile)
+        
+        plotfile=path+sc_label+'_now2.pdf'
+        plt.savefig(plotfile)
+        print('saved as ',plotfile)
+        
+             
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
 def plot_insitu_update_noaa_rtsw(sc, start, end, sc_label, path, **kwargs):
      '''
      sc = data
     
      '''
+        
+     #cut out data starting with start time that will be plotted, for better scaling
+     startind=np.where(sc.time > start)[0][0]  
+     sc=sc[startind:]    
+        
      sns.set_style('darkgrid')
      sns.set_context('paper')
      
@@ -176,32 +348,34 @@ def plot_insitu_update_noaa_rtsw(sc, start, end, sc_label, path, **kwargs):
      plt.legend(loc=3,ncol=4,fontsize=fsize-2)
      ax1.set_xlim(start,end)
      ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
-     plt.ylim((-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5))
+     ax1.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
+     plt.ylim((-np.nanmax(sc.bt)-3,np.nanmax(sc.bt)+3))
      #ax1.set_xticklabels([]) does not work with sharex
      #plt.setp(ax1.get_xticklabels(), fontsize=6)
      plt.setp(ax1.get_xticklabels(), visible=False)
 
-     plt.title(sc_label+' data       start: '+start.strftime("%Y-%b-%d")+'       end: '+end.strftime("%Y-%b-%d"),fontsize=fsize)
-     #plt.title(sc_label+' data       start: '+start.strftime("%Y-%b-%d %H:%M")+'       end: '+end.strftime("%Y-%b-%d %H:%M"),fontsize=fsize)
+     #plt.title(sc_label+' data       start: '+start.strftime("%Y-%b-%d")+'       end: '+end.strftime("%Y-%b-%d"),fontsize=fsize)
+     plt.title(sc_label+' data       start: '+start.strftime("%Y-%b-%d %H:%M UT")+'       end: '+end.strftime("%Y-%b-%d %H:%M UT"),fontsize=fsize)
 
 
      ax2 = plt.subplot(412,sharex=ax1) 
      ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=0.7)
-     plt.ylabel('V [km/s]',fontsize=fsize)
+     plt.ylabel('V [km s$^{-1}$]',fontsize=fsize)
      ax2.set_xlim(start,end)
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     plt.ylim((250, 900))
-     #ax2.set_xticklabels([])
+     ax2.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(100))
+     ax2.set_ylim((250, np.nanmax(sc.vt)+50))
      plt.setp(ax2.get_xticklabels(), visible=False)
 
 
      ax3 = plt.subplot(413,sharex=ax1) 
      ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=0.7)
-     plt.ylabel('N [ccm-3]',fontsize=fsize)
+     plt.ylabel('N [ccm$^{-3}$]',fontsize=fsize)
      ax3.set_xlim(start,end)
      ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-     plt.ylim((0, 50))
-     #ax3.set_xticklabels([])
+     ax3.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
+     ax3.set_ylim((0, np.nanmax(sc.np)+10))
+    
      plt.setp(ax3.get_xticklabels(), visible=False)
 
 
@@ -209,17 +383,13 @@ def plot_insitu_update_noaa_rtsw(sc, start, end, sc_label, path, **kwargs):
      ax4.plot_date(sc.time,sc.tp/1e6,'-k',label='Tp',linewidth=0.7)
      plt.ylabel('T [MK]',fontsize=fsize)
      ax4.set_xlim(start,end)
+     ax4.set_ylim((0, 1))
         
              
-     ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
+     ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
     
-    
-    
-    
-     plt.ylim((0, 1.0))
      
      plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-
      plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
      
@@ -230,9 +400,6 @@ def plot_insitu_update_noaa_rtsw(sc, start, end, sc_label, path, **kwargs):
      plt.savefig(plotfile)
      print('saved as ',plotfile)
 
-     #plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.pdf'
-     #plt.savefig(plotfile)
-     #print('saved as ',plotfile)
 
     
 
@@ -265,13 +432,19 @@ def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, **kwargs):
      '''
      sns.set_style('darkgrid')
      sns.set_context('paper')
+        
+     #cut out data starting with start time that will be plotted, for better scaling
+     startind=np.where(sc.time > start)[0][0]  
+     sc=sc[startind:]            
+        
+        
      
      fsize=10
 
-     fig=plt.figure(figsize=(9,4), dpi=150)
+     fig=plt.figure(figsize=(9,5), dpi=150)
      
      #sharex means that zooming in works with all subplots
-     ax1 = plt.subplot(211) 
+     ax1 = plt.subplot(311) 
 
      ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
      ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
@@ -282,7 +455,7 @@ def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, **kwargs):
      plt.legend(loc=3,ncol=4,fontsize=fsize-2)
      ax1.set_xlim(start,end)
      ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
-     plt.ylim(-np.nanmax(sc.bt)-5,np.nanmax(sc.bt)+5)
+     plt.ylim(-np.nanmax(sc.bt)-3,np.nanmax(sc.bt)+3)
      #ax1.set_xticklabels([]) does not work with sharex
      #plt.setp(ax1.get_xticklabels(), fontsize=6)
      plt.setp(ax1.get_xticklabels(), visible=False)
@@ -290,18 +463,33 @@ def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, **kwargs):
      plt.title(sc_label+' data       start: '+start.strftime("%Y-%b-%d %H:%M")+' UT       end: '+end.strftime("%Y-%b-%d %H:%M")+' UT',fontsize=fsize)
 
 
-     ax2 = plt.subplot(212,sharex=ax1) 
-     ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=1.5)
-
-     plt.ylabel('V [km/s]',fontsize=fsize)
+     ax2 = plt.subplot(312,sharex=ax1) 
+     ax2.plot_date(sc.time,sc.vt,'-k',label='V',linewidth=1)
+     plt.ylabel('V [km s$^{-1}$]',fontsize=fsize)
      ax2.set_xlim(start,end)
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
-#     plt.ylim(200,np.nanmax(sc.vt)+100)
-     plt.ylim(200,900)
+     ax2.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(100))
+     plt.ylim(200,800)
+     plt.setp(ax2.get_xticklabels(), visible=False) 
+    
+    
+     ax3 = plt.subplot(313,sharex=ax1) 
+     ax3.plot_date(sc.time,sc.np,'-k',label='Np',linewidth=1)
+     plt.ylabel('N [ccm$^{-3}$]',fontsize=fsize)
+     ax3.set_xlim(start,end)
+     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+     ax3.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
+     ax3.set_ylim((0, np.nanmax(sc.np)+10))
+     #plt.setp(ax3.get_xticklabels(), visible=False)
+     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
 
-     #ax2.set_xticklabels([])
-     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
-
+     #ax4 = plt.subplot(414,sharex=ax1) 
+     #ax4.plot_date(sc.time,sc.tp,'-k',label='Tp',linewidth=0.7)
+     #plt.ylabel('T [MK]',fontsize=fsize)
+     #ax4.set_xlim(start,end)
+     #ax4.set_ylim((0, 1))
+     #ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+        
 
      plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 
@@ -333,7 +521,31 @@ def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, **kwargs):
         
 
         
-        
+      
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
         
       
  
@@ -2458,7 +2670,8 @@ def plot_positions(time_date1, path,frame, **kwargs):
     plt.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
     plt.text(0,earth.r[earth_timeind]+0.12,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
     
-    plt.figtext(0.99,0.01,'C. Möstl / Helio4Cast', color='black', ha='right',fontsize=fsize-8)
+    plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+    plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
     plt.figtext(0.85,0.1,'――― 100 days future trajectory', color='black', ha='center',fontsize=fsize-3)
 
@@ -2584,6 +2797,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
     plt.thetagrids(range(0,360,45),(u'0\u00b0 '+frame+' longitude',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='left',fontsize=fsize,color=backcolor, zorder=5, alpha=0.9)
 
     plt.tight_layout()
+    plt.show()
 
     #plotfile=path+%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
     plotfile=path+'positions_'+time_date1.strftime("%Y_%b_%d")+'.png'

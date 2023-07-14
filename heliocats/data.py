@@ -32,16 +32,10 @@ import requests
 import math
 import h5py
 
-from config import data_path
-#data_path='/nas/helio/data/insitu_python/'
-
-heliosat_data_path='/nas/helio/data/heliosat/data/'
-
-#data_path_sun='/nas/helio/data/SDO_realtime/'
 
 '''
 MIT LICENSE
-Copyright 2020, Christian Moestl, Rachel L. Bailey 
+Copyright 2020-2023, Christian Moestl, Rachel L. Bailey 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this 
 software and associated documentation files (the "Software"), to deal in the Software
 without restriction, including without limitation the rights to use, copy, modify, 
@@ -416,8 +410,9 @@ def stereoa_download_beacon(start_year,start_month, start_day, stereoa_path):
             
             
 
-def save_stereoa_beacon_data(path,file,t_start,t_end,coord):
+def save_stereoa_beacon_data(data_path,path,file,t_start,t_end,coord):
             
+        
 
     #round tstart to nearest minute
     t_start=datetime.datetime(t_start.year, t_start.month, t_start.day,t_start.hour,t_start.minute)

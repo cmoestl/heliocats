@@ -16,23 +16,6 @@
 
 # for updating data with high frequency on the servers
 
-# MIT LICENSE
-# Copyright 2020-2023, Christian Moestl 
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this 
-# software and associated documentation files (the "Software"), to deal in the Software
-# without restriction, including without limitation the rights to use, copy, modify, 
-# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-# permit persons to whom the Software is furnished to do so, subject to the following 
-# conditions:
-# The above copyright notice and this permission notice shall be included in all copies 
-# or substantial portions of the Software.
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
-# OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 import pickle
 import importlib
 import matplotlib.pyplot as plt
@@ -51,24 +34,29 @@ import pytz
 import copy
 import cdflib
 
-#import 
 from heliocats import data as hd
-importlib.reload(hd) #reload again while debugging
-
 from heliocats import plot as hp
-importlib.reload(hp) #reload again while debugging
 
+##### check for system type
+#server
+if sys.platform == 'linux': 
+    print('system is linux')
+    matplotlib.use('Agg') 
+#mac
+if sys.platform =='darwin':  
+    print('system is mac')
+    get_ipython().run_line_magic('matplotlib', 'inline')
 
 
 ################################################ CHECK  ##############################################
-matplotlib.use('Agg')   #for server
-#%matplotlib inline     
 
-import os
+#make sure to convert the current notebook to a script
 os.system('jupyter nbconvert --to script data_update_web_hf.ipynb')   
 
-
 #switches
+debug_mode=0
+
+#download and save as pickle
 get_noaa=1
 get_stereoa=1
 
@@ -78,19 +66,37 @@ get_stereoa=1
 t0all = time.time()
 
 
-# ### Configure paths
+# ### Configure paths depending on server or local machine
 # 
 
 # In[2]:
 
 
-from config import data_path
+if sys.platform == 'linux': 
+    
+    from config_server import data_path
+    from config_server import noaa_path
+    from config_server import wind_path
+    from config_server import stereoa_path
+    from config_server import data_path_ml
+    
+if sys.platform =='darwin':  
 
+    from config_local import data_path
+    from config_local import noaa_path
+    from config_local import wind_path
+    from config_local import stereoa_path
+    from config_local import data_path_ml
 
 print(' ')
 print('------ PATHS ')
 
 print(data_path)
+print(noaa_path)
+print(wind_path)
+print(stereoa_path)
+print(data_path_ml)
+
 
 plot_path=data_path+'plots/'
 position_path=data_path+'plots_positions/'
@@ -99,17 +105,6 @@ sun_path=data_path+'plots_sun/'
 print(plot_path)
 print(position_path)
 
-from config import noaa_path
-print(noaa_path)
-
-from config import wind_path
-print(wind_path)
-
-from config import stereoa_path
-print(stereoa_path)
-
-from config import data_path_ml
-print(data_path_ml)
 
 
 ########### make directories first time
@@ -131,6 +126,11 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 # In[3]:
 
 
+if debug_mode > 0: 
+    importlib.reload(hd) 
+    importlib.reload(hp) 
+
+
 t0 = time.time()
 print(' ')
 print('------ POSITIONS ')
@@ -140,17 +140,16 @@ hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
 
 print(' ')
 print('------ SDO realtime images ')
-
-
 # get current SDO images 
 hd.get_sdo_realtime_image(sun_path)
 
-
-
 t1 = time.time()
-
 print()
 print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
+
+
+# In[ ]:
+
 
 
 
@@ -160,6 +159,13 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 # In[4]:
 
 
+if debug_mode > 0: 
+    from heliocats import data as hd
+    importlib.reload(hd) 
+
+    from heliocats import plot as hp
+    importlib.reload(hp) 
+
 print(' ')
 print('------ NOAA real time solar wind data ')
 
@@ -167,8 +173,10 @@ print('------ NOAA real time solar wind data ')
 t0 = time.time()
 
 
-get_noaa=1
 if get_noaa > 0:
+
+    ######## DOWNLOAD NOAA data 
+    
     print('download NOAA real time solar wind plasma and mag and dst')
     datestr=str(datetime.datetime.utcnow().strftime("%Y-%m-%d"))
     print(datestr+' UTC')
@@ -188,27 +196,24 @@ if get_noaa > 0:
         print(noaa_path+'mag/mag-7-day_'+datestr+'.json')
     except urllib.error.URLError as e:
         print(' ', mag,' ',e.reason)
-        
-
+    
     try: 
         urllib.request.urlretrieve(dst, noaa_path+'dst/dst-7-day_'+datestr+'.json')
         print(noaa_path+'dst/dst-7-day_'+datestr+'.json')
     except urllib.error.URLError as e:
-        print(' ', mag,' ',e.reason)
+        print(' ', dst,' ',e.reason)
  
-    print('NOAA download complete')
+    print('NOAA RTSW download complete')
+        
+    ######## SAVE NOAA DATA AS PICKLE
+    filenoaa='noaa_rtsw_last_50files_now.p'
+    # last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file
+    hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,50)
+    print('NOAA RTSW saved as pickle file complete')
+    
 
 else:
-    print('NOAA data NOT downloaded, turn on switch')  
-
-    
-######## SAVE NOAA DATA AS PICKLE
-
-
-save_noaa=1
-filenoaa='noaa_rtsw_last_50files_now.p'
-# last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file
-if save_noaa > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,50)
+    print('NOAA data NOT downloaded and saved as pickle, turn on switch')  
 
 
 [noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
@@ -234,21 +239,29 @@ print('NOAA download, save as pickle and plotting takes', np.round(t1-t0,2), 'se
 # In[5]:
 
 
-print(' ')
-print('------ download STEREO-A beacon data ')
-print(' ')
+if debug_mode > 0: 
+    importlib.reload(hd) 
+    importlib.reload(hp) 
+
+    #test execution times
+t0 = time.time()
 
 
 if get_stereoa > 0:
+
+    print(' ')
+    print('------ download STEREO-A beacon data ')
+    print(' ')
+    
     hd.stereoa_download_beacon(start_year=datetime.datetime.utcnow().year,start_month=datetime.datetime.utcnow().month,start_day=datetime.datetime.utcnow().day-5,stereoa_path=stereoa_path)   
 
-print('------ process STEREO-A beacon data to pickle') 
-   
-#define filename
-file_sta_beacon='stereoa_beacon_last_10days_now.p'   
+    print('------ process STEREO-A beacon data to pickle') 
 
-#save pickle file
-hd.save_stereoa_beacon_data(stereoa_path,file_sta_beacon,datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow(),coord='RTN' )   
+    #define filename
+    file_sta_beacon='stereoa_beacon_last_10days_now.p'   
+
+    #save pickle file
+    hd.save_stereoa_beacon_data(data_path,stereoa_path,file_sta_beacon,datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow(),coord='RTN' )   
     
 #load pickle    
 [sta,hsta]=pickle.load(open(data_path+file_sta_beacon, "rb" ) )  
@@ -258,9 +271,30 @@ start=datetime.datetime.utcnow() - datetime.timedelta(days=10)
 end=datetime.datetime.utcnow() 
 hp.plot_insitu_update_stereoa_beacon(sta, start, end,'STEREO-A_beacon',plot_path+'stereoa/',now=True)
     
+    
+    
+t1 = time.time()
 
+print()
+print('STEREO-A beacon downloading current month, save as pickle last 10 days and plotting takes', np.round(t1-t0,2), 'seconds')
+
+
+# ## Combined plot STEREO-A NOAA RTSW
 
 # In[6]:
+
+
+if debug_mode > 0: 
+    importlib.reload(hd) 
+    importlib.reload(hp) 
+
+start=datetime.datetime.utcnow() - datetime.timedelta(days=3)
+end=datetime.datetime.utcnow() 
+hp.plot_insitu_update_stereoa_noaa(noaa, sta, start, end,'NOAA_RTSW_STEREO-A_beacon',plot_path+'combined/',now=True)
+    
+
+
+# In[7]:
 
 
 t1all = time.time()
@@ -271,7 +305,6 @@ print(' ')
 print('------------------')
 print('Runtime for full high frequency data update:', np.round((t1all-t0all),2), 'seconds')
 print('--------------------------------------------------------------------------------------')
-
 
 
 # In[ ]:
