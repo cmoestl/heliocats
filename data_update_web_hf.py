@@ -124,10 +124,9 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[123]:
+# In[5]:
 
 
-debug_mode=1
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
@@ -148,67 +147,6 @@ hd.get_sdo_realtime_image(sun_path)
 t1 = time.time()
 print()
 print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
-
-
-# In[30]:
-
-
-image_path = data_path_sun+'latest_1024_0193.jpg'
-image = mpimg.imread(image_path)
-
-#get the file creation date
-urldate= 'https://sdo.gsfc.nasa.gov/assets/img/latest/times0193.txt'
-
-# Open the URL and read its contents
-with urllib.request.urlopen(urldate) as response:
-    file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8 
-    date1=file_contents[6:14]
-    time1=file_contents[15:]
-
-    #date1=file_contents[6:10]
-    #time1=
-timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
-
-
-#timestamp = datetime.datetime.strftime("%Y-%m-%d %H:%M UT")
-font_size = 24
-text_color = 'white'
-text_bg_color = 'black'
-
-# Create a figure and axes
-fig=plt.figure(figsize=(1024 / 80,1024 / 80), dpi=80)
-ax = fig.add_subplot(111)
-
-# Display the image
-ax.imshow(image)
-
-# Add the timestamp as text
-ax.text(20, 50, timestamp, fontsize=font_size, color=text_color)
-ax.text(770, 50, 'SDO/AIA 193', fontsize=font_size, color=text_color)
-
-
-# Remove the axis ticks and labels
-ax.set_xticks([])
-ax.set_yticks([])
-ax.axis('off')
-
-
-
-
-
-# Save the modified image
-#output_path = data_path_sun+'latest_1024_HMIB_mod.jpg'
-output_path = data_path_sun+'latest_1024_0193.jpg'
-plt.savefig(output_path,bbox_inches='tight', pad_inches=0,dpi=110)
-
-# Show the modified image
-plt.show()
-
-
-# In[ ]:
-
-
-
 
 
 # ### NOAA real time solar wind and Dst
