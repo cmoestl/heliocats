@@ -2083,7 +2083,7 @@ def save_msl_rad():
 
 
 
-def load_msl_rad():
+def load_msl_rad(data_path):
 
     file='msl_2012_2019_rad.p'  
     rad=pickle.load(open(data_path+file, "rb"))

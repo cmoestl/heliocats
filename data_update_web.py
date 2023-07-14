@@ -10,7 +10,7 @@
 # uses environment 'envs/env_helio4.yml'
 # 
 
-# In[4]:
+# In[5]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -359,7 +359,7 @@ hp.plot_insitu_update_stereoa_beacon(sta, start, end,'STEREO-A_beacon',plot_path
 t1 = time.time()
 
 print()
-print('STEREO-A beacon downloading current month, save as pickle last 30 days and plotting takes', np.round(t1-t0,2), 'seconds')
+print('STEREO-A beacon downloading current month, save as pickle last 200 days and plotting takes', np.round(t1-t0,2), 'seconds')
     
 
 

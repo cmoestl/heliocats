@@ -129,7 +129,7 @@ print(data_path)
 
 # ## 1 Settings and load data
 
-# In[2]:
+# In[11]:
 
 
 plt.close('all')
@@ -350,7 +350,7 @@ if load_data > 0:
     #use hd.save_msl_rad() first to convert data doseE_sol_filter_2019.dat to pickle file
     print('load MSL RAD')
     #MSL RAD
-    rad=hd.load_msl_rad()#, rad.time,rad.dose_sol
+    rad=hd.load_msl_rad(data_path)#, rad.time,rad.dose_sol
     
     ##############################################
     #data to 2021 Aug 2
@@ -572,7 +572,7 @@ print('done')
     
 
 
-# In[3]:
+# In[ ]:
 
 
 ########### load ICMECAT made with icmecat.py or ipynb
@@ -627,7 +627,7 @@ print('HELCATS HIGeoCAT     ',str(higeocat_time[0])[0:10],str(higeocat_time[-1])
 print('HELCATS ARRCAT       ',np.sort(ac_pandas.sse_launch_time)[0][0:10],np.sort(ac_pandas.sse_launch_time)[-1][0:10])
 
 
-# In[4]:
+# In[ ]:
 
 
 ############### set limits of solar minimum, rising/declining phase and solar maximum
