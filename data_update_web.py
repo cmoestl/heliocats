@@ -10,7 +10,7 @@
 # uses environment 'envs/env_helio4.yml'
 # 
 
-# In[5]:
+# In[6]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -161,9 +161,9 @@ hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
 print(' ')
 print('------ SDO realtime images ')
 # get current SDO images 
-hd.get_sdo_realtime_image(sun_path)
-
-
+try:
+    hd.get_sdo_realtime_image(sun_path)
+except Exception as e: print('SDO not downloaded')  
 
 
 t1 = time.time()

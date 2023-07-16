@@ -3141,27 +3141,35 @@ def get_sdo_realtime_image(data_path_sun):
     ##-------------------------- AIA
     sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193.jpg'
     #sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193pfss.jpg'
-    try: urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_0193.jpg')
+    try: 
+        urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_0193.jpg')
+        print('saved ',data_path_sun+'latest_1024_0193.jpg')       
     except urllib.error.URLError as e:
         print('Failed downloading ', sdo_latest,' ',e)
+        return None
 
-    print('saved ',data_path_sun+'latest_1024_0193.jpg')    
     
         
     image_path = data_path_sun+'latest_1024_0193.jpg'
     image = mpimg.imread(image_path)
 
     #get the file creation date
-    urldate= 'https://sdo.gsfc.nasa.gov/assets/img/latest/times0193.txt'
-
-    with urllib.request.urlopen(urldate) as response:
-        file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8 
+    sdo_date= 'https://sdo.gsfc.nasa.gov/assets/img/latest/times0193.txt'
+     
+    try: 
+        with urllib.request.urlopen(urldate) as response:
+            file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8
         date1=file_contents[6:14]
         time1=file_contents[15:]
 
         #date1=file_contents[6:10]
         #time1=
-    timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
+        timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
+
+        
+    except urllib.error.URLError as e:
+        print('Failed downloading ', sdo_latest,' ',e)
+        return None
 
 
     #timestamp = datetime.datetime.strftime("%Y-%m-%d %H:%M UT")
