@@ -9,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[2]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_hf.py
@@ -70,7 +70,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[3]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -124,10 +124,9 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[4]:
+# In[3]:
 
 
-debug_mode=1
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
@@ -152,7 +151,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind and Dst
 
-# In[5]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -233,10 +232,9 @@ print('NOAA download latest file, save as pickle last 30 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[6]:
+# In[5]:
 
 
-debug_mode=1
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
@@ -279,7 +277,7 @@ print('STEREO-A beacon downloading last 30 days, save as pickle last 30 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[7]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -292,7 +290,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta, start, end,'NOAA_RTSW_STEREO-A_bea
     
 
 
-# In[8]:
+# In[7]:
 
 
 t1all = time.time()
