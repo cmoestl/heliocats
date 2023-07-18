@@ -9,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[1]:
+# In[10]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_hf.py
@@ -46,7 +46,10 @@ if sys.platform == 'linux':
 #mac
 if sys.platform =='darwin':  
     print('system is mac')
-    get_ipython().run_line_magic('matplotlib', 'inline')
+    #for testing
+    #%matplotlib inline     
+    matplotlib.use('Agg') 
+
 
 
 ################################################ CHECK  ##############################################
@@ -70,7 +73,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[11]:
 
 
 if sys.platform == 'linux': 
@@ -124,12 +127,12 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[3]:
+# In[13]:
 
 
-if debug_mode > 0: 
-    importlib.reload(hd) 
-    importlib.reload(hp) 
+#if debug_mode > 0: 
+importlib.reload(hd) 
+importlib.reload(hp) 
 
 
 t0 = time.time()

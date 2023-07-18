@@ -2683,8 +2683,8 @@ def plot_positions(time_date1, path,frame, **kwargs):
     plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
     plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
-    plt.figtext(0.85,0.13,'─   100 days future trajectory', color='black', ha='left',fontsize=fsize-3)
-    plt.figtext(0.85,0.1 ,'- -  100 days past trajectory', color='black', ha='left',fontsize=fsize-3)
+    plt.figtext(0.80,0.13,'─   100 days future trajectory', color='black', ha='left',fontsize=fsize-3)
+    plt.figtext(0.80,0.1 ,'- -  100 days past trajectory', color='black', ha='left',fontsize=fsize-3)
   
     
     '''
@@ -2835,6 +2835,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
         print('saved as ',plotfile)
 
     plt.show()
+    plt.close('all')
 
      
      
