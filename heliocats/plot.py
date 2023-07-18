@@ -213,7 +213,9 @@ def plot_insitu_update_stereoa_noaa(sc1, sc2, start, end, sc_label, path, **kwar
      plt.ylabel('B [nT] GSM',fontsize=fsize)
      plt.legend(loc=3,ncol=4,fontsize=fsize-2)
      ax1.set_xlim(start,end)
-     ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
+     ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
+     ax1.tick_params(which='both', bottom=True, color='gray')
+     ax1.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
      ax1.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
      ax1.set_ylim((-bscale,bscale))
      plt.setp(ax1.get_xticklabels(), visible=False)
@@ -230,37 +232,42 @@ def plot_insitu_update_stereoa_noaa(sc1, sc2, start, end, sc_label, path, **kwar
      ax2.plot_date(sc2.time,sc2.bt,'-k',label='Btotal',lw=0.8)
      plt.ylabel('B [nT] RTN (RT sign flipped)',fontsize=fsize)
      plt.legend(loc=3,ncol=4,fontsize=fsize-2)
-     ax2.set_xlim(start,end)
-     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
+     ax2.set_xlim(start,end)    
+     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
+     ax2.tick_params(which='both', bottom=True, color='gray')
+     ax2.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
      ax2.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))    
      ax2.set_ylim((-bscale,bscale))
      ax2.text(sc2.time[40], bscale, 'STEREO-A beacon data', fontsize=fsize, color='black')
      pos_string='R '+str(np.round(sc2.r[-1],3))+' AU   '+ 'lon '+str(np.round(sc2.lon[-1],2))+'  ' + 'lat '+str(np.round(sc2.lat[-1],2))+'' 
      ax2.text(sc2.time[-1050], bscale, pos_string, fontsize=fsize, color='black')
 
-
      plt.setp(ax2.get_xticklabels(), visible=False)
 
+        
+        
      ax3 = plt.subplot(313,sharex=ax1)  
      ax3.plot_date(sc1.time,sc1.vt,'-k',label='NOAA RTSW',linewidth=1)
      ax3.plot_date(sc2.time,sc2.vt,'-r',label='STEREO-A beacon',linewidth=1)
-     plt.ylabel('V [km s$^{-1}$]',fontsize=fsize)
+     plt.ylabel('V [km s$^{-1}$]',fontsize=fsize)    
      ax3.set_xlim(start,end)
-     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )    
+     ax3.tick_params(which='both', bottom=True, color='gray')
+     ax3.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
      ax3.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(100))
      #set after maximum in both   
      ax3.set_ylim(250, vscale)
-     ax3.text(sc1.time[40], vscale-40, 'NOAA L1', fontsize=fsize, color='black')
-     ax3.text(sc1.time[540], vscale-40, 'STEREO-A', fontsize=fsize, color='red')
+     ax3.text(sc1.time[40], vscale, 'NOAA L1', fontsize=fsize, color='black')
+     ax3.text(sc1.time[540], vscale, 'STEREO-A', fontsize=fsize, color='red')
 
 
     
-     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
 
     
      
-     plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-     plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+     plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+     plt.figtext(0.97,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
      
      plt.tight_layout()
@@ -387,11 +394,11 @@ def plot_insitu_update_noaa_rtsw(sc, start, end, sc_label, path, **kwargs):
      ax4.set_ylim((0, 1))
         
              
-     ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+     ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
     
      
-     plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-     plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+     plt.figtext(0.04,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+     plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
      
      plt.tight_layout()
@@ -443,21 +450,23 @@ def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, **kwargs):
      fsize=10
 
      fig=plt.figure(figsize=(9,5), dpi=150)
+    
+   
+    
      
-     #sharex means that zooming in works with all subplots
      ax1 = plt.subplot(311) 
 
      ax1.plot_date(sc.time,sc.bx,'-r',label='Bx',linewidth=0.5)
      ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
      ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
-     ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)
-     
+     ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)     
      plt.ylabel('B [nT] RTN',fontsize=fsize)
      plt.legend(loc=3,ncol=4,fontsize=fsize-2)
      ax1.set_xlim(start,end)
-     ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d') )
+     ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+    
+    
      plt.ylim(-np.nanmax(sc.bt)-3,np.nanmax(sc.bt)+3)
-     #ax1.set_xticklabels([]) does not work with sharex
      #plt.setp(ax1.get_xticklabels(), fontsize=6)
      plt.setp(ax1.get_xticklabels(), visible=False)
 
@@ -482,7 +491,7 @@ def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, **kwargs):
      ax3.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
      ax3.set_ylim((0, np.nanmax(sc.np)+10))
      #plt.setp(ax3.get_xticklabels(), visible=False)
-     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
+     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
 
      #ax4 = plt.subplot(414,sharex=ax1) 
      #ax4.plot_date(sc.time,sc.tp,'-k',label='Tp',linewidth=0.7)
@@ -492,9 +501,9 @@ def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, **kwargs):
      #ax4.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )
         
 
-     plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+     plt.figtext(0.04,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 
-     plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+     plt.figtext(0.97,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
      
      plt.tight_layout()
      #plt.show()
@@ -2674,8 +2683,9 @@ def plot_positions(time_date1, path,frame, **kwargs):
     plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
     plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
-    plt.figtext(0.85,0.1,'――― 100 days future trajectory', color='black', ha='center',fontsize=fsize-3)
-
+    plt.figtext(0.85,0.13,'─   100 days future trajectory', color='black', ha='left',fontsize=fsize-3)
+    plt.figtext(0.85,0.1 ,'- -  100 days past trajectory', color='black', ha='left',fontsize=fsize-3)
+  
     
     '''
 
@@ -2706,16 +2716,18 @@ def plot_positions(time_date1, path,frame, **kwargs):
 
         if plot_orbit: 
             ax.plot(psp.lon[psp_timeind:psp_timeind+fadeind], psp.r[psp_timeind:psp_timeind+fadeind]*np.cos(psp.lat[psp_timeind:psp_timeind+fadeind]), c=psp_color, alpha=0.6,lw=1,zorder=3)
+            ax.plot(psp.lon[psp_timeind-fadeind:psp_timeind], psp.r[psp_timeind-fadeind:psp_timeind]*np.cos(psp.lat[psp_timeind-fadeind:psp_timeind]), c=psp_color, linestyle='--', alpha=0.4,lw=1,zorder=3)
 
 
     if bepi_timeind > 0:
         ax.scatter(bepi.lon[bepi_timeind], bepi.r[bepi_timeind]*np.cos(bepi.lat[bepi_timeind]), s=symsize_spacecraft, c=bepi_color, marker='s', alpha=1,lw=0,zorder=3)
         bepi_text='Bepi:   '+str(f'{bepi.r[bepi_timeind]:6.2f}')+str(f'{np.rad2deg(bepi.lon[bepi_timeind]):8.1f}')+str(f'{np.rad2deg(bepi.lat[bepi_timeind]):8.1f}')
         f6=plt.figtext(0.01,0.74,bepi_text, fontsize=fsize, ha='left',color=bepi_color)
-        plt.text(bepi.lon[bepi_timeind]-0.15,bepi.r[bepi_timeind],'Bepi Colombo', color='blue', ha='center',fontsize=fsize-4,verticalalignment='top')
+        plt.text(bepi.lon[bepi_timeind]-0.15,bepi.r[bepi_timeind]+0.08,'Bepi Colombo', color='blue', ha='center',fontsize=fsize-4,verticalalignment='top')
   
         if plot_orbit: 
             ax.plot(bepi.lon[bepi_timeind:bepi_timeind+fadeind], bepi.r[bepi_timeind:bepi_timeind+fadeind]*np.cos(bepi.lat[bepi_timeind:bepi_timeind+fadeind]), c=bepi_color, alpha=0.6,lw=1,zorder=3)
+            ax.plot(bepi.lon[bepi_timeind-fadeind:bepi_timeind], bepi.r[bepi_timeind-fadeind:bepi_timeind]*np.cos(bepi.lat[bepi_timeind-fadeind:bepi_timeind]), c=bepi_color, linestyle='--', alpha=0.4,lw=1,zorder=3)
 
 
 
@@ -2727,9 +2739,13 @@ def plot_positions(time_date1, path,frame, **kwargs):
 
         if plot_orbit: 
             ax.plot(solo.lon[solo_timeind:solo_timeind+fadeind], solo.r[solo_timeind:solo_timeind+fadeind]*np.cos(solo.lat[solo_timeind:solo_timeind+fadeind]), c=solo_color, alpha=0.6,lw=1,zorder=3)
+            ax.plot(solo.lon[solo_timeind-fadeind:solo_timeind], solo.r[solo_timeind-fadeind:solo_timeind]*np.cos(solo.lat[solo_timeind-fadeind:solo_timeind]), c=solo_color, linestyle='--',alpha=0.5,lw=1,zorder=3)
+
+            
 
     if plot_orbit: 
         ax.plot(sta.lon[earth_timeind:earth_timeind+fadeind], sta.r[earth_timeind:earth_timeind+fadeind]*np.cos(sta.lat[earth_timeind:earth_timeind+fadeind]), c='red', alpha=0.6,lw=1,zorder=3)
+        ax.plot(sta.lon[earth_timeind-fadeind:earth_timeind], sta.r[earth_timeind-fadeind:earth_timeind]*np.cos(sta.lat[earth_timeind-fadeind:earth_timeind]), c='red', linestyle='--', alpha=0.5,lw=1,zorder=3)
 
         
         
@@ -2771,7 +2787,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
     f8=plt.figtext(0.01,0.82,sta_text, fontsize=fsize, ha='left',c='red')
     
     #time
-    plt.figtext(0.65,0.9,time_date1.strftime("%Y %B %d  %H:%M UT"),fontsize=fsize+6, ha='left',c='black')
+    plt.figtext(0.7,0.9,time_date1.strftime("%Y %B %d  %H:%M UT"),fontsize=fsize+6, ha='left',c='black')
 
     #parker spiral
     if plot_parker:
@@ -2798,7 +2814,6 @@ def plot_positions(time_date1, path,frame, **kwargs):
     plt.thetagrids(range(0,360,45),(u'0\u00b0 '+frame+' longitude',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='left',fontsize=fsize,color=backcolor, zorder=5, alpha=0.9)
 
     plt.tight_layout()
-    plt.show()
 
     #plotfile=path+%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
     plotfile=path+'positions_'+time_date1.strftime("%Y_%b_%d")+'.png'
@@ -2819,8 +2834,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
         plt.savefig(plotfile)
         print('saved as ',plotfile)
 
-
-    plt.close('all')
+    plt.show()
 
      
      

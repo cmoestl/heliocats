@@ -354,7 +354,7 @@ def wind_download_ascii(start_year, wind_path):
     
     
     
-def stereoa_download_beacon(start_year,start_month, start_day, stereoa_path):
+def stereoa_download_beacon(start, end, stereoa_path):
 
     #download MFI and SWE in ASCII from SPDF
         
@@ -362,38 +362,35 @@ def stereoa_download_beacon(start_year,start_month, start_day, stereoa_path):
         
         
         
-    read_data_end_year=datetime.datetime.utcnow().year
-    read_data_end_month=datetime.datetime.utcnow().month
-    read_data_end_day=datetime.datetime.utcnow().day
+    #define utc now as end date   
+    read_data_end_year=end.year
+    read_data_end_month=end.month
+    read_data_end_day=end.day
     
     
-    sta_years_strings=[]
-    for j in np.arange(start_year,read_data_end_year+1):
-        sta_years_strings.append(str(j))
+    #sta_years_strings=[]
+    #for j in np.arange(start.year,read_data_end_year+1):
+    #    sta_years_strings.append(str(j))
 
     #print('for years', sta_years_strings)
     
-    ## BEACON SOURCES
-   
+    ## BEACON SOURCE location  
     
     impact_url='https://stereo-ssc.nascom.nasa.gov/data/beacon/ahead/impact/'
     plastic_url='https://stereo-ssc.nascom.nasa.gov/data/beacon/ahead/plastic/'
     
     #make a list of all dates from start year,month,day onwards until now
-    tstart1=datetime.datetime(start_year,start_month,start_day,1)
+    tstart1=datetime.datetime(start.year,start.month,start.day,1)
     
     time_1=[]
-    while tstart1 < datetime.datetime.utcnow():
+    while tstart1 < end:
         time_1.append(tstart1)  
         tstart1 += datetime.timedelta(days=1)
     
     for i in np.arange(0,len(time_1)):
         
-        
-        yearstr=str(time_1[i].year)
-        
+        yearstr=str(time_1[i].year)        
         monthstr=str(time_1[i].month).zfill(2) #add leading zeros 
-
         daystr=str(time_1[i].day).zfill(2) #add leading zeros 
 
         filesta='STA_LB_IMPACT_'+yearstr+monthstr+daystr+'_V02.cdf'
@@ -3137,136 +3134,179 @@ def save_all_stereob_science_data(path,file,sceq):
 def get_sdo_realtime_image(data_path_sun):
     """Downloads latest SDO image."""
 
+    get_193_file=False
+    get_193_date=False
+    
 
     ##-------------------------- AIA
     sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193.jpg'
     #sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193pfss.jpg'
+    
+    #download the file
     try: 
         urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_0193.jpg')
         print('saved ',data_path_sun+'latest_1024_0193.jpg')       
+        get_193_file=True
+
     except urllib.error.URLError as e:
-        print('Failed downloading ', sdo_latest,' ',e)
-        return None
+        print('Failed downloading 193 image', sdo_latest,' ',e)
 
-    
-        
-    image_path = data_path_sun+'latest_1024_0193.jpg'
-    image = mpimg.imread(image_path)
-
+ 
     #get the file creation date
     sdo_date= 'https://sdo.gsfc.nasa.gov/assets/img/latest/times0193.txt'
      
     try: 
-        with urllib.request.urlopen(urldate) as response:
+        with urllib.request.urlopen(sdo_date) as response:
             file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8
         date1=file_contents[6:14]
         time1=file_contents[15:]
 
         #date1=file_contents[6:10]
-        #time1=
         timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
-
+        print(timestamp)
+        get_193_date=True
         
-    except urllib.error.URLError as e:
-        print('Failed downloading ', sdo_latest,' ',e)
-        return None
+    except urllib.error.URLError as e:        
+        print('Failed downloading 193 date file', sdo_latest,' ',e)
+
+    #if the date file and the image file could both be downloaded add the timestamp
+    if get_193_date and get_193_file:
+        image_path = data_path_sun+'latest_1024_0193.jpg'
+        image = mpimg.imread(image_path)
 
 
-    #timestamp = datetime.datetime.strftime("%Y-%m-%d %H:%M UT")
-    font_size = 24
-    text_color = 'white'
-    text_bg_color = 'black'
+        font_size = 24
+        text_color = 'white'
+        text_bg_color = 'black'
 
-    # Create a figure and axes
-    fig=plt.figure(figsize=(1024 / 80,1024 / 80), dpi=80)
-    ax = fig.add_subplot(111)
+        # Create a figure and axes
+        fig=plt.figure(figsize=(1024 / 80,1024 / 80), dpi=80)
+        ax = fig.add_subplot(111)
 
-    # Display the image
-    ax.imshow(image)
+        # Display the image
+        ax.imshow(image)
 
-    # Add the timestamp as text
-    ax.text(20, 50, timestamp, fontsize=font_size, color=text_color)
-    ax.text(770, 50, 'SDO/AIA 193', fontsize=font_size, color=text_color)
+        # Add the timestamp as text
+        ax.text(20, 50, timestamp, fontsize=font_size, color=text_color)
+        ax.text(770, 50, 'SDO/AIA 193', fontsize=font_size, color=text_color)
 
-
-    # Remove the axis ticks and labels
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.axis('off')
+        # Remove the axis ticks and labels
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.axis('off')
 
 
+        # Save the modified image
 
+        output_path = data_path_sun+'latest_1024_0193.jpg'
+        plt.savefig(output_path,bbox_inches='tight', pad_inches=0,dpi=110)
 
-
-    # Save the modified image
-    #output_path = data_path_sun+'latest_1024_HMIB_mod.jpg'
-    output_path = data_path_sun+'latest_1024_0193.jpg'
-    plt.savefig(output_path,bbox_inches='tight', pad_inches=0,dpi=110)
-
-    # Show the modified image
-    plt.show()
+        # Show the modified image
+        plt.show()
 
     
     
     
     #--------------- HMI
     
+    get_HMI_file=False
+    get_HMI_date=False
     
     sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_HMIB.jpg'        
-    try: urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_HMIB.jpg')
+    try: 
+        urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_HMIB.jpg')
+        get_HMI_file=True
     except urllib.error.URLError as e:
         print('Failed downloading ', sdo_latest,' ',e)
         
     print('saved ',data_path_sun+'latest_1024_HMIB.jpg')    
 
+    
+ 
     #get the file creation date
-    urldate= 'https://sdo.gsfc.nasa.gov/assets/img/latest/timesHMIB.txt    '
-
-    with urllib.request.urlopen(urldate) as response:
-        file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8 
+    sdo_date= 'https://sdo.gsfc.nasa.gov/assets/img/latest/timesHMIB.txt'
+     
+    try: 
+        with urllib.request.urlopen(sdo_date) as response:
+            file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8
         date1=file_contents[6:14]
         time1=file_contents[15:]
 
         #date1=file_contents[6:10]
-        #time1=
-    timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
+        timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
+        print(timestamp)
+        get_HMI_date=True
+        
+    except urllib.error.URLError as e:        
+        print('Failed downloading 193 date file', sdo_latest,' ',e)
 
+    #if the date file and the image file could both be downloaded add the timestamp
+    if get_HMI_date and get_HMI_file:
+        image_path = data_path_sun+'latest_1024_HMIB.jpg'
+        image = mpimg.imread(image_path)
+
+
+        font_size = 24
+        text_color = 'white'
+        text_bg_color = 'black'
+
+        # Create a figure and axes
+        fig=plt.figure(figsize=(1024 / 80,1024 / 80), dpi=80)
+        ax = fig.add_subplot(111)
+
+        # Display the image
+        ax.imshow(image,cmap='gray')
+
+        # Add the timestamp as text
+        ax.text(20, 50, timestamp, fontsize=font_size, color=text_color)
+        ax.text(770, 50, 'SDO/HMI', fontsize=font_size, color=text_color)
+
+        # Remove the axis ticks and labels
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.axis('off')
+
+
+        # Save the modified image
+
+        output_path = data_path_sun+'latest_1024_HMIB.jpg'
+        plt.savefig(output_path,bbox_inches='tight', pad_inches=0,dpi=110)
+
+        # Show the modified image
+        plt.show()
 
     
     
-    # Load the JPEG file
-    image_path = data_path_sun+'latest_1024_HMIB.jpg'
-    image = mpimg.imread(image_path)
-
-    font_size = 24
-    text_color = 'white'
-    text_bg_color = 'black'
-
-    # Create a figure and axes
-    fig=plt.figure(figsize=(1024 / 80,1024 / 80), dpi=80)
-    ax = fig.add_subplot(111)
-
-    # Display the image
-    ax.imshow(image,cmap='gray')
-
-    # Add the timestamp as text
-    ax.text(20, 50, timestamp, fontsize=font_size, color=text_color)
-    ax.text(820, 50, 'SDO/HMI', fontsize=font_size, color=text_color)
-
-
-    # Remove the axis ticks and labels
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.axis('off')
-
-
-    # Save the modified image
-    #output_path = data_path_sun+'latest_1024_HMIB_mod.jpg'
-    output_path = data_path_sun+'latest_1024_HMIB.jpg'
-    plt.savefig(output_path,bbox_inches='tight', pad_inches=0,dpi=110)
-
-    # Show the modified image
-    plt.show()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     
     
