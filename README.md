@@ -5,7 +5,7 @@ This package contains codes used for the creation of catalogs of interplanetary 
 
 **Authors**: C. Möstl, Austrian Space Weather Office, Geosphere Austria https:/helioforecast.space; contributions by A. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow, D. Stansby.
 
-Current status (**April 2023**): **work in progress**. I am currently updating the code with a new conda environment (helio4), defined in "/envs/env_helio4.yml" and I currently go through all codes to ensure they work. The instructions below also needs to be updated.
+Current status (**July 2023**): **work in progress**. I am currently updating the code with a new conda environment (helio4), defined in "/envs/env_helio4.yml" and go through all codes to ensure they work. 
 
 This is a continuation of work done in the EU HELCATS project (2014-2017): 
 [https://www.helcats-fp7.eu](https://www.helcats-fp7.eu). 
@@ -160,6 +160,8 @@ Create a conda environment using the "envs/env_helio4.yml", and activate the env
 
 	  conda activate helio4
 
+
+Some codes at some point may need to use ffmpeg, which can be downloaded for Mac and Linux from this site: https://ffmpeg.org/download.html
 
 
 

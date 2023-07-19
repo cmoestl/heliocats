@@ -3,16 +3,16 @@
 
 # # ICME rate web plots
 # 
-# adapted from
+# Adapted from the code for the paper https://iopscience.iop.org/article/10.3847/1538-4357/abb9a1
 # 
 # https://github.com/helioforecast/Papers/tree/master/Moestl2020_PSP_rate
 # 
-# makes a prediction of the ICME rate in solar cycle 25, solar cycle tracking plots, etc. for the webpage
+# makes a prediction of the ICME rate in solar cycle 25, and solar cycle tracking plots, for the webpage
 # https://helioforecast.space/solarcycle
 # 
 # Main author: C. Möstl, Austrian Space Weather Office, GeoSphere Austria
 # 
-# https://github.com/cmoestl
+# part of https://github.com/cmoestl/heliocats
 # 
 # uses environment 'envs/env_helio4.yml'
 # 
@@ -40,13 +40,12 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[3]:
+# In[1]:
 
 
 from scipy import stats
 import scipy.io
 from matplotlib import cm
-import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -60,41 +59,39 @@ import time
 import pickle
 import seaborn as sns
 import os
+import sys
 import urllib
 import json
 import warnings
+import copy
 import importlib
 import heliopy.spice as spice
 import heliopy.data.spice as spicedata
 import astropy
-import copy
 
-
-#our own package
-from heliocats import stats as hs
-from heliocats import data as hd
-from heliocats import cats as hc
-
-
-#where the 6 in situ data files are located is read from input.py
-#as data_path=....
-
-
-if sys.platform == 'linux': 
-    from config_server import data_path
-
-    
-if sys.platform =='darwin':  
-    from config_local import data_path
-
- 
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 
-#%matplotlib inline
-#matplotlib.use('Qt5Agg')
-#matplotlib.use('Agg')
+from heliocats import stats as hs
+from heliocats import data as hd
+from heliocats import cats as hc
+
+#########################
+#Convert this notebook to a script with:
+os.system('jupyter nbconvert --to script icme_rate_web.ipynb')    
+
+##### check for system type
+#server
+if sys.platform == 'linux': 
+    print('system is linux')
+    matplotlib.use('Agg') 
+#mac
+if sys.platform =='darwin':  
+    print('system is mac')
+    get_ipython().run_line_magic('matplotlib', 'inline')
+
+
 #warnings.filterwarnings('ignore') # some numpy mean-of-empty-slice runtime warnings
 
 ########### make directories first time
@@ -107,37 +104,32 @@ if os.path.isdir(datadir) == False: os.mkdir(datadir)
 resdir='results/icme_rate'
 if os.path.isdir(resdir) == False: os.mkdir(resdir)
 
+#where the in situ data files are located is set as data_path
+data_path=datadir+'/icme_rate_data_files/'
+if os.path.isdir(data_path) == False: os.mkdir(data_path)
 
 #set output directory
 outputdirectory=resdir
+    
+    
+t0all = time.time()    
 
-#Convert this notebook to a script with:
-import os
-os.system('jupyter nbconvert --to script icme_rate_web.ipynb')    
-    
-#animdirectory='results/plots_rate/anim'
-#if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
-    
-#animdirectory2='results/plots_rate/anim2'
-#if os.path.isdir(animdirectory2) == False: os.mkdir(animdirectory2)
-    
-plt.rcParams["figure.figsize"] = (15,8)
-print('done')
-print(resdir)
-print(data_path)
+print('results path', resdir)
+print('path for data files', data_path)
 
 
 # ## 1 Settings and load data
 
-# In[11]:
+# In[2]:
 
 
-plt.close('all')
+t0 = time.time()
+print('----------------------- ')
 
 print('icme_rate main program.')
 
 #constants: 
-#solar radiusx
+#solar radius
 Rs_in_AU=float(const.R_sun/const.au)
 #define AU in km
 AU_in_km=const.au.value/1e3
@@ -152,7 +144,7 @@ get_new_omni=0
 
 if load_data > 0:
     
-    print('load data (takes a minute or so)')
+    print('load data')
     print('')
     
     #####################
@@ -197,7 +189,7 @@ if load_data > 0:
         
         #download 
         ssn_prelim_url='http://www.sidc.be/silso/DATA/EISN/EISN_current.csv'
-        try: urllib.request.urlretrieve(ssn_prelim_url,'data/EISN_current.csv')
+        try: urllib.request.urlretrieve(ssn_prelim_url,data_path+'EISN_current.csv')
         except urllib.error.URLError as e:
             print('Failed downloading ', ssn_prelim_url,' ',e)
         
@@ -278,9 +270,9 @@ if load_data > 0:
 
     ##----------------------------- spacecraft
 
-    fileomni="omni_1963_now.p"
-    if get_new_omni==1: hd.save_omni_data(data_path,fileomni)
-    [omni,homni]=pickle.load(open(data_path+fileomni, "rb" ) ) 
+    #fileomni="omni_1963_now.p"
+    #if get_new_omni==1: hd.save_omni_data(data_path,fileomni)
+    #[omni,homni]=pickle.load(open(data_path+fileomni, "rb" ) ) 
     
     
     
@@ -567,12 +559,14 @@ print('Ulysses              ',str(uly.time[0])[0:10],str(uly.time[-1])[0:10])
 
 print('done')
  
-    
+t1 = time.time()
+print()
+print('loading all data takes', np.round(t1-t0,2), 'seconds')
     
     
 
 
-# In[ ]:
+# In[3]:
 
 
 ########### load ICMECAT made with icmecat.py or ipynb
@@ -627,7 +621,7 @@ print('HELCATS HIGeoCAT     ',str(higeocat_time[0])[0:10],str(higeocat_time[-1])
 print('HELCATS ARRCAT       ',np.sort(ac_pandas.sse_launch_time)[0][0:10],np.sort(ac_pandas.sse_launch_time)[-1][0:10])
 
 
-# In[ ]:
+# In[4]:
 
 
 ############### set limits of solar minimum, rising/declining phase and solar maximum
@@ -1113,7 +1107,6 @@ fig=plt.figure(1,figsize=(12,10),dpi=80)
 ######################## Fig 1a - sc positions during ICMEs vs time
 
 
-
 ax1 = plt.subplot(211) 
 msize=5
 plt.plot_date(ic.icme_start_time[mesi],ic.mo_sc_heliodistance[mesi],fmt='o',color='coral',markersize=msize,label='MESSENGER')
@@ -1136,7 +1129,6 @@ plt.xticks(yearly_start_times,fontsize=fsize)
 #change matplotlib time before plotting
 yearly_bin_edges2=yearly_bin_edges
 
-plt.xlim(yearly_bin_edges2[0],yearly_bin_edges2[-1])
 plt.ylim([0,1.7])
 plt.yticks(np.arange(0,1.9,0.2),fontsize=fsize) 
 
@@ -1144,11 +1136,14 @@ ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 
+plt.xlim(yearly_bin_edges2[0],yearly_bin_edges2[-1])
+
+
 #grid for icme rate
 for i in np.arange(0,2.0,0.2):
-    ax1.plot([datetime.datetime(2007,1,1),datetime.datetime(2024,1,1)],np.zeros(2)+i,linestyle='--',color='grey',alpha=0.5,lw=0.8,zorder=0)
+    ax1.plot([datetime.datetime(2007,1,1),datetime.datetime(2030,1,1)],np.zeros(2)+i,linestyle='--',color='grey',alpha=0.5,lw=0.8,zorder=0)
     
-for i in np.arange(0,14):    
+for i in np.arange(0,15):    
     ax1.plot([yearly_start_times[i],yearly_start_times[i]],[0,2],linestyle='--',color='grey',alpha=0.5,lw=0.8,zorder=0)
 
 
@@ -1172,7 +1167,7 @@ ax3.legend(loc=1,fontsize=10)
 
 #grid for icme rate
 for i in np.arange(0,50,10):
-    ax2.plot([datetime.datetime(2007,1,1),datetime.datetime(2023,1,1)],np.zeros(2)+i,linestyle='--',color='k',alpha=0.4,lw=0.8,zorder=0)
+    ax2.plot([datetime.datetime(2007,1,1),datetime.datetime(2030,1,1)],np.zeros(2)+i,linestyle='--',color='k',alpha=0.4,lw=0.8,zorder=0)
 
 binweite=int(np.round(360/8))
 bin_edges=bin_edgeswin[:-1]
@@ -2360,7 +2355,7 @@ file='ssn_m.p'
 ssn_m=pickle.load(open(data_path+file, "rb"))
 
 fsize=15
-max_spot=450
+
 
 ax1 = plt.subplot(111) 
 ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.4,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
@@ -2404,8 +2399,12 @@ ax1.set_xlim(datetime.datetime(1749,1,1),datetime.datetime(2035,1,1))
 #ax1.plot(times_25_daily,spots_predict_25_daily,'-k',alpha=1,linewidth=1.5,label='Solar dynamo revolution April 2021')
 #ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
 
-ax1.set_ylim(0,max_spot)
+ax1.set_ylim(0,360)
 ax1.set_ylabel('Sunspot number')
+
+plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
+
 
 plt.legend(loc='upper right',fontsize=8)
 plt.tight_layout()
@@ -2414,10 +2413,9 @@ plt.savefig(outputdirectory+'/cycle25_prediction.png',dpi=100)
 
 #with shorter interval
 
-
 plt.legend(loc='upper right',fontsize=13)
 ax1.set_xlim(datetime.datetime(1975,1,1),datetime.datetime(2033,1,1))
-ax1.set_ylim(0,320)
+
 years = mdates.YearLocator(5)   # every year
 ax1.xaxis.set_major_locator(years)
 myformat = mdates.DateFormatter('%Y')
@@ -2497,7 +2495,12 @@ ax1.set_ylabel('Sunspot number')
 
 
 plt.legend(loc='upper left',fontsize=12)
-plt.annotate('C. Möstl  helioforecast.space/solarcycle',xy=(0.995,0.02),xycoords='axes fraction',fontsize=9,ha='right')
+print('last update: '+str(mdates.num2date(ssn_p.time.tail(1))[0])[0:10])
+plt.annotate('latest data: '+str(mdates.num2date(ssn_p.time.tail(1))[0])[0:10],xy=(0.995,0.02),xycoords='axes fraction',fontsize=9,ha='right')
+
+plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
+
 ax1.set_xlim(datetime.datetime(2019,1,1),datetime.datetime(2027,6,1))
 ax1.set_ylim(0,300)
 months = mdates.MonthLocator()   # every year
@@ -2505,30 +2508,6 @@ ax1.xaxis.set_minor_locator(months)
 ax1.grid(linestyle='--')
 plt.tight_layout()
 plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
 
 # In[ ]:
@@ -2726,6 +2705,9 @@ ax2.yaxis.set_ticks(np.arange(0,220,20))
 ax2.grid(visible=None)
 
 
+plt.annotate('current time: '+str(datetime.datetime.now())[0:10],xy=(0.99,0.96),xycoords='axes fraction',fontsize=11,ha='right')
+
+
 sns.set_style('whitegrid')
 ax3 = plt.subplot(212) 
 ax3.plot_date(psp_plot_time,psp_highres_speed,'-r',zorder=3)
@@ -2758,8 +2740,8 @@ for i in np.arange(0,48,2):
     ax3.text(psp_plot_time[dr_minmax[i]],psp_highres_speed[dr_minmax[i]]+5,str(int(i/2)+1),fontsize=13,horizontalalignment='center')
 
 plt.tight_layout()
-plt.figtext(0.95,0.008,'C. Möstl  helioforecast.space/solarcycle', fontsize=10, ha='right',color='k',style='italic')     
-plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fontsize=10, ha='left',color='k',style='italic')     
+plt.figtext(0.95,0.008,'helioforecast.space/solarcycle', fontsize=12, ha='right',color='k',style='italic')     
+plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fontsize=12, ha='left',color='k',style='italic')     
 
 
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
@@ -2813,6 +2795,7 @@ ax1.grid(which='major',linestyle='--',alpha=0.7)
 #ax1.set_zorder(3)
 
 ax1.set_ylim(0,1.1)
+plt.annotate('current time: '+str(datetime.datetime.now())[0:10],xy=(0.99,0.96),xycoords='axes fraction',fontsize=11,ha='right')
 
 
 plt.title('Solar Orbiter trajectory')
@@ -2858,1224 +2841,28 @@ ax3.plot([current_mdates,current_mdates],[-50,50],linestyle='-', color='black',a
 
 #plot numbers
 for i in np.arange(0,39,2):
-    ax1.text(solo_time_highres_num[dr_minmax[i]],solo_highres_r[dr_minmax[i]]-0.07,str(int(i/2)+1),fontsize=15,zorder=0,horizontalalignment='center')
-    
+    ax1.text(solo_time_highres_num[dr_minmax[i]],solo_highres_r[dr_minmax[i]]-0.07,str(int(i/2)+1),fontsize=15,zorder=0,horizontalalignment='center')    
     ax1.plot([solo_time_highres_num[dr_minmax[i]],solo_time_highres_num[dr_minmax[i]]],[-50,50],linestyle='-', color='grey',alpha=0.3)
-
 
     ax3.text(solo_time_highres_num[dr_minmax[i]]+40,solo_highres_lat[dr_minmax[i]]+1,str(int(i/2)+1),fontsize=15,horizontalalignment='center')    
     ax3.plot([solo_time_highres_num[dr_minmax[i]],solo_time_highres_num[dr_minmax[i]]],[-50,50],linestyle='-', color='grey',alpha=0.4)
 
 plt.tight_layout()
-plt.figtext(0.95,0.008,'C. Möstl  helioforecast.space/solarcycle', fontsize=10, ha='right',color='k',style='italic')     
-plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fontsize=10, ha='left',color='k',style='italic')     
+plt.figtext(0.95,0.008,'helioforecast.space/solarcycle', fontsize=12, ha='right',color='k',style='italic')     
+plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fontsize=12, ha='left',color='k',style='italic')     
 
 
 
 plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
-# ## Stop the web program here
-
 # In[29]:
 
 
-import sys
-sys.exit()
-
-
-# ### Calculate expected number of PSP ICMEs < 0.3, 0.2, 0.1 AU 
-
-# first calculate smooth functions for the icme rate including the derived error bars in Figure 3
-
-# In[ ]:
-
-
-#fit yearly ICME rates again with hathaway function to get to daily resolution including errors
-
-
-#define times a bit differently
-yearly_mid_times_25_num=mdates.date2num(yearly_mid_times_25)
-times_25_daily_icrange= [ yearly_mid_times_25[0] + datetime.timedelta(days=n) for n in range(int ((yearly_mid_times_25[-1] - yearly_mid_times_25[0]).days))]  
-times_25_daily_icrange_num=mdates.date2num(times_25_daily_icrange)
-
-
-##PP19 model
-
-#yearly_mid_times_25,icmes_predict_25pp,yerr=ic_rate_25_pp_std, 
-plt.figure(51,figsize=(10,5),dpi=70)
-plt.errorbar(yearly_mid_times_25,icmes_predict_25pp,yerr=ic_rate_25_pp_std)
-
-icratepp_low=icmes_predict_25pp-ic_rate_25_pp_std
-icratepp_high=icmes_predict_25pp+ic_rate_25_pp_std
-#plt.plot(yearly_mid_times_25,icratepp_low)
-#plt.plot(yearly_mid_times_25,icratepp_high)
-
-#smooth with spline
-from scipy.interpolate import interp1d
-#https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
-
-fpp = interp1d(yearly_mid_times_25_num, icmes_predict_25pp, kind=2)
-fpp_high = interp1d(yearly_mid_times_25_num, icratepp_high, kind=2)
-fpp_low = interp1d(yearly_mid_times_25_num, icratepp_low, kind=2)
-
-plt.plot(times_25_daily_icrange_num,fpp(times_25_daily_icrange_num))
-plt.plot(times_25_daily_icrange_num,fpp_high(times_25_daily_icrange_num))
-plt.plot(times_25_daily_icrange_num,fpp_low(times_25_daily_icrange_num))
-
-
-
-#MC20 model
-plt.figure(52,figsize=(10,5),dpi=70)
-
-
-#yearly_mid_times_25,icmes_predict_25mc,yerr=ic_rate_25_mc20_std,
-plt.errorbar(yearly_mid_times_25,icmes_predict_25mc,yerr=ic_rate_25_mc20_std)
-
-icratemc_low=icmes_predict_25mc-ic_rate_25_mc20_std
-icratemc_high=icmes_predict_25mc+ic_rate_25_mc20_std
-#plt.plot(yearly_mid_times_25,icratemc_low)
-#plt.plot(yearly_mid_times_25,icratemc_high)
-
-fmc = interp1d(yearly_mid_times_25_num, icmes_predict_25mc, kind=2)
-fmc_high = interp1d(yearly_mid_times_25_num, icratemc_high, kind=2)
-fmc_low = interp1d(yearly_mid_times_25_num, icratemc_low, kind=2)
-
-plt.plot(times_25_daily_icrange_num,fmc(times_25_daily_icrange_num))
-plt.plot(times_25_daily_icrange_num,fmc_high(times_25_daily_icrange_num))
-plt.plot(times_25_daily_icrange_num,fmc_low(times_25_daily_icrange_num))
-
-
-# Figure out how many ICMEs PSP sees < 0.1 AU, < 0.2 AU, < 0.3 AU for the predicted ICME rates
-
-# In[ ]:
-
-
-#make position new in order to be of similar range with ICME rate spline fits
-frame='HEEQ'
-starttime =times_25_daily_icrange[0]
-endtime = datetime.datetime(2025, 9, 1)
-pspt_time = []
-res_in_days=1
-while starttime < endtime:
-    pspt_time.append(starttime)
-    starttime += timedelta(days=res_in_days)
-pspt_time_num=parse_time(pspt_time).plot_date
-
-spice.furnish(spicedata.get_kernel('psp_pred'))
-pspt=spice.Trajectory('SPP')
-pspt.generate_positions(pspt_time,'Sun',frame)
-pspt.change_units(astropy.units.AU)  
-[psp_r, psp_lat, psp_lon]=hd.cart2sphere(pspt.x,pspt.y,pspt.z)
-print('PSP pos')
-print()
-
-
-
-#all positions
-psp_l10=np.where(psp_r < 1.0)[0]
-#positions less 0.3 AU
-psp_l03=np.where(psp_r < 0.3)[0]
-#positions less 0.2 AU
-psp_l02=np.where(psp_r < 0.2)[0]
-#positions less 0.1 AU
-psp_l01=np.where(psp_r < 0.1)[0]
-
-
-
-print('!!!!!! all results below calculated from 2020 July 1 to 2025 August 31!!!!!!!!!!!!!')
-print('PSP spends ... ')
-print('days < 0.3 AU:',psp_l03.size)
-print('days < 0.2 AU:',psp_l02.size)
-print('days < 0.1 AU:',psp_l01.size)
-
-# pspt_time_num[psp_l03]
-# psp_r[psp_l03]
-# times_25_daily_num=mdates.date2num(times_25_daily) 
-# ic25=icmes_predict_25mc_daily/365.24
-
-
-#################### Calculate PSP ICME rate
-
-#MC20
-print('---------------')
-print('MC20 prediction')
-print('using spline fits to get from yearly to daily ICME rates including error bars')
-
-#old version with hathawy function for SSN and conversion instead of spline (result similar for average, but errors not good)
-#spots_predict_25_daily_mc_psp=hs.hathaway(pspt_time, start_25-shift_t0,a,b,c)
-#icmes_psp_predict_mc_daily=ssn_to_rate(spots_predict_25_daily_mc_psp,linfit)[0]/365.24
-
-icmes_psp_predict_mc_daily=fmc(times_25_daily_icrange_num)/365.24
-icmes_psp_predict_mc_daily_low=fmc_low(times_25_daily_icrange_num)/365.24
-icmes_psp_predict_mc_daily_high=fmc_high(times_25_daily_icrange_num)/365.24
-
-print('ICME events in situ at PSP total mission : ', int(np.rint(np.sum(icmes_psp_predict_mc_daily[psp_l10]))))
-print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_low[psp_l10]))),' / ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_high[psp_l10]))))
-print('ICME events in situ at PSP < 0.3 AU: ', int(np.rint(np.sum(icmes_psp_predict_mc_daily[psp_l03]))))
-print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_low[psp_l03]))),' / ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_high[psp_l03]))))
-print('ICME events in situ at PSP < 0.2 AU: ', int(np.rint(np.sum(icmes_psp_predict_mc_daily[psp_l02]))))
-print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_low[psp_l02]))),' / ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_high[psp_l02]))))
-print('ICME events in situ at PSP < 0.1 AU: ', int(np.rint(np.sum(icmes_psp_predict_mc_daily[psp_l01]))))
-print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_low[psp_l01]))),' / ',int(np.rint(np.sum(icmes_psp_predict_mc_daily_high[psp_l01]))))
-
-
-#check if correct
-# plt.plot(pspt_time_num,psp_r)
-# plt.plot_date(pspt_time_num[psp_l03],icmes_psp_predict_mc_daily[psp_l03],'ob')
-# plt.plot_date(pspt_time_num[psp_l02],icmes_psp_predict_mc_daily[psp_l02],'ok')
-# plt.plot_date(pspt_time_num[psp_l01],icmes_psp_predict_mc_daily[psp_l01],'or')
-
-
-
-
-print('---------------')
-print('PP19 prediction')
-
-#old version with Hathway fit
-#PP19 get SSN from Hathaway model
-#spots_predict_25_daily_pp_psp=hs.hathaway(pspt_time, start_25_fit,app,bpp,cpp)
-#get ICR from SSN                     
-#icmes_psp_predict_pp_daily=ssn_to_rate(spots_predict_25_daily_pp_psp,linfit)[0]/365.24
-
-
-#new version with spline fits
-icmes_psp_predict_pp_daily=fpp(times_25_daily_icrange_num)/365.24
-icmes_psp_predict_pp_daily_low=fpp_low(times_25_daily_icrange_num)/365.24
-icmes_psp_predict_pp_daily_high=fpp_high(times_25_daily_icrange_num)/365.24
-
-
-
-# plt.plot_date(pspt_time_num[psp_l03],icmes_psp_predict_pp_daily[psp_l03],'sb')
-# plt.plot_date(pspt_time_num[psp_l02],icmes_psp_predict_pp_daily[psp_l02],'sk')
-# plt.plot_date(pspt_time_num[psp_l01],icmes_psp_predict_pp_daily[psp_l01],'sr')
-
-print('ICME events in situ at PSP total mission : ', int(np.rint(np.sum(icmes_psp_predict_pp_daily[psp_l10]))))
-print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_low[psp_l10]))),' / ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_high[psp_l10]))))
-print('ICME events in situ at PSP < 0.3 AU: ', int(np.rint(np.sum(icmes_psp_predict_pp_daily[psp_l03]))))
-print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_low[psp_l03]))),' / ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_high[psp_l03]))))
-print('ICME events in situ at PSP < 0.2 AU: ', int(np.rint(np.sum(icmes_psp_predict_pp_daily[psp_l02]))))
-print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_low[psp_l02]))),' / ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_high[psp_l02]))))
-print('ICME events in situ at PSP < 0.1 AU: ', int(np.rint(np.sum(icmes_psp_predict_pp_daily[psp_l01]))))
-print('range low/high: ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_low[psp_l01]))),' / ',int(np.rint(np.sum(icmes_psp_predict_pp_daily_high[psp_l01]))))
-
-
-
-
-#---------------------------------------------------- Solar Orbiter
-
-solo_l05=np.where(solo_r < 0.5)[0]
-solo_l04=np.where(solo_r < 0.4)[0]
-solo_l03=np.where(solo_r < 0.3)[0]
-
-print()
-print()
-print('-----------------------')
-print('SolO spends ... ')
-print('days < 0.5 AU:',solo_l05.size)
-print('days < 0.4 AU:',solo_l04.size)
-print('days < 0.3 AU:',solo_l03.size)
-
-
-# ## **Figure 4** PSP Solar Orbiter distance and ICME rate
-
-# In[ ]:
-
-
-sns.set_context("talk")     
-#sns.set_style('darkgrid')
-sns.set_style("ticks")
-fsize=15
-
-starttime =datetime.datetime(2020, 3,1)
-endtime = datetime.datetime(2029, 12, 31)
-
-fig=plt.figure(45,figsize=(16,12),dpi=70)
-ax1 = plt.subplot(211) 
-#plot R[AU]
-ax1.plot_date(pspt_time,psp_r,'-k')
-#grid
-for i in np.arange(0.1,1.2,0.1):
-    ax1.plot(pspt_time,np.zeros(len(psp_r))+i,linestyle='--',color='k',alpha=0.4,lw=0.8)
-
-ax1.set_ylabel('PSP heliocentric distance [AU]')
-ax1.set_xlim(starttime,endtime)
-ax1.set_ylim(0,1.1)
-
-#p######################## plot ICR
-ax2=ax1.twinx()
-
-#ax2.plot(yearly_mid_times_25,icmes_predict_25/365.24, marker='s',markerfacecolor='coral', alpha=0.9,label='Predicted ICME rate MC20',linestyle='')
-ax2.plot(times_25_daily,icmes_predict_25mc_daily*30.25/365.24, color='coral', label='Predicted ICME rate MC20',linestyle='-')
-ax2.plot(times_25_daily,icmes_predict_25pp_daily*30.25/365.24, color='magenta', label='Predicted ICME rate PP19',linestyle='-')
-
-#error bars - 30.42/364.24 converts the yearly rate from the spline function to monthly rates like 3 lines above
-#ax2.plot(times_25_daily_icrange_num,fmc_low(times_25_daily_icrange_num)*30.42/365.24,color='coral',linestyle='--')
-#ax2.plot(times_25_daily_icrange_num,fmc_high(times_25_daily_icrange_num)*30.42/365.24,color='coral',linestyle='--')
-ax2.fill_between(times_25_daily_icrange_num, fmc_low(times_25_daily_icrange_num)*30.42/365.248, fmc_high(times_25_daily_icrange_num)*30.42/365.24, alpha=0.2,color='coral')
-
-#same for pp model
-#ax2.plot(times_25_daily_icrange_num,fpp_low(times_25_daily_icrange_num)*30.42/365.24,color='magenta',linestyle='--')
-#ax2.plot(times_25_daily_icrange_num,fpp_high(times_25_daily_icrange_num)*30.42/365.24,color='magenta',linestyle='--')
-ax2.fill_between(times_25_daily_icrange_num, fpp_low(times_25_daily_icrange_num)*30.42/365.248, fpp_high(times_25_daily_icrange_num)*30.42/365.24, alpha=0.2,color='blueviolet')
-
-ax2.set_ylabel('monthly ICME rate')
-plt.legend(loc='upper center')
-
-plotstart=datetime.datetime(2020, 7, 1)
-plotend=datetime.datetime(2025, 9,1)
-plt.xlim(plotstart,plotend)
-
-
-################ Solar Orbiter
-ax3 = plt.subplot(212) 
-ax3.plot_date(solot_time,solo_r,'-k')
-ax3.plot_date(bepi_time2,bepi_r2,linestyle='-',color='orange',lw=2,markersize=0)
-
-
-#ax3.plot_date(solot_time,np.degrees(solo_lat)/100,'--k')
-#ax3.plot(solot_time,np.zeros(len(solo_r))+0.5,linestyle='--',color='b',alpha=.6)
-#ax3.plot(solot_time,np.zeros(len(solo_r))+0.4,linestyle='--',color='b',alpha=.6)
-#ax3.plot(solot_time,np.zeros(len(solo_r))+0.3,linestyle='--',color='b',alpha=.6)
-
-ax3.set_ylabel('Heliocentric distance R [AU]')
-ax3.set_xlim(starttime,endtime)
-
-for i in np.arange(0.1,1.2,0.1):
-    ax3.plot(solot_time,np.zeros(len(solo_r))+i,linestyle='--',color='k',alpha=0.4,lw=0.8)
-
-ax3.set_ylim(0,1.2)
-
-#p######################## plot ICR
-ax4=ax3.twinx()
-
-#ax2.plot(yearly_mid_times_25,icmes_predict_25/365.24, marker='s',markerfacecolor='coral', alpha=0.9,label='Predicted ICME rate MC20',linestyle='')
-ax4.plot(times_25_daily,icmes_predict_25mc_daily*30.42/365.24, color='coral', label='Predicted ICME rate MC20',linestyle='-')
-ax4.plot(times_25_daily,icmes_predict_25pp_daily*30.42/365.24, color='magenta', label='Predicted ICME rate PP19',linestyle='-')
-
-#error ranges
-ax4.fill_between(times_25_daily_icrange_num, fmc_low(times_25_daily_icrange_num)*30.42/365.248, fmc_high(times_25_daily_icrange_num)*30.42/365.24, alpha=0.2,color='coral')
-ax4.fill_between(times_25_daily_icrange_num, fpp_low(times_25_daily_icrange_num)*30.42/365.248, fpp_high(times_25_daily_icrange_num)*30.42/365.24, alpha=0.2,color='blueviolet')
-ax4.set_ylabel('monthly ICME rate')
-plt.legend(loc=1)
-
-plotstart=datetime.datetime(2020, 7, 1)
-plotend=datetime.datetime(2029, 12,31)
-plt.xlim(plotstart,plotend)
-
-plt.tight_layout()
-
-
-#plt.annotate('(a)',[0.01,0.965],xycoords='figure fraction',weight='bold')
-#plt.annotate('(b)',[0.01,0.475],xycoords='figure fraction',weight='bold')
-plt.annotate('Parker Solar Probe',[0.08,0.95],xycoords='figure fraction',weight='bold')
-plt.annotate('Solar Orbiter',[0.08,0.455],xycoords='figure fraction',weight='bold')
-plt.annotate('Bepi Colombo',[0.20,0.455],xycoords='figure fraction',weight='bold',color='orange')
-
-#plt.savefig('results/plots_rate/fig4_psp_rate.pdf', dpi=300)
-plt.savefig(outputdirectory+'/cycle25_icme_rate_psp_orbiter_bepi.png', dpi=100)
-
-
-# ### calculate lineups
-
-# first homogenize spacecraft positions, load hourly position data
-# 
-
-# In[ ]:
-
-
-[psp, bepi, solo, sta, earth, venus, mars, mercury,frame]= \
-      pickle.load( open( '/nas/helio/data/insitu_python/positions_psp_solo_bepi_sta_planets_HEEQ_1hour.p', "rb" ))
-#combine bepi trajectory with Mercury after orbit insertion
-
-orbit_insertion=bepi.time[-1]
-moi_ind=np.where(orbit_insertion<mercury.time)[0][0]
-
-bepi_time2=np.hstack([bepi.time,mercury.time[moi_ind:-1]])
-bepi_r2=np.hstack([bepi.r,mercury.r[moi_ind:-1]])
-bepi_lon2=np.hstack([bepi.lon,mercury.lon[moi_ind:-1]])
-bepi_lat2=np.hstack([bepi.lat,mercury.lat[moi_ind:-1]])
-
-
-
-
-print(mdates.num2date(earth.time[0]))
-print(mdates.num2date(sta.time[0]))
-print(mdates.num2date(psp.time[0]))
-print(mdates.num2date(bepi_time2[0]))
-print(mdates.num2date(solo.time[0]))
-
-
-print(len(earth.lon))
-print(len(sta.lon))
-print(len(bepi_lon2))
-print(len(psp.lon))
-print(len(solo.lon))
-     
-     
-
-#cut all so consistent with solo start
-
-solo=solo[0:-2]
-
-beg_ind=np.where(earth.time>solo.time[0])[0][0]-1
-earth=earth[beg_ind:-2]
-
-beg_ind=np.where(sta.time>solo.time[0])[0][0]-1
-sta=sta[beg_ind:-2]
-
-beg_ind=np.where(psp.time>solo.time[0])[0][0]-1
-psp=psp[beg_ind:-1]
-
-beg_ind=np.where(bepi_time2>solo.time[0])[0][0]-1
-bepi_time2=bepi_time2[beg_ind:-1]
-bepi_r2=bepi_r2[beg_ind:-1]
-bepi_lon2=bepi_lon2[beg_ind:-1]
-bepi_lat2=bepi_lat2[beg_ind:-1]
-
-
-
-print()
-print(mdates.num2date(earth.time[0]))
-print(mdates.num2date(sta.time[0]))
-print(mdates.num2date(bepi_time2[0]))
-print(mdates.num2date(solo.time[0]))
-print(mdates.num2date(psp.time[0]))
-
-print()
-print(mdates.num2date(earth.time[-1]))
-print(mdates.num2date(sta.time[-1]))
-print(mdates.num2date(bepi_time2[-1]))
-print(mdates.num2date(solo.time[-1]))
-print(mdates.num2date(psp.time[-1]))
-
-
-print()
-
-print('SolO  ',len(solo.lon))
-print('Earth ',len(earth.lon))
-print('STA   ',len(sta.lon))
-print('Bepi  ',len(bepi_lon2))
-print('PSP   ',len(psp.lon))
-
-
-# ## define and calculate lineups
-
-# ### first until end of PSP nominal, so make arrays all similar
-
-# In[ ]:
-
-
-solo1=solo[0:len(psp)]
-sta1=sta[0:len(psp)]
-win1=earth[0:len(psp)]
-#set Wind longitude to 0
-win1.lon=np.zeros(len(psp))
-bepi1_time=bepi_time2[0:len(psp)]
-bepi1_lon=bepi_lon2[0:len(psp)]
-psp1=psp
-
-#stack longitude arrays and convert to degrees from 0 to 360 (Earth at 180)
-
-a=np.transpose(np.vstack((win1.lon,sta1.lon,solo1.lon,bepi1_lon,psp1.lon)))
-a=np.rad2deg(a)
-a=a+180
-sns.distplot(a)
-
-
-# In[ ]:
-
-
-####lineup counter arrays for all spacecraft
-alldiff=np.zeros((len(a),10))
-
-lineup_counter30=0
-counter30=0
-all30=np.zeros((len(a)))
-all30[:]=np.nan
-
-lineup_counter20=0
-counter20=0
-all20=np.zeros((len(a)))
-all20[:]=np.nan
-
-lineup_counter10=0
-counter10=0
-all10=np.zeros((len(a)))
-all10[:]=np.nan
-
-lineup_counter5=0
-counter5=0
-all5=np.zeros((len(a)))
-all5[:]=np.nan
-
-
-####arrays for individual spacecraft
-#win1.lon,sta1.lon,solo1.lon,bepi1_lon,psp1.lon
-
-#5,10,20,30 => 4
-lineup_counter_wind=0
-counter_wind=0
-#5,10,20,30
-winddeltas=np.zeros((len(a),4))
-winddeltas[:]=np.nan
-
-lineup_counter_sta=0
-counter_sta=0
-stadeltas=np.zeros((len(a),4))
-stadeltas[:]=np.nan
-
-lineup_counter_solo=0
-counter_solo=0
-solodeltas=np.zeros((len(a),4))
-solodeltas[:]=np.nan
-
-lineup_counter_bepi=0
-counter_bepi=0
-bepideltas=np.zeros((len(a),4))
-bepideltas[:]=np.nan
-
-lineup_counter_psp=0
-counter_psp=0
-pspdeltas=np.zeros((len(a),4))
-pspdeltas[:]=np.nan
-
-
-
-#go through all hourly times
-for i in np.arange(0,len(a)):
+t1all = time.time()
+print(' ')
+print(' ')
+print('---------------------------------- ')
+print('icme_rate_web.py takes ', np.round((t1all-t0all)/60,2), 'minutes')
     
-    #current longitude
-    b=a[i]   
-    
-    #array of all absolute differences between all 5 spacecraft
-    #order in a and b is 0 win1.lon 1 sta1.lon 2 solo1.lon 3 bepi1_lon 4 psp1.lon
-    bm=abs(np.round([b[0]-b[1],b[0]-b[2],b[0]-b[3],b[0]-b[4],
-    b[1]-b[2],b[1]-b[3],b[1]-b[4],
-    b[2]-b[3],b[2]-b[4],
-    b[3]-b[4]],1))
-    alldiff[i,:]=bm
-    
-    
-    #for all spacecraft
-    lineup_ind30=np.where(np.logical_or(bm < 30,bm > 330)==True)[0]
-    #sum all lineup events
-    lineup_counter30=lineup_counter30+len(lineup_ind30)
-    #count timestep if there is at least one lineup
-    if len(lineup_ind30 >0): 
-        all30[i]=1
-        counter30=counter30+1
-
-    lineup_ind20=np.where(np.logical_or(bm < 20,bm > 340)==True)[0]
-    lineup_counter20=lineup_counter20+len(lineup_ind20)
-    if len(lineup_ind20 >0): 
-        all20[i]=1
-        counter20=counter20+1
-
-    lineup_ind10=np.where(np.logical_or(bm < 10,bm > 350)==True)[0]
-    lineup_counter10=lineup_counter10+len(lineup_ind10)
-    if len(lineup_ind10 >0): 
-        all10[i]=1
-        counter10=counter10+1
-
-    lineup_ind5=np.where(np.logical_or(bm < 5,bm > 355)==True)[0]
-    lineup_counter5=lineup_counter5+len(lineup_ind5)
-    if len(lineup_ind5 >0): 
-        all5[i]=1
-        counter5=counter5+1
-        
-    #for individual sc
-    
-    #order in a and b is  win1.lon,sta1.lon,solo1.lon,bepi1_lon,psp1.lon
-    #delta longitudes for each spacecraft to all other spacecraft
-    bmwind=bm[[0,1,2,3]]
-    bmsta=bm[[0,4,5,6]]
-    bmsolo=bm[[1,4,7,8]]
-    bmbepi=bm[[2,5,7,9]]
-    bmpsp=bm[[3,6,8,9]]
-
-    #wind
-    bmnow=bmwind
-    lineup_ind30=np.where(np.logical_or(bmnow < 30,bmnow > 330)==True)[0]
-    lineup_ind20=np.where(np.logical_or(bmnow < 20,bmnow > 340)==True)[0]
-    lineup_ind10=np.where(np.logical_or(bmnow < 10,bmnow > 350)==True)[0]
-    lineup_ind5=np.where(np.logical_or(bmnow < 5,bmnow > 355)==True)[0]
-
-    if len(lineup_ind30 >0): winddeltas[i,0]=1 
-    if len(lineup_ind20 >0): winddeltas[i,1]=1 
-    if len(lineup_ind10 >0): winddeltas[i,2]=1 
-    if len(lineup_ind5 >0): winddeltas[i,3]=1 
-
-    #sta
-    bmnow=bmsta
-    lineup_ind30=np.where(np.logical_or(bmnow < 30,bmnow > 330)==True)[0]
-    lineup_ind20=np.where(np.logical_or(bmnow < 20,bmnow > 340)==True)[0]
-    lineup_ind10=np.where(np.logical_or(bmnow < 10,bmnow > 350)==True)[0]
-    lineup_ind5=np.where(np.logical_or(bmnow < 5,bmnow > 355)==True)[0]
-
-    if len(lineup_ind30 >0): stadeltas[i,0]=1 
-    if len(lineup_ind20 >0): stadeltas[i,1]=1 
-    if len(lineup_ind10 >0): stadeltas[i,2]=1 
-    if len(lineup_ind5 >0): stadeltas[i,3]=1 
-
-    #bepi
-    bmnow=bmbepi
-    lineup_ind30=np.where(np.logical_or(bmnow < 30,bmnow > 330)==True)[0]
-    lineup_ind20=np.where(np.logical_or(bmnow < 20,bmnow > 340)==True)[0]
-    lineup_ind10=np.where(np.logical_or(bmnow < 10,bmnow > 350)==True)[0]
-    lineup_ind5=np.where(np.logical_or(bmnow < 5,bmnow > 355)==True)[0]
-
-    if len(lineup_ind30 >0): bepideltas[i,0]=1 
-    if len(lineup_ind20 >0): bepideltas[i,1]=1 
-    if len(lineup_ind10 >0): bepideltas[i,2]=1 
-    if len(lineup_ind5 >0): bepideltas[i,3]=1 
-        
-    #solo
-    bmnow=bmsolo
-    lineup_ind30=np.where(np.logical_or(bmnow < 30,bmnow > 330)==True)[0]
-    lineup_ind20=np.where(np.logical_or(bmnow < 20,bmnow > 340)==True)[0]
-    lineup_ind10=np.where(np.logical_or(bmnow < 10,bmnow > 350)==True)[0]
-    lineup_ind5=np.where(np.logical_or(bmnow < 5,bmnow > 355)==True)[0]
-
-    if len(lineup_ind30 >0): solodeltas[i,0]=1 
-    if len(lineup_ind20 >0): solodeltas[i,1]=1 
-    if len(lineup_ind10 >0): solodeltas[i,2]=1 
-    if len(lineup_ind5 >0): solodeltas[i,3]=1 
-
-        
-    #psp
-    bmnow=bmpsp
-    lineup_ind30=np.where(np.logical_or(bmnow < 30,bmnow > 330)==True)[0]
-    lineup_ind20=np.where(np.logical_or(bmnow < 20,bmnow > 340)==True)[0]
-    lineup_ind10=np.where(np.logical_or(bmnow < 10,bmnow > 350)==True)[0]
-    lineup_ind5=np.where(np.logical_or(bmnow < 5,bmnow > 355)==True)[0]
-
-    if len(lineup_ind30 >0): pspdeltas[i,0]=1 
-    if len(lineup_ind20 >0): pspdeltas[i,1]=1 
-    if len(lineup_ind10 >0): pspdeltas[i,2]=1 
-    if len(lineup_ind5 >0): pspdeltas[i,3]=1 
-
-
-    
-
-
-# 
-# ### lineup results
-
-# In[ ]:
-
-
-#Möstl et al. 2020    #until middle 2025 total ICME
-#PP19: 109
-#MC20: 186
-i1=109
-i2=186
-
-  
-
-print('total data points',len(a))
-print('at least 2 spacecraft within 30 deg longitude %',int(counter30/len(a)*100))
-print('at least 2 spacecraft within 20 deg longitude %',int(counter20/len(a)*100))
-print('at least 2 spacecraft within 10 deg longitude %',int(counter10/len(a)*100))
-print('at least 2 spacecraft within  5 deg longitude %', int(counter5/len(a)*100))
-
-print()
-print('Wind')
-print('delta lon 30° lineup time %:',int(np.nansum(winddeltas[:,0])/len(a)*100),'ICMEs: ',int(i1*np.nansum(winddeltas[:,0])/len(a)),int(i2*np.nansum(winddeltas[:,0])/len(a)) )
-print('delta lon 20° lineup time %:',int(np.nansum(winddeltas[:,1])/len(a)*100),'ICMEs: ',int(i1*np.nansum(winddeltas[:,1])/len(a)),int(i2*np.nansum(winddeltas[:,1])/len(a)) )
-print('delta lon 10° lineup time %:',int(np.nansum(winddeltas[:,2])/len(a)*100),'ICMEs: ',int(i1*np.nansum(winddeltas[:,2])/len(a)),int(i2*np.nansum(winddeltas[:,2])/len(a)) )
-print('delta lon  5° lineup time %:',int(np.nansum(winddeltas[:,3])/len(a)*100),'ICMEs: ',int(i1*np.nansum(winddeltas[:,3])/len(a)),int(i2*np.nansum(winddeltas[:,3])/len(a)))
-
-
-
-
-fig=plt.figure(61,figsize=(10,6),dpi=100)
-plt.plot_date(win1.time,winddeltas[:,0]*30)
-plt.plot_date(win1.time,winddeltas[:,1]*20)
-plt.plot_date(win1.time,winddeltas[:,2]*10)
-plt.plot_date(win1.time,winddeltas[:,3]*5)
-plt.ylim(0,35)
-
-print()
-print('STA')
-print('delta lon 30° lineup time %:',int(np.nansum(stadeltas[:,0])/len(a)*100),'ICMEs: ',int(i1*np.nansum(stadeltas[:,0])/len(a)),int(i2*np.nansum(stadeltas[:,0])/len(a)) )
-print('delta lon 20° lineup time %:',int(np.nansum(stadeltas[:,1])/len(a)*100),'ICMEs: ',int(i1*np.nansum(stadeltas[:,1])/len(a)),int(i2*np.nansum(stadeltas[:,1])/len(a)) )
-print('delta lon 10° lineup time %:',int(np.nansum(stadeltas[:,2])/len(a)*100),'ICMEs: ',int(i1*np.nansum(stadeltas[:,2])/len(a)),int(i2*np.nansum(stadeltas[:,2])/len(a)) )
-print('delta lon  5° lineup time %:',int(np.nansum(stadeltas[:,3])/len(a)*100),'ICMEs: ',int(i1*np.nansum(stadeltas[:,3])/len(a)),int(i2*np.nansum(stadeltas[:,3])/len(a)))
-
-
-
-print()
-print('Solo')
-print('delta lon 30° lineup time %:',int(np.nansum(solodeltas[:,0])/len(a)*100),'ICMEs: ',int(i1*np.nansum(solodeltas[:,0])/len(a)),int(i2*np.nansum(solodeltas[:,0])/len(a)) )
-print('delta lon 20° lineup time %:',int(np.nansum(solodeltas[:,1])/len(a)*100),'ICMEs: ',int(i1*np.nansum(solodeltas[:,1])/len(a)),int(i2*np.nansum(solodeltas[:,1])/len(a)) )
-print('delta lon 10° lineup time %:',int(np.nansum(solodeltas[:,2])/len(a)*100),'ICMEs: ',int(i1*np.nansum(solodeltas[:,2])/len(a)),int(i2*np.nansum(solodeltas[:,2])/len(a)) )
-print('delta lon  5° lineup time %:',int(np.nansum(solodeltas[:,3])/len(a)*100),'ICMEs: ',int(i1*np.nansum(solodeltas[:,3])/len(a)),int(i2*np.nansum(solodeltas[:,3])/len(a)))
-
-
-
-print()
-print('Bepi')
-print('delta lon 30° lineup time %:',int(np.nansum(bepideltas[:,0])/len(a)*100),'ICMEs: ',int(i1*np.nansum(bepideltas[:,0])/len(a)),int(i2*np.nansum(bepideltas[:,0])/len(a)) )
-print('delta lon 20° lineup time %:',int(np.nansum(bepideltas[:,1])/len(a)*100),'ICMEs: ',int(i1*np.nansum(bepideltas[:,1])/len(a)),int(i2*np.nansum(bepideltas[:,1])/len(a)) )
-print('delta lon 10° lineup time %:',int(np.nansum(bepideltas[:,2])/len(a)*100),'ICMEs: ',int(i1*np.nansum(bepideltas[:,2])/len(a)),int(i2*np.nansum(bepideltas[:,2])/len(a)) )
-print('delta lon  5° lineup time %:',int(np.nansum(bepideltas[:,3])/len(a)*100),'ICMEs: ',int(i1*np.nansum(bepideltas[:,3])/len(a)),int(i2*np.nansum(bepideltas[:,3])/len(a)))
-
-
-print()
-print('PSP')
-print('delta lon 30° lineup time %:',int(np.nansum(pspdeltas[:,0])/len(a)*100),'ICMEs: ',int(i1*np.nansum(pspdeltas[:,0])/len(a)),int(i2*np.nansum(pspdeltas[:,0])/len(a)) )
-print('delta lon 20° lineup time %:',int(np.nansum(pspdeltas[:,1])/len(a)*100),'ICMEs: ',int(i1*np.nansum(pspdeltas[:,1])/len(a)),int(i2*np.nansum(pspdeltas[:,1])/len(a)) )
-print('delta lon 10° lineup time %:',int(np.nansum(pspdeltas[:,2])/len(a)*100),'ICMEs: ',int(i1*np.nansum(pspdeltas[:,2])/len(a)),int(i2*np.nansum(pspdeltas[:,2])/len(a)) )
-print('delta lon  5° lineup time %:',int(np.nansum(pspdeltas[:,3])/len(a)*100),'ICMEs: ',int(i1*np.nansum(pspdeltas[:,3])/len(a)),int(i2*np.nansum(pspdeltas[:,3])/len(a)))
-
-
-
-
-
-#plt.plot_date(win1.time,a,'-')
-
-fig=plt.figure(62,figsize=(10,6),dpi=100)
-plt.plot_date(win1.time,alldiff,'-')  
-plt.ylim(0,35)
-
-
-# ### second interval from end of PSP nominal to 2029
-
-# In[ ]:
-
-
-solo2=solo[len(psp):-1]
-sta2=sta[len(psp):-1]
-win2=earth[len(psp):-1]
-bepi2_time=bepi_time2[len(psp):-1]
-bepi2_lon=bepi_lon2[len(psp):-1]
-
-#stack longitude arrays and convert to degrees
-a2=np.transpose(np.vstack((win2.lon,sta2.lon,solo2.lon,bepi2_lon)))
-a2=np.rad2deg(a2)
-
-a2=a2+180
-sns.distplot(a2)
-
-
-# In[ ]:
-
-
-alldiff2=np.zeros((len(a2),6))
-
-
-lineup_counter30_2=0
-counter30_2=0
-all30_2=np.zeros((len(a2)))
-all30_2[:]=np.nan
-
-lineup_counter20_2=0
-counter20_2=0
-all20_2=np.zeros((len(a2)))
-all20_2[:]=np.nan
-
-lineup_counter10_2=0
-counter10_2=0
-all10_2=np.zeros((len(a2)))
-all10_2[:]=np.nan
-
-lineup_counter5_2=0
-counter5_2=0
-all5_2=np.zeros((len(a2)))
-all5_2[:]=np.nan
-
-
-
-
-####arrays for individual spacecraft
-#win1.lon,sta1.lon,solo1.lon,bepi1_lon,psp1.lon
-
-#5,10,20,30 => 4
-lineup_counter_wind=0
-counter_wind=0
-#5,10,20,30
-winddeltas=np.zeros((len(a),4))
-winddeltas[:]=np.nan
-
-lineup_counter_sta=0
-counter_sta=0
-stadeltas=np.zeros((len(a),4))
-stadeltas[:]=np.nan
-
-lineup_counter_solo=0
-counter_solo=0
-solodeltas=np.zeros((len(a),4))
-solodeltas[:]=np.nan
-
-lineup_counter_bepi=0
-counter_bepi=0
-bepideltas=np.zeros((len(a),4))
-bepideltas[:]=np.nan
-
-lineup_counter_psp=0
-counter_psp=0
-pspdeltas=np.zeros((len(a),4))
-pspdeltas[:]=np.nan
-
-
-
-for i in np.arange(0,len(a2)):
-    
-    #current longitude
-    b2=a2[i]   
-    
-    #array of all absolute differences between all 5 spacecraft
-    #win2.lon,sta2.lon,solo2.lon,bepi2_lon
-    bm2=abs(np.round([b2[0]-b2[1],b2[0]-b2[2],b2[0]-b2[3],
-    b2[1]-b2[2],b2[1]-b2[3], b2[2]-b2[3]],1))
-    
-    alldiff2[i,:]=bm2
-    
-    lineup_ind30_2=np.where(np.logical_or(bm2 < 30,bm2 > 330)==True)[0]
-    lineup_counter30_2=lineup_counter30_2+len(lineup_ind30_2)
-    if len(lineup_ind30_2 >0): 
-        all30_2[i]=1
-        counter30_2=counter30_2+1
-
-    lineup_ind20_2=np.where(np.logical_or(bm2 < 20,bm2 > 340)==True)[0]
-    lineup_counter20_2=lineup_counter20_2+len(lineup_ind20_2)
-    if len(lineup_ind20_2 >0): 
-        all20_2[i]=1
-        counter20_2=counter20_2+1
-
-    lineup_ind10_2=np.where(np.logical_or(bm2 < 10,bm2 > 350)==True)[0]
-    lineup_counter10_2=lineup_counter10_2+len(lineup_ind10_2)
-    if len(lineup_ind10_2 >0): 
-        all10_2[i]=1
-        counter10_2=counter10_2+1
-
-    lineup_ind5_2=np.where(np.logical_or(bm2 < 5,bm2 > 355)==True)[0]
-    lineup_counter5_2=lineup_counter5_2+len(lineup_ind5_2)
-    if len(lineup_ind5_2 >0): 
-        all5_2[i]=1
-        counter5_2=counter5_2+1
-        
-        
-        
-    #for individual sc
-    
-    #order in a and b is  win1.lon,sta1.lon,solo1.lon,bepi1_lon,psp1.lon
-    #delta longitudes for each spacecraft to all other spacecraft
-    bmwind=bm2[[0,1,2]]
-    bmsta=bm2[[0,3,4]]
-    bmsolo=bm2[[1,3,5]]
-    bmbepi=bm2[[2,4,5]]
-
-    #wind
-    bmnow=bmwind
-    lineup_ind30=np.where(np.logical_or(bmnow < 30,bmnow > 330)==True)[0]
-    lineup_ind20=np.where(np.logical_or(bmnow < 20,bmnow > 340)==True)[0]
-    lineup_ind10=np.where(np.logical_or(bmnow < 10,bmnow > 350)==True)[0]
-    lineup_ind5=np.where(np.logical_or(bmnow < 5,bmnow > 355)==True)[0]
-
-    if len(lineup_ind30 >0): winddeltas[i,0]=1 
-    if len(lineup_ind20 >0): winddeltas[i,1]=1 
-    if len(lineup_ind10 >0): winddeltas[i,2]=1 
-    if len(lineup_ind5 >0): winddeltas[i,3]=1 
-
-    #sta
-    bmnow=bmsta
-    lineup_ind30=np.where(np.logical_or(bmnow < 30,bmnow > 330)==True)[0]
-    lineup_ind20=np.where(np.logical_or(bmnow < 20,bmnow > 340)==True)[0]
-    lineup_ind10=np.where(np.logical_or(bmnow < 10,bmnow > 350)==True)[0]
-    lineup_ind5=np.where(np.logical_or(bmnow < 5,bmnow > 355)==True)[0]
-
-    if len(lineup_ind30 >0): stadeltas[i,0]=1 
-    if len(lineup_ind20 >0): stadeltas[i,1]=1 
-    if len(lineup_ind10 >0): stadeltas[i,2]=1 
-    if len(lineup_ind5 >0): stadeltas[i,3]=1 
-
-    #bepi
-    bmnow=bmbepi
-    lineup_ind30=np.where(np.logical_or(bmnow < 30,bmnow > 330)==True)[0]
-    lineup_ind20=np.where(np.logical_or(bmnow < 20,bmnow > 340)==True)[0]
-    lineup_ind10=np.where(np.logical_or(bmnow < 10,bmnow > 350)==True)[0]
-    lineup_ind5=np.where(np.logical_or(bmnow < 5,bmnow > 355)==True)[0]
-
-    if len(lineup_ind30 >0): bepideltas[i,0]=1 
-    if len(lineup_ind20 >0): bepideltas[i,1]=1 
-    if len(lineup_ind10 >0): bepideltas[i,2]=1 
-    if len(lineup_ind5 >0): bepideltas[i,3]=1 
-        
-    #solo
-    bmnow=bmsolo
-    lineup_ind30=np.where(np.logical_or(bmnow < 30,bmnow > 330)==True)[0]
-    lineup_ind20=np.where(np.logical_or(bmnow < 20,bmnow > 340)==True)[0]
-    lineup_ind10=np.where(np.logical_or(bmnow < 10,bmnow > 350)==True)[0]
-    lineup_ind5=np.where(np.logical_or(bmnow < 5,bmnow > 355)==True)[0]
-
-    if len(lineup_ind30 >0): solodeltas[i,0]=1 
-    if len(lineup_ind20 >0): solodeltas[i,1]=1 
-    if len(lineup_ind10 >0): solodeltas[i,2]=1 
-    if len(lineup_ind5 >0): solodeltas[i,3]=1 
-
-        
-    #psp
-    bmnow=bmpsp
-    lineup_ind30=np.where(np.logical_or(bmnow < 30,bmnow > 330)==True)[0]
-    lineup_ind20=np.where(np.logical_or(bmnow < 20,bmnow > 340)==True)[0]
-    lineup_ind10=np.where(np.logical_or(bmnow < 10,bmnow > 350)==True)[0]
-    lineup_ind5=np.where(np.logical_or(bmnow < 5,bmnow > 355)==True)[0]
-
-    if len(lineup_ind30 >0): pspdeltas[i,0]=1 
-    if len(lineup_ind20 >0): pspdeltas[i,1]=1 
-    if len(lineup_ind10 >0): pspdeltas[i,2]=1 
-    if len(lineup_ind5 >0): pspdeltas[i,3]=1 
-
-
-
-     
-
-
-# ### Results for 2nd interval
-
-# In[ ]:
-
-
-#Möstl et al. 2020    #until middle 2025 total ICME, assume middle 2025 to end of 2029 is similar, also because of declining phase
-#PP19: 109
-#MC20: 186
-i1=109*4.5/5
-i2=186*4.5/5
-
- 
-
-print('total data points',len(a2))
-print('at least 2 spacecraft within 30 deg longitude %',int(counter30_2/len(a2)*100))
-print('at least 2 spacecraft within 20 deg longitude %',int(counter20_2/len(a2)*100))   
-print('at least 2 spacecraft within 10 deg longitude %',int(counter10_2/len(a2)*100))   
-print('at least 2 spacecraft within 5 deg longitude %',int(counter5_2/len(a2)*100))   
-
-
-#until middle 2025 total ICME
-#PP19: 100
-#MC20: 200
-
-
-print()
-print('Wind')
-print('delta lon 30° lineup time %:',int(np.nansum(winddeltas[:,0])/len(a)*100),'ICMEs: ',int(i1*np.nansum(winddeltas[:,0])/len(a)),int(i2*np.nansum(winddeltas[:,0])/len(a)) )
-print('delta lon 20° lineup time %:',int(np.nansum(winddeltas[:,1])/len(a)*100),'ICMEs: ',int(i1*np.nansum(winddeltas[:,1])/len(a)),int(i2*np.nansum(winddeltas[:,1])/len(a)) )
-print('delta lon 10° lineup time %:',int(np.nansum(winddeltas[:,2])/len(a)*100),'ICMEs: ',int(i1*np.nansum(winddeltas[:,2])/len(a)),int(i2*np.nansum(winddeltas[:,2])/len(a)) )
-print('delta lon  5° lineup time %:',int(np.nansum(winddeltas[:,3])/len(a)*100),'ICMEs: ',int(i1*np.nansum(winddeltas[:,3])/len(a)),int(i2*np.nansum(winddeltas[:,3])/len(a)))
-
-
-
-
-fig=plt.figure(61,figsize=(10,6),dpi=100)
-plt.plot_date(win1.time,winddeltas[:,0]*30)
-plt.plot_date(win1.time,winddeltas[:,1]*20)
-plt.plot_date(win1.time,winddeltas[:,2]*10)
-plt.plot_date(win1.time,winddeltas[:,3]*5)
-plt.ylim(0,35)
-
-print()
-print('STA')
-print('delta lon 30° lineup time %:',int(np.nansum(stadeltas[:,0])/len(a)*100),'ICMEs: ',int(i1*np.nansum(stadeltas[:,0])/len(a)),int(i2*np.nansum(stadeltas[:,0])/len(a)) )
-print('delta lon 20° lineup time %:',int(np.nansum(stadeltas[:,1])/len(a)*100),'ICMEs: ',int(i1*np.nansum(stadeltas[:,1])/len(a)),int(i2*np.nansum(stadeltas[:,1])/len(a)) )
-print('delta lon 10° lineup time %:',int(np.nansum(stadeltas[:,2])/len(a)*100),'ICMEs: ',int(i1*np.nansum(stadeltas[:,2])/len(a)),int(i2*np.nansum(stadeltas[:,2])/len(a)) )
-print('delta lon  5° lineup time %:',int(np.nansum(stadeltas[:,3])/len(a)*100),'ICMEs: ',int(i1*np.nansum(stadeltas[:,3])/len(a)),int(i2*np.nansum(stadeltas[:,3])/len(a)))
-
-
-
-print()
-print('Solo')
-print('delta lon 30° lineup time %:',int(np.nansum(solodeltas[:,0])/len(a)*100),'ICMEs: ',int(i1*np.nansum(solodeltas[:,0])/len(a)),int(i2*np.nansum(solodeltas[:,0])/len(a)) )
-print('delta lon 20° lineup time %:',int(np.nansum(solodeltas[:,1])/len(a)*100),'ICMEs: ',int(i1*np.nansum(solodeltas[:,1])/len(a)),int(i2*np.nansum(solodeltas[:,1])/len(a)) )
-print('delta lon 10° lineup time %:',int(np.nansum(solodeltas[:,2])/len(a)*100),'ICMEs: ',int(i1*np.nansum(solodeltas[:,2])/len(a)),int(i2*np.nansum(solodeltas[:,2])/len(a)) )
-print('delta lon  5° lineup time %:',int(np.nansum(solodeltas[:,3])/len(a)*100),'ICMEs: ',int(i1*np.nansum(solodeltas[:,3])/len(a)),int(i2*np.nansum(solodeltas[:,3])/len(a)))
-
-
-
-print()
-print('Bepi')
-print('delta lon 30° lineup time %:',int(np.nansum(bepideltas[:,0])/len(a)*100),'ICMEs: ',int(i1*np.nansum(bepideltas[:,0])/len(a)),int(i2*np.nansum(bepideltas[:,0])/len(a)) )
-print('delta lon 20° lineup time %:',int(np.nansum(bepideltas[:,1])/len(a)*100),'ICMEs: ',int(i1*np.nansum(bepideltas[:,1])/len(a)),int(i2*np.nansum(bepideltas[:,1])/len(a)) )
-print('delta lon 10° lineup time %:',int(np.nansum(bepideltas[:,2])/len(a)*100),'ICMEs: ',int(i1*np.nansum(bepideltas[:,2])/len(a)),int(i2*np.nansum(bepideltas[:,2])/len(a)) )
-print('delta lon  5° lineup time %:',int(np.nansum(bepideltas[:,3])/len(a)*100),'ICMEs: ',int(i1*np.nansum(bepideltas[:,3])/len(a)),int(i2*np.nansum(bepideltas[:,3])/len(a)))
-
-
-
-
-
-
-plt.plot_date(win2.time,a2,'-')
-
-#order win1.lon,sta1.lon,solo1.lon,bepi1_lon,psp1.lon    
-plt.plot_date(win2.time,alldiff2,'-')  
-plt.ylim(0,30)
-
-
-# ## lineups and icme rate figure
-
-# In[ ]:
-
-
-#times for at least 2 spacecraft in lineups
-
-
-
-fig=plt.figure(50,figsize=(10,6),dpi=100)
-
-
-### upper
-
-################ Solar Orbiter
-ax1 = plt.subplot(111) 
-ax1.plot_date(win1.time,all30*30,'-r',lw=0.1)
-ax1.fill_between(win1.time,all30*29,all30*31,label='At least 1 lineup with < 30°$\Delta$lon',color='r',lw=0.1,alpha=0.6)
-ax1.fill_between(win1.time,all20*19,all20*21,label='At least 1 lineup with < 20°$\Delta$lon',color='b',lw=0.1,alpha=0.6)
-ax1.fill_between(win1.time,all10*9,all10*11,label='At least 1 lineup with < 10°$\Delta$lon',color='y',lw=0.1,alpha=0.6)
-ax1.fill_between(win1.time,all5*4,all5*6,label='At least 1 lineup with < 5°$\Delta$lon',color='g',lw=0.1,alpha=0.6)
-
-ax1.fill_between(win2.time,all30_2*29,all30_2*31,color='r',lw=0.1,alpha=0.6)
-ax1.fill_between(win2.time,all20_2*19,all20_2*21,color='b',lw=0.1,alpha=0.6)
-ax1.fill_between(win2.time,all10_2*9,all10_2*11,color='y',lw=0.1,alpha=0.6)
-ax1.fill_between(win2.time,all5_2*4,all5_2*6,color='g',lw=0.1,alpha=0.6)
-
-
-#ax1.plot_date(win1.time,all20*20,'-b',label='At least 1 lineup with < 20°$\Delta$lon',lw=3)
-#ax1.plot_date(win1.time,all10*10,'-y',label='At least 1 lineup with < 10°$\Delta$lon',lw=3)
-#ax1.plot_date(win1.time,all5*5,'-g',label='At least 1 lineup with < 5°$\Delta$lon',lw=3)
-#ax1.plot_date(win2.time,all30_2*30,'-r')
-#ax1.plot_date(win2.time,all20_2*20,'-b')
-#ax1.plot_date(win2.time,all10_2*10,'-y')
-#ax1.plot_date(win2.time,all5_2*5,'-g')
-
-
-ax1.set_ylabel('$\Delta$longitude [HEEQ]')
-
-for i in np.arange(0.1,1.2,0.1):
-    ax3.plot(solo.time,np.zeros(len(solo.r))+i,linestyle='--',color='k',alpha=0.4,lw=0.8)
-
-ax1.set_ylim(0,45)
-ax1.legend(loc=2,fontsize=11)
-
-#vertical line at PSP nominal end
-ax1.plot([psp1.time[-1],psp1.time[-1]],[0,50],'-k',lw=1.5)
-#bepi orbit insertion
-ax1.plot([bepi.time[-1],bepi.time[-1]],[0,50],'--k',lw=1.5)
-
-#plt.annotate('PSP nominal mission end',xy=(psp1.time[-1],2),fontsize=12,ha='right')#arrowprops=dict(arrowstyle="->",
-                            #connectionstyle="arc3"))
-#plt.annotate('PSP nominal mission end')
-
-
-
-#p######################## plot ICR
-ax2=ax1.twinx()
-
-#ax2.plot(yearly_mid_times_25,icmes_predict_25/365.24, marker='s',markerfacecolor='coral', alpha=0.9,label='Predicted ICME rate MC20',linestyle='')
-ax2.plot(times_25_daily,icmes_predict_25mc_daily*30.42/365.24, color='coral', label='Predicted ICME rate McIntosh+ (2020)',linestyle='-')
-ax2.plot(times_25_daily,icmes_predict_25pp_daily*30.42/365.24, color='magenta', label='Predicted ICME rate NOAA/NASA/ISES',linestyle='-')
-
-#error ranges
-ax2.fill_between(times_25_daily_icrange_num, fmc_low(times_25_daily_icrange_num)*30.42/365.248, fmc_high(times_25_daily_icrange_num)*30.42/365.24, alpha=0.2,color='coral')
-ax2.fill_between(times_25_daily_icrange_num, fpp_low(times_25_daily_icrange_num)*30.42/365.248, fpp_high(times_25_daily_icrange_num)*30.42/365.24, alpha=0.2,color='blueviolet')
-ax2.set_ylabel('monthly ICME rate')
-plt.legend(loc=1,fontsize=10)
-
-plotstart=datetime.datetime(2021, 7, 1)
-plotend=datetime.datetime(2030, 1,30)
-plt.xlim(plotstart,plotend)
-ax2.set_ylim(0,8)
-
-
-plt.tight_layout()
-
-plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_lineups.png', dpi=300)
-plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_lineups.pdf', dpi=100)
-
-
-
-
-# ## Figure with longitude for lineups
-
-# In[ ]:
-
-
-sns.set_context("talk")     
-#sns.set_style('darkgrid')
-sns.set_style("ticks")
-fsize=15
-
-fig=plt.figure(50,figsize=(15,13),dpi=100)
-
-
-### upper
-
-################ Solar Orbiter
-ax3 = plt.subplot(311) 
-ax3.plot_date(solo.time,solo.r,'-g',lw=2)
-ax3.plot_date(bepi_time2,bepi_r2,linestyle='-',color='orange',lw=2,markersize=0)
-ax3.plot_date(psp.time,psp.r,'-k',lw=1)
-
-ax3.set_ylabel(' R [AU]')
-ax3.set_xlim(starttime,endtime)
-
-for i in np.arange(0.1,1.2,0.1):
-    ax3.plot(solo.time,np.zeros(len(solo.r))+i,linestyle='--',color='k',alpha=0.4,lw=0.8)
-
-ax3.set_ylim(0,1.2)
-
-#p######################## plot ICR
-ax4=ax3.twinx()
-
-#ax2.plot(yearly_mid_times_25,icmes_predict_25/365.24, marker='s',markerfacecolor='coral', alpha=0.9,label='Predicted ICME rate MC20',linestyle='')
-ax4.plot(times_25_daily,icmes_predict_25mc_daily*30.42/365.24, color='coral', label='Predicted ICME rate MC20',linestyle='-')
-ax4.plot(times_25_daily,icmes_predict_25pp_daily*30.42/365.24, color='magenta', label='Predicted ICME rate PP19',linestyle='-')
-
-#error ranges
-ax4.fill_between(times_25_daily_icrange_num, fmc_low(times_25_daily_icrange_num)*30.42/365.248, fmc_high(times_25_daily_icrange_num)*30.42/365.24, alpha=0.2,color='coral')
-ax4.fill_between(times_25_daily_icrange_num, fpp_low(times_25_daily_icrange_num)*30.42/365.248, fpp_high(times_25_daily_icrange_num)*30.42/365.24, alpha=0.2,color='blueviolet')
-ax4.set_ylabel('monthly ICME rate')
-plt.legend(loc=1,fontsize=12)
-
-plotstart=datetime.datetime(2020, 7, 1)
-plotend=datetime.datetime(2030, 1,10)
-ax4.set_xlim(plotstart,plotend)
-
-
-################# lower
-
-
-ax1 = plt.subplot(312) 
-#plot R[AU]
-ax1.plot_date(bepi_time2,np.rad2deg(bepi_lon2),linestyle='-',color='orange',lw=1,markersize=0)
-ax1.plot_date(psp.time,np.rad2deg(psp.lon),'-k',lw=1)
-ax1.plot_date(solo.time,np.rad2deg(solo.lon),'-g',lw=1)
-ax1.plot_date(sta.time,np.rad2deg(sta.lon),'-r',lw=1)
-
-
-ax1.plot(solo.time,np.zeros(len(solo.r)),linestyle='-',color='b',alpha=0.8,lw=2)
-
-ax1.set_ylabel('HEEQ longitude [°]')
-ax1.set_xlim(starttime,endtime)
-ax1.set_ylim(-180,180)
-
-
-##############
-
-plotstart=datetime.datetime(2020, 7, 1)
-plotend=datetime.datetime(2030, 1,10)
-plt.xlim(plotstart,plotend)
-
-
-ax6 = plt.subplot(313) 
-ax6.plot_date(bepi_time2,np.rad2deg(bepi_lat2),linestyle='-',color='orange',lw=1,markersize=0)
-ax6.plot_date(psp.time,np.rad2deg(psp.lat),'-k',lw=1)
-ax6.plot_date(solo.time,np.rad2deg(solo.lat),'-g',lw=2)
-ax6.plot_date(sta.time,np.rad2deg(sta.lat),'-r',lw=1)
-
-
-#Earth
-ax6.plot(solo.time,np.zeros(len(solo.r)),linestyle='-',color='b',alpha=0.8,lw=2)
-
-ax6.set_ylabel('HEEQ latitude [°]')
-ax6.set_xlim(starttime,endtime)
-ax6.set_ylim(-35,35)
-
-
-#lineups
-
-#ax6.plot_date(win1.time,all20*22,'-g')
-#ax6.plot_date(win1.time,all10*20,'-y')
-#ax6.plot_date(win1.time,all5*18,'-b')
-
-
-
-plotstart=datetime.datetime(2020, 7, 1)
-plotend=datetime.datetime(2030, 1,10)
-plt.xlim(plotstart,plotend)
-
-plt.grid('on')
-
-
-ylevel=0.91
-#plt.annotate('(a)',[0.01,0.965],xycoords='figure fraction',weight='bold')
-#plt.annotate('(b)',[0.01,0.475],xycoords='figure fraction',weight='bold')
-plt.annotate('Solar Orbiter',[0.09,ylevel],xycoords='figure fraction',weight='bold',color='green')
-plt.annotate('Bepi Colombo',[0.22,ylevel],xycoords='figure fraction',weight='bold',color='orange')
-plt.annotate('Parker Solar Probe',[0.36,ylevel],xycoords='figure fraction',weight='bold',color='black')
-
-plt.annotate('STEREO-Ahead',[0.56,ylevel],xycoords='figure fraction',weight='bold',color='red')
-plt.annotate('Earth',[0.73,ylevel],xycoords='figure fraction',weight='bold',color='blue')
-
-
-
-#plt.tight_layout()
-
-plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_psp_orbiter_bepi_one_panel.png', dpi=100)
-plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_psp_orbiter_bepi_one_panel.pdf', dpi=100)
-
-
-# In[ ]:
-
-
-#sns.set_style('darkgrid')
-sns.set_style("ticks")
-fsize=15
-
-fig=plt.figure(50,figsize=(14,6),dpi=100)
-
-
-### upper
-
-################ Solar Orbiter
-ax3 = plt.subplot(111) 
-ax3.plot_date(solo.time,solo.r,'-g',lw=2)
-ax3.plot_date(bepi_time2,bepi_r2,linestyle='-',color='orange',lw=2,markersize=0)
-ax3.plot_date(psp.time,psp.r,'-k',lw=1)
-
-ax3.set_ylabel('Heliocentric distance R [AU]')
-ax3.set_xlim(starttime,endtime)
-
-for i in np.arange(0.1,1.2,0.1):
-    ax3.plot(solo.time,np.zeros(len(solo.r))+i,linestyle='--',color='k',alpha=0.4,lw=0.8)
-
-ax3.set_ylim(0,1.2)
-
-#p######################## plot ICR
-ax4=ax3.twinx()
-
-#ax2.plot(yearly_mid_times_25,icmes_predict_25/365.24, marker='s',markerfacecolor='coral', alpha=0.9,label='Predicted ICME rate MC20',linestyle='')
-ax4.plot(times_25_daily,icmes_predict_25mc_daily*30.42/365.24, color='coral', label='Predicted ICME rate MC20',linestyle='-')
-ax4.plot(times_25_daily,icmes_predict_25pp_daily*30.42/365.24, color='magenta', label='Predicted ICME rate PP19',linestyle='-')
-
-#error ranges
-ax4.fill_between(times_25_daily_icrange_num, fmc_low(times_25_daily_icrange_num)*30.42/365.248, fmc_high(times_25_daily_icrange_num)*30.42/365.24, alpha=0.2,color='coral')
-ax4.fill_between(times_25_daily_icrange_num, fpp_low(times_25_daily_icrange_num)*30.42/365.248, fpp_high(times_25_daily_icrange_num)*30.42/365.24, alpha=0.2,color='blueviolet')
-ax4.set_ylabel('monthly ICME rate')
-plt.legend(loc=1,fontsize=15)
-
-plotstart=datetime.datetime(2020, 7, 1)
-plotend=datetime.datetime(2029, 8,30)
-plt.xlim(plotstart,plotend)
-
-plt.annotate('Parker Solar Probe',[0.09,0.885],xycoords='figure fraction',weight='bold',color='black',fontsize=14)
-plt.annotate('Solar Orbiter',[0.25,0.885],xycoords='figure fraction',weight='bold',color='green',fontsize=14)
-plt.annotate('BepiColombo',[0.37,0.885],xycoords='figure fraction',weight='bold',color='orange',fontsize=14)
-
-plt.tight_layout()
-
-plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_psp_orbiter_bepi_b1.png', dpi=100)
-plt.savefig('results/icme_rate_cycle_update/cycle25_icme_rate_psp_orbiter_bepi_b1.pdf', dpi=100)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
