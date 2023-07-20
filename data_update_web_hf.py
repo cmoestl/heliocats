@@ -9,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[1]:
+# In[5]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_hf.py
@@ -47,8 +47,8 @@ if sys.platform == 'linux':
 if sys.platform =='darwin':  
     print('system is mac')
     #for testing
-    #%matplotlib inline     
-    matplotlib.use('Agg') 
+    get_ipython().run_line_magic('matplotlib', 'inline')
+    #matplotlib.use('Agg') 
 
 
 
@@ -73,7 +73,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[6]:
 
 
 if sys.platform == 'linux': 
@@ -127,7 +127,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[3]:
+# In[7]:
 
 
 #if debug_mode > 0: 
@@ -152,7 +152,19 @@ print()
 print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 
-# ### NOAA real time solar wind and Dst
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# ### NOAA real time solar wind 
 
 # In[4]:
 
@@ -207,6 +219,9 @@ if get_noaa > 0:
         
     ######## SAVE NOAA DATA AS PICKLE
     # last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file
+    
+    ############# !!!!!!!!! add Dst in this function as extra parameter to pickle file
+    
     hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,30)
     print('NOAA RTSW saved as pickle file complete')
     
