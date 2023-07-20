@@ -161,7 +161,16 @@ Create a conda environment using the "envs/env_helio4.yml", and activate the env
 	  conda activate helio4
 
 
-Some codes at some point may need to use ffmpeg, which can be downloaded for Mac and Linux from this site: https://ffmpeg.org/download.html
+Some codes at one point may need to use ffmpeg, which can be downloaded for Mac and Linux from this site: https://ffmpeg.org/download.html
+
+or install from the command line
+
+on Mac 
+	  brew install ffmpeg
+
+on Linux
+	  sudo apt install ffmpeg
+
 
 
 

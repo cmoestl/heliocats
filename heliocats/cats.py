@@ -356,7 +356,7 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
     arrcat_insitu_list_old = []
 
 
-
+    ###############
     #go through all HIGEOCAT CME events and check for hit at insitu, with 4 iterations in total
     for i in np.arange(len(higeocat_time)):
 
@@ -434,7 +434,7 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
                                 higeocat_vsse_err[i], int(np.rint(visse4)),visse4_err,higeocat_pafit[i],higeocat_pan[i],higeocat_pas[i],higeocat_pacenter[i]]
                         #print(list1)
                         arrcat_insitu_list.append(list1)
-
+    ###############
                     
 
     #arrcat_insitu=np.array(arrcat_insitu_list)    
@@ -443,12 +443,14 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
     
     #make dataframe out of list
     ac_old1 = pd.DataFrame(arrcat_insitu_list_old, columns = column_list)    
-    ac_old=ac_old.append(ac_old1)   
+    #ac_old=ac_old.append(ac_old1)   
+    ac_old=pd.concat([ac_old,ac_old1])
 
     
     #make dataframe out of list
     ac1 = pd.DataFrame(arrcat_insitu_list, columns = column_list)    
-    arrcat=arrcat.append(ac1)   
+    #arrcat=arrcat.append(ac1)   
+    arrcat=pd.concat([arrcat,ac1])
     
     
     print('SSEF30 events: ',len(arrcat_insitu_list)   ) 

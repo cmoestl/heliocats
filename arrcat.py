@@ -16,7 +16,7 @@
 # **current version ARRCAT 2.0, released 2020 May 13, updated 2023 April 12**
 # 
 # Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
-# Currently the environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
+# The environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
 # 
 # This notebook is converted to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell.
 # 
@@ -26,17 +26,15 @@
 # https://doi.org/10.6084/m9.figshare.12271292
 # 
 # 
-# **TO DO**: further change to astrospice in cats.py, the catalog still uses heliopy for all positions except Solar Orbiter; if a spice file .bsp does not download, download it manually and place it in the heliopy directory
+# **TO DO**: Further change to astrospice in cats.py, the catalog still uses heliopy for all positions except Solar Orbiter; if a spice file .bsp does not download, download it manually and place it in the heliopy directory. Use only spiceypy.
 # 
 # 
 
-# In[1]:
+# In[21]:
 
 
 last_update='2023-April-12'
 
-
-# In[2]:
 
 
 import numpy as np
@@ -65,23 +63,13 @@ import h5py
 import heliopy
 
 from heliocats import plot as hp
-importlib.reload(hp) #reload again while debugging
-
 from heliocats import data as hd
-importlib.reload(hd) #reload again while debugging
-
 from heliocats import cats as hc
-importlib.reload(hc) #reload again while debugging
-
 from heliocats import stats as hs
-importlib.reload(hs) #reload again while debugging
 
-#where the in situ data files are located is read 
-#from config.py 
-import config
-importlib.reload(config)
-from config import data_path
-from config import data_path_ml
+
+print(' ')
+print('------ PATHS ')
 
 ########### make directories first time if not there
 
@@ -97,19 +85,30 @@ if os.path.isdir(catdir) == False: os.mkdir(catdir)
 icplotsdir='arrcat/plots_arrcat/' 
 if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir) 
 
+
+##### check for system type
+#server
+if sys.platform == 'linux': 
+    print('system is linux')
+    matplotlib.use('Agg') 
+#mac - make sure the dpi is always set similar to plt.savefig
+if sys.platform =='darwin':  
+    print('system is mac')
+    #for testing
+    get_ipython().run_line_magic('matplotlib', 'inline')
+    #matplotlib.use('Agg') 
+
+
 #Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
-os.system('jupyter nbconvert --to script arrcat.ipynb')    
+os.system('jupyter nbconvert --to script arrcat.ipynb') 
 
-
-#for server
-matplotlib.use('Agg')
-#for mac
-#%matplotlib inline
+#test execution times
+t0all = time.time()
 
 
 # ## 1 Make HI SSEF30 arrival catalog ARRCAT
 
-# In[3]:
+# In[2]:
 
 
 from heliocats import cats as hc
@@ -172,7 +171,7 @@ ac
 
 # #### save header
 
-# In[4]:
+# In[3]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -252,7 +251,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[5]:
+# In[4]:
 
 
 ########## python formats
@@ -429,7 +428,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[6]:
+# In[5]:
 
 
 #load arrcat as pandas dataframe
@@ -449,33 +448,33 @@ ac5 = f['arrcat']
 ac5['sse_launch_time']
 
 
-# In[7]:
+# In[6]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[8]:
+# In[7]:
 
 
 ac
 
 
-# In[9]:
+# In[8]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[10]:
+# In[9]:
 
 
 ac_struct
 
 
-# In[11]:
+# In[10]:
 
 
 ac_struct['id']
@@ -488,16 +487,13 @@ deltata=(parse_time(ac.target_arrival_time[0:100]).plot_date-parse_time(ac_old.t
 
 # ### plot directions and targets
 
-# In[12]:
+# In[11]:
 
-
-plt.rcParams["figure.figsize"] = (19,11)
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
 
-
-fig=plt.figure(1, figsize=(18,10), dpi=100) 
+fig=plt.figure(1, figsize=(20,10), dpi=100) 
 ax = plt.subplot(121,projection='polar') 
 
 plt.title('ARRCAT CME arrivals at targets [HEEQ longitude]')
@@ -554,16 +550,16 @@ plt.ylim([0,2000])
 plt.tight_layout()
 
 plotfile='arrcat/plots_arrcat/arrcat_targets.png'
-plt.savefig(plotfile,dpi=150)
+plt.savefig(plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
 # ### plot error distributions
 
-# In[24]:
+# In[12]:
 
 
-fig=plt.figure(2, figsize=(16,7), dpi=100)
+fig=plt.figure(2, figsize=(16,8), dpi=100)
 
 ax = plt.subplot(121) 
 sns.histplot(ac.sse_speed_err,bins=200,kde=False)
@@ -587,7 +583,7 @@ ax2.grid(True)
 plt.tight_layout()
 
 plotfile='arrcat/plots_arrcat/arrcat_errors_dist.png'
-plt.savefig(plotfile,dpi=150)
+plt.savefig(plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
@@ -598,7 +594,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[14]:
+# In[13]:
 
 
 '''
@@ -625,14 +621,26 @@ hibi=np.where(ac.sc=='B')[0]
 '''
 
 
-# In[29]:
+# In[14]:
 
 
 last_year=datetime.datetime.utcnow().year+1
-#define dates of January 1 from 2007 to 2020
+#define dates 
 years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,last_year+1) ] 
 yearly_bin_edges=parse_time(years_jan_1_str).plot_date
 
+months_str=[]
+#all previous years
+for i in np.arange(2007,last_year-1):
+    for k in np.arange(1,13):
+        months_str.append(str(i)+'-'+str(k).zfill(2)+'-01' )
+        
+#current year
+for k in np.arange(1,datetime.datetime.utcnow().month+1):
+      months_str.append(str(datetime.datetime.utcnow().year)+'-'+str(k).zfill(2)+'-01' )
+
+months_bin_edges=parse_time(months_str).plot_date
+#months_bin_edges
 #
 hiai=np.where(higeocat['SC']=='A')[0]
 hibi=np.where(higeocat['SC']=='B')[0]
@@ -643,8 +651,18 @@ hib_t0=higeocat['SSE Launch'][hibi]
 (hist_hia, binedges) = np.histogram(parse_time(hia_t0).plot_date, yearly_bin_edges)
 (hist_hib, binedges) = np.histogram(parse_time(hib_t0).plot_date, yearly_bin_edges)
 
+(hist_hia_monthly, binedges_monthly) = np.histogram(parse_time(hia_t0).plot_date, months_bin_edges)
+(hist_hib_monthly, binedges_monthly) = np.histogram(parse_time(hib_t0).plot_date, months_bin_edges)
+
+#set to Nan for HIB after September 2014
+hist_hib_monthly[93:]=-1
+
+
+# In[20]:
+
 
 #-------------
+
 
 sns.set_context("talk")     
 #sns.set_style('darkgrid')
@@ -653,11 +671,11 @@ sns.set_context("talk")
 sns.set_style("ticks",{'grid.linestyle': '--'})
 fsize=15
 
-fig=plt.figure(1,figsize=(14,8),dpi=80)
+fig=plt.figure(1,figsize=(13,7),dpi=100)
 
 
 ax1 = plt.subplot(111) 
-ax1.set_title('Yearly CME rate observed by the STEREO heliospheric imagers',fontsize=15)
+ax1.set_title('CME rate observed by the STEREO heliospheric imagers',fontsize=15)
 
 ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
@@ -665,25 +683,33 @@ ax1.xaxis.set_major_formatter(myformat)
 
 binweite=365/3
 alp=1.0
-ax1.bar(binedges[0:17]+binweite,hist_hia, width=binweite,color='tomato', alpha=alp,label='HI on STEREO-A')
-ax1.bar(binedges[0:17]+binweite*2,hist_hib, width=binweite,color='mediumslateblue', alpha=alp,label='HI on STEREO-B')
+ax1.bar(binedges[0:17]+binweite,hist_hia, width=binweite,color='tomato', alpha=alp,label='yearly CME rate STEREO-A HI')
+ax1.bar(binedges[0:17]+binweite*2,hist_hib, width=binweite,color='mediumslateblue', alpha=alp,label='yearly CME rate STEREO-B HI')
+ax1.plot(binedges_monthly[0:-1], hist_hia_monthly,color='red', label='monthly CME rate STEREO-A HI')
+ax1.plot(binedges_monthly[0:-1], hist_hib_monthly,color='blue',label='monthly CME rate STEREO-B HI')
 
-ax1.set_xlim(yearly_bin_edges[0],yearly_bin_edges[-1])
-ax1.legend(loc=2,fontsize=14)
-ax1.grid(alpha=0.5)
+
+ax1.set_yticks(np.arange(0,300,20))
+ax1.set_ylim(0,np.max(hist_hia)+10)
 ax1.set_xticks(yearly_bin_edges) 
-ax1.set_ylabel('CMEs observed per year')
+ax1.set_xlim(yearly_bin_edges[0],yearly_bin_edges[-1])
+ax1.legend(loc=2,fontsize=12)
+ax1.grid(alpha=0.5)
+ax1.set_ylabel('Number of CMEs observed ')
 
-ax1.text(yearly_bin_edges[-5],150,'latest event: '+str(np.sort(ac.sse_launch_time)[-1][0:10]),fontsize=15,zorder=2,horizontalalignment='center')
+#ax1.text(yearly_bin_edges[-5],150,'latest event: '+str(np.sort(ac.sse_launch_time)[-1][0:10]),fontsize=15,zorder=2,horizontalalignment='center')
+plt.annotate('latest event: '+str(np.sort(ac.sse_launch_time)[-1][0:10]),xy=(0.995,0.95),xycoords='axes fraction',fontsize=12,ha='right')
+
 
 plt.tight_layout()
 
 plotfile='arrcat/plots_arrcat/higeocat_rate.png'
-plt.savefig(plotfile,dpi=150)
+plt.savefig(plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
-# In[30]:
+
+# In[16]:
 
 
 print(' ')
@@ -693,7 +719,7 @@ print('The last event launch time in the ARRCAT that we just made is')
 print(np.sort(ac.sse_launch_time)[-1])
 
 
-# In[31]:
+# In[17]:
 
 
 url='https://helioforecast.space/static/sync/arrcat/HELCATS_ARRCAT_v20.csv' 
@@ -708,10 +734,15 @@ print('-------------------------------')
 
 
 
-# In[ ]:
+# In[18]:
 
 
-
+t1all = time.time()
+print(' ')
+print(' ')
+print('---------------------------------- ')
+print('arrcat.py takes ', np.round((t1all-t0all)/60,2), 'minutes')
+    
 
 
 # In[ ]:

@@ -10,7 +10,7 @@
 # uses environment 'envs/env_helio4.yml'
 # 
 
-# In[1]:
+# In[20]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -34,6 +34,7 @@ import h5py
 import pytz
 import copy
 import cdflib
+import pandas as pd
 
 from heliocats import data as hd
 from heliocats import plot as hp
@@ -47,7 +48,9 @@ if sys.platform == 'linux':
 #mac
 if sys.platform =='darwin':  
     print('system is mac')
-    get_ipython().run_line_magic('matplotlib', 'inline')
+    #for testing
+    #%matplotlib inline     
+    matplotlib.use('Agg') 
 
 
 
@@ -59,11 +62,11 @@ debug_mode=0
 
 
 #switches
-get_wind=0
+get_wind=1
+get_bepi=1
 get_stereoa=0
 get_solo=0
 get_psp=0
-get_bepi=0
 
 ####################################################################################################################
 
@@ -75,7 +78,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[21]:
 
 
 if sys.platform == 'linux': 
@@ -127,35 +130,9 @@ if os.path.isdir(noaa_path) == False: os.mkdir(noaa_path)
 if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 
-# ## Development cells
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
 # ### Wind data
 
-# In[3]:
+# In[18]:
 
 
 if debug_mode > 0: 
@@ -171,6 +148,7 @@ if get_wind > 0:
 else:
     print('Wind data NOT downloaded, turn on switch')  
 
+    
     
     
 #filewin="wind_2018_now_heeq.p" 
@@ -216,9 +194,61 @@ else:
 #hp.plot_insitu_update(win, start, end,'Wind',plot_path,now=True)
 
 
+# ### BepiColombo
+
+# In[10]:
+
+
+if debug_mode > 0: 
+    importlib.reload(hd) 
+    importlib.reload(hp) 
+
+print(' ')
+print('------ download BepiColombo data ')
+
+#if get_bepi >0: 
+#    hd.download_stereoa_science_merged()
+
+
+# In[10]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
 # ### STEREO-A science data
 
-# In[4]:
+# In[19]:
 
 
 if debug_mode > 0: 

@@ -40,7 +40,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[2]:
+# In[1]:
 
 
 from scipy import stats
@@ -190,7 +190,7 @@ if load_data > 0:
         
         #download 
         ssn_prelim_url='http://www.sidc.be/silso/DATA/EISN/EISN_current.csv'
-        try: urllib.request.urlretrieve(ssn_prelim_url,data_path+'EISN_current.csv')
+        try: urllib.request.urlretrieve(ssn_prelim_url,'data/EISN_current.csv')
         except urllib.error.URLError as e:
             print('Failed downloading ', ssn_prelim_url,' ',e)
         
