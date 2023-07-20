@@ -30,7 +30,7 @@
 # 
 # 
 
-# In[22]:
+# In[24]:
 
 
 last_update='2023-April-12'
@@ -95,7 +95,7 @@ if sys.platform == 'linux':
 if sys.platform =='darwin':  
     print('system is mac')
     #for testing
-    get_ipython().run_line_magic('matplotlib', 'inline')
+    #%matplotlib inline     
     #matplotlib.use('Agg') 
 
 
@@ -487,13 +487,13 @@ deltata=(parse_time(ac.target_arrival_time[0:100]).plot_date-parse_time(ac_old.t
 
 # ### plot directions and targets
 
-# In[11]:
+# In[29]:
 
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
 
-fig=plt.figure(1, figsize=(20,10), dpi=100) 
+fig=plt.figure(1, figsize=(20,10), dpi=70) 
 ax = plt.subplot(121,projection='polar') 
 
 plt.title('ARRCAT CME arrivals at targets [HEEQ longitude]')
@@ -556,10 +556,10 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[12]:
+# In[30]:
 
 
-fig=plt.figure(2, figsize=(16,8), dpi=100)
+fig=plt.figure(2, figsize=(16,8), dpi=70)
 
 ax = plt.subplot(121) 
 sns.histplot(ac.sse_speed_err,bins=200,kde=False)
@@ -658,7 +658,7 @@ hib_t0=higeocat['SSE Launch'][hibi]
 hist_hib_monthly[93:]=-1
 
 
-# In[20]:
+# In[32]:
 
 
 #-------------
@@ -671,7 +671,7 @@ sns.set_context("talk")
 sns.set_style("ticks",{'grid.linestyle': '--'})
 fsize=15
 
-fig=plt.figure(1,figsize=(13,7),dpi=100)
+fig=plt.figure(3,figsize=(13,7),dpi=100)
 
 
 ax1 = plt.subplot(111) 
