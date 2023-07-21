@@ -285,7 +285,7 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
 
 
 
-def wind_download_ascii(startyear, wind_path):
+def wind_download_ascii(start_year, wind_path):
 
     #download MFI and SWE in ASCII from SPDF
         
