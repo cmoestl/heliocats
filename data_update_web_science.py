@@ -9,8 +9,10 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 # 
+# need to copy kernel files manually to the kernel paths
+# 
 
-# In[2]:
+# In[8]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -36,7 +38,6 @@ import copy
 import cdflib
 import pandas as pd
 from datetime import datetime, timedelta
-#from spacepy import pycdf
 import spiceypy
 import glob
 import urllib.request
@@ -85,7 +86,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[3]:
+# In[9]:
 
 
 if sys.platform == 'linux': 
@@ -93,8 +94,9 @@ if sys.platform == 'linux':
     from config_server import data_path
     from config_server import noaa_path
     from config_server import wind_path
-    from config_local import solo_path    
+    from config_server import solo_path    
     from config_server import stereoa_path
+    from config_server import kernels_path
     from config_server import data_path_ml
     
 if sys.platform =='darwin':  
@@ -104,6 +106,7 @@ if sys.platform =='darwin':
     from config_local import wind_path
     from config_local import solo_path    
     from config_local import stereoa_path
+    from config_local import kernels_path 
     from config_local import data_path_ml
 
 print(' ')
@@ -114,7 +117,8 @@ print(noaa_path)
 print(wind_path)
 print(solo_path)
 print(stereoa_path)
-print(data_path_ml)
+print(kernels_path)
+#print(data_path_ml)
 
 
 plot_path=data_path+'plots/'
@@ -142,25 +146,24 @@ if os.path.isdir(solo_path) == False: os.mkdir(solo_path)
 if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 
-# In[4]:
+# In[25]:
 
 
 #EMMA SOLO
 
-
-def download_solomag_1min(start_timestamp, path=solo_path):
+def download_solomag_1min(start_timestamp, path=f'{solo_path}'+'mag/level2/'):
     start = start_timestamp.date()
     end = datetime.utcnow().date() + timedelta(days=1)
     while start < end:
         date_str = f'{start.year}{start.month:02}{start.day:02}'
         data_item_id = f'solo_L2_mag-rtn-normal-1-minute_{date_str}'
-        if os.path.isfile(f"{path}/{data_item_id}.cdf") == True:
+        if os.path.isfile(f"{path}{data_item_id}.cdf") == True:
             print(f'{data_item_id}.cdf has already been downloaded.')
             start += timedelta(days=1)
         else:
             try:
                 data_url = f'http://soar.esac.esa.int/soar-sl-tap/data?retrieval_type=PRODUCT&data_item_id={data_item_id}&product_type=SCIENCE'
-                urllib.request.urlretrieve(data_url, f"{path}/{data_item_id}.cdf")
+                urllib.request.urlretrieve(data_url, f"{path}{data_item_id}.cdf")
                 print(f'Successfully downloaded {data_item_id}.cdf')
                 start += timedelta(days=1)
             except Exception as e:
@@ -168,19 +171,19 @@ def download_solomag_1min(start_timestamp, path=solo_path):
                 start += timedelta(days=1)
 
 
-def download_soloplas(start_timestamp, path=solo_path):
+def download_soloplas(start_timestamp, path=f'{solo_path}'+'swa/level2/'):
     start = start_timestamp.date()
     end = datetime.utcnow().date() + timedelta(days=1)
     while start < end:
         date_str = f'{start.year}{start.month:02}{start.day:02}'
         data_item_id = f'solo_L2_swa-pas-grnd-mom_{date_str}'
-        if os.path.isfile(f"{path}/{data_item_id}.cdf") == True:
+        if os.path.isfile(f"{path}{data_item_id}.cdf") == True:
             print(f'{data_item_id}.cdf has already been downloaded.')
             start += timedelta(days=1)
         else:
             try:
                 data_url = f'http://soar.esac.esa.int/soar-sl-tap/data?retrieval_type=PRODUCT&data_item_id={data_item_id}&product_type=SCIENCE'
-                urllib.request.urlretrieve(data_url, f"{path}/{data_item_id}.cdf")
+                urllib.request.urlretrieve(data_url, f"{path}{data_item_id}.cdf")
                 print(f'Successfully downloaded {data_item_id}.cdf')
                 start += timedelta(days=1)
             except Exception as e:
@@ -196,9 +199,9 @@ LOAD IN SOLO DATA FUNCTIONS: from datapath, and arranges into large dataframes f
 def get_solomag(fp):
     """raw = rtn"""
     try:
-        cdf = pycdf.CDF(fp)
-        data = {df_col: cdf[cdf_col][:] for cdf_col, df_col in zip(['EPOCH'], ['time'])}
-        df = pd.DataFrame.from_dict(data)
+        cdf = cdflib.CDF(fp)
+        t1 = cdflib.cdfepoch.to_datetime(cdf.varget('EPOCH'))
+        df = pd.DataFrame(t1, columns=['time'])
         bx, by, bz = cdf['B_RTN'][:].T
         df['bx'] = bx
         df['by'] = by
@@ -213,10 +216,11 @@ def get_solomag(fp):
 def get_soloplas(fp):
     """raw = rtn"""
     try:
-        cdf = pycdf.CDF(fp)
-        data = {df_col: cdf[cdf_col][:] for cdf_col, df_col in zip(['Epoch', 'N', 'T'], ['time', 'np', 'tp'])}
-        df = pd.DataFrame.from_dict(data)
-        df['time'] = pd.to_datetime(df['time'])
+        cdf = cdflib.CDF(fp)
+        t1 = cdflib.cdfepoch.to_datetime(cdf.varget('EPOCH'))
+        df = pd.DataFrame(t1, columns=['time'])
+        df['np'] = cdf['N']
+        df['tp'] = cdf['T']
         vx, vy, vz = cdf['V_RTN'][:].T
         df['vx'] = vx
         df['vy'] = vy
@@ -228,7 +232,7 @@ def get_soloplas(fp):
     return df
 
 
-def get_solomag_range_1min(start_timestamp, end_timestamp=datetime.utcnow(), path=data_path):
+def get_solomag_range_1min(start_timestamp, end_timestamp=datetime.utcnow(), path=f'{solo_path}'+'mag/level2/'):
     """Pass two datetime objects and grab .cdf files between dates, from
     directory given."""
     df = None
@@ -236,7 +240,7 @@ def get_solomag_range_1min(start_timestamp, end_timestamp=datetime.utcnow(), pat
     end = end_timestamp.date() + timedelta(days=1)
     while start < end:
         date_str = f'{start.year}{start.month:02}{start.day:02}'
-        fn = f'{path}/solo_L2_mag-rtn-normal-1-minute_{date_str}.cdf'
+        fn = f'{path}solo_L2_mag-rtn-normal-1-minute_{date_str}.cdf'
         _df = get_solomag(fn)
         if _df is not None:
             if df is None:
@@ -247,7 +251,7 @@ def get_solomag_range_1min(start_timestamp, end_timestamp=datetime.utcnow(), pat
     return df
 
 
-def get_soloplas_range(start_timestamp, end_timestamp=datetime.utcnow(), path=data_path):
+def get_soloplas_range(start_timestamp, end_timestamp=datetime.utcnow(), path=f'{solo_path}'+'swa/level2/'):
     """Pass two datetime objects and grab .cdf files between dates, from
     directory given."""
     df = None
@@ -255,7 +259,7 @@ def get_soloplas_range(start_timestamp, end_timestamp=datetime.utcnow(), path=da
     end = end_timestamp.date() + timedelta(days=1)
     while start < end:
         date_str = f'{start.year}{start.month:02}{start.day:02}'
-        fn = f'{path}/solo_L2_swa-pas-grnd-mom_{date_str}.cdf'
+        fn = f'{path}solo_L2_swa-pas-grnd-mom_{date_str}.cdf'
         _df = get_soloplas(fn)
         if _df is not None:
             if df is None:
@@ -277,19 +281,26 @@ def cart2sphere(x,y,z):
     return (r, theta, phi)
 
 
-def furnish():
+#http://spiftp.esac.esa.int/data/SPICE/SOLAR-ORBITER/kernels/fk/ for solo_ANC_soc-sci-fk_V08.tf
+#http://spiftp.esac.esa.int/data/SPICE/SOLAR-ORBITER/kernels/spk/ for solo orbit .bsp
+
+def solo_furnish():
     """Main"""
-    base = "solo_kernels"
-    kernels = [
-        "de430.bsp", "naif0012.tls", "heliospheric_v004u.tf", "pck00010.tpc", 
-        "solo_ANC_soc-orbit_20200210-20301120_L011_V1_00200_V01.bsp", "solo_ANC_soc-sci-fk_V08.tf"]
-    for kernel in kernels:
-        spiceypy.furnsh(os.path.join(base, kernel))
+    solo_path = kernels_path+'solo/'
+    generic_path = kernels_path+'generic/'
+    solo_kernels = os.listdir(solo_path)
+    generic_kernels = os.listdir(generic_path)
+    print(solo_kernels)
+    print(generic_kernels)
+    for kernel in solo_kernels:
+        spiceypy.furnsh(os.path.join(solo_path, kernel))
+    for kernel in generic_kernels:
+        spiceypy.furnsh(os.path.join(generic_path, kernel))
 
 
 def get_solo_pos(t):
     if spiceypy.ktotal('ALL') < 1:
-        furnish()
+        solo_furnish()
     pos = spiceypy.spkpos("SOLAR ORBITER", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
     r, lat, lon = cart2sphere(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
@@ -314,7 +325,7 @@ df = pd.DataFrame.from_records(obj)
 """
 
 
-def create_solo_pkl(start_timestamp):
+def create_solo_pkl(start_timestamp,data_save_path):
     
     #download solo mag and plasma data up to now 
     download_solomag_1min(start_timestamp)
@@ -386,15 +397,24 @@ def create_solo_pkl(start_timestamp):
     solo.lon=comb_df['lon']
     
     #dump to pickle file 
-    solo.dump('solo_rtn.p')
-    
+    solo.dump(data_save_path+'solo_rtn.p')
    
 
 
-# In[4]:
+# In[36]:
 
 
-create_solo_pkl(datetime(2022, 12, 25))
+solo_furnish()
+
+#get_solo_pos(datetime(2022,12,25))
+
+
+# In[24]:
+
+
+import warnings
+warnings.filterwarnings("ignore")
+create_solo_pkl(datetime(2022, 12, 25),data_path)
     
 
 
