@@ -500,10 +500,12 @@ def save_stereoa_beacon_data(data_path,path,file,t_start,t_end,coord):
     #set missing data to NaN
     
     #round first each original time to full minutes   original data at 30sec
+    #get rid of datetime64
     tround=copy.deepcopy(t2)
+
     format_str = '%Y-%m-%d %H:%M'  
     for k in np.arange(np.size(t2)):
-         tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(t2[k], format_str), format_str) 
+         tround[k] = datetime.datetime.strptime(datetime.datetime.strftime(t2[k].astype(datetime.datetime), format_str), format_str) 
     tm2_round=mdates.date2num(tround)
 
     #which values are not in original data compared to full time range

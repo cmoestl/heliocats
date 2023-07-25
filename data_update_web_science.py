@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[8]:
+# In[21]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web.py
@@ -70,10 +70,10 @@ debug_mode=0
 
 
 #switches
+get_solo=1
 get_wind=1
-get_bepi=1
+get_bepi=0
 get_stereoa=0
-get_solo=0
 get_psp=0
 
 ####################################################################################################################
@@ -86,7 +86,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[9]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -146,7 +146,7 @@ if os.path.isdir(solo_path) == False: os.mkdir(solo_path)
 if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 
-# In[25]:
+# In[ ]:
 
 
 #EMMA SOLO
@@ -398,42 +398,43 @@ def create_solo_pkl(start_timestamp,data_save_path):
     
     #dump to pickle file 
     solo.dump(data_save_path+'solo_rtn.p')
-   
-
-
-# In[36]:
-
-
 solo_furnish()
 
-#get_solo_pos(datetime(2022,12,25))
-
-
-# In[24]:
-
+get_solo_pos(datetime(2022,12,25))
 
 import warnings
 warnings.filterwarnings("ignore")
 create_solo_pkl(datetime(2022, 12, 25),data_path)
-    
 
 
-# In[ ]:
+print(data_path)
+
+print('Solar Orbiter done')
 
 
-
-
-
-# In[ ]:
+# In[20]:
 
 
 
 
 
-# In[ ]:
+# In[5]:
 
 
+#solo=pickle.load(open(data_path+'solo_rtn.p', "rb"))
 
+
+# In[6]:
+
+
+#solo
+
+
+# In[12]:
+
+
+#%matplotlib inline
+#plt.plot(solo.time,solo.bt)
 
 
 # In[ ]:
@@ -462,13 +463,7 @@ create_solo_pkl(datetime(2022, 12, 25),data_path)
 
 # ### Wind data
 
-# In[ ]:
-
-
-
-
-
-# In[3]:
+# In[22]:
 
 
 if debug_mode > 0: 
@@ -480,12 +475,12 @@ print('------ download Wind data ')
 
 #download data for current year only    
 if get_wind > 0:
-    hd.wind_download_ascii(start_year=datetime.datetime.utcnow().year, wind_path=wind_path) 
+    hd.wind_download_ascii(start_year=datetime.utcnow().year, wind_path=wind_path) 
 else:
     print('Wind data NOT downloaded, turn on switch')  
 
     
-    
+print('------ Wind finished ')  
     
 #filewin="wind_2018_now_heeq.p" 
 #start=datetime.datetime(2022, 12, 1)
@@ -532,7 +527,7 @@ else:
 
 # ### BepiColombo
 
-# In[ ]:
+# In[23]:
 
 
 if debug_mode > 0: 
@@ -541,6 +536,11 @@ if debug_mode > 0:
 
 print(' ')
 print('------ download BepiColombo data ')
+
+
+print(' ')
+print('------ Bepi finished ')  
+
 
 #if get_bepi >0: 
 #    hd.download_stereoa_science_merged()
@@ -558,33 +558,9 @@ print('------ download BepiColombo data ')
 
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
 # ### STEREO-A science data
 
-# In[19]:
+# In[24]:
 
 
 if debug_mode > 0: 
@@ -596,12 +572,17 @@ print('------ download STEREO-A science data ')
 
 if get_stereoa >0: 
     hd.download_stereoa_science_merged()
+    
+    
+print(' ')
+print('------ STEREO-A finished ')  
+    
 
 
 # ### Parker Solar Probe
 # 
 
-# In[5]:
+# In[25]:
 
 
 if debug_mode > 0: 
@@ -610,6 +591,11 @@ if debug_mode > 0:
 
 print(' ')
 print('------ download PSP data ')
+
+
+print(' ')
+print('------ PSP finished ')  
+
 
 #if get_psp >0: 
 #    hd.download_stereoa_science_merged()
@@ -638,45 +624,6 @@ print('------ download PSP data ')
 
 #filepsp='psp_2018_2020_sceq.p'
 #hd.save_psp_data(data_path,filepsp, sceq=True)   z
-
-
-# ### Solar Orbiter
-# 
-
-# In[15]:
-
-
-if debug_mode > 0: 
-    importlib.reload(hd) 
-    importlib.reload(hp) 
-
-print(' ')
-print('------ download Solar Orbiter data ')
-
-#if get_solo >0: 
-#    hd.download_stereoa_science_merged()
-
-
-# ### BepiColombo
-
-# In[10]:
-
-
-if debug_mode > 0: 
-    importlib.reload(hd) 
-    importlib.reload(hp) 
-
-print(' ')
-print('------ download BepiColombo data ')
-
-#if get_bepi >0: 
-#    hd.download_stereoa_science_merged()
-
-
-# In[9]:
-
-
-#sys.exit()
 
 
 # In[ ]:

@@ -21,7 +21,7 @@ dependencies:
     - heliopy==0.10.0
     - 3DCORE==1.0.0
     - pillow==9.4.0
-    - cdflib==0.4.9
+    - cdflib==1.0.5
     - pysftp==0.2.9
     - openpyxl==3.0.10
     - xlrd==2.0.1
