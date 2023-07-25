@@ -6,7 +6,7 @@ stereoa_path='/perm/aswo/data/stereoa/'
 solo_path='/perm/aswo/data/solo/'
 psp_path='/perm/aswo/data/psp/'
 bepi_path='/perm/aswo/data/bepi/'
-kernels_path='perm/aswo/data/kernels/'
+kernels_path='/perm/aswo/data/kernels/'
 data_path_ml='/perm/aswo/data/insitu_python/ML_struct_arrays/'
 
 
