@@ -9,7 +9,7 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 
-# In[5]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_hf.py
@@ -73,7 +73,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[6]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -127,7 +127,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[7]:
+# In[3]:
 
 
 #if debug_mode > 0: 
@@ -319,6 +319,12 @@ print(' ')
 print('------------------')
 print('Runtime for full high frequency data update:', np.round((t1all-t0all),2), 'seconds')
 print('--------------------------------------------------------------------------------------')
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
