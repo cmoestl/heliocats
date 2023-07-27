@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[18]:
+# In[19]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -161,7 +161,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 # ### Parker Solar Probe
 # 
 
-# In[16]:
+# In[27]:
 
 
 if debug_mode > 0: 
@@ -172,9 +172,10 @@ if debug_mode > 0:
 #server
 start_time= datetime(2018,10,1)
 #end_time= datetime(2018,10,10)
-end_time = datetime.utcnow().date() + timedelta(days=1)
-psp_file=data_path+'psp_2018_now_rtn.p'
 
+#start_time= datetime(2022,12,1)
+end_time = datetime.utcnow() + timedelta(days=1)
+psp_file=data_path+'psp_2018_now_rtn.p'
 #testing
 #start_time= datetime(2018,10,1)
 #end_time  = datetime(2018,10,10)
@@ -218,6 +219,12 @@ print(psph)
 #plt.plot(psp.time,psp.by)
 #plt.plot(psp.time,psp.bz)
     
+
+
+# In[16]:
+
+
+
     
 
 
@@ -309,7 +316,7 @@ if debug_mode > 0:
 #server
 start_time= datetime(2020,4,14)
 #end_time  = datetime(2020,4,20)
-end_time = datetime.utcnow().date() + timedelta(days=1)
+end_time = datetime.utcnow() + timedelta(days=1)
 solo_file=data_path+'solo_2020_now_rtn.p'
 
 #testing
