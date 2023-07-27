@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[17]:
+# In[18]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -171,8 +171,8 @@ if debug_mode > 0:
 ####### -------- control parameter    
 #server
 start_time= datetime(2018,10,1)
-end_time= datetime(2018,10,10)
-#end_time = datetime.utcnow().date() + timedelta(days=1)
+#end_time= datetime(2018,10,10)
+end_time = datetime.utcnow().date() + timedelta(days=1)
 psp_file=data_path+'psp_2018_now_rtn.p'
 
 #testing
@@ -308,8 +308,8 @@ if debug_mode > 0:
 ####### -------- control parameter    
 #server
 start_time= datetime(2020,4,14)
-end_time  = datetime(2020,4,20)
-#end_time = datetime.utcnow().date() + timedelta(days=1)
+#end_time  = datetime(2020,4,20)
+end_time = datetime.utcnow().date() + timedelta(days=1)
 solo_file=data_path+'solo_2020_now_rtn.p'
 
 #testing
