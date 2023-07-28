@@ -323,8 +323,8 @@ def create_psp_pkl(start_time, end_time,psp_file,psp_path):
     ', resampled to a time resolution of 1 min. '+\
     'The data are available in a numpy recarray, fields can be accessed by psp.time, psp.bx, psp.vt etc. '+\
     'Total number of data points: '+str(psp.size)+'. '+\
-    'Units are btxyz [nT, RTN], vtxy  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with [...] by E. Davies (twitter @spacedavies). File creation date: '+\
+    'Units are btxyz [nT, RTN], vtxy  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z [km] or r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with heliocats/data_update_web_science.ipynb, by E. Davies (twitter @spacedavies) and Christian Möstl (@chrisoutofspace). File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
 
     pickle.dump([psp,header], open(psp_file, "wb"))
@@ -401,12 +401,16 @@ def get_solomag(fp):
         df['by'] = by
         df['bz'] = bz
         df['bt'] = np.linalg.norm(df[['bx', 'by', 'bz']], axis=1)
+        cols = ['bx', 'by', 'bz', 'bt']
+        for col in cols:
+            df[col].mask(df[col] < -1E9 , pd.NA, inplace=True)
     except Exception as e:
         print('ERROR:', e, fp)
         df = None
     return df
-
-
+                
+        
+        
 def get_soloplas(fp):
     """raw = rtn"""
     try:
@@ -420,12 +424,13 @@ def get_soloplas(fp):
         df['vy'] = vy
         df['vz'] = vz
         df['vt'] = np.linalg.norm(df[['vx', 'vy', 'vz']], axis=1)
+        cols = ['np', 'tp', 'vx', 'vy', 'vz', 'vt']
+        for col in cols:
+            df[col].mask(df[col] < -9.999E29 , pd.NA, inplace=True)
     except Exception as e:
         print('ERROR:', e, fp)
         df = None
-    return df                
-                
-                
+    return df        
                 
     
 
@@ -457,7 +462,7 @@ def get_soloplas_range(start_timestamp, end_timestamp, solo_path):
     directory given."""
     
     
-    path=solo_path+'mag/level2/'    
+    path=solo_path+'swa/level2/'    
 
     df = None
     start = start_timestamp.date()
@@ -594,7 +599,7 @@ def create_solo_pkl(start_timestamp,end_timestamp,solo_file,solo_path,kernels_pa
     solo.vz=comb_df['vz']
     solo.vt=comb_df['vt']
     solo.np=comb_df['np']
-    solo.tp=comb_df['tp']
+    solo.tp=comb_df['tp']*(1.602176634*1e-19)/(1.38064852*1e-23) # from ev to K 
     solo.x=comb_df['x']
     solo.y=comb_df['y']
     solo.z=comb_df['z']
@@ -602,8 +607,35 @@ def create_solo_pkl(start_timestamp,end_timestamp,solo_file,solo_path,kernels_pa
     solo.lat=comb_df['lat']
     solo.lon=comb_df['lon']
     
+    
+    
+    #remove SolO Earth flyby
+    
+    
+    #delete Earth flyby
+    nt1=parse_time('2021-11-27T02:00Z').datetime 
+    nt2=parse_time('2021-11-27T08:00Z').datetime
+    gap=np.where(np.logical_and(solo.time > nt1,solo.time < nt2 ))[0]
+    
+    solo.bt[gap]=np.nan
+    solo.bx[gap]=np.nan
+    solo.by[gap]=np.nan
+    solo.bz[gap]=np.nan
+    
+    header='Science level 2 solar wind magnetic field (MAG) and plasma data (SWA) from Solar Orbiter, ' + \
+    'obtained from https://soar.esac.esa.int/soar/  '+ \
+    'Timerange: '+solo.time[0].strftime("%Y-%b-%d %H:%M")+' to '+solo.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', resampled to a time resolution of 1 min. '+\
+    'The data are available in a numpy recarray, fields can be accessed by solo.time, solo.bx, solo.vt etc. '+\
+    'Total number of data points: '+str(solo.size)+'. '+\
+    'Units are btxyz [nT, RTN], vtxy  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z [km], r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with heliocats/data_update_web_science.ipynb, by E. Davies (twitter @spacedavies) and Christian Möstl (@chrisoutofspace). File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+    
+    
+    
     #dump to pickle file 
-    solo.dump(solo_file)            
+    pickle.dump([solo,header], open(solo_file, "wb"))
          
                 
                 

@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[19]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -24,6 +24,7 @@ import importlib
 import matplotlib.pyplot as plt
 import matplotlib
 import matplotlib.dates as mdates
+import seaborn as sns
 import sys
 import numpy as np
 import datetime
@@ -80,9 +81,9 @@ debug_mode=1
 
 #switches
 get_psp=1
-get_wind=1
 get_solo=1
 
+get_wind=0
 get_stereoa=0
 get_bepi=0
 ####################################################################################################################
@@ -146,6 +147,7 @@ if os.path.isdir(plot_path) == False: os.mkdir(plot_path)
 if os.path.isdir(plot_path+'omni2') == False: os.mkdir(plot_path+'omni2')
 if os.path.isdir(plot_path+'wind') == False: os.mkdir(plot_path+'wind')
 if os.path.isdir(plot_path+'solo') == False: os.mkdir(plot_path+'solo')
+if os.path.isdir(plot_path+'psp') == False: os.mkdir(plot_path+'psp')
 if os.path.isdir(plot_path+'stereoa') == False: os.mkdir(plot_path+'stereoa')
 if os.path.isdir(plot_path+'combined') == False: os.mkdir(plot_path+'combined')
 
@@ -161,26 +163,25 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 # ### Parker Solar Probe
 # 
 
-# In[27]:
+# In[8]:
+
+
+####### -------- control parameter    
+#server
+start_time= datetime(2018,10,1)
+#end_time= datetime(2018,10,10)
+#start_time= datetime(2022,12,1)
+end_time = datetime.utcnow() 
+psp_file=data_path+'psp_2018_now_rtn.p'
 
 
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
 
-####### -------- control parameter    
-#server
-start_time= datetime(2018,10,1)
-#end_time= datetime(2018,10,10)
-
-#start_time= datetime(2022,12,1)
-end_time = datetime.utcnow() + timedelta(days=1)
-psp_file=data_path+'psp_2018_now_rtn.p'
-#testing
-#start_time= datetime(2018,10,1)
-#end_time  = datetime(2018,10,10)
-#psp_file=data_path+'psp_rtn_test.p'
-######### -------------------
+    start_time= datetime(2018,10,5)
+    end_time  = datetime(2018,10,7)
+    psp_file=data_path+'psp_rtn_test.p'
 
     
 if get_psp > 0:    
@@ -207,30 +208,97 @@ else:
     print('PSP data NOT downloaded and pickled, turn on switch')  
 
 
+  
 
+
+# In[12]:
+
+
+### data checks
+
+filepsp='psp_2018_now_rtn.p'
+if debug_mode > 0: filepsp='psp_rtn_test.p'
+[data,header]=pickle.load(open(data_path+filepsp, "rb" ) )
+
+############ print header
+
+print(header)
+
+########## add overview plots
+
+hp.data_overview_plot(data,plot_path+'psp/'+filepsp[:-2])
+
+
+
+
+# ### Solar Orbiter
+
+# In[5]:
+
+
+####### -------- control parameter    
+
+#for server
+start_time= datetime(2020,4,14)
+#end_time  = datetime(2020,4,20)
+end_time = datetime.utcnow() 
+solo_file=data_path+'solo_2020_now_rtn.p'
+
+#testing
+if debug_mode > 0: 
+    importlib.reload(hd) 
+    importlib.reload(hp) 
+    start_time= datetime(2022,1,25)
+    end_time  = datetime(2022,2,10)
+    solo_file=data_path+'solo_rtn_test.p'
+
+
+if get_solo > 0:    
+
+    t0 = time.time()  
+
+    print('--------------------- SolO ------------------------- ')
+    print('download SolO science data until today ')
+    print(solo_path)
+
+    hd.download_solomag_1min(start_time,end_time,solo_path)
+    hd.download_soloplas(start_time,end_time,solo_path)
+
+    print('process Solar Orbiter to pickle')
+    hd.create_solo_pkl(start_time,end_time,solo_file,solo_path,kernels_path)
+    #print(psph)
+
+    t1=time.time()
     
-[psp,psph]=pickle.load(open(psp_file, "rb"))
-#print(psp[0])
-#print(psp[-1])
-print(psph)
-#plt.plot(psp.time,psp.bt)
-#plt.plot(psp.time,psp.vt)
-#plt.plot(psp.time,psp.bx)
-#plt.plot(psp.time,psp.by)
-#plt.plot(psp.time,psp.bz)
-    
+    print(' ')
+    print('Solo done in ', np.round((t1-t0)/60,2), 'minutes')
+    print('----------------------------------- ')
+else:
+    print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[16]:
+# In[6]:
 
 
+### data checks
 
-    
+filesolo='solo_2020_now_rtn.p'   
+
+if debug_mode > 0: filesolo='solo_rtn_test.p'
+
+[data,header]=pickle.load(open(data_path+filesolo, "rb"))
+############ print header
+
+print(header)
+
+########## add overview plots
+
+hp.data_overview_plot(data,plot_path+'solo/'+filesolo[:-2])
 
 
 # ### Wind 
 
-# In[4]:
+# In[58]:
 
 
 if debug_mode > 0: 
@@ -301,59 +369,6 @@ else:
 #start=win.time[-1]-datetime.timedelta(days=100)
 #end=datetime.datetime.utcnow()         
 #hp.plot_insitu_update(win, start, end,'Wind',plot_path,now=True)
-
-
-# ### Solar Orbiter
-
-# In[15]:
-
-
-if debug_mode > 0: 
-    importlib.reload(hd) 
-    importlib.reload(hp) 
-
-####### -------- control parameter    
-#server
-start_time= datetime(2020,4,14)
-#end_time  = datetime(2020,4,20)
-end_time = datetime.utcnow() + timedelta(days=1)
-solo_file=data_path+'solo_2020_now_rtn.p'
-
-#testing
-#start_time= datetime(2020,4,10)
-#end_time  = datetime(2020,4,20)
-#solo_file=data_path+'solo_rtn_test.p'
-######### -------------------
-
-#print(kernels_path)
-#hd.solo_furnish(kernels_path)
-
-
-if get_solo > 0:    
-
-    t0 = time.time()  
-
-    print('--------------------- SolO ------------------------- ')
-    print('download SolO data until today ')
-    print(solo_path)
-
-    hd.download_solomag_1min(start_time,end_time,solo_path)
-    hd.download_soloplas(start_time,end_time,solo_path)
-
-    print('process Solar Orbiter to pickle')
-    hd.create_solo_pkl(start_time,end_time,solo_file,solo_path,kernels_path)
-    #print(psph)
-
-    t1=time.time()
-    
-    print(' ')
-    print('Solo done in ', np.round((t1-t0)/60,2), 'minutes')
-    print('----------------------------------- ')
-else:
-    print('Solo data NOT downloaded and pickled, turn on switch')  
-
-solo=pickle.load(open(solo_file, "rb"))
-plt.plot(solo.time,solo.bt)
 
 
 # ### BepiColombo

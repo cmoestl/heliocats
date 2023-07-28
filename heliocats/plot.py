@@ -69,6 +69,74 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
+def data_overview_plot(data,filename):
+
+
+    sns.set_style('darkgrid')
+
+    plt.figure(figsize=(15,15),dpi=150)
+
+
+    ax1 = plt.subplot(321) 
+    ax1.set_title('Btxyz')
+    ax1.set_ylabel('nT')
+    ax1.plot(data.time,data.bt,'-k',linewidth=0.5)
+    ax1.plot(data.time,data.bx,'-r',linewidth=0.2)
+    ax1.plot(data.time,data.by,'-g',linewidth=0.2)
+    ax1.plot(data.time,data.bz,'-b',linewidth=0.2)
+
+    ax2 = plt.subplot(322) 
+    ax2.set_title('Vtxyz')
+    ax2.set_ylabel('km/s')
+    ax2.plot(data.time,data.vt,'-k',linewidth=0.5)
+    ax2.plot(data.time,data.vx,'-r',linewidth=0.2)
+    ax2.plot(data.time,data.vy,'-g',linewidth=0.2)
+    ax2.plot(data.time,data.vz,'-b',linewidth=0.2)
+
+    ax3 = plt.subplot(323) 
+    ax3.set_title('Tp')
+    ax3.set_ylabel('K')
+    ax3.plot(data.time,data.tp,'-k',linewidth=0.5)
+
+    ax4 = plt.subplot(324) 
+    ax4.set_title('Np')
+    ax4.set_ylabel('ccm-3')
+    ax4.plot(data.time,data.np,'-k',linewidth=0.5)
+
+
+    ax5 = plt.subplot(325) 
+    ax5.set_title('XYZ')
+    ax5.set_ylabel('km')
+    ax5.plot(data.time,data.x,'-r',linewidth=1)
+    ax5.plot(data.time,data.y,'-g',linewidth=1)
+    ax5.plot(data.time,data.z,'-b',linewidth=1)
+
+
+    ax6 = plt.subplot(326) 
+    ax6.set_title('R lon lat')
+    ax6.set_ylabel('AU,degree')
+    ax6.plot(data.time,data.r,'-r',linewidth=1)
+    ax6.plot(data.time,data.lon,'-g',linewidth=1)
+    ax6.plot(data.time,data.lat,'-b',linewidth=1)
+
+
+    plt.tight_layout()
+
+    plt.savefig(filename+'.png')
+    plt.savefig(filename+'.pdf')
+
+
+
+
+
+
+
+
+
+
+
+
+
 def plot_insitu_update(sc, start, end, sc_label, path, **kwargs):
      '''
      sc = data
