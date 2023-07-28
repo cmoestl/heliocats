@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[1]:
+# In[13]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -80,10 +80,10 @@ debug_mode=0
 
 
 #switches
-get_psp=0
-get_solo=0
+get_psp=1
+get_solo=1
 
-get_wind=0
+get_wind=1
 get_stereoa=1
 get_bepi=0
 ####################################################################################################################
@@ -166,6 +166,9 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 # In[3]:
 
 
+print(' ')
+
+
 ####### -------- control parameter    
 #server
 start_time= datetime(2018,10,1)
@@ -241,6 +244,8 @@ if get_psp > 0:
 # In[5]:
 
 
+print(' ')
+
 ####### -------- control parameter    
 
 #for server
@@ -308,6 +313,7 @@ if get_solo > 0:
 # In[7]:
 
 
+print(' ')
 #for server
 start_time= datetime(1995,1,1)
 #end_time  = datetime(2020,4,20)
@@ -323,14 +329,14 @@ if debug_mode > 0:
     wind_file=data_path+'wind_gse_test.p'
 
  
-    
-print('-------------------------------- Wind -------------------------- ')
-print('download Wind data ')
-
 
 #download data for current year only    
 if get_wind > 0:
+ 
     
+    print('-------------------------------- Wind -------------------------- ')
+    print('download Wind data ')
+
     t0 = time.time() 
     
     hd.wind_download_ascii(start_year=datetime.utcnow().year, wind_path=wind_path) 
@@ -412,12 +418,11 @@ if get_wind > 0:
 
 # ### BepiColombo
 
-# In[8]:
+# In[14]:
 
 
-if debug_mode > 0: 
-    importlib.reload(hd) 
-    importlib.reload(hp) 
+print(' ')
+
 
 
 ####### -------- control parameter    
@@ -426,15 +431,15 @@ if debug_mode > 0:
 #end_time = datetime.utcnow().date() + timedelta(days=1)
 #psp_file=data_path+'psp_2018_now_rtn.p'
 
-#testing
-start_time= datetime(2021,12,1)
-end_time  = datetime(2021,12,5)
-bepi_file=data_path+'bepi_rtn_test.p'
-######### -------------------
 
-#print(kernels_path)
-#hd.solo_furnish(kernels_path)
+if debug_mode > 0: 
+    importlib.reload(hd) 
+    importlib.reload(hp) 
 
+    #testing
+    start_time= datetime(2021,12,1)
+    end_time  = datetime(2021,12,5)
+    bepi_file=data_path+'bepi_rtn_test.p'
 
 if get_bepi > 0:    
 
@@ -464,6 +469,8 @@ else:
 
 # In[9]:
 
+
+print(' ')
 
 ####### control parameter    
 
