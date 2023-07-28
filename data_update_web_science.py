@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[15]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -160,6 +160,102 @@ if os.path.isdir(solo_path) == False: os.mkdir(psp_path)
 if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 
+# ### Wind 
+
+# In[3]:
+
+
+print(' ')
+#for server
+start_time= datetime(1995,1,1)
+#end_time  = datetime(2020,4,20)
+end_time = datetime.utcnow() 
+wind_file=data_path+'wind_1995_now_gse.p'
+
+#testing
+if debug_mode > 0: 
+    importlib.reload(hd) 
+    importlib.reload(hp) 
+    start_time= datetime(2022,1,25)
+    end_time  = datetime(2022,2,10)
+    wind_file='wind_gse_test.p'
+
+ 
+
+#download data for current year only    
+if get_wind > 0:
+ 
+    
+    print('-------------------------------- Wind -------------------------- ')
+    print('download Wind data ')
+
+    t0 = time.time() 
+    
+    #hd.wind_download_ascii(start_year=1995, wind_path=wind_path) 
+    #hd.wind_download_ascii(2022, wind_path) 
+    
+    
+    print(wind_path)
+    print(data_path+wind_file)
+    hd.save_wind_data_ascii(start_time,end_time,wind_path,data_path+wind_file,'GSE')
+    t1=time.time()
+    
+
+    
+    print(' ')
+    print('Wind done in ', np.round((t1-t0)/60,2), 'minutes')
+    print('----------------------------------- ')
+    
+else:
+    print('Wind data NOT downloaded, turn on switch')  
+    
+
+
+# In[6]:
+
+
+#data checks
+if get_wind > 0:  
+
+    filewind='wind_1995_now_gse.p'   
+
+    if debug_mode > 0: filewind='wind_gse_test.p'
+
+    [data,header]=pickle.load(open(data_path+filewind, "rb"))
+    ############ print header
+
+    print(header)
+
+    ########## add overview plots
+
+    hp.data_overview_plot(data,plot_path+'wind/'+filewind[:-2])
+
+
+# In[8]:
+
+
+#wind_data_path='/perm/aswo/data/wind/wind_mfi_k0'
+#print(wind_data_path)
+#os.system('wget -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2020/*.cdf"')
+#wind_data_path='/nas/helio/data/heliosat/data/wind_swe_h1'
+#os.system('wget -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/swe/swe_h1/2020/*.cdf"')
+
+#filewin="wind_2018_now_gse.p" 
+##xstart=datetime.datetime(2018, 1, 1)
+#end=datetime.datetime.utcnow()
+#if get_new_data: hd.save_wind_data(data_path,filewin,start,end,heeq=False)
+#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
+
+#filewin="wind_2018_now_heeq.p" 
+#start=datetime.datetime(2018, 1, 1)
+#end=datetime.datetime.utcnow()
+#if get_new_data: hd.save_wind_data(data_path,filewin,start,end,heeq=True)
+
+#start=win.time[-1]-datetime.timedelta(days=100)
+#end=datetime.datetime.utcnow()         
+#hp.plot_insitu_update(win, start, end,'Wind',plot_path,now=True)
+
+
 # ### Parker Solar Probe
 # 
 
@@ -194,9 +290,11 @@ if get_psp > 0:
     print('--------------------- PSP ------------------------- ')
     print('download PSP data until today ')
     print(psp_path)
-
-    hd.download_pspmag_1min(start_time,end_time,psp_path)
-    hd.download_pspplas(start_time,end_time,psp_path)
+    
+    
+    #don't check all years for faster runtime
+    hd.download_pspmag_1min(datetime(2022,1,1),end_time,psp_path)
+    hd.download_pspplas(datetime(2022,1,1),end_time,psp_path)
 
     print('process PSP to pickle')
     hd.create_psp_pkl(start_time,end_time,psp_file,psp_path)
@@ -271,8 +369,9 @@ if get_solo > 0:
     print('download SolO science data until today ')
     print(solo_path)
 
-    hd.download_solomag_1min(start_time,end_time,solo_path)
-    hd.download_soloplas(start_time,end_time,solo_path)
+    #don't check all years for faster download
+    hd.download_solomag_1min(datetime(2022,1,1),end_time,solo_path)
+    hd.download_soloplas(datetime(2022,1,1),end_time,solo_path)
 
     print('process Solar Orbiter to pickle')
     hd.create_solo_pkl(start_time,end_time,solo_file,solo_path,kernels_path)
@@ -306,114 +405,6 @@ if get_solo > 0:
     ########## add overview plots
 
     hp.data_overview_plot(data,plot_path+'solo/'+filesolo[:-2])
-
-
-# ### Wind 
-
-# In[7]:
-
-
-print(' ')
-#for server
-start_time= datetime(1995,1,1)
-#end_time  = datetime(2020,4,20)
-end_time = datetime.utcnow() 
-wind_file=data_path+'wind_1995_now_gse.p'
-
-#testing
-if debug_mode > 0: 
-    importlib.reload(hd) 
-    importlib.reload(hp) 
-    start_time= datetime(2022,1,25)
-    end_time  = datetime(2022,2,10)
-    wind_file=data_path+'wind_gse_test.p'
-
- 
-
-#download data for current year only    
-if get_wind > 0:
- 
-    
-    print('-------------------------------- Wind -------------------------- ')
-    print('download Wind data ')
-
-    t0 = time.time() 
-    
-    hd.wind_download_ascii(start_year=datetime.utcnow().year, wind_path=wind_path) 
-
-    t1=time.time()
-    
-    print('Wind pickle TBD')
-    
-    print(' ')
-    print('Wind done in ', np.round((t1-t0)/60,2), 'minutes')
-    print('----------------------------------- ')
-    
-else:
-    print('Wind data NOT downloaded, turn on switch')  
-    
-
-#data checks
-if get_wind > 0:  
-
-    filewind='wind_1995_now_gse.p'   
-
-    if debug_mode > 0: filewind='wind_gse_test.p'
-
-    #[data,header]=pickle.load(open(data_path+filewind, "rb"))
-    ############ print header
-
-    #print(header)
-
-    ########## add overview plots
-
-    #hp.data_overview_plot(data,plot_path+'solo/'+filewind[:-2])
-
-
-# In[8]:
-
-
-#filewin="wind_2018_now_heeq.p" 
-#start=datetime.datetime(2022, 12, 1)
-#start=datetime.datetime(2022, 12, 1)
-#end=datetime.datetime.utcnow()
-
-#hd.save_wind_data_ascii(data_path,filewin,start,end,coord='HEEQ')
-#[win,winh]=pickle.load(open(data_path+filewin, "rb"))
-#start=win.time[-1]-datetime.timedelta(days=365)
-#end=datetime.datetime.utcnow()         
-#hp.plot_insitu_update(win, start, end,'Wind',plot_path+'wind/',now=True)
-
-
-#on linux
-#print('download new Wind data files without overwriting existing files')
-
-#on mac for testing
-#wind_data_path='/Users/chris/python/data/wind/wind_mfi_k0'
-#os.system('curl -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2020/*.cdf"')
-
-
-
-#wind_data_path='/perm/aswo/data/wind/wind_mfi_k0'
-#print(wind_data_path)
-#os.system('wget -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2020/*.cdf"')
-#wind_data_path='/nas/helio/data/heliosat/data/wind_swe_h1'
-#os.system('wget -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/swe/swe_h1/2020/*.cdf"')
-
-#filewin="wind_2018_now_gse.p" 
-##xstart=datetime.datetime(2018, 1, 1)
-#end=datetime.datetime.utcnow()
-#if get_new_data: hd.save_wind_data(data_path,filewin,start,end,heeq=False)
-#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
-
-#filewin="wind_2018_now_heeq.p" 
-#start=datetime.datetime(2018, 1, 1)
-#end=datetime.datetime.utcnow()
-#if get_new_data: hd.save_wind_data(data_path,filewin,start,end,heeq=True)
-
-#start=win.time[-1]-datetime.timedelta(days=100)
-#end=datetime.datetime.utcnow()         
-#hp.plot_insitu_update(win, start, end,'Wind',plot_path,now=True)
 
 
 # ### BepiColombo

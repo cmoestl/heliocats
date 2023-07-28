@@ -80,6 +80,546 @@ def cart2sphere_emma(x,y,z):
     phi = np.arctan2(y,x) * 360 / 2 / np.pi                   
     return (r, theta, phi)
 
+
+
+
+
+###################### Wind
+
+
+
+
+
+def wind_download_ascii(start_year, wind_path):
+
+    #download MFI and SWE in ASCII from SPDF
+        
+    print('downloading Wind ascii data to ', wind_path)
+        
+    read_data_end_year=datetime.datetime.utcnow().year
+    read_data_end_month=datetime.datetime.utcnow().month
+    
+    wind_years_strings=[]
+    for j in np.arange(start_year,read_data_end_year+1):
+        wind_years_strings.append(str(j))
+
+    print('for years', wind_years_strings)
+    
+  
+    ######## MFI
+
+    mfi_url='https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/'
+    print(mfi_url)
+    
+    
+    #for all years
+    for i in np.arange(0,len(wind_years_strings)-1):    
+
+        for k in np.arange(1,13):    
+
+            a=str(k).zfill(2) #add leading zeros            
+            filewind=wind_years_strings[i]+a+'_wind_mag_1min.asc'
+            print(filewind)
+            try: urllib.request.urlretrieve(mfi_url+filewind, wind_path+'mfi_1min_ascii/'+filewind)
+            except urllib.error.URLError as e:
+                print(' ', mfi_url,' ',e.reason) 
+
+    
+    
+    #for latest year
+    for k in np.arange(1,read_data_end_month):    
+
+        a=str(k).zfill(2) #add leading zeros
+        filewind=wind_years_strings[-1]+a+'_wind_mag_1min.asc'
+        print(filewind)
+        try: urllib.request.urlretrieve(mfi_url+filewind, wind_path+'mfi_1min_ascii/'+filewind)
+        except urllib.error.URLError as e:
+            print(' ', mfi_url,' ',e.reason) 
+                      
+
+    
+    ############## SWE
+        
+    swe_url='https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/'
+    print(swe_url)
+        
+    for i in np.arange(0,len(wind_years_strings)):    
+
+        filewind='wind_kp_unspike'+wind_years_strings[i]+'.txt'
+        print(filewind)
+        try: urllib.request.urlretrieve(swe_url+filewind, wind_path+'swe_92sec_ascii/'+filewind)
+        except urllib.error.URLError as e:
+            print(' ', swe_url,' ',e.reason) 
+
+
+      
+    
+    
+    
+
+
+
+
+
+
+def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
+    
+    '''
+    description of data sources used in this function
+    
+    SWE 92 sec
+    https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike
+    
+    MFI 1 min    
+    https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/
+    
+    examples:
+    
+    https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/wind_kp_unspike1996.txt    
+    https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/201908_wind_mag_1min.asc
+    '''
+    
+    wind_data_path_mag=path+'mfi_1min_ascii/'
+    wind_data_path_pla=path+'swe_92sec_ascii/'
+
+    
+    t_start = start_date
+    t_end = end_date
+    
+    #create an array with 2 minute resolution between t start and end
+    time = [ t_start + datetime.timedelta(minutes=2*n) for n in range(int ((t_end - t_start).days*30*24))]  
+    time_mat=mdates.date2num(time) 
+    
+    
+    read_data_end_year=datetime.datetime.utcnow().year
+    read_data_end_month=datetime.datetime.utcnow().month
+        
+    
+            
+    #############mfi
+    
+    wind_years_strings=[]
+    for j in np.arange(start_date.year,end_date.year+1):
+        wind_years_strings.append(str(j))
+
+    print(wind_years_strings)
+    #array for 40 years
+    win_mag=np.zeros(60*24*365*40,dtype=[('time',object),('bx', float),('by', float),\
+                    ('bz', float),('bt', float),('np', float),('vt', float),('vx', float),\
+                          ('vy', float),('vz', float),\
+                          ('tp', float),('x', float),('y', float),('z', float),\
+                    ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    win_mag = win_mag.view(np.recarray)  
+
+
+    counter=0
+
+    #previous years
+    for i in np.arange(0,len(wind_years_strings)-1):   
+        
+
+        for k in np.arange(1,13):    
+
+            a=str(k).zfill(2) #add leading zeros
+
+            file=wind_data_path_mag+wind_years_strings[i]+a+'_wind_mag_1min.asc' 
+            print(file)
+            #get data from file
+            mfi_data=np.genfromtxt(file,dtype="i8,i8,i8,i8,i8,i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,")
+
+
+            #put data in array
+            for p in np.arange(0,len(mfi_data)):
+                #time
+                win_mag.time[p+counter]=datetime.datetime(mfi_data[p][0],mfi_data[p][1],mfi_data[p][2],mfi_data[p][3],mfi_data[p][4],mfi_data[p][5])
+                win_mag.bx[p+counter]=mfi_data[p][6]
+                
+                if coord=='GSE' or coord=='HEEQ':
+                    win_mag.by[p+counter]=mfi_data[p][7]
+                    win_mag.bz[p+counter]=mfi_data[p][8]
+                    win_mag.bt[p+counter]=mfi_data[p][11]
+
+                if coord=='GSM':
+                    win_mag.by[p+counter]=mfi_data[p][9]
+                    win_mag.bz[p+counter]=mfi_data[p][10]
+                    win_mag.bt[p+counter]=mfi_data[p][11]
+
+    
+                    
+                #gse position
+                win_mag.x[p+counter]=mfi_data[p][17]
+                win_mag.y[p+counter]=mfi_data[p][18]
+                win_mag.z[p+counter]=mfi_data[p][19]
+
+            counter=counter+len(mfi_data)    
+            
+            
+    #current year
+    for k in np.arange(1,read_data_end_month-1):    
+
+        a=str(k).zfill(2) #add leading zeros
+
+        file=wind_data_path_mag+wind_years_strings[-1]+a+'_wind_mag_1min.asc' 
+        print(file)
+        #get data from file
+        mfi_data=np.genfromtxt(file,dtype="i8,i8,i8,i8,i8,i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,")
+
+
+        #put data in array
+        for p in np.arange(0,len(mfi_data)):
+                #time
+                win_mag.time[p+counter]=datetime.datetime(mfi_data[p][0],mfi_data[p][1],mfi_data[p][2],mfi_data[p][3],mfi_data[p][4],mfi_data[p][5])
+                win_mag.bx[p+counter]=mfi_data[p][6]
+                
+                if coord=='GSE' or coord=='HEEQ':
+                    win_mag.by[p+counter]=mfi_data[p][7]
+                    win_mag.bz[p+counter]=mfi_data[p][8]
+                    win_mag.bt[p+counter]=mfi_data[p][11]
+                    
+                    
+
+                if coord=='GSM':
+                    win_mag.by[p+counter]=mfi_data[p][9]
+                    win_mag.bz[p+counter]=mfi_data[p][10]
+                    win_mag.bt[p+counter]=mfi_data[p][11]
+
+    
+                    
+                #gse position
+                win_mag.x[p+counter]=mfi_data[p][17]
+                win_mag.y[p+counter]=mfi_data[p][18]
+                win_mag.z[p+counter]=mfi_data[p][19]
+
+        counter=counter+len(mfi_data)             
+            
+
+    #cutoff        
+    win_mag2=win_mag[0:counter]    
+    win_time2=mdates.date2num(win_mag2.time)
+
+    #set missing data to nan
+    win_mag2.bt[np.where(win_mag2.bt == -1e31)]=np.nan  
+    win_mag2.bx[np.where(win_mag2.bx == -1e31)]=np.nan  
+    win_mag2.by[np.where(win_mag2.by == -1e31)]=np.nan  
+    win_mag2.bz[np.where(win_mag2.bz == -1e31)]=np.nan  
+    
+    win_mag2.x[np.where(win_mag2.x == -1e31)]=np.nan  
+    win_mag2.y[np.where(win_mag2.y == -1e31)]=np.nan  
+    win_mag2.z[np.where(win_mag2.z == -1e31)]=np.nan  
+    
+    
+    
+    ############################swe
+
+    
+    #array for 40 years
+    win_swe=np.zeros(60*24*365*40,dtype=[('time',object),('bx', float),('by', float),\
+                    ('bz', float),('bt', float),('np', float),('vt', float),('vx', float),\
+                          ('vy', float),('vz', float),\
+                          ('tp', float),('x', float),('y', float),('z', float),\
+                    ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    win_swe = win_swe.view(np.recarray)  
+
+    
+    
+    counter=0
+
+
+    for i in np.arange(0,len(wind_years_strings)):    
+
+            file=wind_data_path_pla+'wind_kp_unspike'+wind_years_strings[i]+'.txt'
+            print(file)
+            swe_data=np.genfromtxt(file,dtype="i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8")
+
+            firstjan=mdates.date2num(datetime.datetime(int(wind_years_strings[i]),1,1))-1
+
+            for p in np.arange(0,len(swe_data)):
+
+                #datenum
+                win_swe.time[p+counter]=firstjan+swe_data[p][1]
+                win_swe.vt[p+counter]=swe_data[p][2]
+                win_swe.tp[p+counter]=swe_data[p][6]
+                win_swe.np[p+counter]=swe_data[p][7]            
+
+            counter=counter+len(swe_data) 
+
+
+   
+    win_swe=win_swe[0:counter]    
+    win_swe_time=np.array(win_swe.time,dtype='float')
+
+
+    win_swe.vt[np.where(win_swe.vt == 99999.9)]=np.nan  
+    win_swe.tp[np.where(win_swe.tp ==9999999.)]=np.nan  
+    win_swe.np[np.where(win_swe.np ==999.99)]=np.nan  
+
+
+    
+    ###################### interpolate
+    
+     
+    #linear interpolation to time_mat times    
+    bx = np.interp(time_mat, win_time2, win_mag2.bx )
+    by = np.interp(time_mat, win_time2, win_mag2.by )
+    bz = np.interp(time_mat, win_time2, win_mag2.bz  )
+    bt = np.sqrt(bx**2+by**2+bz**2)
+        
+    den = np.interp(time_mat, win_swe_time, win_swe.np)
+    vt = np.interp(time_mat, win_swe_time,win_swe.vt)
+    tp = np.interp(time_mat, win_swe_time,win_swe.tp)
+        
+        
+        
+    #interpolate the GSE position over full data range
+    x_gse = np.interp(time_mat,  win_time2, win_mag2.x)*6378.1/149597870.7*astropy.units.AU #earth radii to km to AU
+    y_gse = np.interp(time_mat,  win_time2, win_mag2.y)*6378.1/149597870.7*astropy.units.AU
+    z_gse = np.interp(time_mat,  win_time2, win_mag2.z)*6378.1/149597870.7*astropy.units.AU
+    
+    
+    
+    #** check gse is not the same plane as HEEQ, small error
+    print('position start')    
+    frame='HEEQ'
+    planet_kernel=spicedata.get_kernel('planet_trajectories')
+    earth=spice.Trajectory('399')  #399 for Earth
+    earth.generate_positions(time,'Sun',frame)
+    earth.change_units(astropy.units.AU)       #from km to AU    
+    #add gse position to Earth position
+    x=earth.x-x_gse  #earth radii to km
+    y=earth.y-y_gse
+    z=earth.z+z_gse
+    [r, lat, lon]=cart2sphere(x,y,z)       
+      
+    
+    print('position end ')
+    
+    #make array
+    win=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('np', float),('vt', float),('vx', float),('vy', float),('vz', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+       
+    #convert to recarray
+    win = win.view(np.recarray)  
+
+    #fill with data
+    win.time=time
+    win.bx=bx
+    win.by=by
+    win.bz=bz 
+    win.bt=bt
+
+    win.x=x
+    win.y=y
+    win.z=z
+    
+    win.r=r
+    win.lat=np.degrees(lat)
+    win.lon=np.degrees(lon)
+    
+    win.np=den
+    win.vt=vt
+    win.tp=tp
+    
+
+    win.vx=np.nan
+    win.vy=np.nan
+    win.vz=np.nan
+    
+
+    
+    
+    
+    
+    
+    
+    ############ spike removal
+            
+    #plasma    
+    win.np[np.where(win.np> 500)]=1000000
+    #get rid of all single spikes with scipy signal find peaks
+    peaks, properties = scipy.signal.find_peaks(win.np, height=500,width=(1, 250))
+    #go through all of them and set to nan according to widths
+    for i in np.arange(len(peaks)):
+        #get width of current peak
+        width=int(np.ceil(properties['widths']/2)[i])
+        #remove data
+        win.np[peaks[i]-width-2:peaks[i]+width+2]=np.nan
+
+    win.tp[np.where(win.tp> 1e8)]=1e11
+    #get rid of all single spikes with scipy signal find peaks
+    peaks, properties = scipy.signal.find_peaks(win.tp, height=1e8,width=(1, 250))
+    #go through all of them and set to nan according to widths
+    for i in np.arange(len(peaks)):
+        #get width of current peak
+        width=int(np.ceil(properties['widths']/2)[i])
+        #remove data
+        win.tp[peaks[i]-width-2:peaks[i]+width+2]=np.nan
+
+    win.vt[np.where(win.vt> 3000)]=1e11
+    #get rid of all single spikes with scipy signal find peaks
+    peaks, properties = scipy.signal.find_peaks(win.vt, height=1e8,width=(1, 250))
+    #go through all of them and set to nan according to widths
+    for i in np.arange(len(peaks)):
+        #get width of current peak
+        width=int(np.ceil(properties['widths']/2)[i])
+        #remove data
+        win.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
+
+        
+        
+        
+    #magnetic field    
+    peaks, properties = scipy.signal.find_peaks(win.bt, prominence=30,width=(1, 10))
+    #go through all of them and set to nan according to widths
+    for i in np.arange(len(peaks)):
+        #get width of current peak
+        width=int(np.ceil(properties['widths'])[i])
+        #remove data
+        win.bt[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
+    peaks, properties = scipy.signal.find_peaks(abs(win.bx), prominence=30,width=(1, 10))
+    for i in np.arange(len(peaks)):
+        width=int(np.ceil(properties['widths'])[i])
+        win.bx[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
+    peaks, properties = scipy.signal.find_peaks(abs(win.by), prominence=30,width=(1, 10))
+    for i in np.arange(len(peaks)):
+        width=int(np.ceil(properties['widths'])[i])
+        win.by[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
+    peaks, properties = scipy.signal.find_peaks(abs(win.bz), prominence=30,width=(1, 10))
+    for i in np.arange(len(peaks)):
+        width=int(np.ceil(properties['widths'])[i])
+        win.bz[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+
+
+
+    #manual spike removal for magnetic field
+    if t_start < datetime.datetime(2018, 7, 19, 16, 25):    
+        if t_end > datetime.datetime(2018, 7, 19, 16, 25):         
+
+            remove_start=datetime.datetime(2018, 7, 19, 16, 25)
+            remove_end=datetime.datetime(2018, 7, 19, 17, 35)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan
+
+    if t_start < datetime.datetime(2018, 8, 29, 19, 00):    
+        if t_end > datetime.datetime(2018, 8, 29, 19, 00):         
+
+            remove_start=datetime.datetime(2018, 8, 29, 19, 00)
+            remove_end=datetime.datetime(2018,8, 30, 5, 00)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan
+
+            
+    if t_start < datetime.datetime(2019, 8, 8, 22, 45):    
+        if t_end > datetime.datetime(2019, 8, 8, 22, 45):         
+
+            remove_start=datetime.datetime(2019, 8, 8, 22, 45)
+            remove_end=datetime.datetime(2019,   8, 9, 17, 00)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan
+
+    if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
+        if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
+
+            remove_start=datetime.datetime(2019, 8, 20, 18, 0)
+            remove_end=datetime.datetime(2019,   8, 21, 12, 0)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan            
+
+    if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
+        if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
+
+            remove_start=datetime.datetime(2019, 8, 22, 1, 0)
+            remove_end=datetime.datetime(2019,   8, 22, 9, 0)
+            remove_start_ind=np.where(remove_start<win.time)[0][0]
+            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+            win.bt[remove_start_ind:remove_end_ind]=np.nan
+            win.bx[remove_start_ind:remove_end_ind]=np.nan
+            win.by[remove_start_ind:remove_end_ind]=np.nan
+            win.bz[remove_start_ind:remove_end_ind]=np.nan            
+
+
+  
+    
+    
+    
+    
+     
+    #convert magnetic field to SCEQ
+    if coord=='HEEQ':
+        win=convert_GSE_to_HEEQ(win)
+   
+    
+        
+    ###################### 
+
+    
+    header='Wind magnetic field (MAG instrument) and plasma data (SWE), ' + \
+    'obtained from https://spdf.gsfc.nasa.gov/pub/data/wind/ ascii files  '+ \
+    'Timerange: '+win.time[0].strftime("%Y-%b-%d %H:%M")+' to '+win.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(win.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by win.time, win.bx, win.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(win.size)+'. '+\
+    'Units are btxyz [nT, '+coord+'], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with heliocats/save_wind_data_ascii.  '+\
+    'By C. Moestl (twitter @chrisoutofspace), Emma Davies, Eva Weiler. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+    pickle.dump([win,header], open(finalfile, "wb"))
+    
+    print('file written',file)
+    
+    
+    print('wind update done')
+    print()
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ################## PSP
 
 
@@ -1097,73 +1637,6 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
 
 
 
-
-def wind_download_ascii(start_year, wind_path):
-
-    #download MFI and SWE in ASCII from SPDF
-        
-    print('downloading Wind ascii data to ', wind_path)
-        
-    read_data_end_year=datetime.datetime.utcnow().year
-    read_data_end_month=datetime.datetime.utcnow().month
-    
-    wind_years_strings=[]
-    for j in np.arange(start_year,read_data_end_year+1):
-        wind_years_strings.append(str(j))
-
-    print('for years', wind_years_strings)
-    
-  
-    ######## MFI
-
-    mfi_url='https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/'
-    print(mfi_url)
-    
-    
-    #for all years
-    for i in np.arange(0,len(wind_years_strings)-1):    
-
-        for k in np.arange(1,13):    
-
-            a=str(k).zfill(2) #add leading zeros            
-            filewind=wind_years_strings[i]+a+'_wind_mag_1min.asc'
-            print(filewind)
-            try: urllib.request.urlretrieve(mfi_url+filewind, wind_path+'mfi_1min_ascii/'+filewind)
-            except urllib.error.URLError as e:
-                print(' ', mfi_url,' ',e.reason) 
-
-    
-    
-    #for latest year
-    for k in np.arange(1,read_data_end_month):    
-
-        a=str(k).zfill(2) #add leading zeros
-        filewind=wind_years_strings[-1]+a+'_wind_mag_1min.asc'
-        print(filewind)
-        try: urllib.request.urlretrieve(mfi_url+filewind, wind_path+'mfi_1min_ascii/'+filewind)
-        except urllib.error.URLError as e:
-            print(' ', mfi_url,' ',e.reason) 
-                      
-
-    
-    ############## SWE
-        
-    swe_url='https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/'
-    print(swe_url)
-        
-    for i in np.arange(0,len(wind_years_strings)):    
-
-        filewind='wind_kp_unspike'+wind_years_strings[i]+'.txt'
-        print(filewind)
-        try: urllib.request.urlretrieve(swe_url+filewind, wind_path+'swe_92sec_ascii/'+filewind)
-        except urllib.error.URLError as e:
-            print(' ', swe_url,' ',e.reason) 
-
-
-      
-    
-    
-    
     
     
 def stereoa_download_beacon(start, end, stereoa_path):
@@ -1800,451 +2273,6 @@ def read_wind_icme_catalog():
     
     
 
-
-
-
-def save_wind_data_ascii(path,finalfile,start_date,end_date,coord):
-    
-    '''
-    description of data sources used in this function
-    
-    SWE 92 sec
-    https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike
-    
-    MFI 1 min    
-    https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/
-    
-    examples:
-    
-    https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/wind_kp_unspike1996.txt    
-    https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/201908_wind_mag_1min.asc
-    '''
-    
-    
-    
-  
-    t_start = start_date
-    t_end = end_date
-    
-    #create an array with 2 minute resolution between t start and end
-    time = [ t_start + datetime.timedelta(minutes=2*n) for n in range(int ((t_end - t_start).days*30*24))]  
-    time_mat=mdates.date2num(time) 
-    
-    
-    read_data_end_year=datetime.datetime.utcnow().year
-    read_data_end_month=datetime.datetime.utcnow().month
-        
-    
-    
-    ##########################################################################
-    
-    
-    
-    #wind_data_path='/perm/aswo/data/wind/mfi_1min_ascii/'
-    wind_data_path='/Users/chris/python/data/wind/mfi_1min_ascii/'
-
-    
-    #############mfi
-    
-    wind_years_strings=[]
-    for j in np.arange(start_date.year,end_date.year+1):
-        wind_years_strings.append(str(j))
-
-    print(wind_years_strings)
-    #array for 40 years
-    win_mag=np.zeros(60*24*365*40,dtype=[('time',object),('bx', float),('by', float),\
-                    ('bz', float),('bt', float),('np', float),('vt', float),('vx', float),\
-                          ('vy', float),('vz', float),\
-                          ('tp', float),('x', float),('y', float),('z', float),\
-                    ('r', float),('lat', float),('lon', float)])   
-
-    #convert to recarray
-    win_mag = win_mag.view(np.recarray)  
-
-
-    counter=0
-
-    #previous years
-    for i in np.arange(0,len(wind_years_strings)-1):    
-
-        for k in np.arange(1,13):    
-
-            a=str(k).zfill(2) #add leading zeros
-
-            file=wind_data_path+wind_years_strings[i]+a+'_wind_mag_1min.asc' 
-            print(file)
-            #get data from file
-            mfi_data=np.genfromtxt(file,dtype="i8,i8,i8,i8,i8,i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,")
-
-
-            #put data in array
-            for p in np.arange(0,len(mfi_data)):
-                #time
-                win_mag.time[p+counter]=datetime.datetime(mfi_data[p][0],mfi_data[p][1],mfi_data[p][2],mfi_data[p][3],mfi_data[p][4],mfi_data[p][5])
-                win_mag.bx[p+counter]=mfi_data[p][6]
-                
-                if coord=='GSE' or coord=='HEEQ':
-                    win_mag.by[p+counter]=mfi_data[p][7]
-                    win_mag.bz[p+counter]=mfi_data[p][8]
-                    win_mag.bt[p+counter]=mfi_data[p][11]
-
-                if coord=='GSM':
-                    win_mag.by[p+counter]=mfi_data[p][9]
-                    win_mag.bz[p+counter]=mfi_data[p][10]
-                    win_mag.bt[p+counter]=mfi_data[p][11]
-
-    
-                    
-                #gse position
-                win_mag.x[p+counter]=mfi_data[p][17]
-                win_mag.y[p+counter]=mfi_data[p][18]
-                win_mag.z[p+counter]=mfi_data[p][19]
-
-            counter=counter+len(mfi_data)    
-            
-            
-    #current year
-    for k in np.arange(1,read_data_end_month-1):    
-
-        a=str(k).zfill(2) #add leading zeros
-
-        file=wind_data_path+wind_years_strings[-1]+a+'_wind_mag_1min.asc' 
-        print(file)
-        #get data from file
-        mfi_data=np.genfromtxt(file,dtype="i8,i8,i8,i8,i8,i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,")
-
-
-        #put data in array
-        for p in np.arange(0,len(mfi_data)):
-                #time
-                win_mag.time[p+counter]=datetime.datetime(mfi_data[p][0],mfi_data[p][1],mfi_data[p][2],mfi_data[p][3],mfi_data[p][4],mfi_data[p][5])
-                win_mag.bx[p+counter]=mfi_data[p][6]
-                
-                if coord=='GSE' or coord=='HEEQ':
-                    win_mag.by[p+counter]=mfi_data[p][7]
-                    win_mag.bz[p+counter]=mfi_data[p][8]
-                    win_mag.bt[p+counter]=mfi_data[p][11]
-                    
-                    
-
-                if coord=='GSM':
-                    win_mag.by[p+counter]=mfi_data[p][9]
-                    win_mag.bz[p+counter]=mfi_data[p][10]
-                    win_mag.bt[p+counter]=mfi_data[p][11]
-
-    
-                    
-                #gse position
-                win_mag.x[p+counter]=mfi_data[p][17]
-                win_mag.y[p+counter]=mfi_data[p][18]
-                win_mag.z[p+counter]=mfi_data[p][19]
-
-        counter=counter+len(mfi_data)             
-            
-
-    #cutoff        
-    win_mag2=win_mag[0:counter]    
-    win_time2=mdates.date2num(win_mag2.time)
-
-    #set missing data to nan
-    win_mag2.bt[np.where(win_mag2.bt == -1e31)]=np.nan  
-    win_mag2.bx[np.where(win_mag2.bx == -1e31)]=np.nan  
-    win_mag2.by[np.where(win_mag2.by == -1e31)]=np.nan  
-    win_mag2.bz[np.where(win_mag2.bz == -1e31)]=np.nan  
-    
-    win_mag2.x[np.where(win_mag2.x == -1e31)]=np.nan  
-    win_mag2.y[np.where(win_mag2.y == -1e31)]=np.nan  
-    win_mag2.z[np.where(win_mag2.z == -1e31)]=np.nan  
-    
-    
-    
-    ############################swe
-
-    
-    #array for 40 years
-    win_swe=np.zeros(60*24*365*40,dtype=[('time',object),('bx', float),('by', float),\
-                    ('bz', float),('bt', float),('np', float),('vt', float),('vx', float),\
-                          ('vy', float),('vz', float),\
-                          ('tp', float),('x', float),('y', float),('z', float),\
-                    ('r', float),('lat', float),('lon', float)])   
-
-    #convert to recarray
-    win_swe = win_swe.view(np.recarray)  
-
-    
-    
-    counter=0
-
-    #wind_data_path='/perm/aswo/data/wind/swe_92sec_ascii/'
-    wind_data_path='/Users/chris/python/data/wind/swe_92sec_ascii/'
-
-
-    for i in np.arange(0,len(wind_years_strings)):    
-
-            file=wind_data_path+'wind_kp_unspike'+wind_years_strings[i]+'.txt'
-            print(file)
-            swe_data=np.genfromtxt(file,dtype="i8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8,f8")
-
-            firstjan=mdates.date2num(datetime.datetime(int(wind_years_strings[i]),1,1))-1
-
-            for p in np.arange(0,len(swe_data)):
-
-                #datenum
-                win_swe.time[p+counter]=firstjan+swe_data[p][1]
-                win_swe.vt[p+counter]=swe_data[p][2]
-                win_swe.tp[p+counter]=swe_data[p][6]
-                win_swe.np[p+counter]=swe_data[p][7]            
-
-            counter=counter+len(swe_data) 
-
-
-   
-    win_swe=win_swe[0:counter]    
-    win_swe_time=np.array(win_swe.time,dtype='float')
-
-
-    win_swe.vt[np.where(win_swe.vt == 99999.9)]=np.nan  
-    win_swe.tp[np.where(win_swe.tp ==9999999.)]=np.nan  
-    win_swe.np[np.where(win_swe.np ==999.99)]=np.nan  
-
-
-    
-    ###################### interpolate
-    
-     
-    #linear interpolation to time_mat times    
-    bx = np.interp(time_mat, win_time2, win_mag2.bx )
-    by = np.interp(time_mat, win_time2, win_mag2.by )
-    bz = np.interp(time_mat, win_time2, win_mag2.bz  )
-    bt = np.sqrt(bx**2+by**2+bz**2)
-        
-    den = np.interp(time_mat, win_swe_time, win_swe.np)
-    vt = np.interp(time_mat, win_swe_time,win_swe.vt)
-    tp = np.interp(time_mat, win_swe_time,win_swe.tp)
-        
-        
-        
-    #interpolate the GSE position over full data range
-    x_gse = np.interp(time_mat,  win_time2, win_mag2.x)*6378.1/149597870.7*astropy.units.AU #earth radii to km to AU
-    y_gse = np.interp(time_mat,  win_time2, win_mag2.y)*6378.1/149597870.7*astropy.units.AU
-    z_gse = np.interp(time_mat,  win_time2, win_mag2.z)*6378.1/149597870.7*astropy.units.AU
-    
-    
-    
-    #** check gse is not the same plane as HEEQ, small error
-    print('position start')    
-    frame='HEEQ'
-    planet_kernel=spicedata.get_kernel('planet_trajectories')
-    earth=spice.Trajectory('399')  #399 for Earth
-    earth.generate_positions(time,'Sun',frame)
-    earth.change_units(astropy.units.AU)       #from km to AU    
-    #add gse position to Earth position
-    x=earth.x-x_gse  #earth radii to km
-    y=earth.y-y_gse
-    z=earth.z+z_gse
-    [r, lat, lon]=cart2sphere(x,y,z)       
-      
-    
-    print('position end ')
-    
-    #make array
-    win=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('np', float),('vt', float),('tp', float),\
-                ('x', float),('y', float),('z', float),\
-                ('r', float),('lat', float),('lon', float)])   
-       
-    #convert to recarray
-    win = win.view(np.recarray)  
-
-    #fill with data
-    win.time=time
-    win.bx=bx
-    win.by=by
-    win.bz=bz 
-    win.bt=bt
-
-    win.x=x
-    win.y=y
-    win.z=z
-    
-    win.r=r
-    win.lat=np.degrees(lat)
-    win.lon=np.degrees(lon)
-    
-    win.np=den
-    win.vt=vt
-    win.tp=tp
-    
-    
-    
-    
-    
-    
-    
-    
-    ############ spike removal
-            
-    #plasma    
-    win.np[np.where(win.np> 500)]=1000000
-    #get rid of all single spikes with scipy signal find peaks
-    peaks, properties = scipy.signal.find_peaks(win.np, height=500,width=(1, 250))
-    #go through all of them and set to nan according to widths
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        win.np[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-
-    win.tp[np.where(win.tp> 1e8)]=1e11
-    #get rid of all single spikes with scipy signal find peaks
-    peaks, properties = scipy.signal.find_peaks(win.tp, height=1e8,width=(1, 250))
-    #go through all of them and set to nan according to widths
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        win.tp[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-
-    win.vt[np.where(win.vt> 3000)]=1e11
-    #get rid of all single spikes with scipy signal find peaks
-    peaks, properties = scipy.signal.find_peaks(win.vt, height=1e8,width=(1, 250))
-    #go through all of them and set to nan according to widths
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        win.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-
-        
-        
-        
-    #magnetic field    
-    peaks, properties = scipy.signal.find_peaks(win.bt, prominence=30,width=(1, 10))
-    #go through all of them and set to nan according to widths
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths'])[i])
-        #remove data
-        win.bt[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
-
-    peaks, properties = scipy.signal.find_peaks(abs(win.bx), prominence=30,width=(1, 10))
-    for i in np.arange(len(peaks)):
-        width=int(np.ceil(properties['widths'])[i])
-        win.bx[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
-
-    peaks, properties = scipy.signal.find_peaks(abs(win.by), prominence=30,width=(1, 10))
-    for i in np.arange(len(peaks)):
-        width=int(np.ceil(properties['widths'])[i])
-        win.by[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
-
-    peaks, properties = scipy.signal.find_peaks(abs(win.bz), prominence=30,width=(1, 10))
-    for i in np.arange(len(peaks)):
-        width=int(np.ceil(properties['widths'])[i])
-        win.bz[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
-
-
-
-    #manual spike removal for magnetic field
-    if t_start < datetime.datetime(2018, 7, 19, 16, 25):    
-        if t_end > datetime.datetime(2018, 7, 19, 16, 25):         
-
-            remove_start=datetime.datetime(2018, 7, 19, 16, 25)
-            remove_end=datetime.datetime(2018, 7, 19, 17, 35)
-            remove_start_ind=np.where(remove_start<win.time)[0][0]
-            remove_end_ind=np.where(remove_end<win.time)[0][0] 
-
-            win.bt[remove_start_ind:remove_end_ind]=np.nan
-            win.bx[remove_start_ind:remove_end_ind]=np.nan
-            win.by[remove_start_ind:remove_end_ind]=np.nan
-            win.bz[remove_start_ind:remove_end_ind]=np.nan
-
-    if t_start < datetime.datetime(2018, 8, 29, 19, 00):    
-        if t_end > datetime.datetime(2018, 8, 29, 19, 00):         
-
-            remove_start=datetime.datetime(2018, 8, 29, 19, 00)
-            remove_end=datetime.datetime(2018,8, 30, 5, 00)
-            remove_start_ind=np.where(remove_start<win.time)[0][0]
-            remove_end_ind=np.where(remove_end<win.time)[0][0] 
-
-            win.bt[remove_start_ind:remove_end_ind]=np.nan
-            win.bx[remove_start_ind:remove_end_ind]=np.nan
-            win.by[remove_start_ind:remove_end_ind]=np.nan
-            win.bz[remove_start_ind:remove_end_ind]=np.nan
-
-            
-    if t_start < datetime.datetime(2019, 8, 8, 22, 45):    
-        if t_end > datetime.datetime(2019, 8, 8, 22, 45):         
-
-            remove_start=datetime.datetime(2019, 8, 8, 22, 45)
-            remove_end=datetime.datetime(2019,   8, 9, 17, 00)
-            remove_start_ind=np.where(remove_start<win.time)[0][0]
-            remove_end_ind=np.where(remove_end<win.time)[0][0] 
-
-            win.bt[remove_start_ind:remove_end_ind]=np.nan
-            win.bx[remove_start_ind:remove_end_ind]=np.nan
-            win.by[remove_start_ind:remove_end_ind]=np.nan
-            win.bz[remove_start_ind:remove_end_ind]=np.nan
-
-    if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
-        if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
-
-            remove_start=datetime.datetime(2019, 8, 20, 18, 0)
-            remove_end=datetime.datetime(2019,   8, 21, 12, 0)
-            remove_start_ind=np.where(remove_start<win.time)[0][0]
-            remove_end_ind=np.where(remove_end<win.time)[0][0] 
-
-            win.bt[remove_start_ind:remove_end_ind]=np.nan
-            win.bx[remove_start_ind:remove_end_ind]=np.nan
-            win.by[remove_start_ind:remove_end_ind]=np.nan
-            win.bz[remove_start_ind:remove_end_ind]=np.nan            
-
-    if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
-        if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
-
-            remove_start=datetime.datetime(2019, 8, 22, 1, 0)
-            remove_end=datetime.datetime(2019,   8, 22, 9, 0)
-            remove_start_ind=np.where(remove_start<win.time)[0][0]
-            remove_end_ind=np.where(remove_end<win.time)[0][0] 
-
-            win.bt[remove_start_ind:remove_end_ind]=np.nan
-            win.bx[remove_start_ind:remove_end_ind]=np.nan
-            win.by[remove_start_ind:remove_end_ind]=np.nan
-            win.bz[remove_start_ind:remove_end_ind]=np.nan            
-
-
-  
-    
-    
-    
-    
-     
-    #convert magnetic field to SCEQ
-    if coord=='HEEQ':
-        win=convert_GSE_to_HEEQ(win)
-   
-    
-        
-    ###################### 
-
-    
-    header='Wind magnetic field (MAG instrument) and plasma data (SWE), ' + \
-    'obtained from https://spdf.gsfc.nasa.gov/pub/data/wind/ ascii files  '+ \
-    'Timerange: '+win.time[0].strftime("%Y-%b-%d %H:%M")+' to '+win.time[-1].strftime("%Y-%b-%d %H:%M")+\
-    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(win.time)).seconds)+' seconds. '+\
-    'The data are available in a numpy recarray, fields can be accessed by win.time, win.bx, win.vt etc. '+\
-    'Missing data has been set to "np.nan". Total number of data points: '+str(win.size)+'. '+\
-    'Units are btxyz [nT, '+coord+'], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with https://github.com/cmoestl/heliocats heliocats.data.save_wind_data_ascii (uses https://github.com/ajefweiss/HelioSat '+\
-    'and https://github.com/heliopython/heliopy). '+\
-    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
-    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-
-    pickle.dump([win,header], open(path+finalfile, "wb"))
-    
-    
-    print('wind update done')
-    print()
-    
 
 
 
