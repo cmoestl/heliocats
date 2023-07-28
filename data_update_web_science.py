@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[13]:
+# In[15]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -554,7 +554,7 @@ print(' ')
 print(' ')
 print(' ')
 print('------------------')
-print('Runtime for full science data update:', np.round((t1all-t0all)/60,2), 'seconds')
+print('Runtime for full science data update:', np.round((t1all-t0all)/60,2), 'minutes')
 print('--------------------------------------------------------------------------------------')
 
 
