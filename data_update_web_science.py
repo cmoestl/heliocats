@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[15]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -81,10 +81,10 @@ debug_mode=0
 
 #switches
 get_psp=0
-get_solo=1
+get_solo=0
 
 get_wind=0
-get_stereoa=0
+get_stereoa=1
 get_bepi=0
 ####################################################################################################################
 
@@ -163,7 +163,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 # ### Parker Solar Probe
 # 
 
-# In[8]:
+# In[3]:
 
 
 ####### -------- control parameter    
@@ -204,6 +204,10 @@ if get_psp > 0:
     print(' ')
     print('PSP done in ', np.round((t1-t0)/60,2), 'minutes')
     print('----------------------------------- ')
+    
+    
+    
+    
 else:
     print('PSP data NOT downloaded and pickled, turn on switch')  
 
@@ -211,29 +215,30 @@ else:
   
 
 
-# In[12]:
+# In[4]:
 
 
-### data checks
+if get_psp > 0:   
+    
+    ### data checks
 
-filepsp='psp_2018_now_rtn.p'
-if debug_mode > 0: filepsp='psp_rtn_test.p'
-[data,header]=pickle.load(open(data_path+filepsp, "rb" ) )
+    filepsp='psp_2018_now_rtn.p'
+    if debug_mode > 0: filepsp='psp_rtn_test.p'
+    [data,header]=pickle.load(open(data_path+filepsp, "rb" ) )
 
-############ print header
+    ############ print header
 
-print(header)
+    print(header)
 
-########## add overview plots
+    ########## add overview plots
 
-hp.data_overview_plot(data,plot_path+'psp/'+filepsp[:-2])
-
+    hp.data_overview_plot(data,plot_path+'psp/'+filepsp[:-2])
 
 
 
 # ### Solar Orbiter
 
-# In[13]:
+# In[5]:
 
 
 ####### -------- control parameter    
@@ -277,36 +282,51 @@ else:
     print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[14]:
+# In[6]:
 
 
-### data checks
+if get_solo > 0:  
+    
+    ### data checks
 
-filesolo='solo_2020_now_rtn.p'   
+    filesolo='solo_2020_now_rtn.p'   
 
-if debug_mode > 0: filesolo='solo_rtn_test.p'
+    if debug_mode > 0: filesolo='solo_rtn_test.p'
 
-[data,header]=pickle.load(open(data_path+filesolo, "rb"))
-############ print header
+    [data,header]=pickle.load(open(data_path+filesolo, "rb"))
+    ############ print header
 
-print(header)
+    print(header)
 
-########## add overview plots
+    ########## add overview plots
 
-hp.data_overview_plot(data,plot_path+'solo/'+filesolo[:-2])
+    hp.data_overview_plot(data,plot_path+'solo/'+filesolo[:-2])
 
 
 # ### Wind 
 
-# In[58]:
+# In[7]:
 
 
+#for server
+start_time= datetime(1995,1,1)
+#end_time  = datetime(2020,4,20)
+end_time = datetime.utcnow() 
+wind_file=data_path+'wind_1995_now_gse.p'
+
+#testing
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
+    start_time= datetime(2022,1,25)
+    end_time  = datetime(2022,2,10)
+    wind_file=data_path+'wind_gse_test.p'
+
+ 
     
 print('-------------------------------- Wind -------------------------- ')
 print('download Wind data ')
+
 
 #download data for current year only    
 if get_wind > 0:
@@ -327,7 +347,26 @@ else:
     print('Wind data NOT downloaded, turn on switch')  
     
 
-    
+#data checks
+if get_wind > 0:  
+
+    filewind='wind_1995_now_gse.p'   
+
+    if debug_mode > 0: filewind='wind_gse_test.p'
+
+    #[data,header]=pickle.load(open(data_path+filewind, "rb"))
+    ############ print header
+
+    #print(header)
+
+    ########## add overview plots
+
+    #hp.data_overview_plot(data,plot_path+'solo/'+filewind[:-2])
+
+
+# In[8]:
+
+
 #filewin="wind_2018_now_heeq.p" 
 #start=datetime.datetime(2022, 12, 1)
 #start=datetime.datetime(2022, 12, 1)
@@ -373,7 +412,7 @@ else:
 
 # ### BepiColombo
 
-# In[6]:
+# In[8]:
 
 
 if debug_mode > 0: 
@@ -423,233 +462,83 @@ else:
 
 # ### STEREO-A science data
 
-# In[7]:
+# In[9]:
 
 
-"""
-STEREO-A SERVER DATA PATH
-"""
+####### control parameter    
 
-stereoa_path='/perm/aswo/data/stereoa/'
+#for server
+#start_time= datetime(2007,1,1)
+start_time= datetime(2017,4,1)
+end_time = datetime.utcnow() 
 
-"""
-DOWNLOAD STEREOA DATA FUNCTIONS: MERGED 1MIN IMPACT
-"""
-
-def download_stereoa_merged(start_timestamp, end_timestamp=datetime.utcnow(), path=stereoa_path+'impact/merged/level2/'):
-    start = start_timestamp.year
-    end = end_timestamp.year + 1
-    while start < end:
-        year = start
-        date_str = f'{year}0101'
-        try: 
-            data_url = f'https://spdf.gsfc.nasa.gov/pub/data/stereo/ahead/l2/impact/magplasma/1min/{year}/'
-            soup = BeautifulSoup(urlopen(data_url), 'html.parser')
-            for link in soup.find_all('a'):
-                href = link.get('href')
-                if href is not None and href.startswith('sta_l2_magplasma_1m_'+date_str):
-                    filename = href
-                    if os.path.isfile(f"{path}{filename}") == True:
-                        print(f'{filename} has already been downloaded.')
-                    else:
-                        urllib.request.urlretrieve(data_url+filename, f"{path}{filename}")
-                        print(f'Successfully downloaded {filename}')
-        except Exception as e:
-            print('ERROR', e, f'.File for {year} does not exist.')
-        start+=1
-
-
-"""
-LOAD IN STEREOA DATA FUNCTIONS: from datapath, and arranges into large dataframes for timerange
-"""
-
-
-def get_stereoa_merged(fp):
-    """raw = rtn"""
-    try:
-        cdf = cdflib.CDF(fp)
-        t1 = cdflib.cdfepoch.to_datetime(cdf.varget('Epoch'))
-        df = pd.DataFrame(t1, columns=['time'])
-        bx, by, bz = cdf['BFIELDRTN'][:].T
-        df['bx'] = bx
-        df['by'] = by
-        df['bz'] = bz
-        df['bt'] = cdf['BTOTAL']
-        df['np'] = cdf['Np']
-        df['tp'] = cdf['Tp']
-        df['vt'] = cdf['Vp']
-        cols = ['bx', 'by', 'bz', 'bt', 'np', 'tp', 'vt']
-        for col in cols:
-            df[col].mask(df[col] < -9.999E29 , pd.NA, inplace=True)
-        df['vx'] = cdf['Vr_Over_V_RTN']*df['vt']
-        df['vy'] = cdf['Vt_Over_V_RTN']*df['vt']
-        df['vz'] = cdf['Vn_Over_V_RTN']*df['vt']
-        v_cols = ['vx', 'vy', 'vz']
-        for v_col in v_cols:
-            df[v_col].mask(df[v_col] < -9.999E29 , pd.NA, inplace=True)
-    except Exception as e:
-        print('ERROR:', e, fp)
-        df = None
-    return df
-
-
-def get_stereoa_merged_range(start_timestamp, end_timestamp=datetime.utcnow(), path=stereoa_path+'impact/merged/level2/'):
-    """Pass two datetime objects and grab .cdf files between dates, from
-    directory given."""
-    df=None
-    start = start_timestamp.year
-    end = datetime.utcnow().year + 1
-    while start < end:
-        year = start
-        date_str = f'{year}0101'
-        try: 
-            fn = glob.glob(path+f'sta_l2_magplasma_1m_{date_str}*')[0]
-            _df = get_stereoa_merged(fn)
-            if _df is not None:
-                if df is None:
-                    df = _df.copy(deep=True)
-                else:
-                    df = pd.concat([df, _df])
-        except Exception as e:
-            print('ERROR:', e, f'{date_str} does not exist')
-        start += 1
-    timemask = (df['time']>=start_timestamp) & (df['time']<=end_timestamp)
-    df = df[timemask]
-    return df
+#sta_file=data_path+'stereoa_2007_now_rtn.p'
+sta_file=data_path+'stereoa_2017_now_rtn.p'
 
 
 
-"""
-STEREOA POSITION FUNCTIONS: coord maths, call position for each timestamp using astrospice
-"""
-
-
-def sphere2cart(r, lat, lon):
-    x = r*np.cos(lat*(np.pi/180))*np.cos(lon*(np.pi/180))
-    y = r*np.cos(lat*(np.pi/180))*np.sin(lon*(np.pi/180))
-    z = r*np.sin(lat*(np.pi/180))
-    r_au = r/1.495978707E8
-    return x.value, y.value, z.value, r_au.value
-
-
-def get_stereoa_positions(time_series):
-    kernels_sta = astrospice.registry.get_kernels('stereo-a', 'predict')
-    frame = HeliographicStonyhurst()
-    coords_sta = astrospice.generate_coords('Stereo ahead', time_series)
-    coords_sta = coords_sta.transform_to(frame)
-    x, y, z, r_au = sphere2cart(coords_sta.radius, coords_sta.lat, coords_sta.lon)
-    lat = coords_sta.lat.value
-    lon = coords_sta.lon.value
-    t = [element.to_pydatetime() for element in list(time_series)]
-    positions = np.array([t, x, y, z, r_au, lat, lon])
-    df_positions = pd.DataFrame(positions.T, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
-    return df_positions
-
-
-"""
-FINAL FUNCTION TO CREATE PICKLE FILE: uses all above functions to create pickle file of 
-data from input timestamp to now. 
-Can be read in to DataFrame using:
-obj = pd.read_pickle('stereoa_rtn.p')
-df = pd.DataFrame.from_records(obj)
-"""
-
-
-def create_stereoa_pkl(start_timestamp):
-
-    # #download stereo-a merged magplasma data up to now 
-    download_stereoa_merged(start_timestamp)
-
-    #load in merged mag and plasma data to DataFrame, create empty DataFrame if no data
-    # if empty, drop time column ready for concat
-    df_magplas = get_stereoa_merged_range(start_timestamp)
-    if df_magplas is None:
-        print(f'STEREO A data is empty for this timerange')
-        df_magplas = pd.DataFrame({'time':[], 'bt':[], 'bx':[], 'by':[], 'bz':[], 'vt':[], 'vx':[], 'vy':[], 'vz':[], 'np':[], 'tp':[]})
-        df_magplas = df_magplas.drop(columns=['time'])
-    else:
-        df_magplas.set_index(pd.to_datetime(df_magplas['time']), inplace=True)
-
-    #get stereoa positions for corresponding timestamps
-    sta_pos = get_stereoa_positions(df_magplas['time'])
-    sta_pos.set_index(pd.to_datetime(sta_pos['time']), inplace=True)
-    sta_pos = sta_pos.drop(columns=['time'])
-
-    #produce final combined DataFrame with correct ordering of columns 
-    comb_df = pd.concat([df_magplas, sta_pos], axis=1)
-
-    #produce recarray with correct datatypes
-    time_stamps = comb_df['time']
-    dt_lst= [element.to_pydatetime() for element in list(time_stamps)] #extract timestamps in datetime.datetime format
-
-    stereoa=np.zeros(len(dt_lst),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),\
-                ('vx', float),('vy', float),('vz', float),('vt', float),('np', float),('tp', float),\
-                ('x', float),('y', float),('z', float), ('r', float),('lat', float),('lon', float)])
-    stereoa = stereoa.view(np.recarray) 
-
-    stereoa.time=dt_lst
-    stereoa.bx=comb_df['bx']
-    stereoa.by=comb_df['by']
-    stereoa.bz=comb_df['bz']
-    stereoa.bt=comb_df['bt']
-    stereoa.vx=comb_df['vx']
-    stereoa.vy=comb_df['vy']
-    stereoa.vz=comb_df['vz']
-    stereoa.vt=comb_df['vt']
-    stereoa.np=comb_df['np']
-    stereoa.tp=comb_df['tp']
-    stereoa.x=comb_df['x']
-    stereoa.y=comb_df['y']
-    stereoa.z=comb_df['z']
-    stereoa.r=comb_df['r']
-    stereoa.lat=comb_df['lat']
-    stereoa.lon=comb_df['lon']
-    
-    #dump to pickle file
-    
-    header='Science level 2 solar wind magnetic field and plasma data (IMPACT) from STEREO A, ' + \
-    'obtained from https://spdf.gsfc.nasa.gov/pub/data/stereo/ahead/l2/impact/magplasma/1min/ '+ \
-    'Timerange: '+stereoa.time[0].strftime("%Y-%b-%d %H:%M")+' to '+stereoa.time[-1].strftime("%Y-%b-%d %H:%M")+\
-    ', with a time resolution of 1 min. '+\
-    'The data are available in a numpy recarray, fields can be accessed by stereoa.time, stereoa.bx, stereoa.vt etc. '+\
-    'Total number of data points: '+str(stereoa.size)+'. '+\
-    'Units are btxyz [nT, RTN], vtxy  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with [...] by E. Davies (twitter @spacedavies). File creation date: '+\
-    datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-
-    pickle.dump([stereoa,header], open(stereoa_path+'stereoa_rtn.p', "wb"))
-    
-
-
-# In[8]:
-
-
+#testing
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
-
-print(' ')
-print('------ STEREO-A science data  ------------------')
-
-    
-t0 = time.time()  
-
-#if get_stereoa >0: 
-#    hd.download_stereoa_science_merged()
-
-print('------ process STEREO-A to pickle')
-
-
-t1 = time.time()  
-
-print(' ')
-print('------ STEREO-A finished in ', np.round(t1-t0,2), 'seconds')  
-
+    start_time= datetime(2021,4,1)
+    end_time  = datetime(2022,12,31)
+    sta_file=data_path+'stereoa_rtn_test.p'
 
     
+if get_stereoa > 0:   
+
+    t0 = time.time()  
+
+    print(' ')
+    print('------ STEREO-A science data  ------------------')
+
+    print('download STEREO-A science data until today ')
+    print(stereoa_path)
+
+    hd.download_stereoa_merged(start_time,end_time,stereoa_path)    
+
+    print('process STEREO-A to pickle')
+
+    hd.create_stereoa_pkl(start_time,end_time,sta_file,stereoa_path)
+    
+    t1 = time.time()  
+
+    print(' ')
+    print('------ STEREO-A done in ', np.round((t1-t0)/60,2), 'minutes')  
 
 
-# In[9]:
+else:
+    print('STEREO-A data NOT downloaded and pickled, turn on switch')  
+
+
+
+# In[12]:
+
+
+if get_stereoa > 0:  
+    
+    ### data checks
+
+    #filesta='stereoa_2007_now_rtn.p'   
+    filesta='stereoa_2017_now_rtn.p'   
+
+    if debug_mode > 0: 
+        importlib.reload(hd) 
+        importlib.reload(hp) 
+        filesta='stereoa_rtn_test.p'
+
+    [data,header]=pickle.load(open(data_path+filesta, "rb"))
+    ############ print header
+
+    print(header)
+
+    ########## add overview plots
+
+    hp.data_overview_plot(data,plot_path+'stereoa/'+filesta[:-2])
+
+
+# In[ ]:
 
 
 t1all = time.time()
@@ -658,7 +547,7 @@ print(' ')
 print(' ')
 print(' ')
 print('------------------')
-print('Runtime for full science data update:', np.round((t1all-t0all),2), 'seconds')
+print('Runtime for full science data update:', np.round((t1all-t0all)/60,2), 'seconds')
 print('--------------------------------------------------------------------------------------')
 
 
