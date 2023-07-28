@@ -64,6 +64,22 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ####################################### get new data ####################################
 
 
+#general
+
+
+def sphere2cart_emma(r, lat, lon):
+    x = r*np.cos(lat*(np.pi/180))*np.cos(lon*(np.pi/180))
+    y = r*np.cos(lat*(np.pi/180))*np.sin(lon*(np.pi/180))
+    z = r*np.sin(lat*(np.pi/180))
+    r_au = r/1.495978707E8
+    return x.value, y.value, z.value, r_au.value
+
+def cart2sphere_emma(x,y,z):
+    r = np.sqrt(x**2+ y**2 + z**2) /1.495978707E8         
+    theta = np.arctan2(z,np.sqrt(x**2+ y**2)) * 360 / 2 / np.pi
+    phi = np.arctan2(y,x) * 360 / 2 / np.pi                   
+    return (r, theta, phi)
+
 ################## PSP
 
 
@@ -212,12 +228,6 @@ PSP POSITION FUNCTIONS: coord maths, call position for each timestamp using astr
 """
 
 
-def sphere2cart_psp(r, lat, lon):
-    x = r*np.cos(lat*(np.pi/180))*np.cos(lon*(np.pi/180))
-    y = r*np.cos(lat*(np.pi/180))*np.sin(lon*(np.pi/180))
-    z = r*np.sin(lat*(np.pi/180))
-    r_au = r/1.495978707E8
-    return x.value, y.value, z.value, r_au.value
 
 
 def get_psp_positions(time_series):
@@ -225,7 +235,7 @@ def get_psp_positions(time_series):
     frame = HeliographicStonyhurst()
     coords_psp = astrospice.generate_coords('Solar probe plus', time_series)
     coords_psp = coords_psp.transform_to(frame)
-    x, y, z, r_au = sphere2cart_psp(coords_psp.radius, coords_psp.lat, coords_psp.lon)
+    x, y, z, r_au = sphere2cart_emma(coords_psp.radius, coords_psp.lat.value, coords_psp.lon.value)
     lat = coords_psp.lat.value
     lon = coords_psp.lon.value
     t = [element.to_pydatetime() for element in list(time_series)]
@@ -486,11 +496,6 @@ def get_soloplas_range(start_timestamp, end_timestamp, solo_path):
 SOLO POSITION FUNCTIONS: coord maths, furnish kernels, and call position for each timestamp
 """
 
-def cart2sphere_solo(x,y,z):
-    r = np.sqrt(x**2+ y**2 + z**2) /1.495978707E8         
-    theta = np.arctan2(z,np.sqrt(x**2+ y**2)) * 360 / 2 / np.pi
-    phi = np.arctan2(y,x) * 360 / 2 / np.pi                   
-    return (r, theta, phi)
 
 
 #http://spiftp.esac.esa.int/data/SPICE/SOLAR-ORBITER/kernels/fk/ for solo_ANC_soc-sci-fk_V08.tf
@@ -514,7 +519,7 @@ def get_solo_pos(t,kernels_path):
     if spiceypy.ktotal('ALL') < 1:
         solo_furnish(kernels_path)
     pos = spiceypy.spkpos("SOLAR ORBITER", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
-    r, lat, lon = cart2sphere_solo(pos[0],pos[1],pos[2])
+    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
     return position
 
@@ -641,39 +646,229 @@ def create_solo_pkl(start_timestamp,end_timestamp,solo_file,solo_path,kernels_pa
                 
                 
                 
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-#################################                
+################################## STEREO-A            
+
+
+"""
+DOWNLOAD STEREOA DATA FUNCTIONS: MERGED 1MIN IMPACT
+"""
+
+def download_stereoa_merged(start_timestamp, end_timestamp, stereoa_path):
+        
+    path=stereoa_path+'impact/merged/level2/'
+    
+    start = start_timestamp.year
+    end = end_timestamp.year +1
+    while start < end:
+        year = start
+        date_str = f'{year}0101'
+        try: 
+            data_url = f'https://spdf.gsfc.nasa.gov/pub/data/stereo/ahead/l2/impact/magplasma/1min/{year}/'
+            soup = BeautifulSoup(urlopen(data_url), 'html.parser')
+            for link in soup.find_all('a'):
+                href = link.get('href')
+                if href is not None and href.startswith('sta_l2_magplasma_1m_'+date_str):
+                    filename = href
+                    if os.path.isfile(f"{path}{filename}") == True:
+                        print(f'{filename} has already been downloaded.')
+                    else:
+                        urllib.request.urlretrieve(data_url+filename, f"{path}{filename}")
+                        print(f'Successfully downloaded {filename}')
+        except Exception as e:
+            print('ERROR', e, f'.File for {year} does not exist.')
+        start+=1
+
+
+"""
+LOAD IN STEREOA DATA FUNCTIONS: from datapath, and arranges into large dataframes for timerange
+"""
+
+
+def get_stereoa_merged(fp):
+    """raw = rtn"""
+    try:
+        cdf = cdflib.CDF(fp)
+        t1 = cdflib.cdfepoch.to_datetime(cdf.varget('Epoch'))
+        df = pd.DataFrame(t1, columns=['time'])
+        bx, by, bz = cdf['BFIELDRTN'][:].T
+        df['bx'] = bx
+        df['by'] = by
+        df['bz'] = bz
+        df['bt'] = cdf['BTOTAL']
+        df['np'] = cdf['Np']
+        df['tp'] = cdf['Tp']
+        df['vt'] = cdf['Vp']
+        cols = ['bx', 'by', 'bz', 'bt', 'np', 'tp', 'vt']
+        for col in cols:
+            df[col].mask(df[col] < -9.999E29 , pd.NA, inplace=True)
+        df['vx'] = cdf['Vr_Over_V_RTN']*df['vt']
+        df['vy'] = cdf['Vt_Over_V_RTN']*df['vt']
+        df['vz'] = cdf['Vn_Over_V_RTN']*df['vt']
+        v_cols = ['vx', 'vy', 'vz']
+        for v_col in v_cols:
+            df[v_col].mask(df[v_col] < -9.999E29 , pd.NA, inplace=True)
+    except Exception as e:
+        print('ERROR:', e, fp)
+        df = None
+    return df
+
+
+def get_stereoa_merged_range(start_timestamp, end_timestamp, stereoa_path):
+    """Pass two datetime objects and grab .cdf files between dates, from
+    directory given."""
+    
+    path=stereoa_path+'impact/merged/level2/'
+    
+    df=None
+    start = start_timestamp.year
+    end = end_timestamp.year+1
+    while start < end:
+        year = start
+        date_str = f'{year}0101'
+        try: 
+            fn = glob.glob(path+f'sta_l2_magplasma_1m_{date_str}*')[0]
+            print(fn)
+            _df = get_stereoa_merged(fn)
+            if _df is not None:
+                if df is None:
+                    df = _df.copy(deep=True)
+                else:
+                    df = pd.concat([df, _df])
+        except Exception as e:
+            print('ERROR:', e, f'{date_str} does not exist')
+        start += 1
+    timemask = (df['time']>=start_timestamp) & (df['time']<=end_timestamp)
+    df = df[timemask]
+    return df
+
+
+"""
+STEREOA POSITION FUNCTIONS: coord maths, call position for each timestamp using astrospice
+"""
+
+
+
+def get_stereoa_positions(time_series):
+    kernels_sta = astrospice.registry.get_kernels('stereo-a', 'predict')
+    frame = HeliographicStonyhurst()
+    coords_sta = astrospice.generate_coords('Stereo ahead', time_series)
+    coords_sta = coords_sta.transform_to(frame)
+    x, y, z, r_au = sphere2cart_emma(coords_sta.radius, coords_sta.lat.value, coords_sta.lon.value)
+    lat = coords_sta.lat.value
+    lon = coords_sta.lon.value
+    t = [element.to_pydatetime() for element in list(time_series)]
+    positions = np.array([t, x, y, z, r_au, lat, lon])
+    df_positions = pd.DataFrame(positions.T, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
+    return df_positions
 
 
 
 
 
 
+
+"""
+FINAL FUNCTION TO CREATE PICKLE FILE: uses all above functions to create pickle file of 
+data from input timestamp to now. 
+Can be read in to DataFrame using:
+obj = pd.read_pickle('stereoa_rtn.p')
+df = pd.DataFrame.from_records(obj)
+"""
+
+
+def create_stereoa_pkl(start_timestamp,end_timestamp,stereoa_file,stereoa_path):
+
+    # #download stereo-a merged magplasma data up to endtime
+    #download_stereoa_merged(start_timestamp,end_timestamp)
+
+    
+    
+    #load in merged mag and plasma data to DataFrame, create empty DataFrame if no data
+    # if empty, drop time column ready for concat
+    df_magplas = get_stereoa_merged_range(start_timestamp,end_timestamp,stereoa_path)
+    
+    if df_magplas is None:
+        print(f'STEREO A data is empty for this timerange')
+        df_magplas = pd.DataFrame({'time':[], 'bt':[], 'bx':[], 'by':[], 'bz':[], 'vt':[], 'vx':[], 'vy':[], 'vz':[], 'np':[], 'tp':[]})
+        df_magplas = df_magplas.drop(columns=['time'])
+    else:
+        df_magplas.set_index(pd.to_datetime(df_magplas['time']), inplace=True)
+
+    #get stereoa positions for corresponding timestamps
+    sta_pos = get_stereoa_positions(df_magplas['time'])
+    sta_pos.set_index(pd.to_datetime(sta_pos['time']), inplace=True)
+    sta_pos = sta_pos.drop(columns=['time'])
+
+    #produce final combined DataFrame with correct ordering of columns 
+    comb_df = pd.concat([df_magplas, sta_pos], axis=1)
+
+    #produce recarray with correct datatypes
+    time_stamps = comb_df['time']
+    dt_lst= [element.to_pydatetime() for element in list(time_stamps)] #extract timestamps in datetime.datetime format
+
+    stereoa=np.zeros(len(dt_lst),dtype=[('time',object),('bx', float),('by', float),('bz', float),('bt', float),\
+                ('vx', float),('vy', float),('vz', float),('vt', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float), ('r', float),('lat', float),('lon', float)])
+    stereoa = stereoa.view(np.recarray) 
+
+    stereoa.time=dt_lst
+    stereoa.bx=comb_df['bx']
+    stereoa.by=comb_df['by']
+    stereoa.bz=comb_df['bz']
+    stereoa.bt=comb_df['bt']
+    stereoa.vx=comb_df['vx']
+    stereoa.vy=comb_df['vy']
+    stereoa.vz=comb_df['vz']
+    stereoa.vt=comb_df['vt']
+    stereoa.np=comb_df['np']
+    stereoa.tp=comb_df['tp']
+    stereoa.x=comb_df['x']
+    stereoa.y=comb_df['y']
+    stereoa.z=comb_df['z']
+    stereoa.r=comb_df['r']
+    stereoa.lat=comb_df['lat']
+    stereoa.lon=comb_df['lon']
+    
+    #dump to pickle file
+    
+    header='Science level 2 solar wind magnetic field and plasma data (IMPACT) from STEREO A, ' + \
+    'obtained from https://spdf.gsfc.nasa.gov/pub/data/stereo/ahead/l2/impact/magplasma/1min/ '+ \
+    'Timerange: '+stereoa.time[0].strftime("%Y-%b-%d %H:%M")+' to '+stereoa.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', with a time resolution of 1 min. '+\
+    'The data are available in a numpy recarray, fields can be accessed by stereoa.time, stereoa.bx, stereoa.vt etc. '+\
+    'Total number of data points: '+str(stereoa.size)+'. '+\
+    'Units are btxyz [nT, RTN], vtxy  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z [km], r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with heliocats/data_update_web_science.ipynb by E. Davies (twitter @spacedavies) and C. Möstl (@chrisoutofspace). File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+    pickle.dump([stereoa,header], open(stereoa_file, "wb"))
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###################################################################
 
 
 

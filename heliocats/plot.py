@@ -74,7 +74,7 @@ def data_overview_plot(data,filename):
 
     sns.set_style('darkgrid')
 
-    plt.figure(figsize=(15,15),dpi=150)
+    plt.figure(figsize=(15,15),dpi=100)
 
 
     ax1 = plt.subplot(321) 
@@ -107,23 +107,25 @@ def data_overview_plot(data,filename):
     ax5 = plt.subplot(325) 
     ax5.set_title('XYZ')
     ax5.set_ylabel('km')
-    ax5.plot(data.time,data.x,'-r',linewidth=1)
-    ax5.plot(data.time,data.y,'-g',linewidth=1)
-    ax5.plot(data.time,data.z,'-b',linewidth=1)
+    ax5.plot(data.time,data.x,'-r',linewidth=1,label='x')
+    ax5.plot(data.time,data.y,'-g',linewidth=1,label='y')
+    ax5.plot(data.time,data.z,'-b',linewidth=1,label='z')
+    plt.legend(fontsize=15)
 
 
     ax6 = plt.subplot(326) 
     ax6.set_title('R lon lat')
     ax6.set_ylabel('AU,degree')
-    ax6.plot(data.time,data.r,'-r',linewidth=1)
-    ax6.plot(data.time,data.lon,'-g',linewidth=1)
-    ax6.plot(data.time,data.lat,'-b',linewidth=1)
+    ax6.plot(data.time,data.r*10,'-r',linewidth=1,label='R x 10')
+    ax6.plot(data.time,data.lon,'-g',linewidth=1,label='lon')
+    ax6.plot(data.time,data.lat,'-b',linewidth=1,label='lat')
+    plt.legend(fontsize=15)
 
 
     plt.tight_layout()
 
-    plt.savefig(filename+'.png')
-    plt.savefig(filename+'.pdf')
+    plt.savefig(filename+'.png',dpi=150)
+    plt.savefig(filename+'.pdf',dpi=150)
 
 
 
