@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[1]:
+# In[15]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -76,11 +76,11 @@ os.system('jupyter nbconvert --to script data_update_web_science.ipynb')
 #warnings.filterwarnings("ignore")
 
 #switches
-debug_mode=1
+debug_mode=0
 
 
 #switches
-get_psp=1
+get_psp=0
 get_solo=1
 
 get_wind=0
@@ -233,7 +233,7 @@ hp.data_overview_plot(data,plot_path+'psp/'+filepsp[:-2])
 
 # ### Solar Orbiter
 
-# In[5]:
+# In[13]:
 
 
 ####### -------- control parameter    
@@ -277,7 +277,7 @@ else:
     print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[6]:
+# In[14]:
 
 
 ### data checks
