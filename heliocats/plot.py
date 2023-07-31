@@ -105,22 +105,21 @@ def data_overview_plot(data,filename):
 
 
     ax5 = plt.subplot(325) 
-    ax5.set_title('XYZ')
+    ax5.set_title('XYZ HEEQ')
     ax5.set_ylabel('km')
     ax5.plot(data.time,data.x,'-r',linewidth=1,label='x')
     ax5.plot(data.time,data.y,'-g',linewidth=1,label='y')
     ax5.plot(data.time,data.z,'-b',linewidth=1,label='z')
-    plt.legend(fontsize=15)
+    plt.legend(fontsize=15,loc=2)
 
 
     ax6 = plt.subplot(326) 
-    ax6.set_title('R lon lat')
+    ax6.set_title('R lon lat HEEQ')
     ax6.set_ylabel('AU,degree')
     ax6.plot(data.time,data.r*10,'-r',linewidth=1,label='R x 10')
     ax6.plot(data.time,data.lon,'-g',linewidth=1,label='lon')
     ax6.plot(data.time,data.lat,'-b',linewidth=1,label='lat')
-    plt.legend(fontsize=15)
-
+    plt.legend(fontsize=15,loc=2)
 
     plt.tight_layout()
 

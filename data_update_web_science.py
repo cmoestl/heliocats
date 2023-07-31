@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[43]:
+# In[11]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -75,16 +75,16 @@ if sys.platform =='darwin':
 #warnings.filterwarnings("ignore")
 
 #switches
-debug_mode=0
+debug_mode=1
 
 print('debug_mode is set to: ',debug_mode)
 
 
 #switches
-get_psp=1
-get_solo=1
+get_psp=0
+get_solo=0
 
-get_wind=1
+get_wind=0
 get_stereoa=1
 get_bepi=0
 
@@ -102,7 +102,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[41]:
+# In[12]:
 
 
 if sys.platform == 'linux': 
@@ -168,7 +168,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### Wind 
 
-# In[42]:
+# In[13]:
 
 
 print(' ')
@@ -233,7 +233,7 @@ else:
     
 
 
-# In[35]:
+# In[14]:
 
 
 #data checks
@@ -264,7 +264,7 @@ if get_wind > 0:
 # ### Parker Solar Probe
 # 
 
-# In[3]:
+# In[15]:
 
 
 print(' ')
@@ -321,7 +321,7 @@ else:
   
 
 
-# In[4]:
+# In[16]:
 
 
 if get_psp > 0:   
@@ -344,7 +344,7 @@ if get_psp > 0:
 
 # ### Solar Orbiter
 
-# In[5]:
+# In[17]:
 
 
 print(' ')
@@ -391,7 +391,7 @@ else:
     print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[6]:
+# In[18]:
 
 
 if get_solo > 0:  
@@ -414,7 +414,7 @@ if get_solo > 0:
 
 # ### BepiColombo
 
-# In[14]:
+# In[19]:
 
 
 print(' ')
@@ -463,7 +463,7 @@ else:
 
 # ### STEREO-A science data
 
-# In[9]:
+# In[48]:
 
 
 print(' ')
@@ -471,21 +471,17 @@ print(' ')
 ####### control parameter    
 
 #for server
-#start_time= datetime(2007,1,1)
-start_time= datetime(2017,4,1)
+start_time= datetime(2007,1,1)
 end_time = datetime.utcnow() 
-
-#sta_file=data_path+'stereoa_2007_now_rtn.p'
-sta_file=data_path+'stereoa_2017_now_rtn.p'
-
+sta_file=data_path+'stereoa_2007_now_rtn.p'
 
 
 #testing
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
-    start_time= datetime(2021,4,1)
-    end_time  = datetime(2022,12,31)
+    start_time= datetime(2012,7,1)
+    end_time  = datetime(2012,7,31)
     sta_file=data_path+'stereoa_rtn_test.p'
 
     
@@ -503,7 +499,7 @@ if get_stereoa > 0:
 
     print('process STEREO-A to pickle')
 
-    hd.create_stereoa_pkl(start_time,end_time,sta_file,stereoa_path)
+    hd.create_stereoa_pkl(start_time,end_time,sta_file,stereoa_path,kernels_path)
     
     t1 = time.time()  
 
@@ -516,7 +512,7 @@ else:
 
 
 
-# In[12]:
+# In[49]:
 
 
 if get_stereoa > 0:  
@@ -524,7 +520,7 @@ if get_stereoa > 0:
     ### data checks
 
     #filesta='stereoa_2007_now_rtn.p'   
-    filesta='stereoa_2017_now_rtn.p'   
+    filesta='stereoa_2007_now_rtn.p'   
 
     if debug_mode > 0: 
         importlib.reload(hd) 
@@ -541,7 +537,7 @@ if get_stereoa > 0:
     hp.data_overview_plot(data,plot_path+'stereoa/'+filesta[:-2])
 
 
-# In[ ]:
+# In[27]:
 
 
 t1all = time.time()

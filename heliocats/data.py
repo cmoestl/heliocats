@@ -586,8 +586,8 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     
      
     #convert magnetic field to SCEQ
-    if coord=='HEEQ':
-        win=convert_GSE_to_HEEQ(win)
+    #if coord=='HEEQ':
+    #    win=convert_GSE_to_HEEQ(win)
    
     
         
@@ -600,7 +600,7 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(win.time)).seconds)+' seconds. '+\
     'The data are available in a numpy recarray, fields can be accessed by win.time, win.bx, win.vt etc. '+\
     'Missing data has been set to "np.nan". Total number of data points: '+str(win.size)+'. '+\
-    'Units are btxyz [nT, '+coord+'], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
+    'Units are btxyz [nT, '+coord+'], vtxyz [km s^-1,'+coord+'], np[cm^-3], tp [K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with heliocats/save_wind_data_ascii.  '+\
     'By C. Moestl (twitter @chrisoutofspace), Emma Davies, Eva Weiler. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
@@ -623,7 +623,7 @@ def wind_heeq_header(data):
     ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(data.time)).seconds)+' seconds. '+\
     'The data are available in a numpy recarray, fields can be accessed by win.time, win.bx, win.vt etc. '+\
     'Missing data has been set to "np.nan". Total number of data points: '+str(data.size)+'. '+\
-    'Units are btxyz [nT, HEEQ], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
+    'Units are btxyz [nT, HEEQ], vtxyz [km s^-1, HEEQ], np[cm^-3], tp [K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with heliocats/save_wind_data_ascii.  '+\
     'By C. Moestl (twitter @chrisoutofspace), Emma Davies, Eva Weiler. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
@@ -1008,7 +1008,7 @@ def create_psp_pkl(start_time, end_time,psp_file,psp_path):
     ', resampled to a time resolution of 1 min. '+\
     'The data are available in a numpy recarray, fields can be accessed by psp.time, psp.bx, psp.vt etc. '+\
     'Total number of data points: '+str(psp.size)+'. '+\
-    'Units are btxyz [nT, RTN], vtxy  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z [km] or r/lon/lat [AU, degree, HEEQ]. '+\
+    'Units are btxyz [nT, RTN], vtxyz  [km s^-1, RTN], np[cm^-3], tp [K], heliospheric position x/y/z [km] or r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with heliocats/data_update_web_science.ipynb, by E. Davies (twitter @spacedavies) and Christian Möstl (@chrisoutofspace). File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
 
@@ -1308,7 +1308,7 @@ def create_solo_pkl(start_timestamp,end_timestamp,solo_file,solo_path,kernels_pa
     ', resampled to a time resolution of 1 min. '+\
     'The data are available in a numpy recarray, fields can be accessed by solo.time, solo.bx, solo.vt etc. '+\
     'Total number of data points: '+str(solo.size)+'. '+\
-    'Units are btxyz [nT, RTN], vtxy  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z [km], r/lon/lat [AU, degree, HEEQ]. '+\
+    'Units are btxyz [nT, RTN], vtxyz [km s^-1, RTN], np[cm^-3], tp [K], heliospheric position x/y/z [km], r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with heliocats/data_update_web_science.ipynb, by E. Davies (twitter @spacedavies) and Christian Möstl (@chrisoutofspace). File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
     
@@ -1423,22 +1423,50 @@ STEREOA POSITION FUNCTIONS: coord maths, call position for each timestamp using 
 
 
 
-def get_stereoa_positions(time_series):
-    kernels_sta = astrospice.registry.get_kernels('stereo-a', 'predict')
-    frame = HeliographicStonyhurst()
-    coords_sta = astrospice.generate_coords('Stereo ahead', time_series)
-    coords_sta = coords_sta.transform_to(frame)
-    x, y, z, r_au = sphere2cart_emma(coords_sta.radius, coords_sta.lat.value, coords_sta.lon.value)
-    lat = coords_sta.lat.value
-    lon = coords_sta.lon.value
-    t = [element.to_pydatetime() for element in list(time_series)]
-    positions = np.array([t, x, y, z, r_au, lat, lon])
-    df_positions = pd.DataFrame(positions.T, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
+#def get_stereoa_positions(time_series):
+#    kernels_sta = astrospice.registry.get_kernels('stereo-a', 'predict')
+#    frame = HeliographicStonyhurst()
+#    coords_sta = astrospice.generate_coords('Stereo ahead', time_series)
+#    coords_sta = coords_sta.transform_to(frame)
+#    x, y, z, r_au = sphere2cart_emma(coords_sta.radius, coords_sta.lat.value, coords_sta.lon.value)
+#    lat = coords_sta.lat.value
+#    lon = coords_sta.lon.value
+#    t = [element.to_pydatetime() for element in list(time_series)]
+#    positions = np.array([t, x, y, z, r_au, lat, lon])
+#    df_positions = pd.DataFrame(positions.T, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
+#    return df_positions
+
+
+
+
+def stereoa_furnish(kernel_path):
+    """Main"""
+    stereo_kernel_path = kernel_path+'stereoa/'
+    generic_path = kernel_path+'generic/'
+    stereoa_kernels = os.listdir(stereo_kernel_path)
+    generic_kernels = os.listdir(generic_path)
+    for kernel in stereoa_kernels:
+        spiceypy.furnsh(os.path.join(stereo_kernel_path, kernel))
+    for kernel in generic_kernels:
+        spiceypy.furnsh(os.path.join(generic_path, kernel))
+
+
+def get_stereoa_pos(t,kernel_path):
+    if spiceypy.ktotal('ALL') < 1:
+        stereoa_furnish(kernel_path)
+    pos = spiceypy.spkpos("STEREO AHEAD", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
+    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    position = t, pos[0], pos[1], pos[2], r, lat, lon
+    return position
+
+
+def get_stereoa_positions(time_series,kernel_path):
+    positions = []
+    for t in time_series:
+        position = get_stereoa_pos(t,kernel_path)
+        positions.append(position)
+    df_positions = pd.DataFrame(positions, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
     return df_positions
-
-
-
-
 
 
 
@@ -1451,7 +1479,7 @@ df = pd.DataFrame.from_records(obj)
 """
 
 
-def create_stereoa_pkl(start_timestamp,end_timestamp,stereoa_file,stereoa_path):
+def create_stereoa_pkl(start_timestamp,end_timestamp,stereoa_file,stereoa_path,kernel_path):
 
     # #download stereo-a merged magplasma data up to endtime
     #download_stereoa_merged(start_timestamp,end_timestamp)
@@ -1470,7 +1498,9 @@ def create_stereoa_pkl(start_timestamp,end_timestamp,stereoa_file,stereoa_path):
         df_magplas.set_index(pd.to_datetime(df_magplas['time']), inplace=True)
 
     #get stereoa positions for corresponding timestamps
-    sta_pos = get_stereoa_positions(df_magplas['time'])
+    print(kernel_path)
+    stereoa_furnish(kernel_path)  
+    sta_pos = get_stereoa_positions(df_magplas['time'],kernel_path)
     sta_pos.set_index(pd.to_datetime(sta_pos['time']), inplace=True)
     sta_pos = sta_pos.drop(columns=['time'])
 
@@ -1512,7 +1542,7 @@ def create_stereoa_pkl(start_timestamp,end_timestamp,stereoa_file,stereoa_path):
     ', with a time resolution of 1 min. '+\
     'The data are available in a numpy recarray, fields can be accessed by stereoa.time, stereoa.bx, stereoa.vt etc. '+\
     'Total number of data points: '+str(stereoa.size)+'. '+\
-    'Units are btxyz [nT, RTN], vtxy  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z [km], r/lon/lat [AU, degree, HEEQ]. '+\
+    'Units are btxyz [nT, RTN], vtxy  [km s^-1, RTN], np[cm^-3], tp [K], heliospheric position x/y/z [km], r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with heliocats/data_update_web_science.ipynb by E. Davies (twitter @spacedavies) and C. Möstl (@chrisoutofspace). File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
 
