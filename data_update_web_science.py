@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[37]:
+# In[39]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
