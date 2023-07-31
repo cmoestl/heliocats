@@ -342,6 +342,9 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
                 #datenum
                 win_swe.time[p+counter]=firstjan+swe_data[p][1]
                 win_swe.vt[p+counter]=swe_data[p][2]
+                win_swe.vx[p+counter]=swe_data[p][3]
+                win_swe.vy[p+counter]=swe_data[p][4]
+                win_swe.vz[p+counter]=swe_data[p][5]                
                 win_swe.tp[p+counter]=swe_data[p][6]
                 win_swe.np[p+counter]=swe_data[p][7]            
 
@@ -353,7 +356,10 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     win_swe_time=np.array(win_swe.time,dtype='float')
 
 
-    win_swe.vt[np.where(win_swe.vt == 99999.9)]=np.nan  
+    win_swe.vt[np.where(win_swe.vt == 99999.9)]=np.nan
+    win_swe.vx[np.where(win_swe.vx == 99999.9)]=np.nan
+    win_swe.vy[np.where(win_swe.vy == 99999.9)]=np.nan
+    win_swe.vz[np.where(win_swe.vz == 99999.9)]=np.nan
     win_swe.tp[np.where(win_swe.tp ==9999999.)]=np.nan  
     win_swe.np[np.where(win_swe.np ==999.99)]=np.nan  
 
@@ -370,6 +376,9 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
         
     den = np.interp(time_mat, win_swe_time, win_swe.np)
     vt = np.interp(time_mat, win_swe_time,win_swe.vt)
+    vx = np.interp(time_mat, win_swe_time,win_swe.vx)
+    vy = np.interp(time_mat, win_swe_time,win_swe.vy)
+    vz = np.interp(time_mat, win_swe_time,win_swe.vz)
     tp = np.interp(time_mat, win_swe_time,win_swe.tp)
         
         
@@ -382,6 +391,7 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     
     
     #** check gse is not the same plane as HEEQ, small error
+    #to do: convert gse position to HEEQ somehow?
     print('position start')    
     frame='HEEQ'
     planet_kernel=spicedata.get_kernel('planet_trajectories')
@@ -421,150 +431,152 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     win.lat=np.degrees(lat)
     win.lon=np.degrees(lon)
     
-    win.np=den
+    win.np=den    
     win.vt=vt
+    win.vx=vx
+    win.vy=vy
+    win.vz=vz
+    
     win.tp=tp
     
-
-    win.vx=np.nan
-    win.vy=np.nan
-    win.vz=np.nan
-    
-
-    
+   
     
     
     
     
     
     ############ spike removal
+    
+    spike_removal=0
+    
+    if spike_removal > 0:
             
-    #plasma    
-    win.np[np.where(win.np> 500)]=1000000
-    #get rid of all single spikes with scipy signal find peaks
-    peaks, properties = scipy.signal.find_peaks(win.np, height=500,width=(1, 250))
-    #go through all of them and set to nan according to widths
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        win.np[peaks[i]-width-2:peaks[i]+width+2]=np.nan
+        #plasma    
+        win.np[np.where(win.np> 500)]=1000000
+        #get rid of all single spikes with scipy signal find peaks
+        peaks, properties = scipy.signal.find_peaks(win.np, height=500,width=(1, 250))
+        #go through all of them and set to nan according to widths
+        for i in np.arange(len(peaks)):
+            #get width of current peak
+            width=int(np.ceil(properties['widths']/2)[i])
+            #remove data
+            win.np[peaks[i]-width-2:peaks[i]+width+2]=np.nan
 
-    win.tp[np.where(win.tp> 1e8)]=1e11
-    #get rid of all single spikes with scipy signal find peaks
-    peaks, properties = scipy.signal.find_peaks(win.tp, height=1e8,width=(1, 250))
-    #go through all of them and set to nan according to widths
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        win.tp[peaks[i]-width-2:peaks[i]+width+2]=np.nan
+        win.tp[np.where(win.tp> 1e8)]=1e11
+        #get rid of all single spikes with scipy signal find peaks
+        peaks, properties = scipy.signal.find_peaks(win.tp, height=1e8,width=(1, 250))
+        #go through all of them and set to nan according to widths
+        for i in np.arange(len(peaks)):
+            #get width of current peak
+            width=int(np.ceil(properties['widths']/2)[i])
+            #remove data
+            win.tp[peaks[i]-width-2:peaks[i]+width+2]=np.nan
 
-    win.vt[np.where(win.vt> 3000)]=1e11
-    #get rid of all single spikes with scipy signal find peaks
-    peaks, properties = scipy.signal.find_peaks(win.vt, height=1e8,width=(1, 250))
-    #go through all of them and set to nan according to widths
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths']/2)[i])
-        #remove data
-        win.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
-
-        
-        
-        
-    #magnetic field    
-    peaks, properties = scipy.signal.find_peaks(win.bt, prominence=30,width=(1, 10))
-    #go through all of them and set to nan according to widths
-    for i in np.arange(len(peaks)):
-        #get width of current peak
-        width=int(np.ceil(properties['widths'])[i])
-        #remove data
-        win.bt[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
-
-    peaks, properties = scipy.signal.find_peaks(abs(win.bx), prominence=30,width=(1, 10))
-    for i in np.arange(len(peaks)):
-        width=int(np.ceil(properties['widths'])[i])
-        win.bx[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
-
-    peaks, properties = scipy.signal.find_peaks(abs(win.by), prominence=30,width=(1, 10))
-    for i in np.arange(len(peaks)):
-        width=int(np.ceil(properties['widths'])[i])
-        win.by[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
-
-    peaks, properties = scipy.signal.find_peaks(abs(win.bz), prominence=30,width=(1, 10))
-    for i in np.arange(len(peaks)):
-        width=int(np.ceil(properties['widths'])[i])
-        win.bz[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
+        win.vt[np.where(win.vt> 3000)]=1e11
+        #get rid of all single spikes with scipy signal find peaks
+        peaks, properties = scipy.signal.find_peaks(win.vt, height=1e8,width=(1, 250))
+        #go through all of them and set to nan according to widths
+        for i in np.arange(len(peaks)):
+            #get width of current peak
+            width=int(np.ceil(properties['widths']/2)[i])
+            #remove data
+            win.vt[peaks[i]-width-2:peaks[i]+width+2]=np.nan
 
 
 
-    #manual spike removal for magnetic field
-    if t_start < datetime.datetime(2018, 7, 19, 16, 25):    
-        if t_end > datetime.datetime(2018, 7, 19, 16, 25):         
 
-            remove_start=datetime.datetime(2018, 7, 19, 16, 25)
-            remove_end=datetime.datetime(2018, 7, 19, 17, 35)
-            remove_start_ind=np.where(remove_start<win.time)[0][0]
-            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+        #magnetic field    
+        peaks, properties = scipy.signal.find_peaks(win.bt, prominence=30,width=(1, 10))
+        #go through all of them and set to nan according to widths
+        for i in np.arange(len(peaks)):
+            #get width of current peak
+            width=int(np.ceil(properties['widths'])[i])
+            #remove data
+            win.bt[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
 
-            win.bt[remove_start_ind:remove_end_ind]=np.nan
-            win.bx[remove_start_ind:remove_end_ind]=np.nan
-            win.by[remove_start_ind:remove_end_ind]=np.nan
-            win.bz[remove_start_ind:remove_end_ind]=np.nan
+        peaks, properties = scipy.signal.find_peaks(abs(win.bx), prominence=30,width=(1, 10))
+        for i in np.arange(len(peaks)):
+            width=int(np.ceil(properties['widths'])[i])
+            win.bx[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
 
-    if t_start < datetime.datetime(2018, 8, 29, 19, 00):    
-        if t_end > datetime.datetime(2018, 8, 29, 19, 00):         
+        peaks, properties = scipy.signal.find_peaks(abs(win.by), prominence=30,width=(1, 10))
+        for i in np.arange(len(peaks)):
+            width=int(np.ceil(properties['widths'])[i])
+            win.by[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
 
-            remove_start=datetime.datetime(2018, 8, 29, 19, 00)
-            remove_end=datetime.datetime(2018,8, 30, 5, 00)
-            remove_start_ind=np.where(remove_start<win.time)[0][0]
-            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+        peaks, properties = scipy.signal.find_peaks(abs(win.bz), prominence=30,width=(1, 10))
+        for i in np.arange(len(peaks)):
+            width=int(np.ceil(properties['widths'])[i])
+            win.bz[peaks[i]-width-5:peaks[i]+width+5]=np.nan    
 
-            win.bt[remove_start_ind:remove_end_ind]=np.nan
-            win.bx[remove_start_ind:remove_end_ind]=np.nan
-            win.by[remove_start_ind:remove_end_ind]=np.nan
-            win.bz[remove_start_ind:remove_end_ind]=np.nan
 
-            
-    if t_start < datetime.datetime(2019, 8, 8, 22, 45):    
-        if t_end > datetime.datetime(2019, 8, 8, 22, 45):         
 
-            remove_start=datetime.datetime(2019, 8, 8, 22, 45)
-            remove_end=datetime.datetime(2019,   8, 9, 17, 00)
-            remove_start_ind=np.where(remove_start<win.time)[0][0]
-            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+        #manual spike removal for magnetic field
+        if t_start < datetime.datetime(2018, 7, 19, 16, 25):    
+            if t_end > datetime.datetime(2018, 7, 19, 16, 25):         
 
-            win.bt[remove_start_ind:remove_end_ind]=np.nan
-            win.bx[remove_start_ind:remove_end_ind]=np.nan
-            win.by[remove_start_ind:remove_end_ind]=np.nan
-            win.bz[remove_start_ind:remove_end_ind]=np.nan
+                remove_start=datetime.datetime(2018, 7, 19, 16, 25)
+                remove_end=datetime.datetime(2018, 7, 19, 17, 35)
+                remove_start_ind=np.where(remove_start<win.time)[0][0]
+                remove_end_ind=np.where(remove_end<win.time)[0][0] 
 
-    if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
-        if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
+                win.bt[remove_start_ind:remove_end_ind]=np.nan
+                win.bx[remove_start_ind:remove_end_ind]=np.nan
+                win.by[remove_start_ind:remove_end_ind]=np.nan
+                win.bz[remove_start_ind:remove_end_ind]=np.nan
 
-            remove_start=datetime.datetime(2019, 8, 20, 18, 0)
-            remove_end=datetime.datetime(2019,   8, 21, 12, 0)
-            remove_start_ind=np.where(remove_start<win.time)[0][0]
-            remove_end_ind=np.where(remove_end<win.time)[0][0] 
+        if t_start < datetime.datetime(2018, 8, 29, 19, 00):    
+            if t_end > datetime.datetime(2018, 8, 29, 19, 00):         
 
-            win.bt[remove_start_ind:remove_end_ind]=np.nan
-            win.bx[remove_start_ind:remove_end_ind]=np.nan
-            win.by[remove_start_ind:remove_end_ind]=np.nan
-            win.bz[remove_start_ind:remove_end_ind]=np.nan            
+                remove_start=datetime.datetime(2018, 8, 29, 19, 00)
+                remove_end=datetime.datetime(2018,8, 30, 5, 00)
+                remove_start_ind=np.where(remove_start<win.time)[0][0]
+                remove_end_ind=np.where(remove_end<win.time)[0][0] 
 
-    if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
-        if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
+                win.bt[remove_start_ind:remove_end_ind]=np.nan
+                win.bx[remove_start_ind:remove_end_ind]=np.nan
+                win.by[remove_start_ind:remove_end_ind]=np.nan
+                win.bz[remove_start_ind:remove_end_ind]=np.nan
 
-            remove_start=datetime.datetime(2019, 8, 22, 1, 0)
-            remove_end=datetime.datetime(2019,   8, 22, 9, 0)
-            remove_start_ind=np.where(remove_start<win.time)[0][0]
-            remove_end_ind=np.where(remove_end<win.time)[0][0] 
 
-            win.bt[remove_start_ind:remove_end_ind]=np.nan
-            win.bx[remove_start_ind:remove_end_ind]=np.nan
-            win.by[remove_start_ind:remove_end_ind]=np.nan
-            win.bz[remove_start_ind:remove_end_ind]=np.nan            
+        if t_start < datetime.datetime(2019, 8, 8, 22, 45):    
+            if t_end > datetime.datetime(2019, 8, 8, 22, 45):         
+
+                remove_start=datetime.datetime(2019, 8, 8, 22, 45)
+                remove_end=datetime.datetime(2019,   8, 9, 17, 00)
+                remove_start_ind=np.where(remove_start<win.time)[0][0]
+                remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+                win.bt[remove_start_ind:remove_end_ind]=np.nan
+                win.bx[remove_start_ind:remove_end_ind]=np.nan
+                win.by[remove_start_ind:remove_end_ind]=np.nan
+                win.bz[remove_start_ind:remove_end_ind]=np.nan
+
+        if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
+            if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
+
+                remove_start=datetime.datetime(2019, 8, 20, 18, 0)
+                remove_end=datetime.datetime(2019,   8, 21, 12, 0)
+                remove_start_ind=np.where(remove_start<win.time)[0][0]
+                remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+                win.bt[remove_start_ind:remove_end_ind]=np.nan
+                win.bx[remove_start_ind:remove_end_ind]=np.nan
+                win.by[remove_start_ind:remove_end_ind]=np.nan
+                win.bz[remove_start_ind:remove_end_ind]=np.nan            
+
+        if t_start < datetime.datetime(2019, 8, 21, 22, 45):    
+            if t_end > datetime.datetime(2019, 8, 21, 22, 45):         
+
+                remove_start=datetime.datetime(2019, 8, 22, 1, 0)
+                remove_end=datetime.datetime(2019,   8, 22, 9, 0)
+                remove_start_ind=np.where(remove_start<win.time)[0][0]
+                remove_end_ind=np.where(remove_end<win.time)[0][0] 
+
+                win.bt[remove_start_ind:remove_end_ind]=np.nan
+                win.bx[remove_start_ind:remove_end_ind]=np.nan
+                win.by[remove_start_ind:remove_end_ind]=np.nan
+                win.bz[remove_start_ind:remove_end_ind]=np.nan            
 
 
   
@@ -595,16 +607,139 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
 
     pickle.dump([win,header], open(finalfile, "wb"))
     
-    print('file written',file)
+    print('file written',finalfile)
     
     
     print('wind update done')
     print()
     
 
+def wind_heeq_header(data):
+    
+    
+    header_heeq='Wind magnetic field (MAG instrument) and plasma data (SWE), ' + \
+    'obtained from https://spdf.gsfc.nasa.gov/pub/data/wind/ ascii files  '+ \
+    'Timerange: '+data.time[0].strftime("%Y-%b-%d %H:%M")+' to '+data.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(data.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by win.time, win.bx, win.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(data.size)+'. '+\
+    'Units are btxyz [nT, HEEQ], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with heliocats/save_wind_data_ascii.  '+\
+    'By C. Moestl (twitter @chrisoutofspace), Emma Davies, Eva Weiler. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+    
+    
+    return header_heeq
 
 
 
+      
+   
+def convert_GSE_to_HEEQ(sc_in):
+    '''
+    for Wind magnetic field components: convert GSE to HEE to HAE to HEEQ
+    '''
+    
+    
+    sc=copy.deepcopy(sc_in)
+
+    print('conversion GSE to HEEQ start for both B and V')                                
+
+    jd=np.zeros(len(sc))
+    mjd=np.zeros(len(sc))
+        
+
+    for i in np.arange(0,len(sc)):
+
+        jd[i]=parse_time(sc.time[i]).jd
+        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
+        
+        #GSE to HEE
+        #Hapgood 1992 rotation by 180 degrees, or simply change sign in bx by    
+        #rotangle=np.radians(180)
+        #c, s = np.cos(rotangle), np.sin(rotangle)
+        #T1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        #[bx_hee,by_hee,bz_hee]=T1[sc.bx[i],sc.by[i],sc.bz[i]]        
+        b_hee=[-sc.bx[i],-sc.by[i],sc.bz[i]]
+        v_hee=[-sc.vx[i],-sc.vy[i],sc.vz[i]]        
+        
+        
+        #HEE to HAE        
+        
+        #define T00 and UT
+        T00=(mjd[i]-51544.5)/36525.0          
+        dobj=sc.time[i]
+        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
+
+        #lambda_sun in Hapgood, equation 5, here in rad
+        M=np.radians(357.528+35999.050*T00+0.04107*UT)
+        LAMBDA=280.460+36000.772*T00+0.04107*UT        
+        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
+        
+        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle for inversion HEE to HAE instead of HAE to HEE
+        c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
+        Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        b_hae=np.dot(Sm1,b_hee)
+        v_hae=np.dot(Sm1,v_hee)
+
+        #HAE to HEEQ
+        
+        iota=np.radians(7.25)
+        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
+        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
+                      
+    
+        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
+        #get lambda-omega angle in degree mod 360 and theta in degrees
+        lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
+        theta_node_deg=np.degrees(theta)
+
+
+        ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
+        if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                                                                          
+        
+        #rotation around Z by theta
+        c, s = np.cos(theta), np.sin(theta)
+        S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+
+        #rotation around X by iota  
+        iota=np.radians(7.25)
+        c, s = np.cos(iota), np.sin(iota)
+        S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
+                
+        #rotation around Z by Omega  
+        c, s = np.cos(omega), np.sin(omega)
+        S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
+        
+        #matrix multiplication to go from HAE to HEEQ components                
+        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
+        
+        sc.bx[i]=bx_heeq
+        sc.by[i]=by_heeq
+        sc.bz[i]=bz_heeq
+        
+        [vx_heeq,vy_heeq,vz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), v_hae) 
+        
+        sc.vx[i]=vx_heeq
+        sc.vy[i]=vy_heeq
+        sc.vz[i]=vz_heeq
+
+        
+   
+    print('conversion GSE to HEEQ done')                                
+    return sc
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 
 
@@ -5711,94 +5846,7 @@ def sphere2cart(r,theta,phi):
 
    
     
-    
-   
-def convert_GSE_to_HEEQ(sc_in):
-    '''
-    for Wind magnetic field components: convert GSE to HEE to HAE to HEEQ
-    '''
-    
-    
-    sc=copy.deepcopy(sc_in)
-
-    print('conversion GSE to HEEQ start')                                
-
-    jd=np.zeros(len(sc))
-    mjd=np.zeros(len(sc))
-        
-
-    for i in np.arange(0,len(sc)):
-
-        jd[i]=parse_time(sc.time[i]).jd
-        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
-        
-        #GSE to HEE
-        #Hapgood 1992 rotation by 180 degrees, or simply change sign in bx by    
-        #rotangle=np.radians(180)
-        #c, s = np.cos(rotangle), np.sin(rotangle)
-        #T1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-        #[bx_hee,by_hee,bz_hee]=T1[sc.bx[i],sc.by[i],sc.bz[i]]        
-        b_hee=[-sc.bx[i],-sc.by[i],sc.bz[i]]
-        
-        #HEE to HAE        
-        
-        #define T00 and UT
-        T00=(mjd[i]-51544.5)/36525.0          
-        dobj=sc.time[i]
-        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
-
-        #lambda_sun in Hapgood, equation 5, here in rad
-        M=np.radians(357.528+35999.050*T00+0.04107*UT)
-        LAMBDA=280.460+36000.772*T00+0.04107*UT        
-        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
-        
-        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle for inversion HEE to HAE instead of HAE to HEE
-        c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
-        Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-        b_hae=np.dot(Sm1,b_hee)
-
-        #HAE to HEEQ
-        
-        iota=np.radians(7.25)
-        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
-        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
-                      
-    
-        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
-        #get lambda-omega angle in degree mod 360 and theta in degrees
-        lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
-        theta_node_deg=np.degrees(theta)
-
-
-        ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
-        if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                                                                          
-        
-        #rotation around Z by theta
-        c, s = np.cos(theta), np.sin(theta)
-        S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-
-        #rotation around X by iota  
-        iota=np.radians(7.25)
-        c, s = np.cos(iota), np.sin(iota)
-        S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
-                
-        #rotation around Z by Omega  
-        c, s = np.cos(omega), np.sin(omega)
-        S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
-        
-        #matrix multiplication to go from HAE to HEEQ components                
-        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
-        
-        sc.bx[i]=bx_heeq
-        sc.by[i]=by_heeq
-        sc.bz[i]=bz_heeq
-
-    
-    print('conversion GSE to HEEQ done')                                
-    return sc
-
-    
-
+  
     
       
    

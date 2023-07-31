@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[1]:
+# In[8]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -69,7 +69,6 @@ if sys.platform =='darwin':
 
 
 ################################################ CHECK  ##############################################
-os.system('jupyter nbconvert --to script data_update_web_science.ipynb')   
 
 
 #import warnings
@@ -77,6 +76,8 @@ os.system('jupyter nbconvert --to script data_update_web_science.ipynb')
 
 #switches
 debug_mode=0
+
+print('debug_mode is set to: ',debug_mode)
 
 
 #switches
@@ -86,7 +87,12 @@ get_solo=1
 get_wind=1
 get_stereoa=1
 get_bepi=0
+
+print('switches: PSP',get_psp,'  SolO',get_solo,' Wind',get_wind,'  STEREO-A',get_stereoa,'  Bepi',get_bepi)
+
 ####################################################################################################################
+
+os.system('jupyter nbconvert --to script data_update_web_science.ipynb')   
 
 
 #test execution times
@@ -96,7 +102,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[9]:
 
 
 if sys.platform == 'linux': 
@@ -162,15 +168,18 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### Wind 
 
-# In[3]:
+# In[34]:
 
 
+debug_mode=1
 print(' ')
 #for server
 start_time= datetime(1995,1,1)
 #end_time  = datetime(2020,4,20)
 end_time = datetime.utcnow() 
-wind_file=data_path+'wind_1995_now_gse.p'
+wind_file='wind_1995_now_gse.p'
+wind_file_heeq='wind_1995_now_heeq.p'
+
 
 #testing
 if debug_mode > 0: 
@@ -179,6 +188,7 @@ if debug_mode > 0:
     start_time= datetime(2022,1,25)
     end_time  = datetime(2022,2,10)
     wind_file='wind_gse_test.p'
+    wind_file_heeq='wind_heeq_test.p'
 
  
 
@@ -191,15 +201,28 @@ if get_wind > 0:
 
     t0 = time.time() 
     
-    #hd.wind_download_ascii(start_year=1995, wind_path=wind_path) 
-    #hd.wind_download_ascii(2022, wind_path) 
+    #get all years
+    hd.wind_download_ascii(1995, wind_path) 
+    
+    #start with current year to now
+    hd.wind_download_ascii(2023, wind_path) 
+    
+    print('download Wind data done ')
     
     
+    print('Process Wind to pickle')
     print(wind_path)
-    print(data_path+wind_file)
+    print(wind_file)
+    # save as GSE
     hd.save_wind_data_ascii(start_time,end_time,wind_path,data_path+wind_file,'GSE')
-    t1=time.time()
     
+    #convert to HEEQ
+    [data,header]=pickle.load(open(data_path+wind_file, "rb"))
+    data_heeq=hd.convert_GSE_to_HEEQ(data)
+    header_heeq=hd.wind_heeq_header(data)    
+    pickle.dump([data_heeq,header_heeq], open(data_path+wind_file_heeq, "wb"))
+    
+    t1=time.time()   
 
     
     print(' ')
@@ -207,53 +230,36 @@ if get_wind > 0:
     print('----------------------------------- ')
     
 else:
-    print('Wind data NOT downloaded, turn on switch')  
+    print('Wind data NOT downloaded or processed, turn on switch')  
     
 
 
-# In[6]:
+# In[35]:
 
 
 #data checks
 if get_wind > 0:  
 
     filewind='wind_1995_now_gse.p'   
+    filewind_heeq='wind_1995_now_heeq.p'   
+    
+    if debug_mode > 0: 
+        importlib.reload(hd) 
+        importlib.reload(hp) 
+        filewind='wind_gse_test.p'
+        filewind_heeq='wind_heeq_test.p'
 
-    if debug_mode > 0: filewind='wind_gse_test.p'
 
+    #for GSE file
     [data,header]=pickle.load(open(data_path+filewind, "rb"))
-    ############ print header
-
     print(header)
-
-    ########## add overview plots
-
     hp.data_overview_plot(data,plot_path+'wind/'+filewind[:-2])
-
-
-# In[8]:
-
-
-#wind_data_path='/perm/aswo/data/wind/wind_mfi_k0'
-#print(wind_data_path)
-#os.system('wget -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/mfi/mfi_k0/2020/*.cdf"')
-#wind_data_path='/nas/helio/data/heliosat/data/wind_swe_h1'
-#os.system('wget -nc --directory-prefix='+wind_data_path+' "ftps://spdf.gsfc.nasa.gov/pub/data/wind/swe/swe_h1/2020/*.cdf"')
-
-#filewin="wind_2018_now_gse.p" 
-##xstart=datetime.datetime(2018, 1, 1)
-#end=datetime.datetime.utcnow()
-#if get_new_data: hd.save_wind_data(data_path,filewin,start,end,heeq=False)
-#[win,hwin]=pickle.load(open(data_path+filewin, "rb" ) )  
-
-#filewin="wind_2018_now_heeq.p" 
-#start=datetime.datetime(2018, 1, 1)
-#end=datetime.datetime.utcnow()
-#if get_new_data: hd.save_wind_data(data_path,filewin,start,end,heeq=True)
-
-#start=win.time[-1]-datetime.timedelta(days=100)
-#end=datetime.datetime.utcnow()         
-#hp.plot_insitu_update(win, start, end,'Wind',plot_path,now=True)
+    
+    
+    #same for HEEQ file            
+    [data_heeq,header_heeq]=pickle.load(open(data_path+filewind_heeq, "rb"))
+    print(header_heeq)
+    hp.data_overview_plot(data_heeq,plot_path+'wind/'+filewind_heeq[:-2])
 
 
 # ### Parker Solar Probe
