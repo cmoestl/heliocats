@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[11]:
+# In[13]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -75,17 +75,17 @@ if sys.platform =='darwin':
 #warnings.filterwarnings("ignore")
 
 #switches
-debug_mode=1
+debug_mode=0
 
 print('debug_mode is set to: ',debug_mode)
 
 
 #switches
-get_psp=0
-get_solo=0
-
-get_wind=0
+get_psp=1
+get_solo=1
+get_wind=1
 get_stereoa=1
+
 get_bepi=0
 
 print('switches: PSP',get_psp,'  SolO',get_solo,' Wind',get_wind,'  STEREO-A',get_stereoa,'  Bepi',get_bepi)
@@ -102,7 +102,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[12]:
+# In[14]:
 
 
 if sys.platform == 'linux': 
@@ -168,12 +168,12 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### Wind 
 
-# In[13]:
+# In[15]:
 
 
 print(' ')
 #for server
-start_time= datetime(2020,1,1)
+start_time= datetime(1995,1,1)
 #end_time  = datetime(2020,4,20)
 end_time = datetime.utcnow() 
 wind_file='wind_1995_now_gse.p'
@@ -203,7 +203,7 @@ if get_wind > 0:
     #get all years
     #hd.wind_download_ascii(1995, wind_path) 
     
-    #start with current year to now
+    #when all is downloaded just start with current year to now
     hd.wind_download_ascii(2023, wind_path) 
     
     print('download Wind data done ')
@@ -233,7 +233,7 @@ else:
     
 
 
-# In[14]:
+# In[4]:
 
 
 #data checks
@@ -264,7 +264,7 @@ if get_wind > 0:
 # ### Parker Solar Probe
 # 
 
-# In[15]:
+# In[5]:
 
 
 print(' ')
@@ -321,7 +321,7 @@ else:
   
 
 
-# In[16]:
+# In[6]:
 
 
 if get_psp > 0:   
@@ -344,7 +344,7 @@ if get_psp > 0:
 
 # ### Solar Orbiter
 
-# In[17]:
+# In[7]:
 
 
 print(' ')
@@ -391,7 +391,7 @@ else:
     print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[18]:
+# In[8]:
 
 
 if get_solo > 0:  
@@ -414,7 +414,7 @@ if get_solo > 0:
 
 # ### BepiColombo
 
-# In[19]:
+# In[9]:
 
 
 print(' ')
@@ -463,7 +463,7 @@ else:
 
 # ### STEREO-A science data
 
-# In[48]:
+# In[10]:
 
 
 print(' ')
@@ -512,7 +512,7 @@ else:
 
 
 
-# In[49]:
+# In[11]:
 
 
 if get_stereoa > 0:  
@@ -537,7 +537,7 @@ if get_stereoa > 0:
     hp.data_overview_plot(data,plot_path+'stereoa/'+filesta[:-2])
 
 
-# In[27]:
+# In[12]:
 
 
 t1all = time.time()
