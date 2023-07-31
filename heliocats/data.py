@@ -84,6 +84,162 @@ def cart2sphere_emma(x,y,z):
 
 
 
+############# BepiColombo
+
+
+#from Eva
+
+from urllib.request import urlopen
+from astropy.time import Time,TimeDelta
+from bs4 import BeautifulSoup
+import astropy.units as u
+from astrospice.net.reg import RemoteKernel, RemoteKernelsBase
+
+__all__ = ['BepiPredict']
+
+
+class BepiPredict(RemoteKernelsBase):
+    body = 'mpo'
+    type = 'predict'
+
+    def get_remote_kernels(self):
+        """
+        Returns
+        -------
+        list[RemoteKernel]
+        """
+        page = urlopen('https://naif.jpl.nasa.gov/pub/naif/BEPICOLOMBO/kernels/spk/')
+        soup = BeautifulSoup(page, 'html.parser')
+
+        kernel_urls = []
+        for link in soup.find_all('a'):
+            href = link.get('href')
+            if href is not None and href.startswith('bc'):
+                fname = href.split('/')[-1]
+                matches = self.matches(fname)
+                if matches:
+                    kernel_urls.append(
+                        RemoteKernel(f'https://naif.jpl.nasa.gov/pub/naif/BEPICOLOMBO/kernels/spk/{href}', *matches[1:]))
+
+        return kernel_urls
+
+    @staticmethod
+    def matches(fname):
+        """
+        Check if the given filename matches the pattern of this kernel.
+
+        Returns
+        -------
+        matches : bool
+        start_time : astropy.time.Time
+        end_time : astropy.time.Time
+        version : int
+        """
+        # Example filename: bc_mpo_fcp_00154_20181020_20251102_v01.bsp 
+        fname = fname.split('_')
+        if (len(fname) != 7 or
+                fname[0] != 'bc' or
+                fname[1] != 'mpo' or
+                fname[2] != 'fcp'):
+            return False
+
+        start_time = Time.strptime(fname[4], '%Y%m%d')
+        end_time = Time.strptime(fname[5], '%Y%m%d')
+        version = int(fname[6][1:3])
+        return True, start_time, end_time, version
+
+
+
+def get_positions_bepi(start_time,end_time,tdelta):
+    
+    dt = TimeDelta(tdelta*u.day)
+    frame = HeliographicStonyhurst()
+    
+    kernels_bepi = astrospice.registry.get_kernels('mpo', 'predict')
+    print(kernels_bepi)
+    bepi_kernel = kernels_bepi[0]
+    print(bepi_kernel)
+    coverage_bepi = bepi_kernel.coverage('Bepicolombo mpo')
+    
+    times_bepi = Time(np.arange(Time(start_time), Time(end_time), dt))
+    print(times_bepi[0],times_bepi[-1])
+    coords_bepi = astrospice.generate_coords('Bepicolombo mpo', times_bepi)
+    coords_bepi = coords_bepi.transform_to(frame)
+
+
+    return coords_bepi, times_bepi
+
+
+
+def create_bepi_pickle(start_date,end_date,finalfile,bepi_path):
+    
+    
+    t_start = start_date
+    t_end = end_date
+    
+    #create an array with 2 minute resolution between t start and end
+    #time = [ t_start + datetime.timedelta(minutes=2*n) for n in range(int ((t_end - t_start).days*30*24))]  
+    #time_mat=mdates.date2num(time) 
+    
+    #get positions
+    coords_bepi,times_bepi=get_positions_bepi(t_start,t_end,10)
+    
+    
+    
+    #array for 40 years
+    bepi=np.zeros(60*24*365*10,dtype=[('time',object),('bx', float),('by', float),\
+                    ('bz', float),('bt', float),('np', float),('vt', float),('vx', float),\
+                          ('vy', float),('vz', float),\
+                          ('tp', float),('x', float),('y', float),('z', float),\
+                    ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    bepi = bepi.view(np.recarray)  
+    
+    bepi=bepi[0:len(times_bepi)] 
+    
+    bepi.time=times_bepi.datetime
+    bepi.r=coords_bepi.radius.to(u.au)
+    bepi.lon=coords_bepi.lon.value
+    bepi.lat=coords_bepi.lat.value
+    bepi.x,bepi.y,bepi.z,r_au=sphere2cart_emma(coords_bepi.radius,  bepi.lat, bepi.lon)
+
+    
+    bepi.np=np.nan    
+    bepi.vt=np.nan
+    bepi.vx=np.nan
+    bepi.vy=np.nan
+    bepi.vz=np.nan
+    bepi.tp=np.nan
+    
+        
+        
+    #indicate inbound or outbound sensor    
+    header='Bepi Colombo cruise magnetic field data, from TU Braunschweig. ' + \
+    'Timerange: '+bepi.time[0].strftime("%Y-%b-%d %H:%M")+' to '+bepi.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(bepi.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by bepi.time, bepi.bx, bepi.bt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(bepi.size)+'. '+\
+    'Units are btxyz [nT, HEEQ], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with heliocats/create_bepi_pickle  '+\
+    'By C. Moestl, Eva Weiler, Emma Davies. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+    
+    pickle.dump([bepi,header], open(finalfile, "wb"))
+    
+    print('file written',finalfile)
+    
+    print('bepi update done')
+    print()
+    
+
+
+
+
+
+
+
+
 ###################### Wind
 
 
@@ -390,8 +546,9 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     
     
     
-    #** check gse is not the same plane as HEEQ, small error
-    #to do: convert gse position to HEEQ somehow?
+    
+    
+    ######### to do: change to HEE, then add GSE and then convert HEE to HEEQ
     print('position start')    
     frame='HEEQ'
     planet_kernel=spicedata.get_kernel('planet_trajectories')
@@ -5848,8 +6005,6 @@ def recarray_to_numpy_array(rec):
     
     
   
-    
-    
     
     
     

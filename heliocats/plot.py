@@ -124,7 +124,7 @@ def data_overview_plot(data,filename):
     plt.tight_layout()
 
     plt.savefig(filename+'.png',dpi=150)
-    plt.savefig(filename+'.pdf',dpi=150)
+    #plt.savefig(filename+'.pdf',dpi=150)
 
 
 

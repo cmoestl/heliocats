@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[13]:
+# In[16]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -85,8 +85,7 @@ get_psp=1
 get_solo=1
 get_wind=1
 get_stereoa=1
-
-get_bepi=0
+get_bepi=1
 
 print('switches: PSP',get_psp,'  SolO',get_solo,' Wind',get_wind,'  STEREO-A',get_stereoa,'  Bepi',get_bepi)
 
@@ -102,7 +101,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[14]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -112,6 +111,7 @@ if sys.platform == 'linux':
     from config_server import wind_path
     from config_server import solo_path    
     from config_server import psp_path 
+    from config_server import bepi_path  
     from config_server import stereoa_path
     from config_server import kernels_path
     from config_server import data_path_ml
@@ -122,6 +122,7 @@ if sys.platform =='darwin':
     from config_local import noaa_path
     from config_local import wind_path
     from config_local import solo_path 
+    from config_local import bepi_path 
     from config_local import psp_path 
     from config_local import stereoa_path
     from config_local import kernels_path 
@@ -168,7 +169,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### Wind 
 
-# In[15]:
+# In[3]:
 
 
 print(' ')
@@ -176,8 +177,8 @@ print(' ')
 start_time= datetime(1995,1,1)
 #end_time  = datetime(2020,4,20)
 end_time = datetime.utcnow() 
-wind_file='wind_1995_now_gse.p'
-wind_file_heeq='wind_1995_now_heeq.p'
+wind_file=data_path+'wind_1995_now_gse.p'
+wind_file_heeq=data_path+'wind_1995_now_heeq.p'
 
 
 #testing
@@ -186,8 +187,8 @@ if debug_mode > 0:
     importlib.reload(hp) 
     start_time= datetime(2022,1,25)
     end_time  = datetime(2022,2,10)
-    wind_file='wind_gse_test.p'
-    wind_file_heeq='wind_heeq_test.p'
+    wind_file=data_path+'wind_gse_test.p'
+    wind_file_heeq=data_path+'wind_heeq_test.p'
 
  
 
@@ -213,13 +214,13 @@ if get_wind > 0:
     print(wind_path)
     print(wind_file)
     # save as GSE
-    hd.save_wind_data_ascii(start_time,end_time,wind_path,data_path+wind_file,'GSE')
+    hd.save_wind_data_ascii(start_time,end_time,wind_path,wind_file,'GSE')
     
     #convert to HEEQ
-    [data,header]=pickle.load(open(data_path+wind_file, "rb"))
+    [data,header]=pickle.load(open(wind_file, "rb"))
     data_heeq=hd.convert_GSE_to_HEEQ(data)
     header_heeq=hd.wind_heeq_header(data)    
-    pickle.dump([data_heeq,header_heeq], open(data_path+wind_file_heeq, "wb"))
+    pickle.dump([data_heeq,header_heeq], open(wind_file_heeq, "wb"))
     
     t1=time.time()   
 
@@ -250,14 +251,14 @@ if get_wind > 0:
 
 
     #for GSE file
-    [data,header]=pickle.load(open(data_path+filewind, "rb"))
-    print(header)
+    [data,hwin]=pickle.load(open(data_path+filewind, "rb"))
+    print(hwin)
     hp.data_overview_plot(data,plot_path+'wind/'+filewind[:-2])
     
     
     #same for HEEQ file            
-    [data_heeq,header_heeq]=pickle.load(open(data_path+filewind_heeq, "rb"))
-    print(header_heeq)
+    [data_heeq,hwin_heeq]=pickle.load(open(data_path+filewind_heeq, "rb"))
+    print(hwin_heeq)
     hp.data_overview_plot(data_heeq,plot_path+'wind/'+filewind_heeq[:-2])
 
 
@@ -327,17 +328,14 @@ else:
 if get_psp > 0:   
     
     ### data checks
-
     filepsp='psp_2018_now_rtn.p'
     if debug_mode > 0: filepsp='psp_rtn_test.p'
-    [data,header]=pickle.load(open(data_path+filepsp, "rb" ) )
+    [data,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )
 
     ############ print header
-
-    print(header)
+    print(hpsp)
 
     ########## add overview plots
-
     hp.data_overview_plot(data,plot_path+'psp/'+filepsp[:-2])
 
 
@@ -402,30 +400,28 @@ if get_solo > 0:
 
     if debug_mode > 0: filesolo='solo_rtn_test.p'
 
-    [data,header]=pickle.load(open(data_path+filesolo, "rb"))
+    [data,hsolo]=pickle.load(open(data_path+filesolo, "rb"))
     ############ print header
-
-    print(header)
+    print(hsolo)
 
     ########## add overview plots
-
     hp.data_overview_plot(data,plot_path+'solo/'+filesolo[:-2])
 
 
 # ### BepiColombo
 
-# In[9]:
+# In[14]:
 
 
 print(' ')
 
-
+print(debug_mode)
 
 ####### -------- control parameter    
 #server
-#start_time= datetime(2018,12,1)
-#end_time = datetime.utcnow().date() + timedelta(days=1)
-#psp_file=data_path+'psp_2018_now_rtn.p'
+start_time= datetime(2018,10,1)
+end_time = datetime.utcnow().date
+bepi_file=data_path+'bepi_2018_now_rtn.p'
 
 
 if debug_mode > 0: 
@@ -433,8 +429,8 @@ if debug_mode > 0:
     importlib.reload(hp) 
 
     #testing
-    start_time= datetime(2021,12,1)
-    end_time  = datetime(2021,12,5)
+    start_time= datetime(2018,12,1)
+    end_time  = datetime(2025,1,31)
     bepi_file=data_path+'bepi_rtn_test.p'
 
 if get_bepi > 0:    
@@ -442,13 +438,16 @@ if get_bepi > 0:
     t0 = time.time()  
 
     print('--------------------- Bepi ------------------------- ')
-    print('download Bepi data manually ')
+    print('!!! download Bepi data manually, or check ESA PSA ')
     print(bepi_path)
+    print(bepi_file)
+    
+    print(' ')
 
     print('process Bepi Orbiter to pickle')
-    #hd.create_solo_pkl(start_time,end_time,solo_file,solo_path,kernels_path)
-    #print(psph)
-
+    
+    hd.create_bepi_pickle(start_time,end_time,bepi_file,bepi_path)
+ 
     t1=time.time()
     
     print(' ')
@@ -457,13 +456,36 @@ if get_bepi > 0:
 else:
     print('Bepi data NOT downloaded and pickled, turn on switch')  
 
-#solo=pickle.load(open(data_path+'solo_rtn_test.p', "rb"))
-#plt.plot(solo.time,solo.bt)
+
+
+# In[15]:
+
+
+if get_bepi > 0:  
+    
+    ### data checks
+
+    #filesta='stereoa_2007_now_rtn.p'   
+    filebepi=data_path+'bepi_2018_now_rtn.p'
+
+    if debug_mode > 0: 
+        importlib.reload(hd) 
+        importlib.reload(hp) 
+        filebepi='bepi_rtn_test.p'
+
+    [data,hbepi]=pickle.load(open(data_path+filebepi, "rb"))
+    ############ print header
+
+    print(hbepi)
+
+    ########## add overview plots
+
+    hp.data_overview_plot(data,plot_path+'bepi/'+filebepi[:-2])
 
 
 # ### STEREO-A science data
 
-# In[10]:
+# In[11]:
 
 
 print(' ')
@@ -512,7 +534,7 @@ else:
 
 
 
-# In[11]:
+# In[12]:
 
 
 if get_stereoa > 0:  
@@ -527,17 +549,54 @@ if get_stereoa > 0:
         importlib.reload(hp) 
         filesta='stereoa_rtn_test.p'
 
-    [data,header]=pickle.load(open(data_path+filesta, "rb"))
+    [data,hsta]=pickle.load(open(data_path+filesta, "rb"))
     ############ print header
 
-    print(header)
+    print(hsta)
 
     ########## add overview plots
 
     hp.data_overview_plot(data,plot_path+'stereoa/'+filesta[:-2])
 
 
-# In[12]:
+# #### write header file for science daily updates
+
+# In[13]:
+
+
+text = open(data_path+'new_data_headers.txt', 'w')
+text.write('Contains headers for the data files which are updated daily.'+'\n \n')
+text.write('File creation date:  '+datetime.utcnow().strftime("%Y-%b-%d %H:%M") +' \n \n')
+
+
+text.write('STEREO-A: '+sta_file+'\n \n'+ hsta+' \n \n')
+#text.write('load with: >> [sta,hsta]=pickle.load(open("'+data_path+filesta+'", "rb"))') 
+text.write(' \n \n \n \n')
+
+text.write('Wind GSE: '+wind_file+'\n \n'+ hwin+' \n \n')
+#text.write('load with: >> [win,hwin]=pickle.load(open("'+data_path+filewin+'", "rb" ))') 
+text.write(' \n \n \n \n')
+
+text.write('Wind HEEQ: '+wind_file_heeq+'\n \n'+ hwin+' \n \n')
+#text.write('load with: >> [win,hwin]=pickle.load(open("'+data_path+filewin+'", "rb" ))') 
+text.write(' \n \n \n \n')
+
+
+text.write('SolO: '+solo_file+'\n \n'+ hsolo+' \n \n')
+#text.write('load with: >> [win,hwin]=pickle.load(open("'+data_path+filewin+'", "rb" ))') 
+text.write(' \n \n \n \n')
+
+
+text.write('PSP: '+psp_file+'\n \n'+ hpsp+' \n \n')
+#text.write('load with: >> [win,hwin]=pickle.load(open("'+data_path+filewin+'", "rb" ))') 
+text.write(' \n \n \n \n')
+
+
+text.write('BepiColombo: '+bepi_file+'\n \n'+ hbepi+' \n \n')
+#text.write('load with: >> [o,ho]=pickle.load(open("'+data_path+fileomni+'", "rb" ))') 
+text.write(' \n \n \n \n')
+
+text.close()
 
 
 t1all = time.time()
@@ -554,35 +613,6 @@ print('-------------------------------------------------------------------------
 
 
 
-
-
-# In[10]:
-
-
-############### write header file for daily updates
-#text = open('/nas/helio/data/insitu_python/data_update_headers.txt', 'w')
-#text.write('Contains headers for the data files which are updated in real time.'+'\n \n')
-#text.write('File creation date:  '+datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M") +' \n \n')
-
-
-#text.write('NOAA real time solar wind: '+filenoaa+'\n \n'+ hnoaa+' \n \n')
-#text.write('load with: >> [noaa,hnoaa]=pickle.load(open("'+data_path+filenoaa+'", "rb"))') 
-#text.write(' \n \n \n \n')
-
-#text.write('STEREO-A beacon: '+filesta_sceq+'\n \n'+ hsta+' \n \n')
-#text.write('load with: >> [sta,hsta]=pickle.load(open("'+data_path+filesta+'", "rb"))') 
-#text.write(' \n \n \n \n')
-
-#text.write('Wind: '+filewin+'\n \n'+ hwin+' \n \n')
-#text.write('load with: >> [win,hwin]=pickle.load(open("'+data_path+filewin+'", "rb" ))') 
-#text.write(' \n \n \n \n')
-
-
-#text.write('OMNI2: '+fileomni+'\n \n'+ ho+' \n \n')
-#text.write('load with: >> [o,ho]=pickle.load(open("'+data_path+fileomni+'", "rb" ))') 
-#text.write(' \n \n \n \n')
-
-#text.close()
 
 
 # In[ ]:
