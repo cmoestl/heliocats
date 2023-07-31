@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[8]:
+# In[37]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -102,7 +102,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[9]:
+# In[38]:
 
 
 if sys.platform == 'linux': 
@@ -168,10 +168,9 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### Wind 
 
-# In[34]:
+# In[36]:
 
 
-debug_mode=1
 print(' ')
 #for server
 start_time= datetime(1995,1,1)
@@ -202,7 +201,7 @@ if get_wind > 0:
     t0 = time.time() 
     
     #get all years
-    hd.wind_download_ascii(1995, wind_path) 
+    #hd.wind_download_ascii(1995, wind_path) 
     
     #start with current year to now
     hd.wind_download_ascii(2023, wind_path) 
