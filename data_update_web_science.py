@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[39]:
+# In[43]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -102,7 +102,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[38]:
+# In[41]:
 
 
 if sys.platform == 'linux': 
@@ -168,12 +168,12 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### Wind 
 
-# In[36]:
+# In[42]:
 
 
 print(' ')
 #for server
-start_time= datetime(1995,1,1)
+start_time= datetime(2020,1,1)
 #end_time  = datetime(2020,4,20)
 end_time = datetime.utcnow() 
 wind_file='wind_1995_now_gse.p'
