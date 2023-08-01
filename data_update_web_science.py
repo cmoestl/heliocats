@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[3]:
+# In[14]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -475,7 +475,7 @@ if get_bepi > 0:
     
     ### outbound
 
-    filebepi=data_path+'bepi_ob_2019_now_e2k.p'
+    filebepi='bepi_ob_2019_now_e2k.p'
 
     if debug_mode > 0: 
         importlib.reload(hd) 
@@ -490,7 +490,7 @@ if get_bepi > 0:
     
     ### inbound
 
-    filebepi=data_path+'bepi_ib_2019_now_e2k.p'
+    filebepi='bepi_ib_2019_now_e2k.p'
 
     if debug_mode > 0: 
         importlib.reload(hd) 
