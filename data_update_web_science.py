@@ -12,13 +12,15 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[16]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
 
 # for updating data every day on the servers
 
+import numpy as np
+import pandas as pd
 import pickle
 import importlib
 import matplotlib.pyplot as plt
@@ -26,26 +28,25 @@ import matplotlib
 import matplotlib.dates as mdates
 import seaborn as sns
 import sys
-import numpy as np
-import datetime
-import scipy.signal
 import glob
+import os   
+import copy
+import datetime
+from datetime import datetime, timedelta
+import scipy.signal
 import urllib
+import urllib.request
 from urllib.request import urlopen
 import json
-import os   
 import time
 import h5py
 import pytz
-import copy
 import cdflib
-import pandas as pd
-from datetime import datetime, timedelta
 import spiceypy
 import glob
-import urllib.request
 import json
 from bs4 import BeautifulSoup 
+from astropy.time import Time, TimeDelta
 import astrospice
 from sunpy.coordinates import HeliocentricInertial, HeliographicStonyhurst
 
@@ -81,11 +82,12 @@ print('debug_mode is set to: ',debug_mode)
 
 
 #switches
-get_psp=1
-get_solo=1
-get_wind=1
-get_stereoa=1
+get_psp=0
+get_solo=0
+get_wind=0
 get_bepi=1
+get_stereoa=1
+
 
 print('switches: PSP',get_psp,'  SolO',get_solo,' Wind',get_wind,'  STEREO-A',get_stereoa,'  Bepi',get_bepi)
 
@@ -410,7 +412,7 @@ if get_solo > 0:
 
 # ### BepiColombo
 
-# In[14]:
+# In[10]:
 
 
 print(' ')
@@ -419,9 +421,10 @@ print(debug_mode)
 
 ####### -------- control parameter    
 #server
-start_time= datetime(2018,10,1)
-end_time = datetime.utcnow().date
-bepi_file=data_path+'bepi_2018_now_rtn.p'
+start_time= datetime(2019,3,6)
+end_time = datetime.utcnow()
+bepi_file_ob=data_path+'bepi_ob_2019_now_e2k.p'
+bepi_file_ib=data_path+'bepi_ib_2019_now_e2k.p'
 
 
 if debug_mode > 0: 
@@ -429,10 +432,13 @@ if debug_mode > 0:
     importlib.reload(hp) 
 
     #testing
-    start_time= datetime(2018,12,1)
-    end_time  = datetime(2025,1,31)
-    bepi_file=data_path+'bepi_rtn_test.p'
+    start_time= datetime(2023,3,15)
+    end_time= datetime(2023,3,20)
+    #end_time  = datetime(2025,1,31)    
+    bepi_file_ob=data_path+'bepi_ob_e2k_test.p'
+    bepi_file_ib=data_path+'bepi_ib_e2k_test.p'
 
+    
 if get_bepi > 0:    
 
     t0 = time.time()  
@@ -440,13 +446,18 @@ if get_bepi > 0:
     print('--------------------- Bepi ------------------------- ')
     print('!!! download Bepi data manually, or check ESA PSA ')
     print(bepi_path)
-    print(bepi_file)
+    print(bepi_file_ob)
+    print(bepi_file_ib)
+
     
     print(' ')
 
     print('process Bepi Orbiter to pickle')
     
-    hd.create_bepi_pickle(start_time,end_time,bepi_file,bepi_path)
+    #outbound
+    hd.create_bepi_pickle(start_time,end_time,bepi_file_ob,bepi_path, 'outbound')
+    #inbound
+    hd.create_bepi_pickle(start_time,end_time,bepi_file_ib,bepi_path, 'inbound')
  
     t1=time.time()
     
@@ -457,30 +468,42 @@ else:
     print('Bepi data NOT downloaded and pickled, turn on switch')  
 
 
-
-# In[15]:
+# In[11]:
 
 
 if get_bepi > 0:  
     
-    ### data checks
+    ### outbound
 
-    #filesta='stereoa_2007_now_rtn.p'   
-    filebepi=data_path+'bepi_2018_now_rtn.p'
+    filebepi=data_path+'bepi_ob_2019_now_e2k.p'
 
     if debug_mode > 0: 
         importlib.reload(hd) 
         importlib.reload(hp) 
-        filebepi='bepi_rtn_test.p'
+        filebepi='bepi_ob_e2k_test.p'
 
     [data,hbepi]=pickle.load(open(data_path+filebepi, "rb"))
-    ############ print header
-
     print(hbepi)
-
-    ########## add overview plots
-
     hp.data_overview_plot(data,plot_path+'bepi/'+filebepi[:-2])
+    
+    
+    
+    ### inbound
+
+    filebepi=data_path+'bepi_ib_2019_now_e2k.p'
+
+    if debug_mode > 0: 
+        importlib.reload(hd) 
+        importlib.reload(hp) 
+        filebepi='bepi_ib_e2k_test.p'
+
+    [data,hbepi]=pickle.load(open(data_path+filebepi, "rb"))
+    print(hbepi)
+    hp.data_overview_plot(data,plot_path+'bepi/'+filebepi[:-2])
+    
+    
+    
+    
 
 
 # ### STEREO-A science data
@@ -561,7 +584,7 @@ if get_stereoa > 0:
 
 # #### write header file for science daily updates
 
-# In[13]:
+# In[34]:
 
 
 text = open(data_path+'new_data_headers.txt', 'w')

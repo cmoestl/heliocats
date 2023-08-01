@@ -1,64 +1,62 @@
 #data.py
-#load and save data for heliocats
+#read and save data for heliocats
 #https://github.com/cmoestl/heliocats
 
 import numpy as np
 import pandas as pd
 import scipy
+import scipy.io
+import scipy.signal
 import copy
+import os
+import sys
+import glob
+import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.image as mpimg
+import time
 import datetime
 import urllib
 from urllib.request import urlopen
+import requests
 import json
-import os
-import pdb
 from sunpy.time import parse_time
-import scipy.io
-import scipy.signal
+from sunpy.coordinates import HeliocentricInertial, HeliographicStonyhurst
+import astropy
+import astropy.units as u
+from astropy.time import Time, TimeDelta
 import pickle
-import time
-import sys
 import cdflib
+import spiceypy
 import astrospice
-import matplotlib.pyplot as plt
-#import heliosat  #not compatible with astrospice, problems with spiceypy in astrospice.generate
+from astrospice.net.reg import RemoteKernel, RemoteKernelsBase
 from numba import njit
-from astropy.time import Time
 import heliopy.data.cassini as cassinidata
 import heliopy.data.helios as heliosdata
 import heliopy.data.spice as spicedata
 import heliopy.spice as spice
-import astropy
-import spiceypy
-import requests
 import math
 import h5py
 from bs4 import BeautifulSoup 
-from sunpy.coordinates import HeliocentricInertial, HeliographicStonyhurst
-import glob
 
 
 
-'''
-MIT LICENSE
-Copyright 2020-2023, Christian Moestl, Rachel L. Bailey, Emma E. Davies
-Permission is hereby granted, free of charge, to any person obtaining a copy of this 
-software and associated documentation files (the "Software"), to deal in the Software
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following 
-conditions:
-The above copyright notice and this permission notice shall be included in all copies 
-or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
-OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-'''
+#MIT LICENSE
+#Copyright 2020-2023, Christian Moestl, Rachel L. Bailey, Emma E. Davies, Eva Weiler
+#Permission is hereby granted, free of charge, to any person obtaining a copy of this 
+#software and associated documentation files (the "Software"), to deal in the Software
+#without restriction, including without limitation the rights to use, copy, modify, 
+#merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
+#permit persons to whom the Software is furnished to do so, subject to the following 
+#conditions:
+#The above copyright notice and this permission notice shall be included in all copies 
+#or substantial portions of the Software.
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+#INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+#PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+#HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+#CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+#OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ####################################### get new data ####################################
@@ -89,11 +87,6 @@ def cart2sphere_emma(x,y,z):
 
 #from Eva
 
-from urllib.request import urlopen
-from astropy.time import Time,TimeDelta
-from bs4 import BeautifulSoup
-import astropy.units as u
-from astrospice.net.reg import RemoteKernel, RemoteKernelsBase
 
 __all__ = ['BepiPredict']
 
@@ -150,7 +143,7 @@ class BepiPredict(RemoteKernelsBase):
 
 
 
-def get_positions_bepi(start_time,end_time,tdelta):
+def get_positions_bepi2(start_time,end_time,tdelta):
     
     dt = TimeDelta(tdelta*u.day)
     frame = HeliographicStonyhurst()
@@ -171,23 +164,41 @@ def get_positions_bepi(start_time,end_time,tdelta):
 
 
 
-def create_bepi_pickle(start_date,end_date,finalfile,bepi_path):
+def get_positions_bepi(times1):
+    
+    frame = HeliographicStonyhurst()
+    
+    kernels_bepi = astrospice.registry.get_kernels('mpo', 'predict')
+    print(kernels_bepi)
+    bepi_kernel = kernels_bepi[0]
+    print(bepi_kernel)
+    coverage_bepi = bepi_kernel.coverage('Bepicolombo mpo')
+    
+    #times_bepi = Time(np.arange(Time(times1[0]), Time(times1[-1]), dt))
+    print(times1[0],times1[-1])
+    coords_bepi = astrospice.generate_coords('Bepicolombo mpo',times1)
+    coords_bepi = coords_bepi.transform_to(frame)
+
+
+    return coords_bepi, times1
+
+
+
+def create_bepi_pickle(start_date,end_date,finalfile,bepi_path, sensor):
     
     
     t_start = start_date
     t_end = end_date
     
-    #create an array with 2 minute resolution between t start and end
-    #time = [ t_start + datetime.timedelta(minutes=2*n) for n in range(int ((t_end - t_start).days*30*24))]  
-    #time_mat=mdates.date2num(time) 
-    
-    #get positions
-    coords_bepi,times_bepi=get_positions_bepi(t_start,t_end,10)
-    
+    #create an array with 10 minute resolution between t start and end
+    time1 = [ t_start + datetime.timedelta(minutes=10*n) for n in range(int ((t_end - t_start).days*24*6))] 
+    time1_mat=mdates.date2num(time1) 
+    print(time1[0],time1[-1])
+    print(len(time1))
     
     
-    #array for 40 years
-    bepi=np.zeros(60*24*365*10,dtype=[('time',object),('bx', float),('by', float),\
+    #make array with length time1
+    bepi=np.zeros(len(time1),dtype=[('time',object),('bx', float),('by', float),\
                     ('bz', float),('bt', float),('np', float),('vt', float),('vx', float),\
                           ('vy', float),('vz', float),\
                           ('tp', float),('x', float),('y', float),('z', float),\
@@ -196,9 +207,95 @@ def create_bepi_pickle(start_date,end_date,finalfile,bepi_path):
     #convert to recarray
     bepi = bepi.view(np.recarray)  
     
-    bepi=bepi[0:len(times_bepi)] 
     
-    bepi.time=times_bepi.datetime
+    bepi.time=time1
+    
+    
+    if sensor=='outbound':
+        print('data from outbound directory')
+        tag='ob'
+        bepi_path=bepi_path+'cruise_ob/'        
+        print(bepi_path)
+        
+    if sensor=='inbound':
+        print('data from inbound directory')
+        tag='ib'
+        bepi_path=bepi_path+'cruise_ib/'        
+        print(bepi_path)
+        
+        
+
+    #Tab File looks like
+    #SC POSITION X COMPONENT, ECLIPJ2000 COORDINATES. VALUE IS GIVEN IN KM. THE SC POSITION IS STATED AS THE DISTANCE TO SUN.
+    #MAGNETIC FIELD X COMPONENT, 1-SECOND-AVERAGED CALIBRATED DATA,   ECLIPJ2000 COORDINATES, OB SENSOR. VALUE IS GIVEN IN NANOTESLA.
+
+    ######## create array of filenames needed for the current timerange
+    
+    #array only for days for time1
+    time1_days = [ t_start + datetime.timedelta(days=1*n) for n in range(int ((t_end - t_start).days))] 
+
+    data_filename=[]
+    
+    for i in np.arange(0,len(time1_days)):
+    
+        #make zeros for day and month
+        month=str(np.char.zfill(str(time1_days[i].month), 2))
+        day=str(np.char.zfill(str(time1_days[i].day), 2))
+        data_filename.append('mag_der_sc_'+tag+'_a001_e2k_00000_'+str(time1_days[i].year)+month+day+'.tab')
+        
+    
+    
+    #make one big array of the raw data and then interpolate
+    
+    #make array with length for all days with 1 second resolution
+    bepi_raw=np.zeros(len(data_filename)*24*60*60,dtype=[('time',float),('bx', float),('by', float),\
+                    ('bz', float)])   
+
+    #convert to recarray
+    bepi_raw = bepi_raw.view(np.recarray)  
+    
+    
+    counter=0
+        
+    for filename in data_filename:
+        print(bepi_path+filename)
+
+
+        #check if file exists
+        try: 
+            braw=np.loadtxt(bepi_path+filename,delimiter=",",dtype=[('time','<U30'),('tsc','<U30'),('x', float),\
+                                                    ('y', float),('z', float),('bx', float),('by', float),\
+                                                    ('bz', float),('t1', float),('t2', float),('t3', float)])
+            
+            braw = braw.view(np.recarray) 
+            
+            #write in bepi_raw
+            bepi_raw[counter:counter+len(braw)].time=mdates.date2num(Time(braw.time).datetime)
+            bepi_raw.bx[counter:counter+len(braw)]=braw.bx
+            bepi_raw.by[counter:counter+len(braw)]=braw.by
+            bepi_raw.bz[counter:counter+len(braw)]=braw.bz
+            
+            counter=counter+len(braw)
+    
+        except:
+
+            print(filename,'does not exist or something went wrong when reading it')
+
+    bepi_raw=bepi_raw[0:counter]
+ 
+    bepi.bx = np.interp(time1_mat, bepi_raw.time, bepi_raw.bx)
+    bepi.by = np.interp(time1_mat, bepi_raw.time, bepi_raw.by)
+    bepi.bz = np.interp(time1_mat, bepi_raw.time, bepi_raw.bz)
+    bepi.bt=np.sqrt(bepi.bx**2+bepi.by**2+bepi.bz**2)                                                      
+        
+
+    
+    #get positions
+    print('positions start')
+    #coords_bepi,times_bepi=get_positions_bepi(t_start,t_end,10)
+    coords_bepi,times_bepi=get_positions_bepi(time1)
+    print('positions end')
+            
     bepi.r=coords_bepi.radius.to(u.au)
     bepi.lon=coords_bepi.lon.value
     bepi.lat=coords_bepi.lat.value
@@ -215,12 +312,12 @@ def create_bepi_pickle(start_date,end_date,finalfile,bepi_path):
         
         
     #indicate inbound or outbound sensor    
-    header='Bepi Colombo cruise magnetic field data, from TU Braunschweig. ' + \
+    header='Bepi Colombo cruise magnetic field data, from TU Braunschweig, sensor '+sensor+'. ' + \
     'Timerange: '+bepi.time[0].strftime("%Y-%b-%d %H:%M")+' to '+bepi.time[-1].strftime("%Y-%b-%d %H:%M")+\
     ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(bepi.time)).seconds)+' seconds. '+\
     'The data are available in a numpy recarray, fields can be accessed by bepi.time, bepi.bx, bepi.bt etc. '+\
     'Missing data has been set to "np.nan". Total number of data points: '+str(bepi.size)+'. '+\
-    'Units are btxyz [nT, HEEQ], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
+    'Units are btxyz [nT, E2K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with heliocats/create_bepi_pickle  '+\
     'By C. Moestl, Eva Weiler, Emma Davies. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
