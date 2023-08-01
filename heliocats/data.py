@@ -190,8 +190,8 @@ def create_bepi_pickle(start_date,end_date,finalfile,bepi_path, sensor):
     t_start = start_date
     t_end = end_date
     
-    #create an array with 10 minute resolution between t start and end
-    time1 = [ t_start + datetime.timedelta(minutes=10*n) for n in range(int ((t_end - t_start).days*24*6))] 
+    #create an array with 1 minute resolution between t start and end
+    time1 = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int ((t_end - t_start).days*24*60))] 
     time1_mat=mdates.date2num(time1) 
     print(time1[0],time1[-1])
     print(len(time1))

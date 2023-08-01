@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[1]:
+# In[3]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -82,9 +82,9 @@ print('debug_mode is set to: ',debug_mode)
 
 
 #switches
-get_psp=0
-get_solo=0
-get_wind=0
+get_psp=1
+get_solo=1
+get_wind=1
 get_bepi=1
 get_stereoa=1
 
@@ -103,7 +103,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[4]:
 
 
 if sys.platform == 'linux': 
@@ -171,7 +171,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### Wind 
 
-# In[3]:
+# In[5]:
 
 
 print(' ')
@@ -236,7 +236,7 @@ else:
     
 
 
-# In[4]:
+# In[6]:
 
 
 #data checks
@@ -267,7 +267,7 @@ if get_wind > 0:
 # ### Parker Solar Probe
 # 
 
-# In[5]:
+# In[7]:
 
 
 print(' ')
@@ -324,7 +324,7 @@ else:
   
 
 
-# In[6]:
+# In[8]:
 
 
 if get_psp > 0:   
@@ -344,7 +344,7 @@ if get_psp > 0:
 
 # ### Solar Orbiter
 
-# In[7]:
+# In[9]:
 
 
 print(' ')
@@ -391,7 +391,7 @@ else:
     print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[8]:
+# In[10]:
 
 
 if get_solo > 0:  
@@ -412,7 +412,7 @@ if get_solo > 0:
 
 # ### BepiColombo
 
-# In[10]:
+# In[12]:
 
 
 print(' ')
@@ -468,7 +468,7 @@ else:
     print('Bepi data NOT downloaded and pickled, turn on switch')  
 
 
-# In[11]:
+# In[13]:
 
 
 if get_bepi > 0:  
