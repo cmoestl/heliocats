@@ -3,9 +3,9 @@
 This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections (ICMEs) and their analysis. [This is a link to a google colab notebook](https://colab.research.google.com/drive/1_zJMGJnX3XJx7FCHD04SC3Y0KCMdDGMz) for instructions how to read the catalogs produced with this package. The ICMECAT as the main result to be produced with this package is published at https://helioforecast.space/icmecat. It forms the largest living catalog of ICMEs.
 
 
-**Authors**: C. Möstl, Austrian Space Weather Office, Geosphere Austria https:/helioforecast.space; contributions by A. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow, D. Stansby.
+**Authors**: C. Möstl, Austrian Space Weather Office, Geosphere Austria https:/helioforecast.space; contributions by E. E. Davies, EA. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow.
 
-Current status (**July 2023**): **work in progress**. I am currently updating the code with a new conda environment (helio4), defined in "/envs/env_helio4.yml" and go through all codes to ensure they work. 
+Current status (**August 2023**): **work in progress**. I am currently updating the code with a new conda environment (helio4), defined in "/envs/env_helio4.yml" and go through all codes to ensure they work. 
 
 This is a continuation of work done in the EU HELCATS project (2014-2017): 
 [https://www.helcats-fp7.eu](https://www.helcats-fp7.eu). 
@@ -26,6 +26,8 @@ For running the jupyter notebooks (files with .ipynb) or the python scripts (.py
 A data folder location can be set in *config.py* (e.g. *data/*) that contains all data files needed during the analysis. Outputs can be found in the folder *results/* or subfolders therein, e.g. the files created for the ICMECAT are in folder *icmecat/*. Jupyter notebooks can be converted to scripts by e.g. for icmecat.ipynb to icmecat.py:
 
     jupyter nbconvert --to script icmecat.ipynb
+    
+For some scripts there should be a systemwide installation of ffmpeg available.
     
 ---
 

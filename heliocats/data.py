@@ -80,6 +80,328 @@ def cart2sphere_emma(x,y,z):
 
 
 
+def convert_HEEQ_to_RTN(sc_in):
+    '''
+    for all spacecraft
+    '''
+
+    print('conversion HEEQ to RTN start for both V and B')                                
+    
+    sc=copy.deepcopy(sc_in)
+    
+    sc_len=len(sc.bt)
+
+    #unit vectors of HEEQ basis
+    heeq_x=[1,0,0]
+    heeq_y=[0,1,0]
+    heeq_z=[0,0,1]
+
+    #project into new system RTN
+    for i in np.arange(0,sc_len):
+
+        #make unit vectors of RTN in basis of HEEQ
+        rtn_r=[sc.x[i],sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i],sc.y[i],sc.z[i]])
+        rtn_t=np.cross(heeq_z,rtn_r)
+        rtn_n=np.cross(rtn_r,rtn_t)
+
+        sc.bx[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_r)+sc_in.by[i]*np.dot(heeq_y,rtn_r)+sc_in.bz[i]*np.dot(heeq_z,rtn_r)
+        sc.by[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_t)+sc_in.by[i]*np.dot(heeq_y,rtn_t)+sc_in.bz[i]*np.dot(heeq_z,rtn_t)
+        sc.bz[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_n)+sc_in.by[i]*np.dot(heeq_y,rtn_n)+sc_in.bz[i]*np.dot(heeq_z,rtn_n)
+   
+        sc.vx[i]=sc_in.vx[i]*np.dot(heeq_x,rtn_r)+sc_in.vy[i]*np.dot(heeq_y,rtn_r)+sc_in.vz[i]*np.dot(heeq_z,rtn_r)
+        sc.vy[i]=sc_in.vx[i]*np.dot(heeq_x,rtn_t)+sc_in.vy[i]*np.dot(heeq_y,rtn_t)+sc_in.vz[i]*np.dot(heeq_z,rtn_t)
+        sc.vz[i]=sc_in.vx[i]*np.dot(heeq_x,rtn_n)+sc_in.vy[i]*np.dot(heeq_y,rtn_n)+sc_in.vz[i]*np.dot(heeq_z,rtn_n)
+
+    print('conversion HEEQ to RTN done')                                
+
+    return sc
+
+
+
+def convert_HEEQ_to_RTN_mag(sc_in):
+    '''
+    for all spacecraft
+    '''
+
+    print('conversion HEEQ to RTN start for B only')                                
+    
+    sc=copy.deepcopy(sc_in)
+    
+    sc_len=len(sc.bt)
+
+    #unit vectors of HEEQ basis
+    heeq_x=[1,0,0]
+    heeq_y=[0,1,0]
+    heeq_z=[0,0,1]
+
+    #project into new system RTN
+    for i in np.arange(0,sc_len):
+
+        #make unit vectors of RTN in basis of HEEQ
+        rtn_r=[sc.x[i],sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i],sc.y[i],sc.z[i]])
+        rtn_t=np.cross(heeq_z,rtn_r)
+        rtn_n=np.cross(rtn_r,rtn_t)
+
+        sc.bx[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_r)+sc_in.by[i]*np.dot(heeq_y,rtn_r)+sc_in.bz[i]*np.dot(heeq_z,rtn_r)
+        sc.by[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_t)+sc_in.by[i]*np.dot(heeq_y,rtn_t)+sc_in.bz[i]*np.dot(heeq_z,rtn_t)
+        sc.bz[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_n)+sc_in.by[i]*np.dot(heeq_y,rtn_n)+sc_in.bz[i]*np.dot(heeq_z,rtn_n)
+   
+    print('conversion HEEQ to RTN done')                                
+
+    return sc
+
+
+  
+   
+def convert_HEE_to_HEEQ(sc_in):
+    '''
+    for Wind, Bepi magnetic field components: convert HEE to HAE to HEEQ
+    '''
+
+    print('conversion HEE to HEEQ')                                
+    
+    sc=copy.deepcopy(sc_in)
+    
+    jd=np.zeros(len(sc))
+    mjd=np.zeros(len(sc))
+        
+
+    for i in np.arange(0,len(sc)):
+
+        jd[i]=parse_time(sc.time[i]).jd
+        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
+        
+       
+        b_hee=[sc.bx[i],sc.by[i],sc.bz[i]]
+        
+        #HEE to HAE        
+        
+        #define T00 and UT
+        T00=(mjd[i]-51544.5)/36525.0          
+        dobj=sc.time[i]
+        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
+
+        #lambda_sun in Hapgood, equation 5, here in rad
+        M=np.radians(357.528+35999.050*T00+0.04107*UT)
+        LAMBDA=280.460+36000.772*T00+0.04107*UT        
+        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
+        
+        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle for inversion HEE to HAE instead of HAE to HEE
+        c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
+        Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        b_hae=np.dot(Sm1,b_hee)
+
+        #HAE to HEEQ
+        
+        iota=np.radians(7.25)
+        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
+        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
+                      
+    
+        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
+        #get lambda-omega angle in degree mod 360 and theta in degrees
+        lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
+        theta_node_deg=np.degrees(theta)
+
+
+        ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
+        if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                                                                          
+        
+        #rotation around Z by theta
+        c, s = np.cos(theta), np.sin(theta)
+        S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+
+        #rotation around X by iota  
+        iota=np.radians(7.25)
+        c, s = np.cos(iota), np.sin(iota)
+        S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
+                
+        #rotation around Z by Omega  
+        c, s = np.cos(omega), np.sin(omega)
+        S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
+        
+        #matrix multiplication to go from HAE to HEEQ components                
+        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
+        
+        sc.bx[i]=bx_heeq
+        sc.by[i]=by_heeq
+        sc.bz[i]=bz_heeq
+
+    
+    print('conversion HEE to HEEQ done')  
+    
+    return sc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def convert_E2K_to_HEE(sc_in):
+    '''
+    for Bepi magnetic field components: convert E2K to HEE by projection
+    '''
+
+    
+    sc=copy.deepcopy(sc_in)
+    
+    print('conversion E2K to HEE')                                
+    
+    #get Earth trajectory in ECLIPJ2000
+    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
+    earth.generate_positions(sc_in.time,'Sun','ECLIPJ2000')
+    earth.change_units(astropy.units.AU)  
+    earth_x_ej2=earth.x.value
+    earth_y_ej2=earth.y.value
+    earth_z_ej2=earth.z.value
+
+    sc_len=len(sc_in.bt)
+
+    #unit vectors of EJ2 basis
+    ej_x=[1,0,0]
+    ej_y=[0,1,0]
+    ej_z=[0,0,1]
+
+    #project into new system HEE
+    for i in np.arange(0,sc_len):   
+        #make unit vectors of HEE in basis of EJ2
+        hee_x=[earth_x_ej2[i],earth_y_ej2[i],earth_z_ej2[i]]/np.linalg.norm([earth_x_ej2[i],earth_y_ej2[i],earth_z_ej2[i]])
+        hee_z=[0,0,1]
+        hee_y=np.cross(hee_z,hee_x)
+
+        sc.bx[i]=sc_in.bx[i]*np.dot(ej_x,hee_x)+sc_in.by[i]*np.dot(ej_y,hee_x)+sc_in.bz[i]*np.dot(ej_z,hee_x)
+        sc.by[i]=sc_in.bx[i]*np.dot(ej_x,hee_y)+sc_in.by[i]*np.dot(ej_y,hee_y)+sc_in.bz[i]*np.dot(ej_z,hee_y)
+        sc.bz[i]=sc_in.bx[i]*np.dot(ej_x,hee_z)+sc_in.by[i]*np.dot(ej_y,hee_z)+sc_in.bz[i]*np.dot(ej_z,hee_z)
+        
+    print('conversion E2K to HEE done')  
+
+    return sc
+
+
+
+
+ 
+def convert_GSE_to_HEEQ(sc_in):
+    '''
+    for Wind magnetic field components: convert GSE to HEE to HAE to HEEQ
+    '''
+    
+    
+    sc=copy.deepcopy(sc_in)
+
+    print('conversion GSE to HEEQ start for both B and V')                                
+
+    jd=np.zeros(len(sc))
+    mjd=np.zeros(len(sc))
+        
+
+    for i in np.arange(0,len(sc)):
+
+        jd[i]=parse_time(sc.time[i]).jd
+        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
+        
+        #GSE to HEE
+        #Hapgood 1992 rotation by 180 degrees, or simply change sign in bx by    
+        #rotangle=np.radians(180)
+        #c, s = np.cos(rotangle), np.sin(rotangle)
+        #T1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        #[bx_hee,by_hee,bz_hee]=T1[sc.bx[i],sc.by[i],sc.bz[i]]        
+        b_hee=[-sc.bx[i],-sc.by[i],sc.bz[i]]
+        v_hee=[-sc.vx[i],-sc.vy[i],sc.vz[i]]        
+        
+        
+        #HEE to HAE        
+        
+        #define T00 and UT
+        T00=(mjd[i]-51544.5)/36525.0          
+        dobj=sc.time[i]
+        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
+
+        #lambda_sun in Hapgood, equation 5, here in rad
+        M=np.radians(357.528+35999.050*T00+0.04107*UT)
+        LAMBDA=280.460+36000.772*T00+0.04107*UT        
+        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
+        
+        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle for inversion HEE to HAE instead of HAE to HEE
+        c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
+        Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        b_hae=np.dot(Sm1,b_hee)
+        v_hae=np.dot(Sm1,v_hee)
+
+        #HAE to HEEQ
+        
+        iota=np.radians(7.25)
+        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
+        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
+                      
+    
+        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
+        #get lambda-omega angle in degree mod 360 and theta in degrees
+        lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
+        theta_node_deg=np.degrees(theta)
+
+
+        ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
+        if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                                                                          
+        
+        #rotation around Z by theta
+        c, s = np.cos(theta), np.sin(theta)
+        S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+
+        #rotation around X by iota  
+        iota=np.radians(7.25)
+        c, s = np.cos(iota), np.sin(iota)
+        S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
+                
+        #rotation around Z by Omega  
+        c, s = np.cos(omega), np.sin(omega)
+        S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
+        
+        #matrix multiplication to go from HAE to HEEQ components                
+        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
+        
+        sc.bx[i]=bx_heeq
+        sc.by[i]=by_heeq
+        sc.bz[i]=bz_heeq
+        
+        [vx_heeq,vy_heeq,vz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), v_hae) 
+        
+        sc.vx[i]=vx_heeq
+        sc.vy[i]=vy_heeq
+        sc.vz[i]=vz_heeq
+
+        
+   
+    print('conversion GSE to HEEQ done')                                
+    return sc
+
+    
+
+
+
+
+
+
+
+
+
+
+
 
 
 ############# BepiColombo
@@ -330,6 +652,19 @@ def create_bepi_pickle(start_date,end_date,finalfile,bepi_path, sensor):
     print()
     
 
+def bepi_rtn_header(bepi, sensor):
+    
+    header='Bepi Colombo cruise magnetic field data, from TU Braunschweig, sensor '+sensor+'. ' + \
+    'Timerange: '+bepi.time[0].strftime("%Y-%b-%d %H:%M")+' to '+bepi.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(bepi.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by bepi.time, bepi.bx, bepi.bt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(bepi.size)+'. '+\
+    'Units are btxyz [nT, RTN], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with heliocats/create_bepi_pickle  '+\
+    'By C. Moestl, Eva Weiler, Emma Davies. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+    
+    return header
 
 
 
@@ -882,108 +1217,32 @@ def wind_heeq_header(data):
     'By C. Moestl (twitter @chrisoutofspace), Emma Davies, Eva Weiler. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
     
-    
     return header_heeq
 
 
 
+def wind_rtn_header(data):
+    
+    
+    header_rtn='Wind magnetic field (MAG instrument) and plasma data (SWE), ' + \
+    'obtained from https://spdf.gsfc.nasa.gov/pub/data/wind/ ascii files  '+ \
+    'Timerange: '+data.time[0].strftime("%Y-%b-%d %H:%M")+' to '+data.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(data.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by win.time, win.bx, win.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(data.size)+'. '+\
+    'Units are btxyz [nT, RTN], vtxyz [km s^-1, RTN], np[cm^-3], tp [K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with heliocats/save_wind_data_ascii.  '+\
+    'By C. Moestl (twitter @chrisoutofspace), Emma Davies, Eva Weiler. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+    
+    return header_rtn
+
+
+
       
-   
-def convert_GSE_to_HEEQ(sc_in):
-    '''
-    for Wind magnetic field components: convert GSE to HEE to HAE to HEEQ
-    '''
-    
-    
-    sc=copy.deepcopy(sc_in)
 
-    print('conversion GSE to HEEQ start for both B and V')                                
-
-    jd=np.zeros(len(sc))
-    mjd=np.zeros(len(sc))
-        
-
-    for i in np.arange(0,len(sc)):
-
-        jd[i]=parse_time(sc.time[i]).jd
-        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
-        
-        #GSE to HEE
-        #Hapgood 1992 rotation by 180 degrees, or simply change sign in bx by    
-        #rotangle=np.radians(180)
-        #c, s = np.cos(rotangle), np.sin(rotangle)
-        #T1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-        #[bx_hee,by_hee,bz_hee]=T1[sc.bx[i],sc.by[i],sc.bz[i]]        
-        b_hee=[-sc.bx[i],-sc.by[i],sc.bz[i]]
-        v_hee=[-sc.vx[i],-sc.vy[i],sc.vz[i]]        
-        
-        
-        #HEE to HAE        
-        
-        #define T00 and UT
-        T00=(mjd[i]-51544.5)/36525.0          
-        dobj=sc.time[i]
-        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
-
-        #lambda_sun in Hapgood, equation 5, here in rad
-        M=np.radians(357.528+35999.050*T00+0.04107*UT)
-        LAMBDA=280.460+36000.772*T00+0.04107*UT        
-        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
-        
-        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle for inversion HEE to HAE instead of HAE to HEE
-        c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
-        Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-        b_hae=np.dot(Sm1,b_hee)
-        v_hae=np.dot(Sm1,v_hee)
-
-        #HAE to HEEQ
-        
-        iota=np.radians(7.25)
-        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
-        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
-                      
-    
-        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
-        #get lambda-omega angle in degree mod 360 and theta in degrees
-        lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
-        theta_node_deg=np.degrees(theta)
-
-
-        ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
-        if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                                                                          
-        
-        #rotation around Z by theta
-        c, s = np.cos(theta), np.sin(theta)
-        S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-
-        #rotation around X by iota  
-        iota=np.radians(7.25)
-        c, s = np.cos(iota), np.sin(iota)
-        S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
-                
-        #rotation around Z by Omega  
-        c, s = np.cos(omega), np.sin(omega)
-        S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
-        
-        #matrix multiplication to go from HAE to HEEQ components                
-        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
-        
-        sc.bx[i]=bx_heeq
-        sc.by[i]=by_heeq
-        sc.bz[i]=bz_heeq
-        
-        [vx_heeq,vy_heeq,vz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), v_hae) 
-        
-        sc.vx[i]=vx_heeq
-        sc.vy[i]=vy_heeq
-        sc.vz[i]=vz_heeq
-
-        
-   
-    print('conversion GSE to HEEQ done')                                
-    return sc
-
-    
+      
+  
 
     
     
@@ -6130,86 +6389,7 @@ def sphere2cart(r,theta,phi):
     
   
     
-      
-   
-def convert_HEE_to_HEEQ(sc_in):
-    '''
-    for Wind, Bepi magnetic field components: convert HEE to HAE to HEEQ
-    '''
-
-    print('conversion HEE to HEEQ')                                
     
-    sc=copy.deepcopy(sc_in)
-    
-    jd=np.zeros(len(sc))
-    mjd=np.zeros(len(sc))
-        
-
-    for i in np.arange(0,len(sc)):
-
-        jd[i]=parse_time(sc.time[i]).jd
-        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
-        
-       
-        b_hee=[sc.bx[i],sc.by[i],sc.bz[i]]
-        
-        #HEE to HAE        
-        
-        #define T00 and UT
-        T00=(mjd[i]-51544.5)/36525.0          
-        dobj=sc.time[i]
-        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
-
-        #lambda_sun in Hapgood, equation 5, here in rad
-        M=np.radians(357.528+35999.050*T00+0.04107*UT)
-        LAMBDA=280.460+36000.772*T00+0.04107*UT        
-        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
-        
-        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle for inversion HEE to HAE instead of HAE to HEE
-        c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
-        Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-        b_hae=np.dot(Sm1,b_hee)
-
-        #HAE to HEEQ
-        
-        iota=np.radians(7.25)
-        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
-        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
-                      
-    
-        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
-        #get lambda-omega angle in degree mod 360 and theta in degrees
-        lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
-        theta_node_deg=np.degrees(theta)
-
-
-        ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
-        if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                                                                          
-        
-        #rotation around Z by theta
-        c, s = np.cos(theta), np.sin(theta)
-        S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-
-        #rotation around X by iota  
-        iota=np.radians(7.25)
-        c, s = np.cos(iota), np.sin(iota)
-        S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
-                
-        #rotation around Z by Omega  
-        c, s = np.cos(omega), np.sin(omega)
-        S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
-        
-        #matrix multiplication to go from HAE to HEEQ components                
-        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
-        
-        sc.bx[i]=bx_heeq
-        sc.by[i]=by_heeq
-        sc.bz[i]=bz_heeq
-
-    
-    print('HEE to HEEQ done')  
-    
-    return sc
 
     
     
@@ -6355,44 +6535,6 @@ def convert_HEEQ_to_SCEQ(sc_in):
     
 
    
-def convert_E2K_to_HEE(sc_in):
-    '''
-    for Bepi magnetic field components: convert E2K to HEE by projection
-    '''
-
-    print('conversion E2K to HEE')                                
-    
-    sc=copy.deepcopy(sc_in)
-
-    #get Earth trajectory in ECLIPJ2000
-    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
-    earth.generate_positions(sc.time,'Sun','ECLIPJ2000')
-    earth.change_units(astropy.units.AU)  
-    earth_x_ej2=earth.x.value
-    earth_y_ej2=earth.y.value
-    earth_z_ej2=earth.z.value
-
-    sc_len=len(sc.bt)
-
-    #unit vectors of EJ2 basis
-    ej_x=[1,0,0]
-    ej_y=[0,1,0]
-    ej_z=[0,0,1]
-
-    #project into new system HEE
-    for i in np.arange(0,sc_len):   
-        #make unit vectors of HEE in basis of EJ2
-        hee_x=[earth_x_ej2[i],earth_y_ej2[i],earth_z_ej2[i]]/np.linalg.norm([earth_x_ej2[i],earth_y_ej2[i],earth_z_ej2[i]])
-        hee_z=[0,0,1]
-        hee_y=np.cross(hee_z,hee_x)
-
-        sc.bx[i]=sc.bxe[i]*np.dot(ej_x,hee_x)+sc.bye[i]*np.dot(ej_y,hee_x)+sc.bze[i]*np.dot(ej_z,hee_x)
-        sc.by[i]=sc.bxe[i]*np.dot(ej_x,hee_y)+sc.bye[i]*np.dot(ej_y,hee_y)+sc.bze[i]*np.dot(ej_z,hee_y)
-        sc.bz[i]=sc.bxe[i]*np.dot(ej_x,hee_z)+sc.bye[i]*np.dot(ej_y,hee_z)+sc.bze[i]*np.dot(ej_z,hee_z)
-
-    return sc
-
-
 
 
   
@@ -6498,37 +6640,6 @@ def convert_RTN_to_HEEQ(sc_in,name):
 
 
 
-def convert_HEEQ_to_RTN(sc_in):
-    '''
-    for all spacecraft
-    '''
-
-    print('conversion HEEQ to RTN')                                
-    
-    sc=copy.deepcopy(sc_in)
-    
-    sc_len=len(sc.bt)
-
-    #unit vectors of HEEQ basis
-    heeq_x=[1,0,0]
-    heeq_y=[0,1,0]
-    heeq_z=[0,0,1]
-
-    #project into new system RTN
-    for i in np.arange(0,sc_len):
-
-        #make unit vectors of RTN in basis of HEEQ
-        rtn_r=[sc.x[i],sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i],sc.y[i],sc.z[i]])
-        rtn_t=np.cross(heeq_z,rtn_r)
-        rtn_n=np.cross(rtn_r,rtn_t)
-
-        sc.bx[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_r)+sc_in.by[i]*np.dot(heeq_y,rtn_r)+sc_in.bz[i]*np.dot(heeq_z,rtn_r)
-        sc.by[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_t)+sc_in.by[i]*np.dot(heeq_y,rtn_t)+sc_in.bz[i]*np.dot(heeq_z,rtn_t)
-        sc.bz[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_n)+sc_in.by[i]*np.dot(heeq_y,rtn_n)+sc_in.bz[i]*np.dot(heeq_z,rtn_n)
-
-    print('conversion HEEQ to RTN done')                                
-
-    return sc
 
        
 

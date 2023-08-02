@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[14]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -103,7 +103,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[4]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -171,7 +171,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### Wind 
 
-# In[5]:
+# In[16]:
 
 
 print(' ')
@@ -181,16 +181,18 @@ start_time= datetime(1995,1,1)
 end_time = datetime.utcnow() 
 wind_file=data_path+'wind_1995_now_gse.p'
 wind_file_heeq=data_path+'wind_1995_now_heeq.p'
+wind_file_rtn=data_path+'wind_1995_now_rtn.p'
 
 
 #testing
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
-    start_time= datetime(2022,1,25)
-    end_time  = datetime(2022,2,10)
+    start_time= datetime(2022,1,1)
+    end_time  = datetime(2022,1,10)
     wind_file=data_path+'wind_gse_test.p'
     wind_file_heeq=data_path+'wind_heeq_test.p'
+    wind_file_rtn=data_path+'wind_rtn_test.p'
 
  
 
@@ -215,14 +217,19 @@ if get_wind > 0:
     print('Process Wind to pickle')
     print(wind_path)
     print(wind_file)
-    # save as GSE
+    # save as GSE #----------- TBD exact position
     hd.save_wind_data_ascii(start_time,end_time,wind_path,wind_file,'GSE')
     
     #convert to HEEQ
     [data,header]=pickle.load(open(wind_file, "rb"))
     data_heeq=hd.convert_GSE_to_HEEQ(data)
-    header_heeq=hd.wind_heeq_header(data)    
+    header_heeq=hd.wind_heeq_header(data_heeq)    
     pickle.dump([data_heeq,header_heeq], open(wind_file_heeq, "wb"))
+
+    #convert to HEEQ
+    data_rtn=hd.convert_HEEQ_to_RTN(data_heeq)
+    header_rtn=hd.wind_rtn_header(data_rtn)    
+    pickle.dump([data_rtn,header_rtn], open(wind_file_rtn, "wb"))
     
     t1=time.time()   
 
@@ -236,7 +243,7 @@ else:
     
 
 
-# In[6]:
+# In[18]:
 
 
 #data checks
@@ -244,30 +251,42 @@ if get_wind > 0:
 
     filewind='wind_1995_now_gse.p'   
     filewind_heeq='wind_1995_now_heeq.p'   
+    filewind_rtn='wind_1995_now_rtn.p'   
     
     if debug_mode > 0: 
         importlib.reload(hd) 
         importlib.reload(hp) 
         filewind='wind_gse_test.p'
         filewind_heeq='wind_heeq_test.p'
+        filewind_rtn='wind_rtn_test.p'
 
 
     #for GSE file
     [data,hwin]=pickle.load(open(data_path+filewind, "rb"))
     print(hwin)
+    print(' ')
     hp.data_overview_plot(data,plot_path+'wind/'+filewind[:-2])
     
     
     #same for HEEQ file            
     [data_heeq,hwin_heeq]=pickle.load(open(data_path+filewind_heeq, "rb"))
     print(hwin_heeq)
+    print(' ')
+
     hp.data_overview_plot(data_heeq,plot_path+'wind/'+filewind_heeq[:-2])
+
+    #same for RTN file            
+    [data_rtn,hwin_rtn]=pickle.load(open(data_path+filewind_rtn, "rb"))
+    print(hwin_rtn)
+    hp.data_overview_plot(data_rtn,plot_path+'wind/'+filewind_rtn[:-2])
+
+    
 
 
 # ### Parker Solar Probe
 # 
 
-# In[7]:
+# In[5]:
 
 
 print(' ')
@@ -324,7 +343,7 @@ else:
   
 
 
-# In[8]:
+# In[6]:
 
 
 if get_psp > 0:   
@@ -344,7 +363,7 @@ if get_psp > 0:
 
 # ### Solar Orbiter
 
-# In[9]:
+# In[7]:
 
 
 print(' ')
@@ -391,7 +410,7 @@ else:
     print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[10]:
+# In[8]:
 
 
 if get_solo > 0:  
@@ -412,7 +431,7 @@ if get_solo > 0:
 
 # ### BepiColombo
 
-# In[12]:
+# In[20]:
 
 
 print(' ')
@@ -425,7 +444,7 @@ start_time= datetime(2019,3,6)
 end_time = datetime.utcnow()
 bepi_file_ob=data_path+'bepi_ob_2019_now_e2k.p'
 bepi_file_ib=data_path+'bepi_ib_2019_now_e2k.p'
-
+bepi_file_ib_hee=data_path+'bepi_ib_2019_now_rtn.p'
 
 if debug_mode > 0: 
     importlib.reload(hd) 
@@ -437,6 +456,7 @@ if debug_mode > 0:
     #end_time  = datetime(2025,1,31)    
     bepi_file_ob=data_path+'bepi_ob_e2k_test.p'
     bepi_file_ib=data_path+'bepi_ib_e2k_test.p'
+    bepi_file_ib_rtn=data_path+'bepi_ib_rtn_test.p'
 
     
 if get_bepi > 0:    
@@ -452,13 +472,21 @@ if get_bepi > 0:
     
     print(' ')
 
-    print('process Bepi Orbiter to pickle')
+    print('process Bepi  to pickle')
     
     #outbound
-    hd.create_bepi_pickle(start_time,end_time,bepi_file_ob,bepi_path, 'outbound')
+    #hd.create_bepi_pickle(start_time,end_time,bepi_file_ob,bepi_path, 'outbound')
     #inbound
-    hd.create_bepi_pickle(start_time,end_time,bepi_file_ib,bepi_path, 'inbound')
- 
+    hd.create_bepi_pickle(start_time,end_time,bepi_file_ib,bepi_path, 'inbound')    
+    [data,hbepi_ib]=pickle.load(open(bepi_file_ib, "rb"))
+    
+    #convert inbound data to RTN
+    data_hee=hd.convert_E2K_to_HEE(data)
+    data_heeq=hd.convert_HEE_to_HEEQ(data_hee)
+    data_rtn=hd.convert_HEEQ_to_RTN_mag(data_heeq)       
+    header_rtn=hd.bepi_rtn_header(data_rtn,'inbound')        
+    pickle.dump([data_rtn,header_rtn], open(bepi_file_ib_rtn, "wb"))
+    
     t1=time.time()
     
     print(' ')
@@ -468,7 +496,7 @@ else:
     print('Bepi data NOT downloaded and pickled, turn on switch')  
 
 
-# In[13]:
+# In[21]:
 
 
 if get_bepi > 0:  
@@ -482,8 +510,9 @@ if get_bepi > 0:
         importlib.reload(hp) 
         filebepi='bepi_ob_e2k_test.p'
 
-    [data,hbepi]=pickle.load(open(data_path+filebepi, "rb"))
-    print(hbepi)
+    [data,hbepi_ob]=pickle.load(open(data_path+filebepi, "rb"))
+    print(hbepi_ob)
+    print(' ')
     hp.data_overview_plot(data,plot_path+'bepi/'+filebepi[:-2])
     
     
@@ -497,8 +526,22 @@ if get_bepi > 0:
         importlib.reload(hp) 
         filebepi='bepi_ib_e2k_test.p'
 
-    [data,hbepi]=pickle.load(open(data_path+filebepi, "rb"))
-    print(hbepi)
+    [data,hbepi_ib]=pickle.load(open(data_path+filebepi, "rb"))
+    print(hbepi_ib)
+    print(' ')
+    hp.data_overview_plot(data,plot_path+'bepi/'+filebepi[:-2])
+    
+    #inbound rtn
+    filebepi='bepi_ib_2019_now_rtn.p'
+
+    if debug_mode > 0: 
+        importlib.reload(hd) 
+        importlib.reload(hp) 
+        filebepi='bepi_ib_rtn_test.p'
+
+    [data,hbepi_ib_rtn]=pickle.load(open(data_path+filebepi, "rb"))
+    print(hbepi_ib_rtn)
+    print(' ')
     hp.data_overview_plot(data,plot_path+'bepi/'+filebepi[:-2])
     
     
@@ -615,7 +658,11 @@ text.write('PSP: '+psp_file+'\n \n'+ hpsp+' \n \n')
 text.write(' \n \n \n \n')
 
 
-text.write('BepiColombo: '+bepi_file+'\n \n'+ hbepi+' \n \n')
+text.write('BepiColombo: '+bepi_file_ib+'\n \n'+ hbepi_ib+' \n \n')
+#text.write('load with: >> [o,ho]=pickle.load(open("'+data_path+fileomni+'", "rb" ))') 
+text.write(' \n \n \n \n')
+
+text.write('BepiColombo: '+bepi_file_ob+'\n \n'+ hbepi_ob+' \n \n')
 #text.write('load with: >> [o,ho]=pickle.load(open("'+data_path+fileomni+'", "rb" ))') 
 text.write(' \n \n \n \n')
 
