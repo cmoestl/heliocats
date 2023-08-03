@@ -12,12 +12,24 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[1]:
+# In[15]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
 
 # for updating data every day on the servers
+
+
+#switches
+debug_mode=0
+
+get_psp=1
+get_solo=1
+get_wind=1
+get_bepi=1
+get_stereoa=1
+
+
 
 import numpy as np
 import pandas as pd
@@ -75,18 +87,8 @@ if sys.platform =='darwin':
 #import warnings
 #warnings.filterwarnings("ignore")
 
-#switches
-debug_mode=0
 
 print('debug_mode is set to: ',debug_mode)
-
-
-#switches
-get_psp=1
-get_solo=1
-get_wind=1
-get_bepi=1
-get_stereoa=1
 
 
 print('switches: PSP',get_psp,'  SolO',get_solo,' Wind',get_wind,'  STEREO-A',get_stereoa,'  Bepi',get_bepi)
@@ -171,7 +173,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### Wind 
 
-# In[16]:
+# In[3]:
 
 
 print(' ')
@@ -243,7 +245,7 @@ else:
     
 
 
-# In[18]:
+# In[4]:
 
 
 #data checks
@@ -431,7 +433,7 @@ if get_solo > 0:
 
 # ### BepiColombo
 
-# In[20]:
+# In[9]:
 
 
 print(' ')
@@ -444,7 +446,7 @@ start_time= datetime(2019,3,6)
 end_time = datetime.utcnow()
 bepi_file_ob=data_path+'bepi_ob_2019_now_e2k.p'
 bepi_file_ib=data_path+'bepi_ib_2019_now_e2k.p'
-bepi_file_ib_hee=data_path+'bepi_ib_2019_now_rtn.p'
+bepi_file_ib_rtn=data_path+'bepi_ib_2019_now_rtn.p'
 
 if debug_mode > 0: 
     importlib.reload(hd) 
@@ -496,7 +498,7 @@ else:
     print('Bepi data NOT downloaded and pickled, turn on switch')  
 
 
-# In[21]:
+# In[14]:
 
 
 if get_bepi > 0:  
@@ -627,7 +629,7 @@ if get_stereoa > 0:
 
 # #### write header file for science daily updates
 
-# In[34]:
+# In[13]:
 
 
 text = open(data_path+'new_data_headers.txt', 'w')
