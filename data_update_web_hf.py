@@ -295,10 +295,10 @@ print('STEREO-A beacon downloading last 30 days, save as pickle last 30 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[6]:
+# In[20]:
 
 
-if debug_mode > 0: 
+if debug_mode > 0:     
     importlib.reload(hd) 
     importlib.reload(hp) 
 
