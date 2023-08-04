@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[15]:
+# In[13]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -60,7 +60,10 @@ import json
 from bs4 import BeautifulSoup 
 from astropy.time import Time, TimeDelta
 import astrospice
-from sunpy.coordinates import HeliocentricInertial, HeliographicStonyhurst
+import astropy.units as u
+from astropy.constants import au
+
+from sunpy.coordinates import HeliocentricInertial, HeliographicStonyhurst,HeliocentricEarthEcliptic
 
 
 from heliocats import data as hd
@@ -282,13 +285,13 @@ if get_wind > 0:
     print(hwin_rtn)
     hp.data_overview_plot(data_rtn,plot_path+'wind/'+filewind_rtn[:-2])
 
-    
+ 
 
 
 # ### Parker Solar Probe
 # 
 
-# In[5]:
+# In[9]:
 
 
 print(' ')
@@ -345,7 +348,7 @@ else:
   
 
 
-# In[6]:
+# In[10]:
 
 
 if get_psp > 0:   
@@ -365,7 +368,7 @@ if get_psp > 0:
 
 # ### Solar Orbiter
 
-# In[7]:
+# In[11]:
 
 
 print(' ')
@@ -412,7 +415,7 @@ else:
     print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[8]:
+# In[12]:
 
 
 if get_solo > 0:  
@@ -433,7 +436,7 @@ if get_solo > 0:
 
 # ### BepiColombo
 
-# In[9]:
+# In[13]:
 
 
 print(' ')
@@ -445,6 +448,7 @@ print(debug_mode)
 start_time= datetime(2019,3,6)
 end_time = datetime.utcnow()
 bepi_file_ob=data_path+'bepi_ob_2019_now_e2k.p'
+bepi_file_ob_rtn=data_path+'bepi_ob_2019_now_rtn.p'
 bepi_file_ib=data_path+'bepi_ib_2019_now_e2k.p'
 bepi_file_ib_rtn=data_path+'bepi_ib_2019_now_rtn.p'
 
@@ -453,8 +457,8 @@ if debug_mode > 0:
     importlib.reload(hp) 
 
     #testing
-    start_time= datetime(2023,3,15)
-    end_time= datetime(2023,3,20)
+    start_time= datetime(2022,3,20)
+    end_time= datetime(2022,4,10)
     #end_time  = datetime(2025,1,31)    
     bepi_file_ob=data_path+'bepi_ob_e2k_test.p'
     bepi_file_ib=data_path+'bepi_ib_e2k_test.p'
@@ -477,7 +481,16 @@ if get_bepi > 0:
     print('process Bepi  to pickle')
     
     #outbound
-    #hd.create_bepi_pickle(start_time,end_time,bepi_file_ob,bepi_path, 'outbound')
+    hd.create_bepi_pickle(start_time,end_time,bepi_file_ob,bepi_path, 'outbound')
+    [data,hbepi_ob]=pickle.load(open(bepi_file_ob, "rb"))
+    data_hee=hd.convert_E2K_to_HEE(data)
+    data_heeq=hd.convert_HEE_to_HEEQ(data_hee)
+    data_rtn=hd.convert_HEEQ_to_RTN_mag(data_heeq)       
+    header_rtn=hd.bepi_rtn_header(data_rtn,'inbound')        
+    pickle.dump([data_rtn,header_rtn], open(bepi_file_ob_rtn, "wb"))
+    
+    
+    
     #inbound
     hd.create_bepi_pickle(start_time,end_time,bepi_file_ib,bepi_path, 'inbound')    
     [data,hbepi_ib]=pickle.load(open(bepi_file_ib, "rb"))

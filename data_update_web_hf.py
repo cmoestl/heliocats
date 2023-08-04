@@ -73,7 +73,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[9]:
 
 
 if sys.platform == 'linux': 
@@ -295,7 +295,7 @@ print('STEREO-A beacon downloading last 30 days, save as pickle last 30 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[20]:
+# In[6]:
 
 
 if debug_mode > 0:     

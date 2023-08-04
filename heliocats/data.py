@@ -24,6 +24,7 @@ from sunpy.time import parse_time
 from sunpy.coordinates import HeliocentricInertial, HeliographicStonyhurst, HeliocentricEarthEcliptic
 import astropy
 import astropy.units as u
+from astropy.constants import au
 from astropy.time import Time, TimeDelta
 import pickle
 import cdflib
@@ -65,6 +66,27 @@ from bs4 import BeautifulSoup
 #general
 
 
+
+@njit
+def cart2sphere(x,y,z):
+    r = np.sqrt(x**2+ y**2 + z**2)           
+    theta = np.arctan2(z,np.sqrt(x**2+ y**2))
+    phi = np.arctan2(y,x)                    
+    return (r, theta, phi)
+    
+
+
+@njit
+def sphere2cart(r,lat,lon):
+    x = r * np.sin( lat ) * np.cos( lon )
+    y = r * np.sin( lat ) * np.sin( lon )
+    z = r * np.cos( lat )
+    return (x, y,z)
+    
+
+
+
+
 def sphere2cart_emma(r, lat, lon):
     x = r*np.cos(lat*(np.pi/180))*np.cos(lon*(np.pi/180))
     y = r*np.cos(lat*(np.pi/180))*np.sin(lon*(np.pi/180))
@@ -81,6 +103,7 @@ def cart2sphere_emma(x,y,z):
 
 
 ########### to be done
+
 def convert_GSM_to_RTN(sc_in):
 
     sc=copy.deepcopy(sc_in)
@@ -997,49 +1020,7 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     vy = np.interp(time_mat, win_swe_time,win_swe.vy)
     vz = np.interp(time_mat, win_swe_time,win_swe.vz)
     tp = np.interp(time_mat, win_swe_time,win_swe.tp)
-        
-        
-
-            
-        
-    #interpolate the GSE position over full data range
-    x_gse = np.interp(time_mat,  win_time2, win_mag2.x)*6378.1/149597870.7*astropy.units.AU #earth radii to km to AU
-    y_gse = np.interp(time_mat,  win_time2, win_mag2.y)*6378.1/149597870.7*astropy.units.AU
-    z_gse = np.interp(time_mat,  win_time2, win_mag2.z)*6378.1/149597870.7*astropy.units.AU
     
-    
-    
-    
-    
-        
-        
-    #times = Time(np.arange(Time(time_wind[0]), Time(time_wind[-1])+dt, dt))
-    #coords_earth = astrospice.generate_coords('Earth', time)
-    #coords_earth_hee = coords_earth.transform_to(HeliocentricEarthEcliptic())
-    #[earth_hee_x, earth_hee_y, earth_hee_z] = hd.sphere2cart(coords_earth_hee.distance.to(u.au).value, np.deg2rad(-coords_earth_hee.lat.value+90), 
-                                                            #np.deg2rad(coords_earth_hee.lon.value))
-
-    x=earth_hee_x-x_gse  #earth radii to km, sign reversed for xy for GSE compared to HEE
-    y=earth_hee_y-y_gse
-    z=earth_hee_z+z_gse
-
-                                                                        
-    
-    ######### to do: change to HEE, then add GSE and then convert HEE to HEEQ
-    print('position start')    
-    frame='HEEQ'
-    planet_kernel=spicedata.get_kernel('planet_trajectories')
-    earth=spice.Trajectory('399')  #399 for Earth
-    earth.generate_positions(time,'Sun',frame)
-    earth.change_units(astropy.units.AU)       #from km to AU    
-    #add gse position to Earth position
-    x=earth.x-x_gse  #earth radii to km
-    y=earth.y-y_gse
-    z=earth.z+z_gse
-    [r, lat, lon]=cart2sphere(x,y,z)       
-      
-    
-    print('position end ')
     
     #make array
     win=np.zeros(np.size(bx),dtype=[('time',object),('bx', float),('by', float),\
@@ -1050,6 +1031,39 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     #convert to recarray
     win = win.view(np.recarray)  
 
+        
+
+    au_km = au.to('km').value
+    print('position start') 
+    #interpolate the GSE position over full data range
+    print(win_mag2.x)
+    x_gse = np.interp(time_mat,  win_time2, win_mag2.x)*6378.1/au_km
+    y_gse = np.interp(time_mat,  win_time2, win_mag2.y)*6378.1/au_km
+    z_gse = np.interp(time_mat,  win_time2, win_mag2.z)*6378.1/au_km
+    
+        
+    coords_earth = astrospice.generate_coords('Earth', time)
+    #earth_hee_lon, earth_hee_lat, earth_hee_r = coords_earth.transform_to(HeliocentricEarthEcliptic())  #returns degrees, km
+    coords_earth_hee=coords_earth.transform_to(HeliocentricEarthEcliptic())  #returns degrees, km
+    #change angles to -90/90 latitude, distance to AU
+    [earth_hee_x, earth_hee_y, earth_hee_z] = sphere2cart(coords_earth_hee.distance.value/au_km,\
+                                                              np.deg2rad(-coords_earth_hee.lat.value+90) ,np.deg2rad(coords_earth_hee.lon.value))
+
+    #print(earth_hee_x)
+    #print(x_gse)
+    #print(y_gse)
+    #print(z_gse)
+    win.x=earth_hee_x-x_gse  #both values are in au, sign reversed for xy for GSE compared to HEE
+    win.y=earth_hee_y-y_gse
+    win.z=earth_hee_z+z_gse
+    
+    [win.r, win.lat, win.lon]=cart2sphere(win.x,win.y,win.z)       
+    win.lat=np.degrees(win.lat)
+    win.lon=np.degrees(win.lon)
+
+    
+    print('position end ')
+    
     #fill with data
     win.time=time
     win.bx=bx
@@ -1057,13 +1071,7 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     win.bz=bz 
     win.bt=bt
 
-    win.x=x
-    win.y=y
-    win.z=z
     
-    win.r=r
-    win.lat=np.degrees(lat)
-    win.lon=np.degrees(lon)
     
     win.np=den    
     win.vt=vt
@@ -6411,24 +6419,6 @@ def recarray_to_numpy_array(rec):
     
 #################################### MATH ################################################
 
-
-
-@njit
-def cart2sphere(x,y,z):
-    r = np.sqrt(x**2+ y**2 + z**2)           
-    theta = np.arctan2(z,np.sqrt(x**2+ y**2))
-    phi = np.arctan2(y,x)                    
-    return (r, theta, phi)
-    
-
-
-@njit
-def sphere2cart(r,theta,phi):
-    x = r * np.sin( theta ) * np.cos( phi )
-    y = r * np.sin( theta ) * np.sin( phi )
-    z = r * np.cos( theta )
-    return (x, y,z)
-    
 
    
     
