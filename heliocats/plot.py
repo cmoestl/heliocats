@@ -263,7 +263,7 @@ def plot_insitu_update_stereoa_noaa(sc1, sc2, start, end, sc_label, path, **kwar
      fsize=10
 
      #take maximum from both arrays
-     bscale=np.nanmax(np.hstack((sc1.bt, sc2.bt))) +5
+     bscale=np.nanmax(np.hstack((sc1.bt, sc2.bt))) +8
      vscale=np.nanmax(np.hstack((sc1.vt, sc2.vt)))
     
                        
@@ -291,6 +291,8 @@ def plot_insitu_update_stereoa_noaa(sc1, sc2, start, end, sc_label, path, **kwar
      ax1.text(sc2.time[40], bscale, 'NOAA L1 real time solar wind', fontsize=fsize, color='black')
      pos_string='R '+str(np.round(sc1.r[-1],3))+' AU   '+ 'lon '+str(np.round(sc1.lon[-1],2))+'  ' + 'lat '+str(np.round(sc1.lat[-1],2))+'' 
      ax1.text(sc1.time[-1050], bscale, pos_string, fontsize=fsize, color='black')
+     ax1.text(sc1.time[-300], bscale-5, 'east   north', fontsize=fsize-2, color='black')
+     ax1.text(sc1.time[-300], -bscale+3, 'west   south', fontsize=fsize-2, color='black')
 
 
     
@@ -310,7 +312,10 @@ def plot_insitu_update_stereoa_noaa(sc1, sc2, start, end, sc_label, path, **kwar
      ax2.text(sc2.time[40], bscale, 'STEREO-A beacon data', fontsize=fsize, color='black')
      pos_string='R '+str(np.round(sc2.r[-1],3))+' AU   '+ 'lon '+str(np.round(sc2.lon[-1],2))+'  ' + 'lat '+str(np.round(sc2.lat[-1],2))+'' 
      ax2.text(sc2.time[-1050], bscale, pos_string, fontsize=fsize, color='black')
+     ax2.text(sc1.time[-300], bscale-5, 'east   north', fontsize=fsize-2, color='black')
+     ax2.text(sc1.time[-300], -bscale+3, 'west   south', fontsize=fsize-2, color='black')
 
+    
      plt.setp(ax2.get_xticklabels(), visible=False)
 
         

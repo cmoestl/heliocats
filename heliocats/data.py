@@ -21,7 +21,7 @@ from urllib.request import urlopen
 import requests
 import json
 from sunpy.time import parse_time
-from sunpy.coordinates import HeliocentricInertial, HeliographicStonyhurst
+from sunpy.coordinates import HeliocentricInertial, HeliographicStonyhurst, HeliocentricEarthEcliptic
 import astropy
 import astropy.units as u
 from astropy.time import Time, TimeDelta
@@ -77,6 +77,35 @@ def cart2sphere_emma(x,y,z):
     theta = np.arctan2(z,np.sqrt(x**2+ y**2)) * 360 / 2 / np.pi
     phi = np.arctan2(y,x) * 360 / 2 / np.pi                   
     return (r, theta, phi)
+
+
+
+########### to be done
+def convert_GSM_to_RTN(sc_in):
+
+    sc=copy.deepcopy(sc_in)
+
+    print('GSM to RTN for NOAA L1 GSM data to RTN for comparison to STEREO-A needed TBD')    
+    
+    #first GSM to GSE
+    #GSE to HEE sign flip
+    #HEE to RTN
+    
+    return sc
+
+
+def convert_RTN_to_GSM(sc_in):
+
+    sc=copy.deepcopy(sc_in)
+
+    print('needed for sub L1 monitors; like STEREO-A or Solar Orbiter, TBD')    
+    
+    #RTN-HEE or HEEQ, then HEE to GSE, GSE to GSM
+    
+
+    return sc
+
+##########################################
 
 
 
@@ -970,6 +999,8 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     tp = np.interp(time_mat, win_swe_time,win_swe.tp)
         
         
+
+            
         
     #interpolate the GSE position over full data range
     x_gse = np.interp(time_mat,  win_time2, win_mag2.x)*6378.1/149597870.7*astropy.units.AU #earth radii to km to AU
@@ -979,6 +1010,20 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     
     
     
+    
+        
+        
+    #times = Time(np.arange(Time(time_wind[0]), Time(time_wind[-1])+dt, dt))
+    #coords_earth = astrospice.generate_coords('Earth', time)
+    #coords_earth_hee = coords_earth.transform_to(HeliocentricEarthEcliptic())
+    #[earth_hee_x, earth_hee_y, earth_hee_z] = hd.sphere2cart(coords_earth_hee.distance.to(u.au).value, np.deg2rad(-coords_earth_hee.lat.value+90), 
+                                                            #np.deg2rad(coords_earth_hee.lon.value))
+
+    x=earth_hee_x-x_gse  #earth radii to km, sign reversed for xy for GSE compared to HEE
+    y=earth_hee_y-y_gse
+    z=earth_hee_z+z_gse
+
+                                                                        
     
     ######### to do: change to HEE, then add GSE and then convert HEE to HEEQ
     print('position start')    
