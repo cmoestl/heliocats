@@ -14,7 +14,7 @@
 # for updating data every day on the servers
 # 
 
-# In[ ]:
+# In[11]:
 
 
 #switches
@@ -73,7 +73,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[12]:
 
 
 if sys.platform == 'linux': 
@@ -127,7 +127,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[8]:
+# In[13]:
 
 
 #if debug_mode > 0: 
@@ -146,6 +146,7 @@ hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
 #get NOAA xray file and plot on SDO map
 xray='https://services.swpc.noaa.gov/json/goes/primary/xrays-7-day.json'
 
+datestr=str(datetime.datetime.utcnow().strftime("%Y-%m-%d"))
 try: 
     urllib.request.urlretrieve(xray, noaa_path+'xray/xrays-7-day_'+datestr+'.json')
     print(noaa_path+'xray/xray-7-day_'+datestr+'.json')
