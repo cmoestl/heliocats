@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[13]:
+# In[16]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -23,13 +23,12 @@
 #switches
 debug_mode=0
 
+get_omni=1
+get_wind=1
 get_psp=1
 get_solo=1
-get_wind=1
 get_bepi=1
 get_stereoa=1
-
-
 
 import numpy as np
 import pandas as pd
@@ -174,9 +173,35 @@ if os.path.isdir(solo_path) == False: os.mkdir(psp_path)
 if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 
+# ### OMNI2
+
+# In[5]:
+
+
+if debug_mode > 0: 
+    importlib.reload(hd) 
+    importlib.reload(hp) 
+    
+print(' ')
+print('------ OMNI2 ')
+
+
+# OMNI2
+fileomni="omni_1963_now.p"
+#this function downloads and saves the the omni2 data
+if get_omni: 
+    hd.save_omni_data(data_path,fileomni)
+else:
+    print('OMNI data NOT downloaded and pickled, turn on switch')
+[o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
+start=datetime.utcnow() - timedelta(days=365)
+end=datetime.utcnow() 
+hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
+
+
 # ### Wind 
 
-# In[3]:
+# In[14]:
 
 
 print(' ')
@@ -222,7 +247,6 @@ if get_wind > 0:
     print('Process Wind to pickle')
     print(wind_path)
     print(wind_file)
-    # save as GSE #----------- TBD exact position
     hd.save_wind_data_ascii(start_time,end_time,wind_path,wind_file,'GSE')
     
     #convert to HEEQ
@@ -231,7 +255,7 @@ if get_wind > 0:
     header_heeq=hd.wind_heeq_header(data_heeq)    
     pickle.dump([data_heeq,header_heeq], open(wind_file_heeq, "wb"))
 
-    #convert to HEEQ
+    #convert to RTN
     data_rtn=hd.convert_HEEQ_to_RTN(data_heeq)
     header_rtn=hd.wind_rtn_header(data_rtn)    
     pickle.dump([data_rtn,header_rtn], open(wind_file_rtn, "wb"))
@@ -245,10 +269,10 @@ if get_wind > 0:
     
 else:
     print('Wind data NOT downloaded or processed, turn on switch')  
-    
+ 
 
 
-# In[4]:
+# In[15]:
 
 
 #data checks
@@ -436,7 +460,7 @@ if get_solo > 0:
 
 # ### BepiColombo
 
-# In[13]:
+# In[ ]:
 
 
 print(' ')
@@ -659,6 +683,10 @@ text.write('Wind GSE: '+wind_file+'\n \n'+ hwin+' \n \n')
 text.write(' \n \n \n \n')
 
 text.write('Wind HEEQ: '+wind_file_heeq+'\n \n'+ hwin+' \n \n')
+#text.write('load with: >> [win,hwin]=pickle.load(open("'+data_path+filewin+'", "rb" ))') 
+text.write(' \n \n \n \n')
+
+text.write('Wind RTN: '+wind_file_rtn+'\n \n'+ hwin+' \n \n')
 #text.write('load with: >> [win,hwin]=pickle.load(open("'+data_path+filewin+'", "rb" ))') 
 text.write(' \n \n \n \n')
 

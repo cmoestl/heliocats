@@ -297,11 +297,11 @@ def plot_insitu_update_stereoa_noaa(sc1, sc2, start, end, sc_label, path, **kwar
 
     
      ax2 = plt.subplot(312,sharex=ax1)  
-     ax2.plot_date(sc2.time,-sc2.bx,'-r',label='Bx',linewidth=0.8)
-     ax2.plot_date(sc2.time,-sc2.by,'-g',label='- By',linewidth=0.8)
-     ax2.plot_date(sc2.time,sc2.bz,'-b',label='- Bz',linewidth=0.8)
+     ax2.plot_date(sc2.time,sc2.bx,'-r',label='Bx',linewidth=0.8)
+     ax2.plot_date(sc2.time,sc2.by,'-g',label='By',linewidth=0.8)
+     ax2.plot_date(sc2.time,sc2.bz,'-b',label='Bz',linewidth=0.8)
      ax2.plot_date(sc2.time,sc2.bt,'-k',label='Btotal',lw=0.8)
-     plt.ylabel('B [nT] RTN (RT sign flipped)',fontsize=fsize)
+     plt.ylabel('B [nT] GSM',fontsize=fsize)
      plt.legend(loc=3,ncol=4,fontsize=fsize-2)
      ax2.set_xlim(start,end)    
      ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
@@ -507,7 +507,7 @@ def plot_insitu_update_noaa_rtsw(sc, start, end, sc_label, path, **kwargs):
    
 
 
-def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, **kwargs):
+def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, coord, **kwargs):
      '''
      sc = data
     
@@ -534,7 +534,7 @@ def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, **kwargs):
      ax1.plot_date(sc.time,sc.by,'-g',label='By',linewidth=0.5)
      ax1.plot_date(sc.time,sc.bz,'-b',label='Bz',linewidth=0.5)
      ax1.plot_date(sc.time,sc.bt,'-k',label='Btotal',lw=0.5)     
-     plt.ylabel('B [nT] RTN',fontsize=fsize)
+     plt.ylabel('B [nT] '+coord,fontsize=fsize)
      plt.legend(loc=3,ncol=4,fontsize=fsize-2)
      ax1.set_xlim(start,end)
      ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %H') )

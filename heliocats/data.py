@@ -117,18 +117,156 @@ def convert_GSM_to_RTN(sc_in):
     return sc
 
 
-def convert_RTN_to_GSM(sc_in):
+
+##########################################
+
+def convert_GSE_to_GSM(sc_in):
 
     sc=copy.deepcopy(sc_in)
 
-    print('needed for sub L1 monitors; like STEREO-A or Solar Orbiter, TBD')    
-    
-    #RTN-HEE or HEEQ, then HEE to GSE, GSE to GSM
-    
+    print('conversion GSE to GSM')                                
 
+    jd=np.zeros(len(sc))
+    mjd=np.zeros(len(sc))
+
+    for i in np.arange(0,len(sc)):
+        #get all dates right
+        jd[i]=parse_time(sc.time[i]).jd
+        mjd[i]=float(int(jd[i]-2400000.5))  #use modified julian date 
+        
+        #define T00 and UT
+        T00=(mjd[i]-51544.5)/36525.0
+        dobj=sc.time[i]
+        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours    
+        
+        #define position of geomagnetic pole in GEO coordinates
+        pgeo=78.8+4.283*((mjd[i]-46066)/365.25)*0.01 #in degrees
+        lgeo=289.1-1.413*((mjd[i]-46066)/365.25)*0.01 #in degrees
+        
+        #GEO vector
+        Qg=[np.cos(pgeo*np.pi/180)*np.cos(lgeo*np.pi/180), np.cos(pgeo*np.pi/180)*np.sin(lgeo*np.pi/180), np.sin(pgeo*np.pi/180)]
+    
+        #CREATE T1, T00, UT is known from above
+        zeta=(100.461+36000.770*T00+15.04107*UT)*np.pi/180
+        T1=np.matrix([[np.cos(zeta), np.sin(zeta),  0], [-np.sin(zeta) , np.cos(zeta) , 0], [0,  0,  1]]) #angle for transpose
+        
+        #lambda_sun in Hapgood, equation 5, here in degrees
+        LAMBDA=280.460+36000.772*T00+0.04107*UT
+        M=357.528+35999.050*T00+0.04107*UT
+        lt2=(LAMBDA+(1.915-0.0048*T00)*np.sin(M*np.pi/180)+0.020*np.sin(2*M*np.pi/180))*np.pi/180
+        
+        #CREATE T2, LAMBDA, M, lt2 known from above
+        ##################### lamdbda und Z
+        t2z=np.matrix([[np.cos(lt2), np.sin(lt2),  0], [-np.sin(lt2) , np.cos(lt2) , 0], [0,  0,  1]])
+        et2=(23.439-0.013*T00)*np.pi/180
+        
+        ###################### epsilon und x
+        t2x=np.matrix([[1,0,0],[0,np.cos(et2), np.sin(et2)], [0, -np.sin(et2), np.cos(et2)]])
+        T2=np.dot(t2z,t2x)  #equation 4 in Hapgood 1992
+        #matrix multiplications   
+        T2T1t=np.dot(T2,np.matrix.transpose(T1))
+        ################
+        Qe=np.dot(T2T1t,Qg) #Q=T2*T1^-1*Qq
+        psigsm=np.arctan(Qe.item(1)/Qe.item(2)) #arctan(ye/ze) in between -pi/2 to +pi/2
+        
+        T3=np.matrix([[1,0,0],[0,np.cos(-psigsm), np.sin(-psigsm)], [0, -np.sin(-psigsm), np.cos(-psigsm)]])
+        b_gse=np.matrix([[sc.bx[i]],[sc.by[i]],[sc.bz[i]]]) 
+        b_gsm=np.dot(T3,b_gse)   #equation 6 in Hapgood
+        sc.bx[i]=b_gsm[0]
+        sc.by[i]=b_gsm[1]
+        sc.bz[i]=b_gsm[2]
+    
+    print('conversion GSE to GSM done')   
+    
     return sc
 
-##########################################
+
+
+
+def convert_RTN_to_GSE_sta_l1(sc_in):
+
+    sc=copy.deepcopy(sc_in)
+
+    print('conversion RTN to GSE') 
+    
+    heeq_bx=np.zeros(len(sc))
+    heeq_by=np.zeros(len(sc))
+    heeq_bz=np.zeros(len(sc))
+    
+    jd=np.zeros(len(sc))
+    mjd=np.zeros(len(sc))
+    
+     
+    ########## first RTN to HEEQ 
+    
+    #go through all data points
+    for i in np.arange(0,len(sc)):
+
+        #HEEQ vectors
+        X_heeq=[1,0,0]
+        Y_heeq=[0,1,0]
+        Z_heeq=[0,0,1]
+
+        #normalized X RTN vector
+        Xrtn=[sc.x[i],sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i],sc.y[i],sc.z[i]])
+        #solar rotation axis at 0, 0, 1 in HEEQ
+        Yrtn=np.cross(Z_heeq,Xrtn)/np.linalg.norm(np.cross(Z_heeq,Xrtn))
+        Zrtn=np.cross(Xrtn, Yrtn)/np.linalg.norm(np.cross(Xrtn, Yrtn))
+        
+        #project into new system
+        heeq_bx[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),X_heeq)
+        heeq_by[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Y_heeq)
+        heeq_bz[i]=np.dot(np.dot(sc.bx[i],Xrtn)+np.dot(sc.by[i],Yrtn)+np.dot(sc.bz[i],Zrtn),Z_heeq)
+    
+        #then HEEQ to GSE
+        jd[i]=parse_time(sc.time[i]).jd
+        mjd[i]=float(int(jd[i]-2400000.5))  #use modified julian date  
+        
+        #then lambda_sun
+        T00=(mjd[i]-51544.5)/36525.0
+        dobj=sc.time[i]
+        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
+        LAMBDA=280.460+36000.772*T00+0.04107*UT
+        M=357.528+35999.050*T00+0.04107*UT
+        
+        #lt2 is lambdasun in Hapgood, equation 5, here in rad
+        lt2=(LAMBDA+(1.915-0.0048*T00)*np.sin(M*np.pi/180)+0.020*np.sin(2*M*np.pi/180))*np.pi/180
+        
+        #note that some of these equations are repeated later for the GSE to GSM conversion
+        S1=np.matrix([[np.cos(lt2+np.pi), np.sin(lt2+np.pi),  0], [-np.sin(lt2+np.pi) , np.cos(lt2+np.pi) , 0], [0,  0,  1]])
+        #create S2 matrix with angles with reversed sign for transformation HEEQ to HAE
+        omega_node=(73.6667+0.013958*((mjd[i]+3242)/365.25))*np.pi/180 #in rad
+        S2_omega=np.matrix([[np.cos(-omega_node), np.sin(-omega_node),  0], [-np.sin(-omega_node) , np.cos(-omega_node) , 0], [0,  0,  1]])
+        inclination_ecl=7.25*np.pi/180
+        S2_incl=np.matrix([[1,0,0],[0,np.cos(-inclination_ecl), np.sin(-inclination_ecl)], [0, -np.sin(-inclination_ecl), np.cos(-inclination_ecl)]])
+        #calculate theta
+        theta_node=np.arctan(np.cos(inclination_ecl)*np.tan(lt2-omega_node)) 
+
+        #quadrant of theta must be opposite lt2 - omega_node Hapgood 1992 end of section 5   
+        #get lambda-omega angle in degree mod 360   
+        lambda_omega_deg=np.mod(lt2-omega_node,2*np.pi)*180/np.pi
+        #get theta_node in deg
+        theta_node_deg=theta_node*180/np.pi
+        #if in same quadrant, then theta_node = theta_node +pi   
+        if abs(lambda_omega_deg-theta_node_deg) < 180: theta_node=theta_node+np.pi
+        S2_theta=np.matrix([[np.cos(-theta_node), np.sin(-theta_node),  0], [-np.sin(-theta_node) , np.cos(-theta_node) , 0], [0,  0,  1]])
+
+        #make S2 matrix
+        S2=np.dot(np.dot(S2_omega,S2_incl),S2_theta)
+        #this is the matrix S2^-1 x S1
+        HEEQ_to_HEE_matrix=np.dot(S1, S2)
+        #convert HEEQ components to HEE
+        HEEQ=np.matrix([[heeq_bx[i]],[heeq_by[i]],[heeq_bz[i]]]) 
+        HEE=np.dot(HEEQ_to_HEE_matrix,HEEQ)
+        #change of sign HEE X / Y to GSE is needed
+        sc.bx[i]=-HEE[0]
+        sc.by[i]=-HEE[1]
+        sc.bz[i]=HEE[2]
+    
+    print('conversion RTN to GSE done') 
+   
+    return sc
+
 
 
 
@@ -203,11 +341,10 @@ def convert_HEEQ_to_RTN_mag(sc_in):
     return sc
 
 
-  
-   
+
 def convert_HEE_to_HEEQ(sc_in):
     '''
-    for Wind, Bepi magnetic field components: convert HEE to HAE to HEEQ
+    for Wind positions: convert HEE to HAE to HEEQ
     '''
 
     print('conversion HEE to HEEQ')                                
@@ -224,7 +361,7 @@ def convert_HEE_to_HEEQ(sc_in):
         mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
         
        
-        b_hee=[sc.bx[i],sc.by[i],sc.bz[i]]
+        w_hee=[sc.x[i],sc.y[i],sc.z[i]]
         
         #HEE to HAE        
         
@@ -241,7 +378,7 @@ def convert_HEE_to_HEEQ(sc_in):
         #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle for inversion HEE to HAE instead of HAE to HEE
         c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
         Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
-        b_hae=np.dot(Sm1,b_hee)
+        w_hae=np.dot(Sm1,w_hee)
 
         #HAE to HEEQ
         
@@ -273,21 +410,20 @@ def convert_HEE_to_HEEQ(sc_in):
         S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
         
         #matrix multiplication to go from HAE to HEEQ components                
-        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
+        [x_heeq,y_heeq,z_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), w_hae) 
         
-        sc.bx[i]=bx_heeq
-        sc.by[i]=by_heeq
-        sc.bz[i]=bz_heeq
+        sc.x[i]=x_heeq
+        sc.y[i]=y_heeq
+        sc.z[i]=z_heeq
 
     
-    print('conversion HEE to HEEQ done')  
+    print('HEE to HEEQ done')  
     
     return sc
 
 
 
-
-
+  
 
 
 
@@ -444,8 +580,183 @@ def convert_GSE_to_HEEQ(sc_in):
 
     
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+################################################################# OMNI2
 
 
+def omni_loader():
+   '''
+   downloads all omni2 data into the "data" folder
+   '''
+
+   #if overwrite>0: 
+   #      print('download OMNI2 again')
+   #      if os.path.exists('data/omni2_all_years.dat'): os.remove('data/omni2_all_years.dat')
+  
+   #if not os.path.exists('data/omni2_all_years.dat'):
+      #see http://omniweb.gsfc.nasa.gov/html/ow_data.html
+   print('load OMNI2 .dat into "data" directory from')
+   omni2_url='https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2_all_years.dat'
+   print(omni2_url)
+   try: urllib.request.urlretrieve(omni2_url, 'data/omni2_all_years.dat')
+   except urllib.error.URLError as e:
+         print(' ', omni2_url,' ',e.reason)
+         sys.exit()
+
+
+def save_omni_data(path,file):
+    '''
+    save variables from OMNI2 dataset as pickle
+
+    documentation https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2.text
+    omni2_url='https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2_all_years.dat'
+    '''        
+  
+    print('start omni')
+    
+    omni_loader()
+    #check how many rows exist in this file
+    f=open('data/omni2_all_years.dat')
+    dataset= len(f.readlines())
+    
+    #make array
+    o=np.zeros(dataset,dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bygsm', float),('bzgsm', float),('bt', float),\
+                ('vt', float),('np', float),('tp', float),('alpha', float),\
+                ('dst', float),('kp', float),('spot', float),\
+                ('ae', float),('ap', float),('f107', float),\
+                ('pcn', float),('al', float),('au', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])
+                
+    o=o.view(np.recarray)  
+    print(dataset, ' datapoints')   #for reading data from OMNI file
+    
+    j=0
+    with open('data/omni2_all_years.dat') as f:
+        for line in f:
+            line = line.split() # to deal with blank 
+            
+            #time - need to convert from year doy hour to datetime object
+            o.time[j]=datetime.datetime(int(line[0]), 1, 1) + datetime.timedelta(int(line[1]) - 1) \
+                              + datetime.timedelta(hours=int(line[2])) 
+
+            #25 is bulkspeed F6.0, in km/s
+            o.vt[j]=line[24]
+            if o.vt[j] == 9999: o.vt[j]=np.NaN
+            
+            #24 in file, index 23 proton density /ccm
+            o.np[j]=line[23]
+            if o.np[j] == 999.9: o.np[j]=np.NaN
+            
+            #23 in file, index 22 Proton temperature  /ccm
+            o.tp[j]=line[22]
+            if o.tp[j] == 9999999.: o.tp[j]=np.NaN
+
+            #28 in file, index 27 alpha to proton ratio
+            o.alpha[j]=line[27]
+            if o.alpha[j] == 9.999: o.alpha[j]=np.NaN
+           
+            #9 is total B  F6.1 also fill ist 999.9, in nT
+            o.bt[j]=line[9]
+            if o.bt[j] == 999.9: o.bt[j]=np.NaN
+
+            #GSE components from 13 to 15, so 12 to 14 index, in nT
+            o.bx[j]=line[12]
+            if o.bx[j] == 999.9: o.bx[j]=np.NaN
+            o.by[j]=line[13]
+            if o.by[j] == 999.9: o.by[j]=np.NaN
+            o.bz[j]=line[14]
+            if o.bz[j] == 999.9: o.bz[j]=np.NaN
+          
+            #GSM
+            o.bygsm[j]=line[15]
+            if o.bygsm[j] == 999.9: o.bygsm[j]=np.NaN
+          
+            o.bzgsm[j]=line[16]
+            if o.bzgsm[j] == 999.9: o.bzgsm[j]=np.NaN    
+          
+
+            o.kp[j]=line[38]
+            if o.kp[j] == 99: o.kp[j]=np.nan
+           
+            o.spot[j]=line[39]
+            if o.spot[j] ==  999: o.spot[j]=np.nan
+
+            o.dst[j]=line[40]
+            if o.dst[j] == 99999: o.dst[j]=np.nan
+
+            o.ae[j]=line[41]
+            if o.ae[j] ==  9999: o.ae[j]=np.nan
+            
+            o.ap[j]=line[49]
+            if o.ap[j] ==  999: o.ap[j]=np.nan
+            
+            o.f107[j]=line[50]
+            if o.f107[j] ==  999.9  : o.f107[j]=np.nan
+            
+            o.pcn[j]=line[51]
+            if o.pcn[j] ==  999.9  : o.pcn[j]=np.nan
+
+            o.al[j]=line[52]
+            if o.al[j] ==   99999  : o.al[j]=np.nan
+
+            o.au[j]=line[53]
+            if o.au[j] ==  99999 : o.au[j]=np.nan
+          
+          
+            j=j+1     
+            
+    print('position start')
+    
+    #TBD change to astrospice HEEQ    
+    
+    frame='HEEQ'
+    planet_kernel=spicedata.get_kernel('planet_trajectories')
+    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
+    earth.generate_positions(o.time,'Sun',frame)
+    earth.change_units(astropy.units.AU)
+    [r, lat, lon]=cart2sphere(earth.x,earth.y,earth.z)
+    print('position end ')   
+    
+    
+    o.x=earth.x
+    o.y=earth.y
+    o.z=earth.z
+    
+    o.r=r
+    o.lat=np.rad2deg(lat)
+    o.lon=np.rad2deg(lon)
+    
+    header='Near Earth OMNI2 1 hour solar wind and geomagnetic indices data since 1963. ' + \
+    'Obtained from https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/  '+ \
+    'Timerange: '+o.time[0].strftime("%Y-%b-%d %H:%M")+' to '+o.time[-1].strftime("%Y-%b-%d %H:%M")+'. '+\
+    'The data are available in a numpy recarray, fields can be accessed by o.time, o.bx, o.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(o.size)+'. '+\
+    'For units and documentation see: https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2.text, the '+\
+    'heliospheric position of Earth was added and is given in x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats heliocats.data.save_omni_data .'+\
+    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+    
+    
+    pickle.dump([o,header], open(path+file, 'wb') )
+    
+    print('done omni')
+    print()
+
+    
 
 
 
@@ -1032,11 +1343,27 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     win = win.view(np.recarray)  
 
         
+    #fill with data
+    win.time=time
+    win.bx=bx
+    win.by=by
+    win.bz=bz 
+    win.bt=bt
 
-    au_km = au.to('km').value
+    win.np=den    
+    win.vt=vt
+    win.vx=vx
+    win.vy=vy
+    win.vz=vz
+    
+    win.tp=tp
+    
+
     print('position start') 
+    
+    au_km = au.to('km').value
+
     #interpolate the GSE position over full data range
-    print(win_mag2.x)
     x_gse = np.interp(time_mat,  win_time2, win_mag2.x)*6378.1/au_km
     y_gse = np.interp(time_mat,  win_time2, win_mag2.y)*6378.1/au_km
     z_gse = np.interp(time_mat,  win_time2, win_mag2.z)*6378.1/au_km
@@ -1049,40 +1376,18 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     [earth_hee_x, earth_hee_y, earth_hee_z] = sphere2cart(coords_earth_hee.distance.value/au_km,\
                                                               np.deg2rad(-coords_earth_hee.lat.value+90) ,np.deg2rad(coords_earth_hee.lon.value))
 
-    #print(earth_hee_x)
-    #print(x_gse)
-    #print(y_gse)
-    #print(z_gse)
     win.x=earth_hee_x-x_gse  #both values are in au, sign reversed for xy for GSE compared to HEE
     win.y=earth_hee_y-y_gse
     win.z=earth_hee_z+z_gse
+    
+    #convert position to HEEQ
+    win = convert_HEE_to_HEEQ(win)
     
     [win.r, win.lat, win.lon]=cart2sphere(win.x,win.y,win.z)       
     win.lat=np.degrees(win.lat)
     win.lon=np.degrees(win.lon)
 
-    
     print('position end ')
-    
-    #fill with data
-    win.time=time
-    win.bx=bx
-    win.by=by
-    win.bz=bz 
-    win.bt=bt
-
-    
-    
-    win.np=den    
-    win.vt=vt
-    win.vx=vx
-    win.vy=vy
-    win.vz=vz
-    
-    win.tp=tp
-    
-   
-    
     
     
     
@@ -1219,12 +1524,7 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
                 win.bx[remove_start_ind:remove_end_ind]=np.nan
                 win.by[remove_start_ind:remove_end_ind]=np.nan
                 win.bz[remove_start_ind:remove_end_ind]=np.nan            
-
-
-  
-    
-    
-    
+   
     
      
     #convert magnetic field to SCEQ
@@ -2142,7 +2442,52 @@ def create_stereoa_pkl(start_timestamp,end_timestamp,stereoa_file,stereoa_path,k
 ###################################################################
 
 
+def get_noaa_xray(xfile):
+    
+    #dm = json.loads(dstfile.read())
+    
+    
+    #make array for 7 days
+    
+    #dst=np.zeros(len(dm)-1,dtype=[('time',object),('dst', float)]) 
+    #dst=dst.view(np.recarray)    
 
+    #dst.time = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S")  for x in dm[1:]]
+    #dst.dst=[x[1] for x in dm[1:]]
+    x=0
+    return x
+
+
+def get_noaa_ephem(ephemfile):
+    
+    data = json.loads(ephemfile.read())    
+    
+    #make array for 7 days
+    ephem=np.zeros(len(data)-1,dtype=[('time',object),('xgse', float),('ygse', float),('zgse', float)]) 
+    ephem=ephem.view(np.recarray)    
+
+    ephem.time = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S.%f")  for x in data[1:]]
+    #print(ephem.time)
+    ephem.xgse=[x[1] for x in data[1:]]
+    ephem.ygse=[x[2] for x in data[1:]]
+    ephem.zgse=[x[3] for x in data[1:]]
+
+    return ephem
+
+
+def get_noaa_dst(dstfile):
+    
+    dm = json.loads(dstfile.read())
+    
+    
+    #make array for 7 days
+    dst=np.zeros(len(dm)-1,dtype=[('time',object),('dst', float)]) 
+    dst=dst.view(np.recarray)    
+
+    dst.time = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S")  for x in dm[1:]]
+    dst.dst=[x[1] for x in dm[1:]]
+
+    return dst
 
 
 def get_noaa_json(magfile, plasmafile):
@@ -2163,8 +2508,6 @@ def get_noaa_json(magfile, plasmafile):
     #print(noaa_m)
     
     
-    
-    
     # Read plasma data:
     dp = json.loads(plasmafile.read())
     dpn = [[np.nan if x == None else x for x in d] for d in dp]     # Replace None w NaN
@@ -2176,8 +2519,8 @@ def get_noaa_json(magfile, plasmafile):
     noaa_p = np.array(dp_, dtype=dtype)
 
     #print(noaa_p)
-    
-    
+
+  
     
     #use mag for times
     t_start=datesm[0]
@@ -2202,7 +2545,7 @@ def get_noaa_json(magfile, plasmafile):
 
     #make array
     noaa_data=np.zeros(np.size(rbtot_m),dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                ('bz', float),('bt', float),('vt', float),('vx', float),('vy', float),('vz', float),('np', float),('tp', float),\
                 ('x', float),('y', float),('z', float),\
                 ('r', float),('lat', float),('lon', float)])   
                         
@@ -2218,7 +2561,10 @@ def get_noaa_json(magfile, plasmafile):
     noaa_data.vt=rpv_m
     noaa_data.np=rpn_m
     noaa_data.tp=rpt_m
-    
+
+    noaa_data.vx=np.nan
+    noaa_data.vy=np.nan
+    noaa_data.vz=np.nan
     
     
     #print('NOAA data read completed for file with end time: ',itime[-1])
@@ -2231,7 +2577,7 @@ def get_noaa_json(magfile, plasmafile):
 
 
 
-def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
+def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
 
 
     print(' ')
@@ -2253,8 +2599,10 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
     maglist=maglist[-cutoff:]
     print('Sorted file list to be read with cutoff ',cutoff,' files. ')
     print(maglist)
+    
+    #---------------------------------
 
-    #get mag data files
+    #get plasma data files
     print(noaa_path+'plasma/')
     items=os.listdir(noaa_path+'plasma/')  
     plasmalist = [] 
@@ -2269,18 +2617,36 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
     print(plasmalist)
     print()
         
+    #-------------------------        
+    #get ephemerides files
+    print(noaa_path+'ephem/')
+    items=os.listdir(noaa_path+'ephem/')  
+    ephemlist = [] 
+    for names in items: 
+       if names.endswith(".json"):
+            ephemlist.append(names)
+    ephemlist=np.sort(ephemlist)        
 
-    #make array for 1 years
+    #cutoff last N files
+    ephemlist=ephemlist[-cutoff:]
+
+    print(ephemlist)
+    print()
+               
+   
+    #make array 
     noaa=np.zeros(int(1e7),dtype=[('time',object),('bx', float),('by', float),\
-                    ('bz', float),('bt', float),('vt', float),('np', float),('tp', float),\
+                    ('bz', float),('bt', float),('vt', float),('vx', float),('vy', float),('vz', float),('np', float),('tp', float),\
                     ('x', float),('y', float),('z', float),\
                     ('r', float),('lat', float),('lon', float)])   
 
-    
+ 
 
     #counter    
     k=0
     
+    
+    #plasma and mag
 
     for i in np.arange(len(maglist))-1:
 
@@ -2290,6 +2656,7 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
         #print(noaa_path+'mag/'+maglist[i])
         p1=open(noaa_path+'plasma/'+plasmalist[i],'r')
         #print(noaa_path+'plasma/'+plasmalist[i])
+        
       
         #extract data from files
         try: 
@@ -2301,53 +2668,103 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
             print('one of these json could not be loaded')
             print(m1)
             print(p1)
-        
-
-        
-        #except: 
-        #    print(maglist[i], ' json not working')
             
-
 
     #cut zeros, sort, convert to recarray, and find unique times and data
 
     noaa_cut=noaa[0:k]
     noaa_cut.sort()
-         
+    
     nu=noaa_cut.view(np.recarray)
     [dum,ind]=np.unique(nu.time,return_index=True)  
     nf=nu[ind]
     
+    
     #add positions to the final array
+    
+    
     print('position start')
-    frame='HEEQ'
-    planet_kernel=spicedata.get_kernel('planet_trajectories')
-    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
-    earth.generate_positions(nf.time,'Sun',frame)
-    #from km to AU
-    earth.change_units(astropy.units.AU)
-    #add gse position to Earth position
-    x=earth.x-1.5*1e6*astropy.units.km
-    y=earth.y
-    z=earth.z
-    #[r, lat, lon]=cart2sphere(x,y,z)
-    #*****with astropy lagrange points exact value? L1 position with 0.01 AU 
-    [r, lat, lon]=cart2sphere(earth.x-0.01*astropy.units.AU,earth.y,earth.z)
+    
+    ephem=np.zeros(int(1e6),dtype=[('time',object),('xgse', float),('ygse', float),('zgse', float)]) 
+    ephem=ephem.view(np.recarray)  
+
+    
+    # exact position from ephemerides.json files, downloaded each day        
+    k=0
+    
+    for i in np.arange(len(ephemlist))-1:
+
+        #read in data of corresponding files
+        
+        e1=open(noaa_path+'ephem/'+ephemlist[i],'r')
+      
+        #extract data from files
+        try: 
+            e2=get_noaa_ephem(e1)
+            ephem[k:k+np.size(e2)]=e2
+            k=k+np.size(e2) 
+        except:
+            print('one of these json could not be loaded')
+            print(e1)
+            
+
+    ephem_cut=ephem[0:k]
+    ephem_cut.sort()   
+             
+    eu=ephem_cut.view(np.recarray)
+    [dum,ind]=np.unique(eu.time,return_index=True)  
+    ef=eu[ind]
+
+    
+    au_km = au.to('km').value
+    
+    #interpolate hourly ephemerides onto 1 minute data 
+    #but only for those times where it is available, otherwise 
+    #set x_gse to 0.01 AU and thats it
+    
+    nf_mat=mdates.date2num(nf.time)
+    ef_mat=mdates.date2num(ef.time)
+    
+    
+    #first set all xyz_gse to 0.01 and 0 for L1
+    x_gse=np.zeros(len(nf_mat))+0.01
+    y_gse=np.zeros(len(nf_mat))
+    z_gse=np.zeros(len(nf_mat))
+
+    #ef_mat is the earliest available ephemerides time
+    nf_eph_ind=np.where(nf_mat > ef_mat[0])[0]
+    print(nf_eph_ind)
+
+    #only interpolate the nf_mat times after this date
+    x_gse[nf_eph_ind] = np.interp(nf_mat[nf_eph_ind], ef_mat,ef.xgse )/au_km 
+    y_gse[nf_eph_ind] = np.interp(nf_mat[nf_eph_ind], ef_mat,ef.ygse )/au_km 
+    z_gse[nf_eph_ind] = np.interp(nf_mat[nf_eph_ind], ef_mat,ef.zgse )/au_km 
+
+    #print(x_gse)
+    #print(y_gse)
+    #print(z_gse)
+
+    coords_earth = astrospice.generate_coords('Earth', nf.time)
+    #coords_earth_heeq=coords_earth.transform_to(HeliographicStonyhurst())  #returns degrees, km
+    coords_earth_hee=coords_earth.transform_to(HeliocentricEarthEcliptic())  #returns degrees, km
+
+    #change angles to -90/90 latitude, distance to AU
+    [earth_hee_x, earth_hee_y, earth_hee_z] = sphere2cart(coords_earth_hee.distance.value/au_km,\
+                                                              np.deg2rad(-coords_earth_hee.lat.value+90) ,np.deg2rad(coords_earth_hee.lon.value))
+    
+ 
+    nf.x=earth_hee_x-x_gse  #both values are in au, 0.01 for L1
+    nf.y=earth_hee_y-y_gse
+    nf.z=earth_hee_z+z_gse
+    
+    [nf.r, nf.lat, nf.lon]=cart2sphere(nf.x,nf.y,nf.z)       
+    nf.lat=np.rad2deg(nf.lat)
+    nf.lon=np.rad2deg(nf.lon)
+   
+    
     print('position end ')
        
-    
-    
-    nf.x=x
-    nf.y=y
-    nf.z=z
-    
-    nf.r=r
-    nf.lat=np.rad2deg(lat)
-    nf.lon=np.rad2deg(lon)
-    
-    
-    
-
+        
     header='Real time solar wind magnetic field and plasma data from NOAA, ' + \
         'obtained daily from https://services.swpc.noaa.gov/products/solar-wind/  '+ \
         'Timerange: '+nf.time[0].strftime("%Y-%b-%d %H:%M")+' to '+nf.time[-1].strftime("%Y-%b-%d %H:%M")+\
@@ -2359,12 +2776,73 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa, cutoff):
         'By C. Moestl (twitter @chrisoutofspace) and R. Bailey. File creation date: '+\
         datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
 
-
+    
+    print('file saved ',data_path+filenoaa)
     pickle.dump([nf,header], open(data_path+filenoaa, "wb"))
     
+    #################### dst file
+    
+    print()
+    print()
+    print('-------- make Dst file ----')
 
+    
+    #get dst data files
+    print(noaa_path+'dst/')
+    items=os.listdir(noaa_path+'dst/')  
+    dstlist = [] 
+    for names in items: 
+       if names.endswith(".json"):
+            dstlist.append(names)
+    dstlist=np.sort(dstlist)
+    #cutoff last N files
+    dstlist=dstlist[-cutoff:]
 
+    print(dstlist)
 
+    
+    
+    #make array 
+    dst=np.zeros(int(1e7),dtype=[('time',object),('dst', float)])   
+
+  
+    #counter    
+    k=0
+    
+    
+    for i in np.arange(len(dstlist))-1:
+
+        #read in data of corresponding files
+        
+        dstfile1=open(noaa_path+'dst/'+dstlist[i],'r')
+        print(noaa_path+'mag/'+maglist[i])
+
+        #extract data from files
+        try: 
+            dst1=get_noaa_dst(dstfile1)
+            dst[k:k+np.size(dst1)]=dst1
+            k=k+np.size(dst1) 
+        except:
+            print('json could not be loaded')
+            print(dstfile1)
+      
+           
+
+    #cut zeros, sort, convert to recarray, and find unique times and data
+
+    dst_cut=dst[0:k]
+    dst_cut.sort()
+    
+             
+    dstu=dst_cut.view(np.recarray)
+    [dum,ind]=np.unique(dstu.time,return_index=True)  
+    dstf=dstu[ind]
+    
+    print('file saved ',data_path+filedst)
+    pickle.dump(dstf, open(data_path+filedst, "wb"))
+    print(' ')
+    print(' ')
+    
 
 
 
@@ -2425,7 +2903,7 @@ def stereoa_download_beacon(start, end, stereoa_path):
             
             
 
-def save_stereoa_beacon_data(data_path,path,file,t_start,t_end,coord):
+def save_stereoa_beacon_data(data_path,path,file_rtn,file_gsm,t_start,t_end,coord):
             
         
 
@@ -2647,8 +3125,8 @@ def save_stereoa_beacon_data(data_path,path,file,t_start,t_end,coord):
 
     print('position end ')
 
-    
-    
+    sta_gse=convert_RTN_to_GSE_sta_l1(sta)
+    sta_gsm=convert_GSE_to_GSM(sta_gse)
     
     header='STEREO-A magnetic field (IMPACT instrument, science data) and plasma data (PLASTIC, preliminary science data), ' + \
     'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/ and   '+ \
@@ -2659,12 +3137,30 @@ def save_stereoa_beacon_data(data_path,path,file,t_start,t_end,coord):
     'Missing data has been set to "np.nan". Total number of data points: '+str(sta.size)+'. '+\
     'Units are btxyz [nT, '+coord+', vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with https://github.com/cmoestl/heliocats '+\
-    'and https://github.com/heliopython/heliopy. '+\
-    'By C. Moestl. File creation date: '+\
+    'By C. Moestl, E. Weiler, E. E. Davies. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
 
     print('save pickle file')
-    pickle.dump([sta,header], open(data_path+file, "wb"))
+    pickle.dump([sta,header], open(data_path+file_rtn, "wb"))
+    
+    
+    
+    header_gsm='STEREO-A magnetic field (IMPACT instrument, science data) and plasma data (PLASTIC, preliminary science data), ' + \
+    'obtained from https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level2/ahead/ and   '+ \
+    'https://stereo-ssc.nascom.nasa.gov/data/ins_data/plastic/level2/Protons/Derived_from_1D_Maxwellian/ASCII/1min/A/2020/ '+ \
+    'Timerange: '+sta.time[0].strftime("%Y-%b-%d %H:%M")+' to '+sta.time[-1].strftime("%Y-%b-%d %H:%M")+\
+    ', with an average time resolution of '+str(np.mean(np.diff(sta.time)).seconds)+' seconds. '+\
+    'The data are available in a numpy recarray, fields can be accessed by sta.time, sta.bx, sta.vt etc. '+\
+    'Missing data has been set to "np.nan". Total number of data points: '+str(sta.size)+'. '+\
+    'Units are btxyz [nT, GSM], vt [km/s], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+    'Made with https://github.com/cmoestl/heliocats '+\
+    'By C. Moestl, E. Weiler, E. E. Davies. File creation date: '+\
+    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+    print('save pickle file')
+    pickle.dump([sta_gsm,header_gsm], open(data_path+file_gsm, "wb"))
+    
+    
     
     print('done sta')
     
@@ -5240,167 +5736,6 @@ def save_stereoa_science_data_old(path,file,t_start, t_end,sceq):
 
 
 
-def omni_loader():
-   '''
-   downloads all omni2 data into the "data" folder
-   '''
-
-   #if overwrite>0: 
-   #      print('download OMNI2 again')
-   #      if os.path.exists('data/omni2_all_years.dat'): os.remove('data/omni2_all_years.dat')
-  
-   #if not os.path.exists('data/omni2_all_years.dat'):
-      #see http://omniweb.gsfc.nasa.gov/html/ow_data.html
-   print('load OMNI2 .dat into "data" directory from')
-   omni2_url='https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2_all_years.dat'
-   print(omni2_url)
-   try: urllib.request.urlretrieve(omni2_url, 'data/omni2_all_years.dat')
-   except urllib.error.URLError as e:
-         print(' ', omni2_url,' ',e.reason)
-         sys.exit()
-
-
-def save_omni_data(path,file):
-    '''
-    save variables from OMNI2 dataset as pickle
-
-    documentation https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2.text
-    omni2_url='https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2_all_years.dat'
-    '''        
-  
-    print('start omni')
-    
-    omni_loader()
-    #check how many rows exist in this file
-    f=open('data/omni2_all_years.dat')
-    dataset= len(f.readlines())
-    
-    #make array
-    o=np.zeros(dataset,dtype=[('time',object),('bx', float),('by', float),\
-                ('bz', float),('bygsm', float),('bzgsm', float),('bt', float),\
-                ('vt', float),('np', float),('tp', float),('alpha', float),\
-                ('dst', float),('kp', float),('spot', float),\
-                ('ae', float),('ap', float),('f107', float),\
-                ('pcn', float),('al', float),('au', float),\
-                ('x', float),('y', float),('z', float),\
-                ('r', float),('lat', float),('lon', float)])
-                
-    o=o.view(np.recarray)  
-    print(dataset, ' datapoints')   #for reading data from OMNI file
-    
-    j=0
-    with open('data/omni2_all_years.dat') as f:
-        for line in f:
-            line = line.split() # to deal with blank 
-            
-            #time - need to convert from year doy hour to datetime object
-            o.time[j]=datetime.datetime(int(line[0]), 1, 1) + datetime.timedelta(int(line[1]) - 1) \
-                              + datetime.timedelta(hours=int(line[2])) 
-
-            #25 is bulkspeed F6.0, in km/s
-            o.vt[j]=line[24]
-            if o.vt[j] == 9999: o.vt[j]=np.NaN
-            
-            #24 in file, index 23 proton density /ccm
-            o.np[j]=line[23]
-            if o.np[j] == 999.9: o.np[j]=np.NaN
-            
-            #23 in file, index 22 Proton temperature  /ccm
-            o.tp[j]=line[22]
-            if o.tp[j] == 9999999.: o.tp[j]=np.NaN
-
-            #28 in file, index 27 alpha to proton ratio
-            o.alpha[j]=line[27]
-            if o.alpha[j] == 9.999: o.alpha[j]=np.NaN
-           
-            #9 is total B  F6.1 also fill ist 999.9, in nT
-            o.bt[j]=line[9]
-            if o.bt[j] == 999.9: o.bt[j]=np.NaN
-
-            #GSE components from 13 to 15, so 12 to 14 index, in nT
-            o.bx[j]=line[12]
-            if o.bx[j] == 999.9: o.bx[j]=np.NaN
-            o.by[j]=line[13]
-            if o.by[j] == 999.9: o.by[j]=np.NaN
-            o.bz[j]=line[14]
-            if o.bz[j] == 999.9: o.bz[j]=np.NaN
-          
-            #GSM
-            o.bygsm[j]=line[15]
-            if o.bygsm[j] == 999.9: o.bygsm[j]=np.NaN
-          
-            o.bzgsm[j]=line[16]
-            if o.bzgsm[j] == 999.9: o.bzgsm[j]=np.NaN    
-          
-
-            o.kp[j]=line[38]
-            if o.kp[j] == 99: o.kp[j]=np.nan
-           
-            o.spot[j]=line[39]
-            if o.spot[j] ==  999: o.spot[j]=np.nan
-
-            o.dst[j]=line[40]
-            if o.dst[j] == 99999: o.dst[j]=np.nan
-
-            o.ae[j]=line[41]
-            if o.ae[j] ==  9999: o.ae[j]=np.nan
-            
-            o.ap[j]=line[49]
-            if o.ap[j] ==  999: o.ap[j]=np.nan
-            
-            o.f107[j]=line[50]
-            if o.f107[j] ==  999.9  : o.f107[j]=np.nan
-            
-            o.pcn[j]=line[51]
-            if o.pcn[j] ==  999.9  : o.pcn[j]=np.nan
-
-            o.al[j]=line[52]
-            if o.al[j] ==   99999  : o.al[j]=np.nan
-
-            o.au[j]=line[53]
-            if o.au[j] ==  99999 : o.au[j]=np.nan
-          
-          
-            j=j+1     
-            
-    print('position start')
-    frame='HEEQ'
-    planet_kernel=spicedata.get_kernel('planet_trajectories')
-    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
-    earth.generate_positions(o.time,'Sun',frame)
-    earth.change_units(astropy.units.AU)
-    [r, lat, lon]=cart2sphere(earth.x,earth.y,earth.z)
-    print('position end ')   
-    
-    
-    o.x=earth.x
-    o.y=earth.y
-    o.z=earth.z
-    
-    o.r=r
-    o.lat=np.rad2deg(lat)
-    o.lon=np.rad2deg(lon)
-    
-    header='Near Earth OMNI2 1 hour solar wind and geomagnetic indices data since 1963. ' + \
-    'Obtained from https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/  '+ \
-    'Timerange: '+o.time[0].strftime("%Y-%b-%d %H:%M")+' to '+o.time[-1].strftime("%Y-%b-%d %H:%M")+'. '+\
-    'The data are available in a numpy recarray, fields can be accessed by o.time, o.bx, o.vt etc. '+\
-    'Missing data has been set to "np.nan". Total number of data points: '+str(o.size)+'. '+\
-    'For units and documentation see: https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2.text, the '+\
-    'heliospheric position of Earth was added and is given in x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with https://github.com/cmoestl/heliocats heliocats.data.save_omni_data (uses https://github.com/ajefweiss/HelioSat '+\
-    'and https://github.com/heliopython/heliopy). '+\
-    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss, and D. Stansby. File creation date: '+\
-    datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-    
-    
-    pickle.dump([o,header], open(path+file, 'wb') )
-    
-    print('done omni')
-    print()
-
-    
-
 
 
 
@@ -6423,6 +6758,90 @@ def recarray_to_numpy_array(rec):
    
     
   
+   
+def convert_HEE_to_HEEQ_old(sc_in):
+    '''
+    for Wind, Bepi magnetic field components: convert HEE to HAE to HEEQ
+    '''
+
+    print('conversion HEE to HEEQ')                                
+    
+    sc=copy.deepcopy(sc_in)
+    
+    jd=np.zeros(len(sc))
+    mjd=np.zeros(len(sc))
+        
+
+    for i in np.arange(0,len(sc)):
+
+        jd[i]=parse_time(sc.time[i]).jd
+        mjd[i]=float(int(jd[i]-2400000.5)) #use modified julian date    
+        
+       
+        b_hee=[sc.bx[i],sc.by[i],sc.bz[i]]
+        
+        #HEE to HAE        
+        
+        #define T00 and UT
+        T00=(mjd[i]-51544.5)/36525.0          
+        dobj=sc.time[i]
+        UT=dobj.hour + dobj.minute / 60. + dobj.second / 3600. #time in UT in hours   
+
+        #lambda_sun in Hapgood, equation 5, here in rad
+        M=np.radians(357.528+35999.050*T00+0.04107*UT)
+        LAMBDA=280.460+36000.772*T00+0.04107*UT        
+        lambda_sun=np.radians( (LAMBDA+(1.915-0.0048*T00)*np.sin(M)+0.020*np.sin(2*M)) )
+        
+        #S-1 Matrix equation 12 hapgood 1992, change sign in lambda angle for inversion HEE to HAE instead of HAE to HEE
+        c, s = np.cos(-(lambda_sun+np.radians(180))), np.sin(-(lambda_sun+np.radians(180)))
+        Sm1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+        b_hae=np.dot(Sm1,b_hee)
+
+        #HAE to HEEQ
+        
+        iota=np.radians(7.25)
+        omega=np.radians((73.6667+0.013958*((mjd[i]+3242)/365.25)))                      
+        theta=np.arctan(np.cos(iota)*np.tan(lambda_sun-omega))                       
+                      
+    
+        #quadrant of theta must be opposite lambda_sun minus omega; Hapgood 1992 end of section 5   
+        #get lambda-omega angle in degree mod 360 and theta in degrees
+        lambda_omega_deg=np.mod(np.degrees(lambda_sun)-np.degrees(omega),360)
+        theta_node_deg=np.degrees(theta)
+
+
+        ##if the 2 angles are close to similar, so in the same quadrant, then theta_node = theta_node +pi           
+        if np.logical_or(abs(lambda_omega_deg-theta_node_deg) < 1, abs(lambda_omega_deg-360-theta_node_deg) < 1): theta=theta+np.pi                                                                                                          
+        
+        #rotation around Z by theta
+        c, s = np.cos(theta), np.sin(theta)
+        S2_1 = np.array(((c,s, 0), (-s, c, 0), (0, 0, 1)))
+
+        #rotation around X by iota  
+        iota=np.radians(7.25)
+        c, s = np.cos(iota), np.sin(iota)
+        S2_2 = np.array(( (1,0,0), (0,c, s), (0, -s, c)) )
+                
+        #rotation around Z by Omega  
+        c, s = np.cos(omega), np.sin(omega)
+        S2_3 = np.array( ((c,s, 0), (-s, c, 0), (0, 0, 1)) )
+        
+        #matrix multiplication to go from HAE to HEEQ components                
+        [bx_heeq,by_heeq,bz_heeq]=np.dot(  np.dot(   np.dot(S2_1,S2_2),S2_3), b_hae) 
+        
+        sc.bx[i]=bx_heeq
+        sc.by[i]=by_heeq
+        sc.bz[i]=bz_heeq
+
+    
+    print('conversion HEE to HEEQ done')  
+    
+    return sc
+
+
+
+
+
     
     
 
