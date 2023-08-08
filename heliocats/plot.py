@@ -1166,7 +1166,7 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     
     #old matplotlib date numbers
     #made with sc_positions_for_vr or [psp,bepi,solo,sta,earth,venus,mars,mercury]=make_positions(time1,frame)
-    [psp, bepi, solo, sta, stb, messenger, ulysses, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions_HEEQ_1hr.p', "rb" ) )
+    [psp, bepi, solo, sta, stb, messenger, ulysses, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
     
 
     #sidereal solar rotation rate
@@ -1423,7 +1423,7 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     time1=mdates.date2num(time_date1)-mdates.date2num(np.datetime64('0000-12-31'))
 
     #made with sc_positions_for_vr or [psp,bepi,solo,sta,earth,venus,mars,mercury]=make_positions(time1,frame)
-    [psp, bepi, solo, sta, stb, messenger, ulysses, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions_HEEQ_1hr.p', "rb" ) )
+    [psp, bepi, solo, sta, stb, messenger, ulysses, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
     
 
     #sidereal solar rotation rate
@@ -1900,6 +1900,8 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
 
   
     fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    
+    data_path='/Users/chris/python/data/insitu_python/'
 
     #get indices of events for this spacecrat
     [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
@@ -1912,7 +1914,7 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
     if name=='MAVEN': 
         plasma=True
         #load MSL rad data
-        rad=hd.load_msl_rad()   
+        rad=hd.load_msl_rad(data_path)   
         #load HI ARRCAT
         file='arrcat/HELCATS_ARRCAT_v20_pandas.p'
         [arrcat,arrcat_header]=pickle.load( open(file, 'rb'))           

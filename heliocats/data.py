@@ -2815,8 +2815,7 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
         #read in data of corresponding files
         
         dstfile1=open(noaa_path+'dst/'+dstlist[i],'r')
-        print(noaa_path+'mag/'+maglist[i])
-
+ 
         #extract data from files
         try: 
             dst1=get_noaa_dst(dstfile1)
@@ -3976,7 +3975,8 @@ def save_wsa_hux(filein):
 
 
 def load_mars_wsa_hux():
-
+    
+    data_path='data/'
     file='wsa_hux_mars_aug2014_jan2018.p'  
     rad=pickle.load(open(data_path+file, "rb"))
     
