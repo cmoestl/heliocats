@@ -1036,12 +1036,110 @@ def plot_insitu_sircat_mag_plasma(sc, start, end, sc_label, path, ic,i):
             
 ################################## ICMECAT  ############################################################
   
-    
-    
-    
-    
-    
 def plot_stereo_hi_fov(pos, time_num, timeind,ax,sc):    
+    
+    #plots the STA FOV HI1 HI2
+    
+    #STB never flipped the camera:    
+    if sc=='B': 
+        ang1d=-4
+        ang2d=-24
+        ang3d=-18
+        ang4d=-88
+        lcolor='blue'
+    
+    if sc=='A': 
+        ang1d=4
+        ang2d=24
+        ang3d=18
+        ang4d=88
+        lcolor='red'
+
+        #STA flipped during conjunction
+        if time_num>mdates.date2num(datetime.datetime(2015,11,1)):  
+            ang1d=-4
+            ang2d=-24
+            ang3d=-18
+            ang4d=-88
+
+
+
+    #calculate endpoints
+    
+    #sta position
+    x0=pos.x[timeind]
+    y0=pos.y[timeind]
+    z0=0
+    
+    #sta position 180° rotated    
+    x1=-pos.x[timeind]
+    y1=-pos.y[timeind]
+    z1=0
+    
+    #rotate by 4 deg for HI1 FOV
+    ang=np.deg2rad(ang1d)
+    rot=np.array([[np.cos(ang), -np.sin(ang)], [np.sin(ang), np.cos(ang)]])    
+    [x2,y2]=np.dot(rot,[x1,y1])
+    z2=0    
+    #add to sta position
+    x2f=x0+x2
+    y2f=y0+y2    
+    z2f=0
+    
+    #rotate 2
+    ang2=np.deg2rad(ang2d)
+    rot2=np.array([[np.cos(ang2), -np.sin(ang2)], [np.sin(ang2), np.cos(ang2)]])    
+    [x3,y3]=np.dot(rot2,[x1,y1])
+    z3=0    
+    #add to sta position
+    x3f=x0+x3
+    y3f=y0+y3    
+    z3f=0
+    
+    #rotate 3
+    ang3=np.deg2rad(ang3d)
+    rot3=np.array([[np.cos(ang3), -np.sin(ang3)], [np.sin(ang3), np.cos(ang3)]])    
+    [x4,y4]=np.dot(rot3,[x1,y1])
+    z4=0    
+    #add to sta position
+    x4f=x0+x4
+    y4f=y0+y4    
+    z4f=0    
+
+    #rotate 4
+    ang4=np.deg2rad(ang4d)
+    rot4=np.array([[np.cos(ang4), -np.sin(ang4)], [np.sin(ang4), np.cos(ang4)]])    
+    [x5,y5]=np.dot(rot4,[x1,y1])
+    z5=0    
+    #add to sta position
+    x5f=x0+x5
+    y5f=y0+y5    
+    z5f=0    
+
+    
+    #convert to polar coordinates and plot
+    [r0,t0,lon0]=hd.cart2sphere(x0,y0,z0)    
+    #[r1,t1,lon1]=hd.cart2sphere(x1,y1,z1)    
+    [r2,t2,lon2]=hd.cart2sphere(x2f,y2f,z2f)    
+    [r3,t3,lon3]=hd.cart2sphere(x3f,y3f,z3f)    
+    [r4,t4,lon4]=hd.cart2sphere(x4f,y4f,z4f)    
+    [r5,t5,lon5]=hd.cart2sphere(x5f,y5f,z5f)    
+    
+    #ax.plot([lon0,lon1],[r0,r1],'--r',alpha=0.5)
+    ax.plot([lon0,lon2],[r0,r2],linestyle='-',color=lcolor,alpha=0.3)
+    ax.plot([lon0,lon3],[r0,r3],linestyle='-',color=lcolor,alpha=0.3)
+    ax.plot([lon0,lon4],[r0,r4],linestyle='--',color=lcolor,alpha=0.3)
+    ax.plot([lon0,lon5],[r0,r5],linestyle='--',color=lcolor,alpha=0.3)
+
+    
+    
+    
+    
+    
+    
+    
+    
+def plot_stereo_hi_fov_old(pos, time_num, timeind,ax,sc):    
     
     
     #plots the STA FOV HI1 HI2
@@ -1405,16 +1503,6 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
 
 
 def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
-    '''
-    sc = data
-    
-    for testing:
-    from heliocats import plot as hp
-    importlib.reload(hp) #reload again while debugging
-    fig=plt.figure(figsize=(12,8), dpi=100)   
-    ax5 = plt.subplot(111, projection='polar')
-    hp.plot_icmecat_positions_mag_plasma(ic.icme_start_time[400],'HEEQ',ax5)
-    '''
     
     sns.set_style('darkgrid')
     sns.set_context('paper')    
@@ -1438,7 +1526,7 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     res_in_days=1/24
     k=0
     
-    plot_orbit=True
+    plot_orbit=False
     plot_parker=True
     fadeind=int(100/res_in_days)
     fsize=17 
@@ -1618,8 +1706,8 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     plt.figtext(0.50,0.08,time_date1.strftime("%Y %B %d  %H:%M"),fontsize=fsize, ha='left',c='black')
     
     ########## legend    
-    plt.figtext(0.99,0.01,'C. Möstl / Helio4Cast', color='black', ha='right',fontsize=fsize-8)
-    plt.figtext(0.87,0.05,'――― 100 days future trajectory', color='black', ha='center',fontsize=fsize-3)
+    plt.figtext(0.99,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='right',fontsize=fsize-9)
+    #plt.figtext(0.87,0.05,'――― 100 days future trajectory', color='black', ha='center',fontsize=fsize-3)
 
      
 
@@ -1655,8 +1743,7 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
 
 def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs):
      '''
-     sc ... data
-    
+     sc ... data    
      '''
      
      start=parse_time(start).datetime
@@ -1790,7 +1877,8 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwarg
      if sc_label=='Wind': 
         plt.figtext(0.5,0.01,'Data source: Wind (MFI, SWE, NASA/Goddard)',fontsize=10, ha='left',color='black')
 
-
+     if sc_label=='SolarOrbiter': 
+        plt.figtext(0.5,0.03,'Data source: Solar Orbiter MAG Imperial College, SWA  University College London',fontsize=13, ha='left',color='black')
         
      plt.tight_layout()
      #plt.show()
@@ -1866,8 +1954,6 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, **kwargs):
      if sc_label=='BepiColombo': 
         plt.figtext(0.01,0.01,'Data source: BepiColombo MPO-MAG (IGEP/IWF/ISAS/IC)',fontsize=13, ha='left',color='black')
   
-     if sc_label=='SolarOrbiter': 
-        plt.figtext(0.01,0.01,'Data source: Solar Orbiter (MAG, Imperial College)',fontsize=13, ha='left',color='black')
         
      if sc_label=='VEX': 
         plt.figtext(0.01,0.01,'Data source: Venus Express (MAG, IWF/OEAW)',fontsize=13, ha='left',color='black')  
@@ -1928,7 +2014,7 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
     if name=='VEX': plasma=False
     if name=='MESSENGER': plasma=False
     if name=='BepiColombo': plasma=False
-    if name=='SolarOrbiter': plasma=False               
+    if name=='SolarOrbiter': plasma=True              
         
     
     
@@ -1937,7 +2023,7 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
         
         beginind=90*24
         #adhoc fix for April 20 SolO event because data starts very close to ICME start
-        if ic.icmecat_id[sci[i]]=='ICME_SOLO_MOESTL_20200419_01': beginind=70*24
+        #if ic.icmecat_id[sci[i]]=='ICME_SOLO_MOESTL_20200419_01': beginind=70*24
 
     
         if plasma == True:

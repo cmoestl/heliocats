@@ -7,7 +7,7 @@
 # 
 # **latest release: version 2.1, 2021 November 29, updated 2023 August TBD
 # 
-# **Authors**: Christian Möstl, Eva Weiler, Austrian Space Weather Office, Geosphere Austria
+# **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
 # https://twitter.com/chrisoutofspace <br /> https://mastodon.social/@chrisoutofspace
 # 
@@ -34,11 +34,11 @@
 # - STEREO-A FoVs are not completely correct in the plots
 # 
 
-# In[22]:
+# In[5]:
 
 
 last_update='2023-August-TBD'
-debug_mode=0
+debug_mode=1
 
 
 import numpy as np
@@ -109,6 +109,9 @@ if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir)
 #Convert this notebook to a script 
 os.system('jupyter nbconvert --to script icmecat.ipynb')    
 
+
+
+
 print('done')
 
 t0all = time.time()
@@ -116,7 +119,7 @@ t0all = time.time()
 
 # ## (1) load data 
 
-# In[8]:
+# In[2]:
 
 
 t0 = time.time()
@@ -497,7 +500,7 @@ if data_to_numpy_3 > 0:
 
 # ## (3) make ICMECAT 
 
-# In[38]:
+# In[3]:
 
 
 if debug_mode > 0: 
@@ -552,14 +555,10 @@ ic=hc.get_cat_parameters(vex,vexi,ic,'VEX')
 ic=hc.get_cat_parameters(mes,mesi,ic,'MESSENGER')
 ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 
-
-######## sort ICMECAT by date
-
-ic = ic.sort_values(by='icme_start_time',ascending=False)
-ic = ic.reset_index(drop=True)
+print('done')
 
 
-# In[42]:
+# In[ ]:
 
 
 ###### 3c make all plots if wanted
@@ -600,8 +599,13 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[26]:
+# In[66]:
 
+
+######## sort ICMECAT by date
+
+ic = ic.sort_values(by='icme_start_time',ascending=False)
+ic = ic.reset_index(drop=True)
 
 #save header and parameters as text file and prepare for html website
 header='ICME CATALOGUE v2.1 \n\n\
@@ -751,7 +755,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[27]:
+# In[67]:
 
 
 ########## python formats
@@ -927,7 +931,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[28]:
+# In[68]:
 
 
 #load icmecat as pandas dataframe
@@ -939,27 +943,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[29]:
+# In[69]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[30]:
+# In[70]:
 
 
 ic_pandas
 
 
-# In[31]:
+# In[71]:
 
 
 #
 ic_nprec
 
 
-# In[32]:
+# In[72]:
 
 
 ic_nprec.icmecat_id
@@ -967,7 +971,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[33]:
+# In[73]:
 
 
 ic=ic_pandas
@@ -1081,7 +1085,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[34]:
+# In[74]:
 
 
 #markersize
@@ -1125,7 +1129,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=100,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[35]:
+# In[75]:
 
 
 #make distribution plots
