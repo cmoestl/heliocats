@@ -1250,27 +1250,22 @@ def plot_stereo_hi_fov_old(pos, time_num, timeind,ax,sc):
     
   
 
-def plot_icmecat_positions_mag(time_date1,frame,ax):
+def plot_icmecat_positions_mag(time_date1,frame,ax,pos):
     '''
     sc = data
     '''
+
+    plot_orbit=False
+    plot_parker=True
+
     
     sns.set_style('darkgrid')
     sns.set_context('paper')    
     
-    #convert to old matplotlib
-    time1=mdates.date2num(time_date1)-mdates.date2num(np.datetime64('0000-12-31'))
-    
-    
-    #old matplotlib date numbers
-    #made with sc_positions_for_vr or [psp,bepi,solo,sta,earth,venus,mars,mercury]=make_positions(time1,frame)
-    [psp, bepi, solo, sta, stb, messenger, ulysses, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
-    
-
-    #sidereal solar rotation rate
-    if frame=='HCI': sun_rot=24.47
-    #synodic
-    if frame=='HEEQ': sun_rot=26.24
+    time1=mdates.date2num(time_date1)
+        
+    frame='HEEQ'
+    sun_rot=26.24
    
     AUkm=149597870.7   
 
@@ -1279,12 +1274,27 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     res_in_days=1/24
     k=0
     
-    plot_orbit=True
-    plot_parker=True
     fadeind=int(100/res_in_days)
     fsize=17 
     symsize_planet=140
     symsize_spacecraft=100
+    
+    #order in pos array
+    #[p_psp, p_solo, p_sta, p_bepi, p_l1, p_stb_new, p_uly_new, p_mes_new, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune])
+    #open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
+
+    psp=pos[0]
+    solo=pos[1]
+    sta=pos[2]
+    bepi=pos[3]
+    l1=pos[4]
+    stb=pos[5]
+    uly=pos[6]
+    mes=pos[7]
+    earth=pos[8]
+    mercury=pos[9]
+    venus=pos[10]
+    mars=pos[11]
     
     #find index for psp
     dct=time1-psp.time
@@ -1296,13 +1306,25 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     dct=time1-solo.time
     solo_timeind=np.argmin(abs(dct))
 
-    #planets same time as Earth
     dct=time1-earth.time
     earth_timeind=np.argmin(abs(dct))
+    
+    dct=time1-mars.time
+    mars_timeind=np.argmin(abs(dct))
+
+    dct=time1-venus.time
+    venus_timeind=np.argmin(abs(dct))
+    
+    dct=time1-sta.time
+    sta_timeind=np.argmin(abs(dct))
+    
+    dct=time1-stb.time
+    stb_timeind=np.argmin(abs(dct))
 
     #messenger
-    dct=time1-messenger.time
+    dct=time1-mes.time
     mes_timeind=np.argmin(abs(dct))
+
 
 
     
@@ -1312,15 +1334,15 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     solo_color='green'
         
 
-    ax.scatter(venus.lon[earth_timeind], venus.r[earth_timeind]*np.cos(venus.lat[earth_timeind]), s=symsize_planet, c='orange', alpha=1,lw=0,zorder=3)
+    ax.scatter(venus.lon[venus_timeind], venus.r[venus_timeind]*np.cos(venus.lat[earth_timeind]), s=symsize_planet, c='orange', alpha=1,lw=0,zorder=3)
     ax.scatter(mercury.lon[earth_timeind], mercury.r[earth_timeind]*np.cos(mercury.lat[earth_timeind]), s=symsize_planet, c='dimgrey', alpha=1,lw=0,zorder=3)
     ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_planet, c='mediumseagreen', alpha=1,lw=0,zorder=3)
-    ax.scatter(sta.lon[earth_timeind], sta.r[earth_timeind]*np.cos(sta.lat[earth_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
-    ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
+    ax.scatter(sta.lon[sta_timeind], sta.r[sta_timeind]*np.cos(sta.lat[sta_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
+    ax.scatter(mars.lon[mars_timeind], mars.r[mars_timeind]*np.cos(mars.lat[mars_timeind]), s=symsize_planet, c='tomato', alpha=1,lw=0,zorder=3)
 
     
     #text thats always there on the plot
-    ax.text(sta.lon[earth_timeind]-0.15,sta.r[earth_timeind],'STEREO-A', color='red', ha='center',fontsize=fsize-4,verticalalignment='top')
+    ax.text(sta.lon[sta_timeind]-0.15,sta.r[sta_timeind],'STEREO-A', color='red', ha='center',fontsize=fsize-4,verticalalignment='top')
     ax.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
     ax.text(0,earth.r[earth_timeind]+0.12,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
     
@@ -1328,10 +1350,10 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     
     
     #plot stereo hi fov
-    plot_stereo_hi_fov(sta,time1, earth_timeind, ax,'A')
+    plot_stereo_hi_fov(sta,time1, sta_timeind, ax,'A')
     
     if time1<mdates.date2num(datetime.datetime(2014,9,26)):  
-        plot_stereo_hi_fov(stb,time1, earth_timeind, ax,'B')
+        plot_stereo_hi_fov(stb,time1, stb_timeind, ax,'B')
     
     ########### Sun
     ax.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)
@@ -1398,7 +1420,7 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     if time1<mdates.date2num(datetime.datetime(2014,9,26)):        
 
         #marker and text on plot - stb has similar indices to earth_timeind
-        ax.scatter(stb.lon[earth_timeind], stb.r[earth_timeind]*np.cos(stb.lat[earth_timeind]), s=symsize_spacecraft, c='blue', marker='s',alpha=1,lw=0,zorder=3)        
+        ax.scatter(stb.lon[stb_timeind], stb.r[earth_timeind]*np.cos(stb.lat[earth_timeind]), s=symsize_spacecraft, c='blue', marker='s',alpha=1,lw=0,zorder=3)        
         #trajectory
         ax.plot(stb.lon[earth_timeind:earth_timeind+fadeind], stb.r[earth_timeind:earth_timeind+fadeind]*np.cos(stb.lat[earth_timeind:earth_timeind+fadeind]), c='blue', alpha=0.6,lw=1,zorder=3)        
         plt.text(stb.lon[earth_timeind],stb.r[earth_timeind]+0.12,'STEREO-B', color='blue', ha='center',fontsize=fsize-5,verticalalignment='center')
@@ -1439,8 +1461,8 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     if frame=='HEEQ': earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{0.0:8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
     else: earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(earth.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
 
-    mars_text='Mars:  '+str(f'{mars.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(mars.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(mars.lat[earth_timeind]):8.1f}')
-    sta_text='STA:   '+str(f'{sta.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(sta.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(sta.lat[earth_timeind]):8.1f}')
+    mars_text='Mars:  '+str(f'{mars.r[mars_timeind]:6.2f}')+str(f'{np.rad2deg(mars.lon[mars_timeind]):8.1f}')+str(f'{np.rad2deg(mars.lat[mars_timeind]):8.1f}')
+    sta_text='STA:   '+str(f'{sta.r[sta_timeind]:6.2f}')+str(f'{np.rad2deg(sta.lon[sta_timeind]):8.1f}')+str(f'{np.rad2deg(sta.lat[sta_timeind]):8.1f}')
 
     
  
@@ -1455,8 +1477,8 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     plt.figtext(0.68,0.45,time_date1.strftime("%Y %B %d  %H:%M"),fontsize=fsize+6, ha='left',c='black')
     
     ########## legend    
-    plt.figtext(0.99,0.01,'C. Möstl / Helio4Cast', color='black', ha='right',fontsize=fsize-8)
-    plt.figtext(0.85,0.05,'――― 100 days future trajectory', color='black', ha='center',fontsize=fsize-3)
+    plt.figtext(0.99,0.01,'Austrian Space Weather Office     GeoSphere Austria', color='black', ha='right',fontsize=fsize-8)
+    #plt.figtext(0.85,0.05,'――― 100 days future trajectory', color='black', ha='center',fontsize=fsize-3)
 
      
 
@@ -1502,23 +1524,22 @@ def plot_icmecat_positions_mag(time_date1,frame,ax):
     
 
 
-def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
+def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos):
     
     sns.set_style('darkgrid')
     sns.set_context('paper')    
     
     #convert old matplotlib so consistent with the positions file (need to change this)
-    time1=mdates.date2num(time_date1)-mdates.date2num(np.datetime64('0000-12-31'))
-
-    #made with sc_positions_for_vr or [psp,bepi,solo,sta,earth,venus,mars,mercury]=make_positions(time1,frame)
-    [psp, bepi, solo, sta, stb, messenger, ulysses, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
+    #time1=mdates.date2num(time_date1)-mdates.date2num(np.datetime64('0000-12-31'))
+    time1=mdates.date2num(time_date1)
     
-
-    #sidereal solar rotation rate
-    if frame=='HCI': sun_rot=24.47
-    #synodic
-    if frame=='HEEQ': sun_rot=26.24
+    frame='HEEQ'
+    sun_rot=26.24
    
+    #sidereal solar rotation rate
+    #if frame=='HCI': sun_rot=24.47
+    #synodic
+    #if frame=='HEEQ': 
     AUkm=149597870.7   
 
     #for parker spiral   
@@ -1532,6 +1553,24 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     fsize=17 
     symsize_planet=140
     symsize_spacecraft=100
+
+    
+    #order in pos array
+    #[p_psp, p_solo, p_sta, p_bepi, p_l1, p_stb_new, p_uly_new, p_mes_new, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune])
+    #open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
+
+    psp=pos[0]
+    solo=pos[1]
+    sta=pos[2]
+    bepi=pos[3]
+    l1=pos[4]
+    stb=pos[5]
+    uly=pos[6]
+    mes=pos[7]
+    earth=pos[8]
+    mercury=pos[9]
+    venus=pos[10]
+    mars=pos[11]
     
     #find index for psp
     dct=time1-psp.time
@@ -1543,12 +1582,25 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     dct=time1-solo.time
     solo_timeind=np.argmin(abs(dct))
 
-    #planets same time as Earth
     dct=time1-earth.time
     earth_timeind=np.argmin(abs(dct))
+    
+    dct=time1-venus.time
+    venus_timeind=np.argmin(abs(dct))
+    
+    dct=time1-mars.time
+    mars_timeind=np.argmin(abs(dct))
 
-    #messenger
-    dct=time1-messenger.time
+    dct=time1-mercury.time
+    mercury_timeind=np.argmin(abs(dct))
+
+    dct=time1-sta.time
+    sta_timeind=np.argmin(abs(dct))
+    
+    dct=time1-stb.time
+    stb_timeind=np.argmin(abs(dct))
+
+    dct=time1-mes.time
     mes_timeind=np.argmin(abs(dct))
 
 
@@ -1559,10 +1611,10 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     solo_color='green'
         
 
-    ax.scatter(venus.lon[earth_timeind], venus.r[earth_timeind]*np.cos(venus.lat[earth_timeind]), s=symsize_planet, c='orange', alpha=1,lw=0,zorder=3)
-    ax.scatter(mercury.lon[earth_timeind], mercury.r[earth_timeind]*np.cos(mercury.lat[earth_timeind]), s=symsize_planet, c='dimgrey', alpha=1,lw=0,zorder=3)
+    ax.scatter(venus.lon[venus_timeind], venus.r[venus_timeind]*np.cos(venus.lat[venus_timeind]), s=symsize_planet, c='orange', alpha=1,lw=0,zorder=3)
+    ax.scatter(mercury.lon[mercury_timeind], mercury.r[mercury_timeind]*np.cos(mercury.lat[mercury_timeind]), s=symsize_planet, c='dimgrey', alpha=1,lw=0,zorder=3)
     ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_planet, c='mediumseagreen', alpha=1,lw=0,zorder=3)    
-    ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
+    #ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
 
     
     #text thats always there on the plot
@@ -1592,28 +1644,26 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     plt.figtext(xset1,yset,'              R     lon     lat', fontsize=fsize+2, ha='left',color=backcolor)
 
 
-    if frame=='HEEQ': earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{0.0:8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
-    else: earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(earth.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
-
-    mars_text='Mars:  '+str(f'{mars.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(mars.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(mars.lat[earth_timeind]):8.1f}')
-     
+    earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{0.0:8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
     f10=plt.figtext(xset1,yset-ydiff*1,earth_text, fontsize=fsize, ha='left',color='mediumseagreen')
-    f9=plt.figtext(xset1,yset-ydiff*2,mars_text, fontsize=fsize, ha='left',c='orangered')
+    
+    mars_text='Mars:  '+str(f'{mars.r[mars_timeind]:6.2f}')+str(f'{np.rad2deg(mars.lon[mars_timeind]):8.1f}')+str(f'{np.rad2deg(mars.lat[mars_timeind]):8.1f}')
+    f9=plt.figtext(xset1,yset-ydiff*2,mars_text, fontsize=fsize, ha='left',c='tomato')
 
     
     #stereo-a    
     if time1>mdates.date2num(datetime.datetime(2007,1,1)):        
 
         
-        sta_text='STA:   '+str(f'{sta.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(sta.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(sta.lat[earth_timeind]):8.1f}')
+        sta_text='STA:   '+str(f'{sta.r[sta_timeind]:6.2f}')+str(f'{np.rad2deg(sta.lon[sta_timeind]):8.1f}')+str(f'{np.rad2deg(sta.lat[sta_timeind]):8.1f}')
 
 
-        ax.text(sta.lon[earth_timeind]-0.15,sta.r[earth_timeind],'STEREO-A', color='red', ha='center',fontsize=fsize-4,verticalalignment='top')
-        ax.scatter(sta.lon[earth_timeind], sta.r[earth_timeind]*np.cos(sta.lat[earth_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
+        ax.text(sta.lon[sta_timeind]-0.15,sta.r[sta_timeind],'STEREO-A', color='red', ha='center',fontsize=fsize-4,verticalalignment='top')
+        ax.scatter(sta.lon[sta_timeind], sta.r[sta_timeind]*np.cos(sta.lat[sta_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
         f8=plt.figtext(xset1,yset-ydiff*3,sta_text, fontsize=fsize, ha='left',c='red')
 
         #plot stereo hi fov
-        plot_stereo_hi_fov(sta,time1, earth_timeind, ax,'A')
+        plot_stereo_hi_fov(sta,time1, sta_timeind, ax,'A')
 
         if plot_orbit: 
             ax.plot(sta.lon[earth_timeind:earth_timeind+fadeind], sta.r[earth_timeind:earth_timeind+fadeind]*np.cos(sta.lat[earth_timeind:earth_timeind+fadeind]), c='red', alpha=0.6,lw=1,zorder=3)
@@ -1659,23 +1709,21 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     #STEREO-B    
     if time1>mdates.date2num(datetime.datetime(2007,1,1)) and time1<mdates.date2num(datetime.datetime(2014,9,26)):        
 
-        #marker and text on plot - stb has similar indices to earth_timeind
-        ax.scatter(stb.lon[earth_timeind], stb.r[earth_timeind]*np.cos(stb.lat[earth_timeind]), s=symsize_spacecraft, c='blue', marker='s',alpha=1,lw=0,zorder=3)        
-        #trajectory
-        ax.plot(stb.lon[earth_timeind:earth_timeind+fadeind], stb.r[earth_timeind:earth_timeind+fadeind]*np.cos(stb.lat[earth_timeind:earth_timeind+fadeind]), c='blue', alpha=0.6,lw=1,zorder=3)        
-        plt.text(stb.lon[earth_timeind],stb.r[earth_timeind]+0.12,'STEREO-B', color='blue', ha='center',fontsize=fsize-5,verticalalignment='center')
+        ax.scatter(stb.lon[stb_timeind], stb.r[stb_timeind]*np.cos(stb.lat[stb_timeind]), s=symsize_spacecraft, c='blue', marker='s',alpha=1,lw=0,zorder=3)        
+        #ax.plot(stb.lon[stb_timeind:stb_timeind+fadeind], stb.r[stb_timeind:stb_timeind+fadeind]*np.cos(stb.lat[stb_timeind:stb_timeind+fadeind]), c='blue', alpha=0.6,lw=1,zorder=3)        
+        plt.text(stb.lon[stb_timeind],stb.r[stb_timeind]+0.12,'STEREO-B', color='blue', ha='center',fontsize=fsize-5,verticalalignment='center')
 
-        stb_text='STB:   '+str(f'{stb.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(stb.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(stb.lat[earth_timeind]):8.1f}')
+        stb_text='STB:   '+str(f'{stb.r[stb_timeind]:6.2f}')+str(f'{np.rad2deg(stb.lon[stb_timeind]):8.1f}')+str(f'{np.rad2deg(stb.lat[stb_timeind]):8.1f}')
         f13=plt.figtext(xset2,yset-ydiff*1,stb_text, fontsize=fsize, ha='left',color='blue')
         
-        plot_stereo_hi_fov(stb,time1, earth_timeind, ax,'B')
+        plot_stereo_hi_fov(stb,time1, stb_timeind, ax,'B')
 
 
         
         
     #VEX    
     if time1>mdates.date2num(datetime.datetime(2007,1,1)) and time1<mdates.date2num(datetime.datetime(2014,11,26)):        
-        vex_text='VEX:   '+str(f'{venus.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(venus.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(venus.lat[earth_timeind]):8.1f}')
+        vex_text='VEX:   '+str(f'{venus.r[venus_timeind]:6.2f}')+str(f'{np.rad2deg(venus.lon[venus_timeind]):8.1f}')+str(f'{np.rad2deg(venus.lat[venus_timeind]):8.1f}')
         f11=plt.figtext(xset2,yset-ydiff*2,vex_text, fontsize=fsize, ha='left',color='orange')
         plt.text(venus.lon[earth_timeind],venus.r[earth_timeind]+0.12,'VEX', color='orange', ha='center',fontsize=fsize-5,verticalalignment='center')
 
@@ -1683,20 +1731,18 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
     if time1>mdates.date2num(datetime.datetime(2007,1,1)) and time1<mdates.date2num(datetime.datetime(2011,3,18)):        
      
         #marker and text on plot
-        ax.scatter(messenger.lon[mes_timeind], messenger.r[mes_timeind]*np.cos(messenger.lat[mes_timeind]), s=symsize_planet, c='darkgrey', marker='s',alpha=1,lw=0,zorder=3)
-        plt.text(messenger.lon[mes_timeind],messenger.r[mes_timeind]+0.12,'MESSENGER', color='darkgrey', ha='center',fontsize=fsize-5,verticalalignment='center')
+        ax.scatter(mes.lon[mes_timeind], mes.r[mes_timeind]*np.cos(mes.lat[mes_timeind]), s=symsize_planet, c='darkgrey', marker='s',alpha=1,lw=0,zorder=3)
+        plt.text(mes.lon[mes_timeind],mes.r[mes_timeind]+0.12,'MESSENGER', color='darkgrey', ha='center',fontsize=fsize-5,verticalalignment='center')
 
         #side legend
-        mes_text='MES:   '+str(f'{messenger.r[mes_timeind]:6.2f}')+str(f'{np.rad2deg(messenger.lon[mes_timeind]):8.1f}')+str(f'{np.rad2deg(messenger.lat[mes_timeind]):8.1f}')       
+        mes_text='MES:   '+str(f'{mes.r[mes_timeind]:6.2f}')+str(f'{np.rad2deg(mes.lon[mes_timeind]):8.1f}')+str(f'{np.rad2deg(mes.lat[mes_timeind]):8.1f}')       
         f12=plt.figtext(xset2,yset-ydiff*3,mes_text, fontsize=fsize, ha='left',color='darkgrey')
         
         
     if np.logical_and(time1>mdates.date2num(datetime.datetime(2011,3,18)), time1<mdates.date2num(datetime.datetime(2015,4,30))):        
-        mes_text='MES:   '+str(f'{mercury.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(mercury.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(mercury.lat[earth_timeind]):8.1f}')
+        mes_text='MES:   '+str(f'{mercury.r[mercury_timeind]:6.2f}')+str(f'{np.rad2deg(mercury.lon[mercury_timeind]):8.1f}')+str(f'{np.rad2deg(mercury.lat[earth_timeind]):8.1f}')
         f12=plt.figtext(xset2,yset-ydiff*3,mes_text, fontsize=fsize, ha='left',color='darkgrey')
-        plt.text(mercury.lon[earth_timeind],mercury.r[earth_timeind]+0.12,'MESSENGER', color='darkgrey', ha='center',fontsize=fsize-5,verticalalignment='center')
-
-
+        plt.text(mercury.lon[mercury_timeind],mercury.r[mercury_timeind]+0.12,'MESSENGER', color='darkgrey', ha='center',fontsize=fsize-5,verticalalignment='center')
 
 
 
@@ -1741,7 +1787,7 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax):
   
      
 
-def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwargs):
+def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
      '''
      sc ... data    
      '''
@@ -1776,9 +1822,7 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwarg
      ax1.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[-2000,2000],'-k',linewidth=1)            
      ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-2000,2000],'-k',linewidth=1)            
 
-     coord_string='SCEQ'   
-     if sc_label=='Wind': coord_string='HEEQ'
-     if sc_label=='Ulysses': coord_string='RTN'
+     coord_string='RTN'   
 
      ax1.set_ylabel('B [nT] '+coord_string, fontsize=fs)
      leg=ax1.legend(loc='lower right',ncol=4,fontsize=fs-3)
@@ -1855,13 +1899,11 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwarg
      ax4.tick_params(axis='x', labelsize=fs-2)  
      ax4.tick_params(axis='y', labelsize=fs)  
         
-     ############ add positions   
-    
     
      ################positions plot
      ax5 = plt.subplot2grid((4,2), (0, 1), rowspan=4, projection='polar')
 
-     plot_icmecat_positions_mag_plasma(ic.icme_start_time[i],'HEEQ',ax5)
+     plot_icmecat_positions_mag_plasma(ic.icme_start_time[i],'HEEQ',ax5,pos)
     
         
         
@@ -1898,7 +1940,7 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, **kwarg
      
      
 
-def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, **kwargs):
+def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, pos):
      '''
      sc = data    
      '''
@@ -1907,9 +1949,7 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, **kwargs):
      end=parse_time(end).datetime
      #print(start)
      #print(end)
-    
-     print('here')
-     
+
      sns.set_style('darkgrid')
      sns.set_context('paper')
 
@@ -1928,7 +1968,7 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, **kwargs):
      ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-500,500],'-k',linewidth=1)            
 
      
-     coord_string='SCEQ'   
+     coord_string='RTN'   
 
 
      ax1.set_ylabel('B [nT] '+coord_string,fontsize=15)
@@ -1969,7 +2009,7 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, **kwargs):
     
      ################positions plot
      ax2 = plt.subplot(212,projection='polar') 
-     plot_icmecat_positions_mag(ic.icme_start_time[i],'HEEQ',ax2)
+     plot_icmecat_positions_mag(ic.icme_start_time[i],'HEEQ',ax2,pos)
     
     
      plotfile=path+ic.icmecat_id[i]+'.png'
@@ -1982,13 +2022,11 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, **kwargs):
      
     
 
-def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
+def plot_icmecat_events(sc,sci,ic,name,icplotsdir,data_path,pos):
 
   
     fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
-    
-    data_path='/Users/chris/python/data/insitu_python/'
-
+   
     #get indices of events for this spacecrat
     [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
     
@@ -2008,7 +2046,6 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
         w1=hd.load_mars_wsa_hux()        
         #load Huang SIRCAT
         msir=hd.load_maven_sir_huang()
-        
 
     if name=='PSP': plasma=True
     if name=='VEX': plasma=False
@@ -2017,22 +2054,16 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
     if name=='SolarOrbiter': plasma=True              
         
     
-    
-    
     for i in np.arange(np.size(sci)):    
         
         beginind=90*24
-        #adhoc fix for April 20 SolO event because data starts very close to ICME start
-        #if ic.icmecat_id[sci[i]]=='ICME_SOLO_MOESTL_20200419_01': beginind=70*24
-
     
         if plasma == True:
-            print(i)
             
             if name!='MAVEN':
                 plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-beginind:mo_end_ind[i]+90*24],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
-                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i])
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i],pos)
             if name == 'MAVEN':                 
                 plot_insitu_icmecat_maven(sc[icme_start_ind[i]-7*6:mo_end_ind[i]+7*6],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(days=7), \
@@ -2043,7 +2074,7 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir):
         else:
             plot_insitu_icmecat_mag(sc[icme_start_ind[i]-beginind:mo_end_ind[i]+90*24], \
                                     ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
-                                    ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i])
+                                    ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i],pos)
             plt.close('all')
     
    
