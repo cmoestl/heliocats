@@ -1,4 +1,8 @@
+
 #config for running heliocats locally on Mac
+
+#create a file config_local.py which contains these lines, according to your folder structure:
+
 data_path='/Users/chris/python/data/insitu_python/' 
 noaa_path='/Users/chris/python/ops/data/noaa/'
 wind_path='/Users/chris/python/data/wind/'
