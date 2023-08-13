@@ -9,6 +9,11 @@
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
+# This catalog was built during several years, and we want to thank these persons for contributions along the way:
+# 
+# **Contributors**: 
+# Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Benoit Lavraud, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, Johan von Forstner, Mateja Dumbovic. 
+# 
 # https://twitter.com/chrisoutofspace <br /> https://mastodon.social/@chrisoutofspace
 # 
 # This notebook is part of the heliocats package https://github.com/cmoestl/heliocats
@@ -19,30 +24,31 @@
 # Install the helio4 conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
 # **Adding a new ICME event:** 
+# - use the notebook data_update_web_science.ipynb in this package to create pickle files for new science data. The current data can be found on figshare.
+# - use measure.ipynb to manually derive the 3 times for each ICME event
 # - manually edit the file icmecat/HELCATS_ICMECAT_v21_master.xlsx to add 3 times for each event, the event id and spacecraft name
-# - delete the file for the respective spacecraft under icmecat/indices_icmecat/ (can be done in the section 3 cell too)
-# - run section 3 in this notebook or script.
-# 
-# 
-# **Updating data**
-# - use the notebook data_update_web_science.ipynb in this package
+# - set the switch to create_indices greater 0 and the indices will be redone for the new events so the catalog knows where the ICMEs are in the data files
+# - for a new release, set the the last_update variable to the current date
 # 
 # 
 # **KNOWN ISSUES**
-# - fix generating positions file positions_HEEQ_1hr in sc_positions_insitu.py with new matplotlib times and astrospice
-# - plots are not correct for Wind data before 2007
 # 
+# - none
 
-# In[32]:
+# In[1]:
 
 
 last_update='2023-August-TBD'
 
-debug_mode=1
+debug_mode=0
 
-make_positions=1
+#redo positions file
+make_positions=0
+#red indices file
+create_indices=1
 
 
+import os
 import numpy as np
 import scipy.io
 import matplotlib
@@ -58,7 +64,6 @@ from sunpy.time import parse_time
 import time
 import pickle
 import sys
-import os
 import urllib
 import json
 import importlib
@@ -107,24 +112,31 @@ if os.path.isdir(indexdir) == False: os.mkdir(indexdir)
 if os.path.isdir(catdir) == False: os.mkdir(catdir)
 if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir) 
 
-###########################
-#Convert this notebook to a script 
-os.system('jupyter nbconvert --to script icmecat.ipynb')    
 
 
 import warnings
 # Ignore all warnings
 warnings.filterwarnings("ignore")
 
-print('done')
-
 t0all = time.time()
+
+print('  ')
+print('switches')
+print('Debug mode',debug_mode)
+print('Make positions',make_positions)
+print('Create indices',create_indices)
+
+
+
+#Convert this notebook to a script 
+os.system('jupyter nbconvert --to script icmecat.ipynb')    
 
 
 # 
+# 
 # ### Load positions file
 
-# In[33]:
+# In[2]:
 
 
 # the positions file is generated with positions.ipynb, and the positions from messenger, ulysses and stereob are taken from an older file
@@ -146,6 +158,9 @@ if make_positions > 0:
     p_stb_new.r=p_stb.r   
     #p_stb_new.lat=np.rad2deg(p_stb.lat)
     #p_stb_new.lon=np.rad2deg(p_stb.lon)
+    p_stb_new.lat=p_stb.lat
+    p_stb_new.lon=p_stb.lon
+
     
             
     #change old matplotlib date to datetime objects, and make angles in degrees    
@@ -158,6 +173,8 @@ if make_positions > 0:
     p_uly_new.r=p_uly.r   
     #p_uly_new.lat=np.rad2deg(p_uly.lat)
     #p_uly_new.lon=np.rad2deg(p_uly.lon)
+    p_uly_new.lat=p_uly.lat
+    p_uly_new.lon=p_uly.lon
     
     
         
@@ -181,6 +198,8 @@ if make_positions > 0:
     p_mes_new.r=p_mes.r   
     #p_mes_new.lat=np.rad2deg(p_mes.lat)
     #p_mes_new.lon=np.rad2deg(p_mes.lon)
+    p_mes_new.lat=p_mes.lat
+    p_mes_new.lon=p_mes.lon
     
     
     
@@ -196,6 +215,7 @@ if make_positions > 0:
     p_mes.time=mdates.date2num(p_mes.time)
     p_sta.time=mdates.date2num(p_sta.time)
     p_venus.time=mdates.date2num(p_venus.time)
+    p_mars.time=mdates.date2num(p_mars.time)
     p_mercury.time=mdates.date2num(p_mercury.time)
     
 
@@ -218,6 +238,9 @@ if make_positions > 0:
 
     p_venus.lat=np.deg2rad(p_venus.lat)
     p_venus.lon=np.deg2rad(p_venus.lon)
+        
+    p_mars.lat=np.deg2rad(p_mars.lat)
+    p_mars.lon=np.deg2rad(p_mars.lon)
 
     p_mercury.lat=np.deg2rad(p_mercury.lat)
     p_mercury.lon=np.deg2rad(p_mercury.lon)
@@ -243,7 +266,7 @@ print('!!!!!!!!!!! fix bug in Earth and L1 latitude in positions.ipynb')
 
 # ## (1) load data 
 
-# In[14]:
+# In[3]:
 
 
 t0 = time.time()
@@ -438,7 +461,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ### 1a save data as numpy structured arrays for machine learning 
 
-# In[ ]:
+# In[4]:
 
 
 data_to_numpy_1=0
@@ -604,9 +627,6 @@ if data_to_numpy_3 > 0:
 
 # ## (2) measure new events with notebook measure.ipynb
 
-# - manually edit the file icmecat/HELCATS_ICMECAT_v21_master.xlsx to add 3 times for each event, the event id and spacecraft name
-# - delete the file for the respective spacecraft under icmecat/indices_icmecat/
-# - run section 3 in this notebook or script.
 # 
 # 
 # #for adding Juno
@@ -624,7 +644,7 @@ if data_to_numpy_3 > 0:
 
 # ## (3) make ICMECAT 
 
-# In[15]:
+# In[5]:
 
 
 if debug_mode > 0: 
@@ -648,28 +668,33 @@ soli=np.where(ic.sc_insitu == 'SolarOrbiter')[:][0]
 beci=np.where(ic.sc_insitu == 'BepiColombo')[:][0]    
 
 
+if create_indices > 0: 
+
+    print(' ')
+    print('switch create_indices on - make indices for all events')
+    
+    t0 = time.time()
+
+    hc.create_icme_indices(solo,soli,ic,'SolarOrbiter')
+    hc.create_icme_indices(win,wini,ic,'Wind')
+    hc.create_icme_indices(psp,pspi,ic,'PSP')
+    hc.create_icme_indices(sta,stai,ic,'STEREO-A')
+    hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
+    
+    t1 = time.time()
+    print('takes', np.round(t1-t0,2), 'seconds')
+    print('done ')
+    print(' ')
+
 ####### 3b get parameters for all spacecraft one after another
 
-####### DELETE INDEX files when times are new
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_Wind.p')
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_STEREO-A.p')
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_SolarOrbiter.p')
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_PSP.p')
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_BepiColombo.p')
-
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_MAVEN.p')
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_STEREO-B.p')
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_ULYSSES.p')
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_MESSENGER.p')
-#os.system('rm icmecat/indices_icmecat/ICMECAT_indices_VEX.p')
-
-
 #missions to be updated
+
+ic=hc.get_cat_parameters(solo,soli,ic,'SolarOrbiter')
 ic=hc.get_cat_parameters(win,wini,ic,'Wind') 
 ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
 ic=hc.get_cat_parameters(sta,stai,ic,'STEREO-A')
 ic=hc.get_cat_parameters(bepi,beci,ic,'BepiColombo')
-ic=hc.get_cat_parameters(solo,soli,ic,'SolarOrbiter')
 
 
 ic=hc.get_cat_parameters(mav,mavi,ic,'MAVEN')
@@ -682,7 +707,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[47]:
+# In[6]:
 
 
 ###### 3c make all plots if wanted
@@ -695,19 +720,19 @@ matplotlib.use('Agg')
 #missions to be updated
 
 #mag only
-#hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir)
-hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir,data_path,pos)
-
+#hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir,data_path,pos)
+#
 #mag and plasma
-#hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir)
-#hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir)
-#hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir)
+#hp.plot_icmecat_events(solo,soli,ic,'SolarOrbiter',icplotsdir,data_path,pos)
+#hp.plot_icmecat_events(sta,stai,ic,'STEREO-A',icplotsdir,data_path,pos)
+#hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir,data_path,pos)
+#hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir,data_path,pos)
 
 #hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 
 #finished missions
 #mag only
-#hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir)
+#hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir,data_path,pos)
 #hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
 
 #mag and plasma
@@ -723,7 +748,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[66]:
+# In[7]:
 
 
 ######## sort ICMECAT by date
@@ -879,7 +904,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[67]:
+# In[8]:
 
 
 ########## python formats
@@ -1055,7 +1080,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[68]:
+# In[9]:
 
 
 #load icmecat as pandas dataframe
@@ -1067,27 +1092,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[69]:
+# In[10]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[70]:
+# In[11]:
 
 
 ic_pandas
 
 
-# In[71]:
+# In[12]:
 
 
 #
 ic_nprec
 
 
-# In[72]:
+# In[13]:
 
 
 ic_nprec.icmecat_id
@@ -1095,7 +1120,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[73]:
+# In[14]:
 
 
 ic=ic_pandas
@@ -1209,7 +1234,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[74]:
+# In[15]:
 
 
 #markersize
@@ -1253,7 +1278,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=100,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[75]:
+# In[16]:
 
 
 #make distribution plots
@@ -1310,10 +1335,11 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview3.png', dpi=150,bbox_inches='tight')
 
 
-# In[ ]:
+# In[19]:
 
 
-
+t1all = time.time()
+print('the full ICMECAT takes', np.round(t1all-t0all,2), 'seconds')
 
 
 # In[ ]:

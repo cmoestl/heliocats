@@ -1011,6 +1011,44 @@ def load_pickle(file):
     return ic
 
 
+
+
+
+
+
+
+def create_icme_indices(sc,sci,ic,name):
+
+    # extract indices of ICMEs in the respective data and save
+
+    #this is the bottleneck
+    sc_numtime=mdates.date2num(sc.time)
+
+    sc_icme_start=mdates.date2num(ic.icme_start_time[sci])
+    sc_mo_start=mdates.date2num(ic.mo_start_time[sci])
+    sc_mo_end=mdates.date2num(ic.mo_end_time[sci])
+
+    #search where the minimum is in the array between the given time and the time in the data array
+    #this is fast!
+    icme_start_ind=[np.argmin(abs(sc_icme_start[i]-sc_numtime)) for i in np.arange(0,len(sc_icme_start))]
+    mo_start_ind=[np.argmin(abs(sc_mo_start[i]-sc_numtime)) for i in np.arange(0,len(sc_mo_end))]
+    mo_end_ind=[np.argmin(abs(sc_mo_end[i]-sc_numtime)) for i in np.arange(0,len(sc_mo_end))]
+
+    
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    pickle.dump([icme_start_ind, mo_start_ind,mo_end_ind], open(fileind, 'wb'))
+    
+    print(name,'indices done')
+    
+
+
+
+
+
+
+
+
+
 def get_cat_parameters(sc, sci, ic, name):
     '''
     get parameters
@@ -1019,35 +1057,6 @@ def get_cat_parameters(sc, sci, ic, name):
     ic - icmecat pandas dataframe
     '''
     fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
-
-    #### extract indices of ICMEs in the respective data (time consuming, so do it once)
-    
-    if os.path.isfile(fileind) == False:
-    
-        print('extract indices of ICMEs in '+ name+ ' data')
-        #### get all ICMECAT times for this spacecraft as datenum
-        sc_icme_start=ic.icme_start_time[sci]
-        sc_mo_start=ic.mo_start_time[sci]
-        sc_mo_end=ic.mo_end_time[sci]
-
-    
-        ### arrays containing the indices of where the ICMEs are in the data
-        icme_start_ind=np.zeros(len(sci),dtype=int) 
-        mo_start_ind=np.zeros(len(sci),dtype=int)
-        mo_end_ind=np.zeros(len(sci),dtype=int)
-   
-        #this takes some time, get indices in data for each ICMECAT
-        for i in np.arange(sci[0],sci[-1]+1):
-        
-            print(i-sci[0])
-
-            icme_start_ind[i-sci[0]]=np.where(sc.time  > sc_icme_start[i])[0][0]-1 
-            #print(icme_start_ind[i])        
-            mo_start_ind[i-sci[0]]=np.where(sc.time > sc_mo_start[i])[0][0]-1   
-            mo_end_ind[i-sci[0]]=np.where(sc.time   > sc_mo_end[i])[0][0]-1 
-
-        pickle.dump([icme_start_ind, mo_start_ind,mo_end_ind], open(fileind, 'wb'))
-    ############################################            
                 
     [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))           
     
