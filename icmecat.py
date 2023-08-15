@@ -9,7 +9,7 @@
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
-# This catalog was built during several years, and we want to thank these persons for contributions along the way:
+# This catalog was built over several years, and we want to thank these persons for contributions along the way:
 # 
 # **Contributors**: 
 # Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Benoit Lavraud, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, Johan von Forstner, Mateja Dumbovic. 
@@ -40,12 +40,12 @@
 
 last_update='2023-August-TBD'
 
-debug_mode=0
+debug_mode=1
 
 #redo positions file
 make_positions=0
 #red indices file
-create_indices=1
+create_indices=0
 
 
 import os
@@ -61,6 +61,7 @@ import datetime
 import astropy
 import astropy.constants as const
 from sunpy.time import parse_time
+import multiprocessing as mp
 import time
 import pickle
 import sys
@@ -71,6 +72,10 @@ import pandas as pd
 import copy
 import openpyxl
 import h5py
+
+
+import multiprocessing 
+
 
 import plotly.graph_objects as go
 from plotly.offline import iplot, init_notebook_mode
@@ -459,192 +464,27 @@ t1 = time.time()
 print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 
-# ### 1a save data as numpy structured arrays for machine learning 
+# ## (2) measure new events with measure.ipynb
 
 # In[4]:
 
 
-data_to_numpy_1=0
+#for adding Juno
+#junocat='data/HELIO4CAST_ICMECAT_juno_davies_chris.csv'
 
-if data_to_numpy_1 > 0:  
+#jc=pd.read_csv(junocat)
 
-    print('convert data to numpy structured arrays suitable for machine learning')
-    
-    
-    
-    ####################### These are finished missions
-    
-    print('STEREO-B')
-    #STEREO-B
-    #make extra header with variable attributes
-    hstb_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),\
-    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),\
-    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
-    stb_nd=hd.recarray_to_numpy_array(stb)
-    #change dtype everywhere to float
-    stb_nd=stb_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
-                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
-                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([stb_nd,hstb_att], open(data_path_ML+ "stereob_2007_2014_sceq_ndarray.p", "wb" ) )
-     
-    #####
-    print('Ulysses')
-    huly_att='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, RTN], <f8), (by  [nT, RTN], <f8), \
-    (bz  [nT, RTN], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8),\
-    (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
-    uly_nd=hd.recarray_to_numpy_array(uly)
-    uly_nd=uly_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
-                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
-                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([uly_nd,huly_att], open(data_path_ML+ "ulysses_1990_2009_rtn_ndarray.p", "wb" ) )
-       
-    
-    #####
-    print('VEX')
-    #header no plasma, with planetary orbit
-    hatt6='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8), \
-    (bz  [nT, SCEQ], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8), \
-    (lat [deg, HEEQ], <f8), (lon [deg, HEEQ]), (xo [km, VSO], <f8), (yo [km, VSO], <f8), (zo [km, VSO], <f8), \
-    (ro [km], <f8), (lato [deg, VSO], <f8), (lono [deg, VSO], <f8)]'
-    vex_nd=hd.recarray_to_numpy_array(vex)
-    vex_nd=vex_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),\
-                                ('x', '<f8'), ('y', '<f8'),  ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8'),\
-                                ('xo', '<f8'), ('yo', '<f8'),  ('zo', '<f8'), ('ro', '<f8'), ('lato', '<f8'), ('lono', '<f8')])    
-    pickle.dump([vex_nd,hatt6], open(data_path_ML+ "vex_2007_2014_sceq_removed_ndarray.p", "wb" ) )
+#convert all times to datetime objects
+#for i in np.arange(0,ic.shape[0]):    
+#remove leading and ending blank spaces if any and write datetime object into dataframe
+#        ic.at[i,'icme_start_time']= parse_time(str(ic.icme_start_time[i]).strip()).datetime 
+#        ic.at[i,'mo_start_time']=parse_time(str(ic.mo_start_time[i]).strip()).datetime
+#        ic.at[i,'mo_end_time']=parse_time(str(ic.mo_end_time[i]).strip()).datetime
 
-    #####    
-    print('MESSENGER') #no plasma, no planetary orbit
-    hatt7='dtype=[(time [matplotlib format]), (bt [nT], <f8), (bx  [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8), \
-    (bz  [nT, SCEQ], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8), \
-    (lat [deg, HEEQ], <f8), (lon [deg, HEEQ])'
-    mes_nd=hd.recarray_to_numpy_array(mes)
-    mes_nd=mes_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'),\
-                                ('x', '<f8'), ('y', '<f8'),  ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])    
-    pickle.dump([mes_nd,hatt7], open(data_path_ML+ "mes_2007_2015_sceq_removed_ndarray.p", "wb" ) ) 
-
-    
-
-####################### These are live missions
-
-data_to_numpy_2=0 
-
-if data_to_numpy_2 > 0:  
-    
-    print('STEREO-A')
-    hsta_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),\
-    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),\
-    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
-    sta_nd=hd.recarray_to_numpy_array(sta)
-    sta_nd=sta_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
-                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
-                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([sta_nd,hsta_att], open(data_path_ML+ "stereoa_2007_2021_sceq_ndarray.p", "wb" ) )
-    
-    
-    #print('BepiColombo')
-    #hbepi_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),\
-    #(bz, SCEQ  [nT], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),\
-    #(z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
-    #make new array
-    #bepi_nd=np.zeros(np.size(bepi),dtype=[('time',object),('bt', '<f8'),('bx', '<f8'),\
-    #            ('by', float),('bz', '<f8'),('x', '<f8'),('y', '<f8'),\
-    #            ('z', float),('r', '<f8'),('lat', '<f8'),('lon', '<f8')])   
-    #bepi_nd['time']=bepi.time
-    #bepi_nd['bt']=bepi.bt
-    #bepi_nd['bx']=bepi.bx
-    #bepi_nd['by']=bepi.by
-    #bepi_nd['bz']=bepi.bz
-    #bepi_nd['x']=bepi.x
-    #bepi_nd['y']=bepi.y
-    #bepi_nd['z']=bepi.z
-    #bepi_nd['r']=bepi.r
-    #bepi_nd['lat']=bepi.lat
-    #bepi_nd['lon']=bepi.lon
-    
-    #pickle.dump([bepi_nd,hbepi_att], open(data_path_ML+ "bepi_2019_2021_sceq_ndarray.p", "wb" ) )
-    
-       
-  
-    print('Wind')
-    hwind_att='dtype=[((time [matplotlib format]), (bt [nT], <f8), (bx  [nT, HEEQ], <f8), (by  [nT, HEEQ], <f8), \
-                        (bz  [nT, HEEQ], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), \
-                        (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),\
-                        (lat [deg, HEEQ], <f8), (lon [deg, HEEQ],<f8 )]'
-    win_nd=hd.recarray_to_numpy_array(win)
-    win_nd=win_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
-                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
-                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_2007_2021_heeq_ndarray.p", "wb" ) )
-
-   
-    
-    print('PSP')  
-    hpsp_att='dtype=[(time, matplotlib), (bt [nT], <f8), (bx, SCEQ  [nT], <f8), (by  [nT, SCEQ], <f8),\
-                        (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8),(vx  [km/s, SCEQ], <f8)(vy  [km/s, SCEQ], <f8),\
-                        (vz  [km/s, SCEQ], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),\
-                        (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8])'
-
-    psp_nd=hd.recarray_to_numpy_array(psp)
-    psp_nd=psp_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
-                                ('vt', '<f8'),('vx', '<f8'),('vy', '<f8'),('vz', '<f8'), ('np', '<f8'), ('tp', '<f8'),\
-                                ('x', '<f8'), ('y', '<f8'), ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([psp_nd,hpsp_att], open(data_path_ML+ "psp_2018_2021_sceq_ndarray.p", "wb" ) ) 
-    
-    
-    print('Solar Orbiter')
-    hsolo_att='dtype=[(time [matplotlib format], < f8], (bt [nT], <f8), (bx, [nT, SCEQ], <f8), (by  [nT, SCEQ], <f8),\
-    (bz, SCEQ  [nT], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8),\
-    (z [AU, HEEQ], <f8), (r, <f8), (lat [deg, HEEQ], <f8), (lon [deg, HEEQ], <f8 )]'
-    solo_nd=hd.recarray_to_numpy_array(solo)
-    solo_nd=solo_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
-                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
-                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([solo_nd,hsolo_att], open(data_path_ML+ "solo_2020_2021_sceq_ndarray.p", "wb" ) )
-
-
-    print('done')
-    
-        
-    
-#for Wind 1995 data    
-data_to_numpy_3=0
-
-
-if data_to_numpy_3 > 0:
-      
-    print('Wind')
-    hwind_att='dtype=[((time [matplotlib format]), (bt [nT], <f8), (bx  [nT, HEEQ], <f8), (by  [nT, HEEQ], <f8), \
-                        (bz  [nT, HEEQ], <f8), (vt  [km/s], <f8), (np [ccm -3], <f8), \
-                        (tp [K], <f8), (x [AU, HEEQ], <f8), (y [AU, HEEQ], <f8), (z [AU, HEEQ], <f8), (r [AU], <f8),\
-                        (lat [deg, HEEQ], <f8), (lon [deg, HEEQ],<f8 )]'
-    win_nd=hd.recarray_to_numpy_array(win)
-    win_nd=win_nd.astype(dtype=[('time', '<f8'), ('bx', '<f8'), ('by', '<f8'), ('bz', '<f8'), ('bt', '<f8'), \
-                                ('vt', '<f8'), ('np', '<f8'), ('tp', '<f8'), ('x', '<f8'), ('y', '<f8'), \
-                                ('z', '<f8'), ('r', '<f8'), ('lat', '<f8'), ('lon', '<f8')])
-    pickle.dump([win_nd,hwind_att], open(data_path_ML+ "wind_1995_2021_heeq_ndarray.p", "wb" ) )    
-    
-
-
-# ## (2) measure new events with notebook measure.ipynb
-
-# 
-# 
-# #for adding Juno
-# junocat='data/HELIO4CAST_ICMECAT_juno_davies_chris.csv'
-# 
-# jc=pd.read_csv(junocat)
-# 
-# #convert all times to datetime objects
-# #for i in np.arange(0,ic.shape[0]):    
-#         #remove leading and ending blank spaces if any and write datetime object into dataframe
-#         ic.at[i,'icme_start_time']= parse_time(str(ic.icme_start_time[i]).strip()).datetime 
-#         ic.at[i,'mo_start_time']=parse_time(str(ic.mo_start_time[i]).strip()).datetime
-#         ic.at[i,'mo_end_time']=parse_time(str(ic.mo_end_time[i]).strip()).datetime
-# 
 
 # ## (3) make ICMECAT 
 
-# In[5]:
+# In[29]:
 
 
 if debug_mode > 0: 
@@ -707,7 +547,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[6]:
+# In[26]:
 
 
 ###### 3c make all plots if wanted
@@ -717,7 +557,116 @@ if debug_mode > 0:
 
 matplotlib.use('Agg')
 
-#missions to be updated
+
+#### check for system type
+#server
+if sys.platform == 'linux': 
+    print('system is linux')
+    
+#mac
+if sys.platform =='darwin':  
+    print('system is mac')
+    print(os.system('sysctl -n hw.physicalcpu'))
+    print(os.system('sysctl -n hw.logicalcpu'))
+    
+print()
+
+#https://docs.python.org/3/library/multiprocessing.html
+            
+##### make plots with multiprocessing
+
+def plot_icmecat_events_multi(i):
+
+    #sc,sci,ic,name needs to change for each event and set before this function is called
+    #global: pos, data_path, ic, icplotsdir,data_path,pos
+    
+    outer=60*36 #36h
+    dayslim=1.5 #36h
+
+    if name=='BepiColombo':
+        hp.plot_insitu_icmecat_mag(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(dayslim),name, icplotsdir,ic,sci[i],pos)
+    else:    
+        hp.plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(dayslim),name, icplotsdir,ic,sci[i],pos)
+       
+
+# def multiplot():
+    
+    #define number of processes
+#    used=8
+    #define pool using fork and number of processes
+#    pool=mp.get_context('fork').Pool(processes=used)
+#    print('Using multiprocessing, nr of cores',mp.cpu_count(), ', nr of processes used: ',used)
+
+
+
+#missions to be updated, only make one at a time otherwise variables are changed!
+
+solo_plots=0
+wind_plots=1
+psp_plots=0
+sta_plots=0
+bepi_plots=0
+
+if solo_plots > 0:
+    sc=solo; sci=soli; name='SolarOrbiter'
+    counter=np.arange(0,len(sci))
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+
+    # Map the worker function onto the parameters    
+    t0 = time.time()
+    pool.map(plot_icmecat_events_multi, counter) #or use apply_async?,imap
+    pool.close()
+    pool.join()     
+    t1 = time.time()
+    multi_time=np.round(t1-t0,2)
+    print('done')
+    print('plotting takes', np.round(multi_time,2), 'seconds')   
+
+if bepi_plots > 0:
+    sc=bepi; sci=beci; name='BepiColombo'
+    counter=np.arange(0,len(sci))
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+    # Map the worker function onto the parameters    
+    t0 = time.time()
+    pool.map(plot_icmecat_events_multi, counter) #or use apply_async?,imap
+    pool.close()
+    pool.join()     
+    t1 = time.time()
+    multi_time=np.round(t1-t0,2)
+    print('done')
+    print('plotting takes', np.round(multi_time,2), 'seconds')   
+
+    
+if wind_plots > 0:
+    sc=win; sci=wini; name='Wind'
+    counter=np.arange(0,len(sci))
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+    multiplot()
+    
+if psp_plots > 0:
+    sc=psp; sci=pspi; name='PSP'
+    counter=np.arange(0,len(sci))
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+    multiplot()
+
+if sta_plots > 0:
+    sc=sta; sci=stai; name='STEREO-A'
+    counter=np.arange(0,len(sci))
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+    multiplot()
+
+
+
+
 
 #mag only
 #hp.plot_icmecat_events(bepi,beci,ic,'BepiColombo',icplotsdir,data_path,pos)
@@ -728,13 +677,12 @@ matplotlib.use('Agg')
 #hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir,data_path,pos)
 #hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir,data_path,pos)
 
+#with single processing for the older missions:
 #hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
-
 #finished missions
 #mag only
 #hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir,data_path,pos)
 #hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
-
 #mag and plasma
 #hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
 #hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)

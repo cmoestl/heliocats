@@ -1802,7 +1802,7 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
         
      fs=13
 
-     fig=plt.figure(figsize=(16,10), dpi=100)    
+     fig=plt.figure(1,figsize=(16,10), dpi=100)    
        
      ax1 = plt.subplot2grid((4,2), (0, 0))
      
@@ -1931,6 +1931,7 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
 
      plt.savefig(plotfile)
      print('saved as ',plotfile)
+     plt.close(1)
    
      
      
@@ -2019,6 +2020,75 @@ def plot_insitu_icmecat_mag(sc, start, end, sc_label, path, ic, i, pos):
    
      
      
+
+        
+        
+def plot_icmecat_events_multi(sc,sci,ic,name,icplotsdir,data_path,pos):
+
+  
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
+   
+    #get indices of events for this spacecrat
+    [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+    
+    #plasma available?
+    if name=='Wind': plasma=True
+    if name=='STEREO-A': plasma=True
+    if name=='STEREO-B': plasma=True
+    if name=='ULYSSES': plasma=True
+    if name=='MAVEN': 
+        plasma=True
+        #load MSL rad data
+        rad=hd.load_msl_rad(data_path)   
+        #load HI ARRCAT
+        file='arrcat/HELCATS_ARRCAT_v20_pandas.p'
+        [arrcat,arrcat_header]=pickle.load( open(file, 'rb'))           
+        #load WSA HUX
+        w1=hd.load_mars_wsa_hux()        
+        #load Huang SIRCAT
+        msir=hd.load_maven_sir_huang()
+
+    if name=='PSP': plasma=True
+    if name=='VEX': plasma=False
+    if name=='MESSENGER': plasma=False
+    if name=='BepiColombo': plasma=False
+    if name=='SolarOrbiter': plasma=True              
+        
+    
+    for i in np.arange(np.size(sci)):    
+        
+        beginind=90*24
+    
+        if plasma == True:
+            
+            if name!='MAVEN':
+                plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-beginind:mo_end_ind[i]+90*24],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i],pos)
+            if name == 'MAVEN':                 
+                plot_insitu_icmecat_maven(sc[icme_start_ind[i]-7*6:mo_end_ind[i]+7*6],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(days=7), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=7),\
+                             name,icplotsdir,ic,sci[i],rad,arrcat,msir,w1)
+                
+            plt.close('all')
+        else:
+            plot_insitu_icmecat_mag(sc[icme_start_ind[i]-beginind:mo_end_ind[i]+90*24], \
+                                    ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
+                                    ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i],pos)
+            plt.close('all')      
+        
+        
+        
+        
+        
+        
+
+        
+        
+        
+        
+        
      
     
 

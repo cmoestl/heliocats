@@ -1,6 +1,6 @@
 name: helio5
 dependencies:
-  - python==3.10
+  - python==3.11
   - jupyterlab
   - pip==22.3.1
   - pip:     
@@ -13,7 +13,7 @@ dependencies:
     - scipy==1.10.0
     - scikit-learn==1.2.1
     - scikit-image==0.19.3
-    - astropy==5.2.1
+    - astropy==5.3.1
     - astroquery==0.4.6
     - astrospice==0.2.1
     - sunpy==4.1.2
@@ -21,7 +21,7 @@ dependencies:
     - heliopy==0.10.0
     - 3DCORE==1.0.0
     - pillow==9.4.0
-    - cdflib==0.4.9
+    - cdflib==1.0.5
     - pysftp==0.2.9
     - openpyxl==3.0.10
     - xlrd==2.0.1
@@ -31,6 +31,4 @@ dependencies:
     - glymur==0.12.2
     - h5py==3.8.0
     - h5netcdf==1.1.0
-
-
 
