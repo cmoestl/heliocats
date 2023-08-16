@@ -10,7 +10,7 @@
 # 
 # This code is part of https://github.com/cmoestl/heliocats
 # 
-# **current version is ARRCAT 2.1, released 2020 May 13, updated 2023 August 17**
+# **current version is ARRCAT 2.0, released 2020 May 13, updated 2023 August 17**
 # 
 # Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
 # The environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
@@ -176,7 +176,7 @@ print(last_date[0:7])
 print(first_date[0:7])
 
 
-# In[19]:
+# In[4]:
 
 
 #save header and parameters as text file and prepare for html website
