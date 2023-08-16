@@ -2750,17 +2750,23 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
 
     #change angles to -90/90 latitude, distance to AU
     [earth_hee_x, earth_hee_y, earth_hee_z] = sphere2cart(coords_earth_hee.distance.value/au_km,\
-                                                              np.deg2rad(-coords_earth_hee.lat.value+90) ,np.deg2rad(coords_earth_hee.lon.value))
+                                                              np.deg2rad(-coords_earth_hee.lat.value+90),\
+                                                          np.deg2rad(coords_earth_hee.lon.value))
     
  
     nf.x=earth_hee_x-x_gse  #both values are in au, 0.01 for L1
     nf.y=earth_hee_y-y_gse
     nf.z=earth_hee_z+z_gse
     
+    #convert position to HEEQ  for xyz
+    nf = convert_HEE_to_HEEQ(nf)
+    
     [nf.r, nf.lat, nf.lon]=cart2sphere(nf.x,nf.y,nf.z)       
     nf.lat=np.rad2deg(nf.lat)
-    nf.lon=np.rad2deg(nf.lon)
-   
+    nf.lon=np.rad2deg(nf.lon)  
+
+
+
     
     print('position end ')
        

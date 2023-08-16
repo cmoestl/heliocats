@@ -14,7 +14,7 @@
 # for updating data every day on the servers
 # 
 
-# In[11]:
+# In[1]:
 
 
 #switches
@@ -73,7 +73,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[12]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -127,7 +127,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[13]:
+# In[3]:
 
 
 #if debug_mode > 0: 
@@ -167,7 +167,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind and Dst
 
-# In[9]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -263,7 +263,7 @@ print('NOAA download latest file, save as pickle last 300 files and plotting tak
 
 # ### STEREO-A beacon data
 
-# In[6]:
+# In[5]:
 
 
 if debug_mode > 0: 
@@ -316,7 +316,7 @@ print()
 print('STEREO-A beacon downloading last 30 days, save as pickle last 300 days and plotting takes', np.round(t1-t0,2), 'seconds')
 
 
-# In[ ]:
+# In[6]:
 
 
 t1all = time.time()

@@ -5,40 +5,33 @@
 # 
 # Makes the HELIO4CAST ARRIVAL catalog for solar storms (CMEs) observed with the STEREO heliospheric imager instruments.
 # 
-# Authors: C. Möstl, Austrian Space Weather Office, GeoSphere Austria <br />
+# Authors: Christian Möstl, Eva Weiler, Austrian Space Weather Office, GeoSphere Austria <br />
 # Loads the HIGeoCat catalog produced by D. Barnes, J. A. Davies, R. A. Harrison, RAL Space, UK.
-# 
-# https://twitter.com/chrisoutofspace <br />
-# https://mastodon.social/@chrisoutofspace
 # 
 # This code is part of https://github.com/cmoestl/heliocats
 # 
-# **current version ARRCAT 2.0, released 2020 May 13, updated 2023 April 12**
+# **current version is ARRCAT 2.1, released 2020 May 13, updated 2023 August 17**
 # 
 # Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
 # The environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
 # 
-# This notebook is converted to a script with "jupyter nbconvert --to script arrcat.ipynb", automatically done in first cell.
-# 
-# This catalog is hosted at:
+# **This catalog is hosted at:**
 # 
 # https://helioforecast.space/arrcat <br/>
 # https://doi.org/10.6084/m9.figshare.12271292
 # 
+# Please cite this catalog with the doi in the figshare repository.
 # 
-# **TO DO**: Further change to astrospice in cats.py, the catalog still uses heliopy for all positions except Solar Orbiter; if a spice file .bsp does not download, download it manually and place it in the heliopy directory. Use only spiceypy.
-# 
 # 
 
-# In[33]:
+# In[1]:
 
 
-last_update='2023-April-12'
-
+last_update='2023-August-16'
+debug_mode=0
 
 
 import numpy as np
-import scipy.io
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -48,8 +41,8 @@ import seaborn as sns
 import datetime
 import astropy
 import astropy.constants as const
-from sunpy.time import parse_time
 import time
+from sunpy.time import parse_time
 import pickle
 import sys
 import os
@@ -58,14 +51,13 @@ import json
 import importlib
 import pandas as pd
 import copy
-import openpyxl
 import h5py
-import heliopy
+import pickle
 
-from heliocats import plot as hp
-from heliocats import data as hd
+#from heliocats import plot as hp
+#from heliocats import data as hd
 from heliocats import cats as hc
-from heliocats import stats as hs
+#from heliocats import stats as hs
 
 
 print(' ')
@@ -95,7 +87,7 @@ if sys.platform == 'linux':
 if sys.platform =='darwin':  
     print('system is mac')
     #for testing
-    #%matplotlib inline     
+    get_ipython().run_line_magic('matplotlib', 'inline')
     #matplotlib.use('Agg') 
 
 
@@ -105,14 +97,21 @@ os.system('jupyter nbconvert --to script arrcat.ipynb')
 #test execution times
 t0all = time.time()
 
+import warnings
+# Ignore all warnings
+warnings.filterwarnings("ignore")
 
-# ## 1 Make HI SSEF30 arrival catalog ARRCAT
+
+# ## 1 Make arrival catalog 
 
 # In[2]:
 
 
-from heliocats import cats as hc
-importlib.reload(hc) #reload again while debugging 
+t0=time.time()
+
+if debug_mode > 0:
+    from heliocats import cats as hc
+    importlib.reload(hc) #reload again while debugging 
 
 #https://www.helcats-fp7.eu/
 #LOAD HELCATS HIGeoCAT
@@ -137,31 +136,28 @@ column_list=['id', 'sc','target_name','sse_launch_time','target_arrival_time','t
 #pandas dataframe for current version with iteration in calculating arrival time
 ac = pd.DataFrame([], columns = column_list)
 
-#pandas dataframe for old method of arrival time prediction without iteration
-ac_old = pd.DataFrame([], columns = column_list)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'PSP',column_list)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'SolarOrbiter',column_list)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'BepiColombo',column_list)  
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-A',column_list)
 
-#Make arrival catalog from HIGEOCAT for each spacecraft
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-B',column_list)
+#need to get Ulysses position
+#ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Ulysses',column_list)
 
-#active missions
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'PSP',column_list)
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Solo',column_list)
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Bepi',column_list)   
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'STA',column_list)
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Earth',column_list)
 
-#finished missions
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'STB',column_list)
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Ulysses',column_list)
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Mercury',column_list)
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Venus',column_list)
-[ac,ac_old]=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, ac_old, 'Mars',column_list)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Mercury',column_list)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Venus',column_list)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Earth_L1',column_list)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Mars',column_list)
 
 
 ac = ac.sort_values(by='target_arrival_time',ascending=False)
 ac = ac.reset_index(drop=True)
 
-ac_old = ac_old.sort_values(by='target_arrival_time',ascending=False)
-ac_old = ac_old.reset_index(drop=True)
+t1=time.time()
+print('making the arrcat took ', np.round(t1-t0,2), 'seconds')
+
 
 ac
 
@@ -174,10 +170,19 @@ ac
 # In[3]:
 
 
+first_date=ac['target_arrival_time'][len(ac)-1]
+last_date=ac['target_arrival_time'][0]
+print(last_date[0:7])
+print(first_date[0:7])
+
+
+# In[19]:
+
+
 #save header and parameters as text file and prepare for html website
 header='ARRIVAL CATALOGUE 2.0 \n\n\
 In this ARRival CATalog (ARRCAT), the arrivals of solar coronal mass ejections that were \n\
-tracked in the STEREO heliospheric imagers in the HELCATS project are calculated.\n\
+tracked with the STEREO heliospheric imagers are calculated.\n\
 ARRCAT lists modeled arrivals of CMEs at various spacecraft and planets, \n\
 based on the HIGeoCAT catalog of CMEs established at RAL Space, UK (D. Barnes, J. A. Davies, R. A. Harrison). \n\n\
 This is version 2.0, released 2020-May-13, updated '+last_update+'. https://doi.org/10.6084/m9.figshare.12271292\n\n\
@@ -185,13 +190,15 @@ It is based on this HIGeoCAT version: '+url_higeocat+' using the SSEF30 model.\n
 The catalog is available as python pandas dataframe (pickle), \n\
 python numpy arrays (pickle, as recarray and structured array), \n\
 npy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at \n\
-https://helioforecast.space/arrcat\n\n\
-Number of events in ARRCAT: '+str(len(ac))+'\n\
-Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), Bepi Colombo, Ulysses, Venus, Mercury, Mars.\n\n\
-Authors: Christian Moestl (1), D. Barnes (2), R. A. Harrison (2), J. A. Davies (2), Andreas J. Weiss (1,3), David Stansby (4);\n\
-(1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria, (2) RAL Space, UK, (3) NASA Goddard Space Flight Center, USA (4) University College London, UK.\n\n\
+https://helioforecast.space/arrcat \n\n\
+Number of events in ARRCAT: '+str(len(ac))+' \n\
+Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Venus, Mercury, Mars.\n\
+The catalog covers the timerange '+first_date[0:7]+' to '+last_date[0:7]+' \n\n\
+Authors: Christian Moestl (1), Eva weiler (1), D. Barnes (2), R. A. Harrison (2), J. A. Davies (2).\n\
+(1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria, (2) RAL Space, UK.\n\n\
 Rules: If results are produced with this catalog for peer-reviewed scientific publications,\n\
 please contact chris.moestl@outlook.com for co-authorships.\n\n\
+We acknowledge the use of the astrospice and spiceypy python packages.\n\n\
 Parameters \n\n\
     0: id: From HIGeoCAT, the unique identifier for the observed CME.\n\
     1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)\n\
@@ -215,14 +222,19 @@ Parameters \n\n\
     18: pa_s: From HIGeoCAT, southernmost position angle of CME, unit: degree.\n\
     19: pa_center: average of pa_n and pa_s, unit: degree.\n\n\
 Comments\n\n\
+    - Single-Spacecraft fitting of time-elongation tracks observed with heliospheric imagers with the SSEF30 model \n\
+      is described in Davies et al. (2012) and Möstl et al. (2014).\n\
     - We have modified the calculation of CME arrival time here by a new iterative method compared to Moestl et al. (2014, 2017). \n\
       In the first iteration, the sse_launch_time is used to calculate the target HEEQ position. \n\
       In subsequent three iterations, we use the arrival time from the previous iteration (instead of sse_launch time) \n\
       to calculate the target HEEQ position. \n\
       In this way we avoid an error of a few degrees in the arrival target location (see also Moestl et al. 2017). \n\
     - The analytical formulas for calculating the speeds and arrival times of the CMEs modeled with SSEF30, \n\
-      corrected for the SSEF30 circular shape, can be found in Moestl & Davies (2013). \n\n\n\
+      corrected for the SSEF30 circular shape, can be found in Moestl & Davies (2013). \n\
+    - The position for the Sun-Earth L1 point, with the target_name "Earth_L1", \n\
+      is set as the position of Earth with the radial distance reduced by 0.01 AU. \n\n\n\
 References \n\n\
+Davies et al. (2012)   https://doi.org/10.1088/0004-637X/750/1/23 (open access)  \n\
 Moestl & Davies (2013) https://doi.org/10.1007/s11207-012-9978-8 arxiv: https://arxiv.org/abs/1202.1299\n\
 Moestl et al. (2014)   https://doi.org/10.1088/0004-637X/787/2/119 (open access) \n\
 Moestl et al. (2017)   https://doi.org/10.1002/2017SW001614 (open access)\n'
@@ -251,7 +263,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[4]:
+# In[5]:
 
 
 ########## python formats
@@ -315,29 +327,6 @@ file='arrcat/HELCATS_ARRCAT_v20.txt'
 np.savetxt(file, ac_copy.values.astype(str), fmt='%s' )
 print('ARRCAT saved as '+file)
 
-
-
-#**************************########### save old version for comparison
-
-#copy pandas dataframe first to change time format consistent with HELCATS
-ac_copy_old=copy.deepcopy(ac_old)  
-#change time format and add Z
-ac_copy_old.sse_launch_time=parse_time(ac_old.sse_launch_time).isot
-ac_copy_old.target_arrival_time=parse_time(ac_old.target_arrival_time).isot
-
-for i in np.arange(len(ac_old)):
-
-    dum=ac_copy_old.sse_launch_time[i] 
-    ac_copy_old.at[i,'sse_launch_time']=dum[0:16]+'Z'
-     
-    dum=ac_copy_old.target_arrival_time[i] 
-    ac_copy_old.at[i,'target_arrival_time']=dum[0:16]+'Z'
-
-
-#save as Excel
-file='arrcat/HELCATS_ARRCAT_v10_old.xlsx'
-ac_old.to_excel(file,sheet_name='ARRCATv2.0')
-print('ARRCAT saved as '+file)
 
 
 
@@ -428,7 +417,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[5]:
+# In[6]:
 
 
 #load arrcat as pandas dataframe
@@ -448,46 +437,35 @@ ac5 = f['arrcat']
 ac5['sse_launch_time']
 
 
-# In[6]:
+# In[7]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[7]:
+# In[8]:
 
 
 ac
 
 
-# In[8]:
+# In[9]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[9]:
+# In[10]:
 
 
 ac_struct
 
 
-# In[10]:
-
-
-ac_struct['id']
-ac_struct['id'][100]
-
-#comparison old and new method for arrival time prediction
-deltata=(parse_time(ac.target_arrival_time[0:100]).plot_date-parse_time(ac_old.target_arrival_time).plot_date[0:100])*24
-#print(deltata)
-
-
 # ### plot directions and targets
 
-# In[29]:
+# In[11]:
 
 
 sns.set_context('talk')
@@ -529,7 +507,7 @@ ax.scatter(np.radians(ac.target_heeq_lon[soloi]),ac.target_distance[soloi],s=ms,
 ax.scatter(np.radians(ac.target_heeq_lon[bepii]),ac.target_distance[bepii],s=ms,c='violet', alpha=al)
 ax.scatter(np.radians(ac.target_heeq_lon[ulyi]),ac.target_distance[ulyi],s=ms,c='brown', alpha=al)
 
-plt.ylim([0,np.max(ac.target_distance)+0.02])
+plt.ylim([0,np.max(ac.target_distance)+0.2])
 
 #ax.set_theta_zero_location("W")
 ax.set_rlabel_position(180)
@@ -556,7 +534,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[30]:
+# In[12]:
 
 
 fig=plt.figure(2, figsize=(16,8), dpi=70)
@@ -597,32 +575,11 @@ print('saved as ',plotfile)
 # In[13]:
 
 
-'''
-(histmerc1, bin_edgesmerc) = np.histogram(parse_time(ac.sse_launch_time[merci]).jd, yearly_bin_edges)
-(histvenus1, bin_edgesvenus) = np.histogram(parse_time(ac.sse_launch_time[venusi]).jd, yearly_bin_edges)
-(histearth1, bin_edgesearth) = np.histogram(parse_time(ac.sse_launch_time[earthi]).jd, yearly_bin_edges)
-(histmars1, bin_edgesmars) = np.histogram(parse_time(ac.sse_launch_time[marsi]).jd, yearly_bin_edges)
-(histstb1, bin_edgesstb) = np.histogram(parse_time(ac.sse_launch_time[stbi]).jd, yearly_bin_edges)
-(histsta1, bin_edgessta) = np.histogram(parse_time(ac.sse_launch_time[stai]).jd, yearly_bin_edges)
-(histpsp1, bin_edgespsp) = np.histogram(parse_time(ac.sse_launch_time[pspi]).jd, yearly_bin_edges)
-(histbepi1, bin_edgesbepi) = np.histogram(parse_time(ac.sse_launch_time[bepi]).jd, yearly_bin_edges)
-(histsolo1, bin_edgessolo) = np.histogram(parse_time(ac.sse_launch_time[soloi]).jd, yearly_bin_edges)
+hiai=np.where(higeocat['SC']=='A')[0]
+hibi=np.where(higeocat['SC']=='B')[0]
 
-
-# these are for arrcat
-hiai=np.where(ac.sc=='A')[0]
-hibi=np.where(ac.sc=='B')[0]
-
-
-(hist_hia, binedges) = np.histogram(parse_time(ac.sse_launch_time[hiai]).plot_date, yearly_bin_edges)
-(hist_hib, binedges) = np.histogram(parse_time(ac.sse_launch_time[hibi]).plot_date, yearly_bin_edges)
-
-
-'''
-
-
-# In[14]:
-
+hia_t0=higeocat['SSE Launch'][hiai]
+hib_t0=higeocat['SSE Launch'][hibi]
 
 last_year=datetime.datetime.utcnow().year+1
 #define dates 
@@ -635,18 +592,16 @@ for i in np.arange(2007,last_year-1):
     for k in np.arange(1,13):
         months_str.append(str(i)+'-'+str(k).zfill(2)+'-01' )
         
-#current year
-for k in np.arange(1,datetime.datetime.utcnow().month+1):
+#current year, use the month before last month in the HIGeoCat
+last_month=parse_time(hia_t0).datetime[-1].month-1
+
+for k in np.arange(1,last_month+1):
       months_str.append(str(datetime.datetime.utcnow().year)+'-'+str(k).zfill(2)+'-01' )
 
+        
 months_bin_edges=parse_time(months_str).plot_date
 #months_bin_edges
 #
-hiai=np.where(higeocat['SC']=='A')[0]
-hibi=np.where(higeocat['SC']=='B')[0]
-
-hia_t0=higeocat['SSE Launch'][hiai]
-hib_t0=higeocat['SSE Launch'][hibi]
 
 (hist_hia, binedges) = np.histogram(parse_time(hia_t0).plot_date, yearly_bin_edges)
 (hist_hib, binedges) = np.histogram(parse_time(hib_t0).plot_date, yearly_bin_edges)
@@ -658,10 +613,7 @@ hib_t0=higeocat['SSE Launch'][hibi]
 hist_hib_monthly[93:]=-1
 
 
-# In[32]:
-
-
-#-------------
+# In[14]:
 
 
 sns.set_context("talk")     
@@ -709,7 +661,7 @@ print('saved as ',plotfile)
 
 
 
-# In[16]:
+# In[15]:
 
 
 print(' ')
@@ -718,10 +670,6 @@ print('-------------------------------')
 print('The last event launch time in the ARRCAT that we just made is')
 print(np.sort(ac.sse_launch_time)[-1])
 
-
-# In[17]:
-
-
 url='https://helioforecast.space/static/sync/arrcat/HELCATS_ARRCAT_v20.csv' 
 arrcat_web=pd.read_csv(url)
 print('  ')
@@ -729,24 +677,15 @@ print('  ')
 print('The last event launch time in the ARRCAT on the web is')
 print(np.sort(arrcat_web.sse_launch_time)[-1])
 
-print('  ')
-print('-------------------------------')
 
 
-
-# In[18]:
+# In[16]:
 
 
 t1all = time.time()
 print(' ')
 print(' ')
 print('---------------------------------- ')
-print('arrcat.py takes ', np.round((t1all-t0all)/60,2), 'minutes')
+print('arrcat.py takes ', np.round((t1all-t0all),1), 'seconds')
     
-
-
-# In[ ]:
-
-
-
 

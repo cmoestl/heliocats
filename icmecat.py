@@ -35,7 +35,7 @@
 # 
 # - none
 
-# In[1]:
+# In[31]:
 
 
 last_update='2023-August-TBD'
@@ -46,6 +46,16 @@ debug_mode=1
 make_positions=0
 #red indices file
 create_indices=0
+
+#define number of processes for plotting
+used=8 
+#which plots to make
+solo_plots=1
+bepi_plots=0
+wind_plots=0
+psp_plots=0
+sta_plots=0
+
 
 
 import os
@@ -72,9 +82,6 @@ import pandas as pd
 import copy
 import openpyxl
 import h5py
-
-
-import multiprocessing 
 
 
 import plotly.graph_objects as go
@@ -195,7 +202,7 @@ if make_positions > 0:
     #p_mes_new.time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int (((t_end - t_start).days+1)*60*24))]  
     #p_mes_new.time = np.interp(p_mes., bepi_raw.time, bepi_raw.bx)
     
-    
+
 
     p_mes_new.x=p_mes.x
     p_mes_new.y=p_mes.y
@@ -214,15 +221,13 @@ if make_positions > 0:
 
     p_psp.time=mdates.date2num(p_psp.time)
     p_solo.time=mdates.date2num(p_solo.time)    
-    p_earth.time=mdates.date2num(p_earth.time)
-    p_bepi.time=mdates.date2num(p_bepi.time)
-    
-    p_mes.time=mdates.date2num(p_mes.time)
     p_sta.time=mdates.date2num(p_sta.time)
-    p_venus.time=mdates.date2num(p_venus.time)
-    p_mars.time=mdates.date2num(p_mars.time)
+    p_bepi.time=mdates.date2num(p_bepi.time)
+    p_l1.time=mdates.date2num(p_l1.time)
+    p_earth.time=mdates.date2num(p_earth.time)
     p_mercury.time=mdates.date2num(p_mercury.time)
-    
+    p_venus.time=mdates.date2num(p_venus.time)
+    p_mars.time=mdates.date2num(p_mars.time)    
 
     #all angels in radians
     
@@ -232,14 +237,20 @@ if make_positions > 0:
     p_solo.lat=np.deg2rad(p_solo.lat)
     p_solo.lon=np.deg2rad(p_solo.lon)
 
+    p_sta.lat=np.deg2rad(p_sta.lat)
+    p_sta.lon=np.deg2rad(p_sta.lon)
+    
     p_bepi.lat=np.deg2rad(p_bepi.lat)
     p_bepi.lon=np.deg2rad(p_bepi.lon)
 
-    p_sta.lat=np.deg2rad(p_sta.lat)
-    p_sta.lon=np.deg2rad(p_sta.lon)
-
+    p_l1.lat=np.deg2rad(p_l1.lat)
+    p_l1.lon=np.deg2rad(p_l1.lon)
+    
     p_earth.lat=np.deg2rad(p_earth.lat)
     p_earth.lon=np.deg2rad(p_earth.lon)
+
+    p_mercury.lat=np.deg2rad(p_mercury.lat)
+    p_mercury.lon=np.deg2rad(p_mercury.lon)
 
     p_venus.lat=np.deg2rad(p_venus.lat)
     p_venus.lon=np.deg2rad(p_venus.lon)
@@ -247,22 +258,18 @@ if make_positions > 0:
     p_mars.lat=np.deg2rad(p_mars.lat)
     p_mars.lon=np.deg2rad(p_mars.lon)
 
-    p_mercury.lat=np.deg2rad(p_mercury.lat)
-    p_mercury.lon=np.deg2rad(p_mercury.lon)
-
-    
 
     pos = np.array([p_psp, p_solo, p_sta, p_bepi, p_l1, p_stb_new, p_uly_new, p_mes_new, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune])
     ## !!!! add name variable for each spacecraft and then read the whole array at once
     #pos = [p_psp, p_solo, p_sta, p_bepi, p_l1, p_stb_new, p_uly_new, p_mes_new, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune]
-    pickle.dump(pos, open('results/positions/positions_HEEQ_1hr.p', 'wb'))
+    pickle.dump(pos, open('results/positions/positions_HEEQ_1hr_new.p', 'wb'))
     
     t1 = time.time()
     print('making positions takes', int(np.round(t1-t0,0)), 'seconds')
     print('merged positions file made')
     
 
-pos=pickle.load( open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
+pos=pickle.load( open( 'results/positions/positions_HEEQ_1hr_new.p', "rb" ) )
 
 print('positions file loaded')
 
@@ -484,7 +491,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[29]:
+# In[32]:
 
 
 if debug_mode > 0: 
@@ -547,7 +554,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[26]:
+# In[33]:
 
 
 ###### 3c make all plots if wanted
@@ -556,6 +563,7 @@ if debug_mode > 0:
     importlib.reload(hp)
 
 matplotlib.use('Agg')
+t0plot = time.time()
 
 
 #### check for system type
@@ -592,24 +600,14 @@ def plot_icmecat_events_multi(i):
                              ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
                              ic.mo_end_time[sci[i]]+datetime.timedelta(dayslim),name, icplotsdir,ic,sci[i],pos)
        
-
-# def multiplot():
     
-    #define number of processes
-#    used=8
-    #define pool using fork and number of processes
-#    pool=mp.get_context('fork').Pool(processes=used)
-#    print('Using multiprocessing, nr of cores',mp.cpu_count(), ', nr of processes used: ',used)
-
 
 
 #missions to be updated, only make one at a time otherwise variables are changed!
 
-solo_plots=0
-wind_plots=1
-psp_plots=0
-sta_plots=0
-bepi_plots=0
+print('Using multiprocessing, nr of cores available: ',mp.cpu_count(), '. Nr of processes used: ',used)
+
+print('start plots')
 
 if solo_plots > 0:
     sc=solo; sci=soli; name='SolarOrbiter'
@@ -617,6 +615,8 @@ if solo_plots > 0:
     fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
     [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
 
+    #define pool using fork and number of processes
+    pool=mp.get_context('fork').Pool(processes=used)
     # Map the worker function onto the parameters    
     t0 = time.time()
     pool.map(plot_icmecat_events_multi, counter) #or use apply_async?,imap
@@ -624,14 +624,18 @@ if solo_plots > 0:
     pool.join()     
     t1 = time.time()
     multi_time=np.round(t1-t0,2)
-    print('done')
+    print('SolO done')
     print('plotting takes', np.round(multi_time,2), 'seconds')   
+    print(' ')
 
 if bepi_plots > 0:
     sc=bepi; sci=beci; name='BepiColombo'
     counter=np.arange(0,len(sci))
     fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
     [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+
+    #define pool using fork and number of processes
+    pool=mp.get_context('fork').Pool(processes=used)
     # Map the worker function onto the parameters    
     t0 = time.time()
     pool.map(plot_icmecat_events_multi, counter) #or use apply_async?,imap
@@ -639,8 +643,9 @@ if bepi_plots > 0:
     pool.join()     
     t1 = time.time()
     multi_time=np.round(t1-t0,2)
-    print('done')
+    print('Bepi done')
     print('plotting takes', np.round(multi_time,2), 'seconds')   
+    print(' ')
 
     
 if wind_plots > 0:
@@ -648,24 +653,64 @@ if wind_plots > 0:
     counter=np.arange(0,len(sci))
     fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
     [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
-    multiplot()
     
+    #define pool using fork and number of processes
+    pool=mp.get_context('fork').Pool(processes=used)
+    # Map the worker function onto the parameters    
+    t0 = time.time()
+    pool.map(plot_icmecat_events_multi, counter) #or use apply_async?,imap
+    pool.close()
+    pool.join()     
+    t1 = time.time()
+    multi_time=np.round(t1-t0,2)
+    print('Wind done')
+    print('plotting takes', np.round(multi_time,2), 'seconds')   
+    print(' ')
+
 if psp_plots > 0:
     sc=psp; sci=pspi; name='PSP'
     counter=np.arange(0,len(sci))
     fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
     [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
-    multiplot()
+    
+    #define pool using fork and number of processes
+    pool=mp.get_context('fork').Pool(processes=used)
+    # Map the worker function onto the parameters    
+    t0 = time.time()
+    pool.map(plot_icmecat_events_multi, counter) #or use apply_async?,imap
+    pool.close()
+    pool.join()     
+    t1 = time.time()
+    multi_time=np.round(t1-t0,2)
+    print('PSP done')
+    print('plotting takes', np.round(multi_time,2), 'seconds')   
+    print(' ')
+
 
 if sta_plots > 0:
     sc=sta; sci=stai; name='STEREO-A'
     counter=np.arange(0,len(sci))
     fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
     [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
-    multiplot()
 
+    #define pool using fork and number of processes
+    pool=mp.get_context('fork').Pool(processes=used)
+    # Map the worker function onto the parameters    
+    t0 = time.time()
+    pool.map(plot_icmecat_events_multi, counter) #or use apply_async?,imap
+    pool.close()
+    pool.join()     
+    t1 = time.time()
+    multi_time=np.round(t1-t0,2)
+    print('STEREO-A done')
+    print('plotting takes', np.round(multi_time,2), 'seconds')   
+    print(' ')
 
-
+print(' ')
+print('----------')
+t1plot = time.time()
+all_plot_time=np.round(t1plot-t0plot,2)
+print('all plotting takes', np.round(multi_time/60,2), 'minutes')  
 
 
 #mag only
@@ -696,7 +741,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[7]:
+# In[18]:
 
 
 ######## sort ICMECAT by date
@@ -852,7 +897,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[8]:
+# In[19]:
 
 
 ########## python formats
@@ -1028,7 +1073,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[9]:
+# In[20]:
 
 
 #load icmecat as pandas dataframe
@@ -1040,27 +1085,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[10]:
+# In[21]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[11]:
+# In[22]:
 
 
 ic_pandas
 
 
-# In[12]:
+# In[23]:
 
 
 #
 ic_nprec
 
 
-# In[13]:
+# In[24]:
 
 
 ic_nprec.icmecat_id
@@ -1068,7 +1113,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[14]:
+# In[25]:
 
 
 ic=ic_pandas
@@ -1182,7 +1227,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[15]:
+# In[26]:
 
 
 #markersize
@@ -1226,7 +1271,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=100,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[16]:
+# In[27]:
 
 
 #make distribution plots
@@ -1283,11 +1328,11 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview3.png', dpi=150,bbox_inches='tight')
 
 
-# In[17]:
+# In[29]:
 
 
 t1all = time.time()
-print('the full ICMECAT takes', np.round(t1all-t0all,2), 'seconds')
+print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 
 
 # In[ ]:

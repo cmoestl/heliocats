@@ -1,14 +1,16 @@
-#stats.py
+#cats.py
+
 #catalog creation for heliocats
+
 #https://github.com/cmoestl/heliocats
 
 import numpy as np
 import pandas as pd
 import scipy
-from sunpy.time import parse_time
 import copy
 import matplotlib.dates as mdates
 import matplotlib
+import matplotlib.pyplot as plt
 import seaborn as sns
 import datetime
 import urllib
@@ -18,66 +20,28 @@ import pdb
 import scipy.io
 import pickle
 import sys
+import importlib
+import cdflib
+
+import sunpy
+from sunpy.coordinates import frames, get_horizons_coord, HeliographicStonyhurst
+from sunpy.time import parse_time
+
 import astropy
 from astropy.constants import au
 import astropy.units as u
-import astroquery
-
-import sunpy
-
-import astrospice
-
-import importlib
-import cdflib
-import matplotlib.pyplot as plt
-
-import heliopy.data.spice as spicedata
-import heliopy.spice as spice
-
 from astropy.io.votable import parse_single_table
 
-#from config import data_path
+import astroquery
 
-from sunpy.coordinates import frames, get_horizons_coord
+import astrospice
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
-
-
 #define AU in km
 AU=au.value/1e3
 
-
-
-######################## general position functions
-
-
-# def get_mars_position_array():
-    
-#     ############### Mars position
-
-#     planet_kernel=spicedata.get_kernel('planet_trajectories')
-#     starttime = datetime.datetime(2007, 1, 1)
-#     endtime = datetime.datetime(2020, 12, 31)
-#     res_in_hours=1
-#     mars_time = []
-#     while starttime < endtime:
-#         mars_time.append(starttime)
-#         starttime += datetime.timedelta(hours=res_in_hours)
-#     mars=spice.Trajectory('4')  
-#     frame='HEEQ'
-#     mars.generate_positions(mars_time,'Sun',frame)  
-#     mars.change_units(astropy.units.AU)  
-#     [mars_r, mars_lat, mars_lon]=hd.cart2sphere(mars.x,mars.y,mars.z)
-#     print('mars position done') 
-    
-#     mars_time=np.array(mars_time)
-#     mars_r=np.array(mars_r)
-#     mars_lat=np.array(mars_lat)
-#     mars_lon=np.array(mars_lon)
-
-#     return [mars_time,mars_r,np.degrees(mars_lat),np.degrees(mars_lon)]
 
 
 
@@ -102,138 +66,96 @@ def load_higeocat_vot(file):
 
 
 
-def get_insitu_position_time_old(time1,insitu_location_string,insitu_str,insitu_kernel):
+
+
+def get_position(time1,name):
     
-    #old version only with heliopy
+    
+    #this works if the respective kernels are loaded beforehand
     
     insitu_exist=True
     
-    if insitu_location_string=='PSP': 
+    #for missions, cut off times directly that do not exist:
+    if name=='PSP': 
         #exclude if time before launch time
         if parse_time(time1).plot_date < parse_time(datetime.datetime(2018, 8, 13)).plot_date:
             insitu_exist=False 
 
-    if insitu_location_string=='Solo': 
-        if parse_time(time1).plot_date < parse_time(datetime.datetime(2020, 3, 1)).plot_date:
-            insitu_exist=False 
-        
-    if insitu_location_string=='Bepi': 
-        if parse_time(time1).plot_date < parse_time(datetime.datetime(2018, 10, 24)).plot_date:
-            insitu_exist=False
-                    
-    if insitu_location_string=='STB': 
-        if parse_time(time1).plot_date > parse_time(datetime.datetime(2014, 9, 27)).plot_date:
-            insitu_exist=False  
-            
-                               
-    if insitu_location_string=='Ulysses': 
-        #cut off ulysses when no decent in situ data is available anymore
-        if parse_time(time1).plot_date > parse_time(datetime.datetime(2008, 5, 1)).plot_date:
-            insitu_exist=False              
-
-            
-    if insitu_exist == True:
-        #insitu_kernel=spicedata.get_kernel('insitu_trajectories')
-
-        #this needs to be an array, so make two similar times and take the first entry later
-        insitu_time=[parse_time(time1).datetime,parse_time(time1).datetime]
-        insitu=spice.Trajectory(insitu_str)  
-        frame='HEEQ'
-        insitu.generate_positions(insitu_time,'Sun',frame)  
-        insitu.change_units(astropy.units.AU)  
-        [insitu_r, insitu_lat, insitu_lon]=hd.cart2sphere(insitu.x,insitu.y,insitu.z)
-        
-        #Earth position to Earth L1
-        if insitu_str=='3': insitu_r[0]=insitu_r[0]-1.5*1e6/AU
-       
-
-        insitu_time=np.array(insitu_time)[0]
-        insitu_r=np.array(insitu_r)[0]
-        insitu_lat=np.array(insitu_lat)[0]
-        insitu_lon=np.array(insitu_lon)[0]
-        
-    else:
-        insitu_time=np.nan
-        insitu_r=np.nan
-        insitu_lat=np.nan
-        insitu_lon=np.nan    
-
-    return [insitu_time,insitu_r,np.degrees(insitu_lat),np.degrees(insitu_lon)]
-
-
-
-def get_insitu_position_time(time1,insitu_location_string,insitu_str,insitu_kernel):
-    
-    
-    #new version with partly switch to sunpy and/or astrospice
-    
-    insitu_exist=True
-    
-    if insitu_location_string=='PSP': 
-        #exclude if time before launch time
-        if parse_time(time1).plot_date < parse_time(datetime.datetime(2018, 8, 13)).plot_date:
-            insitu_exist=False 
-
-    if insitu_location_string=='Solo': 
+    if name=='SolarOrbiter': 
         if parse_time(time1).plot_date < parse_time(datetime.datetime(2020, 4, 15)).plot_date:            
             insitu_exist=False 
         
-    if insitu_location_string=='Bepi': 
+    if name=='BepiColombo': 
         if parse_time(time1).plot_date < parse_time(datetime.datetime(2018, 10, 24)).plot_date:
             insitu_exist=False
                     
-    if insitu_location_string=='STB': 
+    if name=='STEREO-B': 
         if parse_time(time1).plot_date > parse_time(datetime.datetime(2014, 9, 27)).plot_date:
             insitu_exist=False  
             
+    if name=='STEREO-A': 
+        if parse_time(time1).plot_date < parse_time(datetime.datetime(2007, 1, 1)).plot_date:
+            insitu_exist=False  
+
+    #if name=='Messenger': 
+    #    if parse_time(time1).plot_date > parse_time(datetime.datetime(2015, 4, 30)).plot_date:
+    #        insitu_exist=False                          
                                
-    if insitu_location_string=='Ulysses': 
+    #if name=='Ulysses': 
         #cut off ulysses when no decent in situ data is available anymore
-        if parse_time(time1).plot_date > parse_time(datetime.datetime(2008, 5, 1)).plot_date:
-            insitu_exist=False              
+    #    if parse_time(time1).plot_date > parse_time(datetime.datetime(2008, 5, 1)).plot_date:
+    #        insitu_exist=False              
 
-            
     if insitu_exist == True:
-        
 
-        #this needs to be an array, so make two similar times and take the first entry later
-        insitu_time=[parse_time(time1).datetime,parse_time(time1).datetime]
-        insitu=spice.Trajectory(insitu_str)  
-        frame='HEEQ'
-        insitu.generate_positions(insitu_time,'Sun',frame)  
-        insitu.change_units(astropy.units.AU)  
-        [insitu_r, insitu_lat, insitu_lon]=hd.cart2sphere(insitu.x,insitu.y,insitu.z)
-        
-        #Earth position to Earth L1
-        if insitu_str=='3': insitu_r[0]=insitu_r[0]-1.5*1e6/AU
 
-        insitu_time=np.array(insitu_time)[0]
-        insitu_r=np.array(insitu_r)[0]
-        insitu_lat=np.array(insitu_lat)[0]
-        insitu_lon=np.array(insitu_lon)[0]
-        
-        
-        #quick override for SolO position with sunpy or astrospice
-        if insitu_str=='Solar Orbiter': 
+        if name=='PSP':
+            coords = astrospice.generate_coords('Solar probe plus', time1)
             
+        if name=='SolarOrbiter':
+            coords = astrospice.generate_coords('Solar orbiter', time1)
+
+        if name=='BepiColombo':
+            coords = astrospice.generate_coords('Bepicolombo mpo', time1)
+
+        if name=='STEREO-A':
+            coords = astrospice.generate_coords('Stereo ahead', time1)
             
-            ##sunpy version, slow
-            #coord = get_horizons_coord('Solar Orbiter', time=insitu_time)  
-            #solo_heeq = coord.transform_to(frames.HeliographicStonyhurst) #HEEQ            
+        if name=='STEREO-B':
+            coords = astrospice.generate_coords('Stereo behind', time1)
             
-            #astrospice version            
-            #solo_astrospice_kernels = astrospice.registry.get_kernels('solar orbiter', 'predict')[0]
-            solo_coords = astrospice.generate_coords('Solar Orbiter', insitu_time)
-            #print(insitu_time)
-            solo_heeq = solo_coords.transform_to(sunpy.coordinates.HeliographicStonyhurst())
+        if name=='Mercury':
+            coords = astrospice.generate_coords(1, time1)
+            
+        if name=='Venus':
+            coords = astrospice.generate_coords(2, time1)
+            
+        if name=='Earth':
+            coords = astrospice.generate_coords(3, time1)
+
+        if name=='Mars':
+            coords = astrospice.generate_coords(4, time1)
+
+        if name=='Earth_L1':
+            coords = astrospice.generate_coords(3, time1)
+            
+        #if name=='Ulysses':
+        #    coords = astrospice.generate_coords(-55, time1)
                         
             
-            insitu_r=solo_heeq.radius.to(u.au).value[0]
-            insitu_lat=solo_heeq.lat.to(u.rad).value[0]
-            insitu_lon=solo_heeq.lon.to(u.rad).value[0]
             
-            #print([insitu_r,insitu_lat, insitu_lon])
-        
+            
+        frame = HeliographicStonyhurst()
+        coords = coords.transform_to(frame)
+        insitu_r = coords.radius.to(u.au).value[0]
+        insitu_lon = coords.lon.value[0] #degrees
+        insitu_lat = coords.lat.value[0]
+
+        if name=='Earth_L1': insitu_r=insitu_r-0.01
+
+        insitu_time=time1
+
+
         
     else:
         insitu_time=np.nan
@@ -241,7 +163,9 @@ def get_insitu_position_time(time1,insitu_location_string,insitu_str,insitu_kern
         insitu_lat=np.nan
         insitu_lon=np.nan    
 
-    return [insitu_time,insitu_r,np.degrees(insitu_lat),np.degrees(insitu_lon)]
+    return [insitu_time,insitu_r,insitu_lat,insitu_lon]
+
+
 
 
 
@@ -263,8 +187,7 @@ def calculate_arrival(vsse,delta,lamda,rdist,t0_num):
 
 
 
-
-def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_string, column_list):
+def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, target_name, column_list):
     
     #get parameters from HIGEOCAT for arrival catalog
 
@@ -281,88 +204,40 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
     higeocat_pas=np.array(higeocat['PA-S'])
     higeocat_pafit=np.array(higeocat['PA-fit'])
     higeocat_pacenter=abs((higeocat_pan+higeocat_pas)/2)
+    
+    if target_name=='PSP':
+        kernels_psp = astrospice.registry.get_kernels('psp', 'predict')
   
-    
-    
-    #astrospice_kernel=''
-    
-    #load spice here once for each spacecraft
+    if target_name=='SolarOrbiter':
+        kernels_solo = astrospice.registry.get_kernels('solar orbiter', 'predict')
         
-    if insitu_location_string=='STB': 
-        insitu_str='-235'
-        insitu_kernel=spicedata.get_kernel('stereo_b')    
-        target_name='STEREO-B'
-    
-    if insitu_location_string=='STA': 
-        insitu_str='-234'
-        insitu_kernel=spicedata.get_kernel('stereo_a_pred')
-        insitu_kernel2=spicedata.get_kernel('stereo_a')
-        spice.furnish(insitu_kernel2)
-        target_name='STEREO-A'
-       
-    if insitu_location_string=='Mercury': 
-        insitu_str='1'
-        insitu_kernel=spicedata.get_kernel('planet_trajectories')
-        target_name='Mercury'
+    if target_name=='STEREO-A':
+        kernels_stereo_recon = astrospice.registry.get_kernels('stereo-a', 'recon')
+        kernels_stereo_pred = astrospice.registry.get_kernels('stereo-a', 'predict')        
         
-    if insitu_location_string=='Venus': 
-        insitu_str='2'
-        insitu_kernel=spicedata.get_kernel('planet_trajectories')
-        target_name='Venus'
-       
-    if insitu_location_string=='Earth': 
-        insitu_str='3'
-        insitu_kernel=spicedata.get_kernel('planet_trajectories')
-        target_name='Earth_L1'
-        
-    if insitu_location_string=='Mars': 
-        insitu_str='4'
-        insitu_kernel=spicedata.get_kernel('planet_trajectories')        
-        target_name='Mars'
-        
-    if insitu_location_string=='PSP': 
-        insitu_str='-96'
-        insitu_kernel=spicedata.get_kernel('psp_pred')
-        target_name='PSP'
+    if target_name=='STEREO-B':
+        kernels_stereo_recon = astrospice.registry.get_kernels('stereo-b', 'recon')
 
-    if insitu_location_string=='Solo': 
-        insitu_str='Solar Orbiter'
-        insitu_kernel=spicedata.get_kernel('solo_2020')   
-        target_name='SolarOrbiter'        
-        astrospice_kernel = astrospice.registry.get_kernels('solar orbiter', 'predict')[0]
+    if target_name=='BepiColombo':        
+        kernels_bepi = astrospice.registry.get_kernels('mpo', 'predict')
         
-    if insitu_location_string=='Bepi': 
-        insitu_str='BEPICOLOMBO MPO'
-        insitu_kernel=spicedata.get_kernel('bepi_pred')
-        target_name='BepiColombo'
-
-    if insitu_location_string=='Ulysses': 
-        insitu_str='ulysses'
-        insitu_kernel=spicedata.get_kernel('ulysses')
-        target_name='Ulysses'
-
+    #if target_name=='Ulysses':        
+    #    kernels_uly = astrospice.registry.get_kernels('Ulysses','recon')
 
         
-    spice.furnish(insitu_kernel)
- 
-           
-
     #half width for SSEF30
     lamda=30.0
 
-    #new version of ARRCAT with iteration
+    #ARRCAT with iteration
     arrcat_insitu_list = []
-    #old version without iteration
-    arrcat_insitu_list_old = []
 
 
-    ###############
+    ############
     #go through all HIGEOCAT CME events and check for hit at insitu, with 4 iterations in total
     for i in np.arange(len(higeocat_time)):
 
-        #get insitu position for launch time t0    
-        
-        [insitu_time,insitu_r,insitu_lat,insitu_lon]=get_insitu_position_time(higeocat_t0[i], insitu_location_string,insitu_str, insitu_kernel)            
+        #get insitu position for launch time t0            
+        [insitu_time,insitu_r,insitu_lat,insitu_lon]=get_position(higeocat_t0[i], target_name)            
         delta=abs(higeocat_sse_lon[i]-insitu_lon)
         #print([insitu_time,insitu_r,insitu_lat,insitu_lon])
 
@@ -372,40 +247,33 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
             #print(delta,lamda,insitu_r)
             [ta,visse]=calculate_arrival(higeocat_vsse[i],delta, lamda, insitu_r,higeocat_t0_num[i])                
             
-            #make old version of ARRCAT without iteration and errors
-            list_old=[higeocat_id[i],higeocat_sc[i],target_name,\
-                   parse_time(higeocat_t0[i]).iso[:-7],parse_time(ta).iso[:-7],0,\
-                   np.round(insitu_r,3), np.round(insitu_lon,2), np.round(insitu_lat,2),np.round(insitu_lon-higeocat_sse_lon[i],1),\
-                   higeocat_sse_lon[i],higeocat_sse_lat[i],higeocat_vsse[i],\
-                   higeocat_vsse_err[i], int(np.rint(visse)),0,higeocat_pafit[i],higeocat_pan[i],higeocat_pas[i],higeocat_pacenter[i]]
-                   #print(list1)
-            arrcat_insitu_list_old.append(list_old)
-            
-        
-
-            [insitu_time2,insitu_r2,insitu_lat2,insitu_lon2]=get_insitu_position_time(ta, insitu_location_string,insitu_str, insitu_kernel)       
+  
+            [insitu_time2,insitu_r2,insitu_lat2,insitu_lon2]=get_position(ta, target_name) 
             #print(insitu_lon-insitu_lon2)               
             delta2=abs(higeocat_sse_lon[i]-insitu_lon2)
+            
             if delta2 <30:
 
                 [ta2,visse2]=calculate_arrival(higeocat_vsse[i],delta2, lamda, insitu_r2,higeocat_t0_num[i])
                 #print(int((parse_time(ta2).plot_date-parse_time(ta).plot_date)*24))
 
-                [insitu_time3,insitu_r3,insitu_lat3,insitu_lon3]=get_insitu_position_time(ta2, insitu_location_string,insitu_str, insitu_kernel)       
+                [insitu_time3,insitu_r3,insitu_lat3,insitu_lon3]=get_position(ta2, target_name)       
                 delta3=abs(higeocat_sse_lon[i]-insitu_lon3)
 
                 if delta3 <30:
+                    
                     [ta3,visse3]=calculate_arrival(higeocat_vsse[i],delta3, lamda, insitu_r3,higeocat_t0_num[i])
                     #print(np.round((parse_time(ta3).plot_date-parse_time(ta2).plot_date)*24,1),int(delta3))
 
-                    [insitu_time4,insitu_r4,insitu_lat4,insitu_lon4]=get_insitu_position_time(ta3, insitu_location_string,insitu_str, insitu_kernel)       
+                    [insitu_time4,insitu_r4,insitu_lat4,insitu_lon4]=get_position(ta3, target_name)       
                     delta4=abs(higeocat_sse_lon[i]-insitu_lon4)
 
                     if delta4 <30:
                         
                         #calculate finally iterated arrival time
                         [ta4,visse4]=calculate_arrival(higeocat_vsse[i],delta4, lamda, insitu_r4,higeocat_t0_num[i])
-                        #print(np.round((parse_time(ta4).plot_date-parse_time(ta3).plot_date)*24,1),int(delta4))                                               
+                        #print(np.round((parse_time(ta4).plot_date-parse_time(ta3).plot_date)*24,1),int(delta4))  
+ 
                         #print(int(delta4-delta))                                            
                                                 
                         #estimate error bar on arrival time adding or subtracting the error in the Vsse speed
@@ -425,10 +293,14 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
                         visse4_err=int(np.rint(np.mean([visse4_err_high,visse4_err_low])))
                         #print(visse4_err_low,visse4_err_high,visse4_err,higeocat_vsse_err[i])
                         #print()
-
+                        #
+                        #print(ta4)
+                        #print(str(ta4[0].isoformat())[0:16])
+                        #print(str(higeocat_t0[i].isoformat())[0:16]+'Z')
+                        #print(higeocat_t0[i])
                         
                         list1=[higeocat_id[i],higeocat_sc[i],target_name,\
-                                parse_time(higeocat_t0[i]).iso[:-7],parse_time(ta4).iso[:-7],ta4_err,\
+                                str(higeocat_t0[i].isoformat())[0:16]+'Z',str(ta4.isoformat())[0:16]+'Z',ta4_err,\
                                 np.round(insitu_r4,3), np.round(insitu_lon4,2), np.round(insitu_lat4,2),np.round(insitu_lon4-higeocat_sse_lon[i],1),\
                                 higeocat_sse_lon[i],higeocat_sse_lat[i],higeocat_vsse[i],\
                                 higeocat_vsse_err[i], int(np.rint(visse4)),visse4_err,higeocat_pafit[i],higeocat_pan[i],higeocat_pas[i],higeocat_pacenter[i]]
@@ -440,13 +312,6 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
     #arrcat_insitu=np.array(arrcat_insitu_list)    
     #print(arrcat_insitu_list)
 
-    
-    #make dataframe out of list
-    ac_old1 = pd.DataFrame(arrcat_insitu_list_old, columns = column_list)    
-    #ac_old=ac_old.append(ac_old1)   
-    ac_old=pd.concat([ac_old,ac_old1])
-
-    
     #make dataframe out of list
     ac1 = pd.DataFrame(arrcat_insitu_list, columns = column_list)    
     #arrcat=arrcat.append(ac1)   
@@ -454,12 +319,11 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat,ac_old, insitu_location_s
     
     
     print('SSEF30 events: ',len(arrcat_insitu_list)   ) 
-    print(insitu_location_string,' SSEF30 arrival catalog finished.')
+    print(target_name,' SSEF30 arrival catalog finished.')
     print()
         
     
-    return [arrcat,ac_old]
-
+    return arrcat
 
 
 
@@ -1029,7 +893,7 @@ def create_icme_indices(sc,sci,ic,name):
     sc_mo_end=mdates.date2num(ic.mo_end_time[sci])
 
     #search where the minimum is in the array between the given time and the time in the data array
-    #this is fast!
+    #this is fast
     icme_start_ind=[np.argmin(abs(sc_icme_start[i]-sc_numtime)) for i in np.arange(0,len(sc_icme_start))]
     mo_start_ind=[np.argmin(abs(sc_mo_start[i]-sc_numtime)) for i in np.arange(0,len(sc_mo_end))]
     mo_end_ind=[np.argmin(abs(sc_mo_end[i]-sc_numtime)) for i in np.arange(0,len(sc_mo_end))]
