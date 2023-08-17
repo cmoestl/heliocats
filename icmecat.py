@@ -27,7 +27,7 @@
 # - use the notebook data_update_web_science.ipynb in this package to create pickle files for new science data. The current data can be found on figshare.
 # - use measure.ipynb to manually derive the 3 times for each ICME event
 # - manually edit the file icmecat/HELCATS_ICMECAT_v21_master.xlsx to add 3 times for each event, the event id and spacecraft name
-# - set the switch to create_indices greater 0 and the indices will be redone for the new events so the catalog knows where the ICMEs are in the data files
+# - set the switch to create_indices greater 0 and the indices will be redone for the new events so the script quickly loads the info where the ICMEs are in the data files
 # - for a new release, set the the last_update variable to the current date
 # 
 # 
@@ -35,7 +35,7 @@
 # 
 # - none
 
-# In[31]:
+# In[1]:
 
 
 last_update='2023-August-TBD'
@@ -43,7 +43,7 @@ last_update='2023-August-TBD'
 debug_mode=1
 
 #redo positions file
-make_positions=0
+make_positions=1
 #red indices file
 create_indices=0
 
@@ -280,8 +280,6 @@ print('!!!!!!!!!!! fix bug in Earth and L1 latitude in positions.ipynb')
 
 # In[3]:
 
-
-t0 = time.time()
 
 load_data=1
 

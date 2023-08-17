@@ -22,9 +22,12 @@
 # 
 # Please cite this catalog with the doi in the figshare repository.
 # 
+# **Issues:**
+# - may add Ulysses again with the position in the ulysses data file
+# - same for messenger
 # 
 
-# In[1]:
+# In[ ]:
 
 
 last_update='2023-August-16'
@@ -144,6 +147,8 @@ ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-A',column_list)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-B',column_list)
 #need to get Ulysses position
 #ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Ulysses',column_list)
+#add messenger similarly
+#ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Messenger',column_list)
 
 
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Mercury',column_list)
