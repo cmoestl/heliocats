@@ -593,7 +593,7 @@ def plot_insitu_update_stereoa_beacon(sc, start, end, sc_label, path, coord, **k
         plt.savefig(plotfile)
         print('saved as ',plotfile)
 
-     #if now2 exists as keyword, save as the file with just now in filename:     
+     #if now2 exists as keyword, save as the file with just now2 in filename:     
      if 'now2' in kwargs:
         plotfile=path+sc_label+'_now2.png'
         plt.savefig(plotfile)

@@ -14,7 +14,7 @@
 # for updating data every day on the servers
 # 
 
-# In[1]:
+# In[8]:
 
 
 #switches
@@ -299,14 +299,14 @@ if get_stereoa > 0:
 [sta_rtn,hsta]=pickle.load(open(data_path+file_sta_beacon_rtn, "rb" ) )  
 start=datetime.datetime.utcnow() - datetime.timedelta(days=55)
 end=datetime.datetime.utcnow() 
-hp.plot_insitu_update_stereoa_beacon(sta_rtn, start, end,'STEREO-A_beacon_rtn',plot_path+'stereoa/',coord='RTN',now=True)
+hp.plot_insitu_update_stereoa_beacon(sta_rtn, start, end,'STEREO-A_beacon_rtn',plot_path+'stereoa/',coord='RTN',now2=True)
 
 
 #load gsm
 [sta_gsm,hsta]=pickle.load(open(data_path+file_sta_beacon_gsm, "rb" ) )  
 start=datetime.datetime.utcnow() - datetime.timedelta(days=55)
 end=datetime.datetime.utcnow() 
-hp.plot_insitu_update_stereoa_beacon(sta_gsm, start, end,'STEREO-A_beacon_gsm',plot_path+'stereoa/',coord='GSM',now=True)
+hp.plot_insitu_update_stereoa_beacon(sta_gsm, start, end,'STEREO-A_beacon_gsm',plot_path+'stereoa/',coord='GSM',now2=True)
 
 
     
