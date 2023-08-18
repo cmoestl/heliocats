@@ -31,9 +31,9 @@
 # - for a new release, set the the last_update variable to the current date
 # 
 # 
-# **KNOWN ISSUES**
+# **ISSUES**
 # 
-# - none
+# - use new positions file created by positions.ipynb for making the plots
 
 # In[1]:
 
@@ -43,17 +43,17 @@ last_update='2023-August-TBD'
 debug_mode=1
 
 #redo positions file
-make_positions=1
+make_positions=0
 #red indices file
-create_indices=0
+create_indices=1
 
 #define number of processes for plotting
 used=8 
 #which plots to make
-solo_plots=1
+solo_plots=0
 bepi_plots=0
 wind_plots=0
-psp_plots=0
+psp_plots=1
 sta_plots=0
 
 
@@ -174,6 +174,9 @@ if make_positions > 0:
     p_stb_new.lon=p_stb.lon
 
     
+    
+    #!!!!!!!! alternatively: get the position of ulysses and messenger from the in situ data files
+    
             
     #change old matplotlib date to datetime objects, and make angles in degrees    
     p_uly_new = np.zeros(np.size(p_uly),dtype=[('time',object),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
@@ -278,7 +281,7 @@ print('!!!!!!!!!!! fix bug in Earth and L1 latitude in positions.ipynb')
 
 # ## (1) load data 
 
-# In[3]:
+# In[ ]:
 
 
 load_data=1
