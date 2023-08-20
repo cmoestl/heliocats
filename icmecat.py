@@ -35,7 +35,7 @@
 # 
 # - use new positions file created by positions.ipynb for making the plots
 
-# In[1]:
+# In[13]:
 
 
 last_update='2023-August-TBD'
@@ -45,15 +45,15 @@ debug_mode=1
 #redo positions file
 make_positions=0
 #red indices file
-create_indices=1
+create_indices=0
 
 #define number of processes for plotting
 used=8 
 #which plots to make
 solo_plots=0
-bepi_plots=0
+bepi_plots=1
 wind_plots=0
-psp_plots=1
+psp_plots=0
 sta_plots=0
 
 
@@ -281,11 +281,12 @@ print('!!!!!!!!!!! fix bug in Earth and L1 latitude in positions.ipynb')
 
 # ## (1) load data 
 
-# In[ ]:
+# In[3]:
 
 
 load_data=1
 
+t0 = time.time()
 
 if load_data > 0:
             
@@ -492,7 +493,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[32]:
+# In[12]:
 
 
 if debug_mode > 0: 
@@ -519,7 +520,7 @@ beci=np.where(ic.sc_insitu == 'BepiColombo')[:][0]
 if create_indices > 0: 
 
     print(' ')
-    print('switch create_indices on - make indices for all events')
+    print('switch create_indices on - make indices for all events for current mission')
     
     t0 = time.time()
 
@@ -555,7 +556,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[33]:
+# In[11]:
 
 
 ###### 3c make all plots if wanted
@@ -742,7 +743,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[18]:
+# In[8]:
 
 
 ######## sort ICMECAT by date
@@ -898,7 +899,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[19]:
+# In[9]:
 
 
 ########## python formats
@@ -1074,7 +1075,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[20]:
+# In[10]:
 
 
 #load icmecat as pandas dataframe
@@ -1086,27 +1087,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[21]:
+# In[11]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[22]:
+# In[12]:
 
 
 ic_pandas
 
 
-# In[23]:
+# In[13]:
 
 
 #
 ic_nprec
 
 
-# In[24]:
+# In[14]:
 
 
 ic_nprec.icmecat_id
@@ -1114,7 +1115,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[25]:
+# In[15]:
 
 
 ic=ic_pandas
@@ -1228,7 +1229,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[26]:
+# In[16]:
 
 
 #markersize
@@ -1272,7 +1273,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=100,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[27]:
+# In[17]:
 
 
 #make distribution plots
@@ -1329,7 +1330,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview3.png', dpi=150,bbox_inches='tight')
 
 
-# In[29]:
+# In[18]:
 
 
 t1all = time.time()
