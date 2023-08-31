@@ -1728,7 +1728,7 @@ def get_pspspi_mom(fp):
         t1 = cdflib.cdfepoch.to_datetime(cdf.varget('Epoch'))
         df = pd.DataFrame(t1, columns=['time'])
         df['np'] = cdf['DENS']
-        df['tp'] = cdf['TEMP']
+        df['tp'] = cdf['TEMP']*(1.602176634*1e-19)/(1.38064852*1e-23) # from ev to K 
         vx, vy, vz = cdf['VEL_RTN_SUN'][:].T
         df['vx'] = vx
         df['vy'] = vy
@@ -2046,12 +2046,14 @@ def solo_furnish(kernels_path):
     """Main"""
     solo_path = kernels_path+'solo/'
     generic_path = kernels_path+'generic/'
-    solo_kernels = os.listdir(solo_path)
+    #put the latest file here manually
+    solo_kernels = astrospice.SPKKernel(solo_path+'solo_ANC_soc-orbit_20200210-20301120_L014_V1_00275_V01.bsp')
     generic_kernels = os.listdir(generic_path)
     print(solo_kernels)
     print(generic_kernels)
-    for kernel in solo_kernels:
-        spiceypy.furnsh(os.path.join(solo_path, kernel))
+    #for kernel in solo_kernels:
+    #    spiceypy.furnsh(os.path.join(solo_path, kernel))
+    #spiceypy.furnsh(solo_kernels)
     for kernel in generic_kernels:
         spiceypy.furnsh(os.path.join(generic_path, kernel))
 

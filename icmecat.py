@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat.
 # 
-# latest release: version 2.1, 2021 November 29, updated 2023 August TBD
+# latest release: version 2.1, 2021 November 29, updated 2023 TBD
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -33,12 +33,15 @@
 # 
 # **ISSUES**
 # 
-# - use new positions file created by positions.ipynb for making the plots
+# - west,north,east,south indicators better onto the plot position and not in the axis
+# - time on the positions plot is not exactly (but should within 10 min) the time of the positions shown, should not make a difference; the position on the plots taken from the positions file is not exactly similar to the position in the catalog taken from the data (check for different kernels, correct for PSP, not for SolO)
+# - STEREO A beacon data (used from 2023 Jan 1 onwards) contain a few plasma 0s instead of nan
+# - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 
-# In[13]:
+# In[79]:
 
 
-last_update='2023-August-TBD'
+last_update='2023-September-2'
 
 debug_mode=1
 
@@ -51,11 +54,10 @@ create_indices=0
 used=8 
 #which plots to make
 solo_plots=0
-bepi_plots=1
+bepi_plots=0
+psp_plots=1
 wind_plots=0
-psp_plots=0
 sta_plots=0
-
 
 
 import os
@@ -148,7 +150,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[2]:
+# In[80]:
 
 
 # the positions file is generated with positions.ipynb, and the positions from messenger, ulysses and stereob are taken from an older file
@@ -157,25 +159,11 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 if make_positions > 0:
 
     t0 = time.time()
-    #get uly stb and messenger from this file 
-    [dum1, dum2, dum3, dum4, p_stb, p_mes, p_uly, dum5, dum6, dum7, dum8,dum9,dum10,dum11,dum12,dumframe]=pickle.load( open( 'results/positions/positions_for_stb_uly_mes_HEEQ_1hour.p', "rb" ) )
     
-    #change old matplotlib date to datetime objects, and make angles in degrees    
-    p_stb_new = np.zeros(np.size(p_stb),dtype=[('time',object),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
-    p_stb_new = p_stb_new.view(np.recarray)        
-    p_stb_new.time = p_stb.time + mdates.date2num(np.datetime64('0000-12-31'))
-    p_stb_new.x=p_stb.x
-    p_stb_new.y=p_stb.y
-    p_stb_new.z=p_stb.z    
-    p_stb_new.r=p_stb.r   
-    #p_stb_new.lat=np.rad2deg(p_stb.lat)
-    #p_stb_new.lon=np.rad2deg(p_stb.lon)
-    p_stb_new.lat=p_stb.lat
-    p_stb_new.lon=p_stb.lon
+    #get uly and messenger from this file 
+    [dum1, dum2, dum3, dum4, dum41, p_mes, p_uly, dum5, dum6, dum7, dum8,dum9,dum10,dum11,dum12,dumframe]=pickle.load( open( 'results/positions/positions_for_stb_uly_mes_HEEQ_1hour.p', "rb" ) )
 
-    
-    
-    #!!!!!!!! alternatively: get the position of ulysses and messenger from the in situ data files
+    #alternatively: get the position of ulysses and messenger from the in situ data files
     
             
     #change old matplotlib date to datetime objects, and make angles in degrees    
@@ -205,8 +193,6 @@ if make_positions > 0:
     #p_mes_new.time = [ t_start + datetime.timedelta(minutes=1*n) for n in range(int (((t_end - t_start).days+1)*60*24))]  
     #p_mes_new.time = np.interp(p_mes., bepi_raw.time, bepi_raw.bx)
     
-
-
     p_mes_new.x=p_mes.x
     p_mes_new.y=p_mes.y
     p_mes_new.z=p_mes.z    
@@ -217,54 +203,14 @@ if make_positions > 0:
     p_mes_new.lon=p_mes.lon
     
     
-    
-    
     #get new spacecraft positions from a pickle file that has been done with positions.ipynb file    
-    [p_psp, p_solo, p_sta, p_bepi, p_l1, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_1hour.p', "rb" ) )
-
-    p_psp.time=mdates.date2num(p_psp.time)
-    p_solo.time=mdates.date2num(p_solo.time)    
-    p_sta.time=mdates.date2num(p_sta.time)
-    p_bepi.time=mdates.date2num(p_bepi.time)
-    p_l1.time=mdates.date2num(p_l1.time)
-    p_earth.time=mdates.date2num(p_earth.time)
-    p_mercury.time=mdates.date2num(p_mercury.time)
-    p_venus.time=mdates.date2num(p_venus.time)
-    p_mars.time=mdates.date2num(p_mars.time)    
-
-    #all angels in radians
+    #use rad file with 1 hour
+    #[p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_1hour_rad.p', "rb" ) )
     
-    p_psp.lat=np.deg2rad(p_psp.lat)
-    p_psp.lon=np.deg2rad(p_psp.lon)
+    #10 min
+    [p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p', "rb" ) )
 
-    p_solo.lat=np.deg2rad(p_solo.lat)
-    p_solo.lon=np.deg2rad(p_solo.lon)
-
-    p_sta.lat=np.deg2rad(p_sta.lat)
-    p_sta.lon=np.deg2rad(p_sta.lon)
-    
-    p_bepi.lat=np.deg2rad(p_bepi.lat)
-    p_bepi.lon=np.deg2rad(p_bepi.lon)
-
-    p_l1.lat=np.deg2rad(p_l1.lat)
-    p_l1.lon=np.deg2rad(p_l1.lon)
-    
-    p_earth.lat=np.deg2rad(p_earth.lat)
-    p_earth.lon=np.deg2rad(p_earth.lon)
-
-    p_mercury.lat=np.deg2rad(p_mercury.lat)
-    p_mercury.lon=np.deg2rad(p_mercury.lon)
-
-    p_venus.lat=np.deg2rad(p_venus.lat)
-    p_venus.lon=np.deg2rad(p_venus.lon)
-        
-    p_mars.lat=np.deg2rad(p_mars.lat)
-    p_mars.lon=np.deg2rad(p_mars.lon)
-
-
-    pos = np.array([p_psp, p_solo, p_sta, p_bepi, p_l1, p_stb_new, p_uly_new, p_mes_new, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune])
-    ## !!!! add name variable for each spacecraft and then read the whole array at once
-    #pos = [p_psp, p_solo, p_sta, p_bepi, p_l1, p_stb_new, p_uly_new, p_mes_new, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune]
+    pos = np.array([p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_uly_new, p_mes_new, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune])
     pickle.dump(pos, open('results/positions/positions_HEEQ_1hr_new.p', 'wb'))
     
     t1 = time.time()
@@ -276,12 +222,10 @@ pos=pickle.load( open( 'results/positions/positions_HEEQ_1hr_new.p', "rb" ) )
 
 print('positions file loaded')
 
-print('!!!!!!!!!!! fix bug in Earth and L1 latitude in positions.ipynb')
-
 
 # ## (1) load data 
 
-# In[3]:
+# In[81]:
 
 
 load_data=1
@@ -370,7 +314,7 @@ if load_data > 0:
     [sta1,hsta1]=pickle.load(open(data_path+filesta1, "rb" ) )  
     
     #beacon data
-    filesta2='stereoa_beacon_last_300days_now.p'
+    filesta2='stereoa_beacon_rtn_last_300days_now.p'
     
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
     #cutoff with end of science data
@@ -475,7 +419,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (2) measure new events with measure.ipynb
 
-# In[4]:
+# In[82]:
 
 
 #for adding Juno
@@ -493,7 +437,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[12]:
+# In[83]:
 
 
 if debug_mode > 0: 
@@ -503,6 +447,7 @@ if debug_mode > 0:
 #master file from 1995 onwards
 ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master.xlsx')
 
+print(len(ic),' events' )
 
 ####### 3a get indices for all spacecraft from excel cat
 stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
@@ -510,6 +455,7 @@ vexi=np.where(ic.sc_insitu == 'VEX')[:][0]
 mesi=np.where(ic.sc_insitu == 'MESSENGER')[:][0]   
 ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]    
 mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
+
 stai=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
 wini=np.where(ic.sc_insitu == 'Wind')[:][0] 
 pspi=np.where(ic.sc_insitu == 'PSP')[:][0]    
@@ -529,6 +475,10 @@ if create_indices > 0:
     hc.create_icme_indices(psp,pspi,ic,'PSP')
     hc.create_icme_indices(sta,stai,ic,'STEREO-A')
     hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
+    
+    #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
+    #hc.create_icme_indices(vex,vexi,ic,'VEX')
+
     
     t1 = time.time()
     print('takes', np.round(t1-t0,2), 'seconds')
@@ -556,7 +506,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[11]:
+# In[94]:
 
 
 ###### 3c make all plots if wanted
@@ -590,13 +540,21 @@ def plot_icmecat_events_multi(i):
     #sc,sci,ic,name needs to change for each event and set before this function is called
     #global: pos, data_path, ic, icplotsdir,data_path,pos
     
-    outer=60*36 #36h
+    outer=60*36 #36h for 1 min resolution
     dayslim=1.5 #36h
 
     if name=='BepiColombo':
         hp.plot_insitu_icmecat_mag(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
                              ic.mo_end_time[sci[i]]+datetime.timedelta(dayslim),name, icplotsdir,ic,sci[i],pos)
+    elif name=='Wind':
+        
+        outer=30*36 #36h for 2 min resolution
+        hp.plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(dayslim),name, icplotsdir,ic,sci[i],pos)
+
+        
     else:    
         hp.plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
@@ -712,7 +670,7 @@ print(' ')
 print('----------')
 t1plot = time.time()
 all_plot_time=np.round(t1plot-t0plot,2)
-print('all plotting takes', np.round(multi_time/60,2), 'minutes')  
+print('all plotting takes', np.round(all_plot_time/60,2), 'minutes')  
 
 
 #mag only
@@ -739,17 +697,48 @@ print('done')
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
+# In[43]:
+
+
+###### 3c make all plots if wanted
+#if debug_mode > 0: 
+#    importlib.reload(hc) 
+#    importlib.reload(hp)
+
+#matplotlib.use('Agg')
+#with single processing for the older missions:
+#hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir, data_path, pos)
+#finished missions
+#mag only
+#hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir,data_path,pos)
+#hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir, data_path,pos)
+#mag and plasma
+
+#hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir,data_path, pos)
+#hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir,data_path, pos)
+
+#%matplotlib inline
+
+
 # ### (4) save ICMECAT 
 
 # ### 4a save header
 
-# In[8]:
+# In[44]:
 
 
 ######## sort ICMECAT by date
 
+
 ic = ic.sort_values(by='icme_start_time',ascending=False)
 ic = ic.reset_index(drop=True)
+
+first_date=str(ic['icme_start_time'][len(ic)-1])
+last_date=str(ic['icme_start_time'][0])
+print(last_date[0:7])
+print(first_date[0:7])
+
+print()
 
 #save header and parameters as text file and prepare for html website
 header='ICME CATALOGUE v2.1 \n\n\
@@ -761,7 +750,7 @@ The catalog is available as a python pandas dataframe (pickle), python numpy str
 https://helioforecast.space/icmecat \n\n\
 Number of events in ICMECAT: '+str(len(ic))+' \n\
 ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   \n\
-Time range: January 1995 - July 2023. \n \n\
+Time range: '+first_date[0:7]+' to '+last_date[0:7]+' \n \n\
 Authors: Christian Moestl, E. Weiler, Emma E. Davies, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, \n\
 Austrian Space Weather Office, GeoSphere Austria, Graz, Austria; NASA CCMC, USA.\n\
 Contributors: Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, \n\
@@ -899,7 +888,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[9]:
+# In[45]:
 
 
 ########## python formats
@@ -1075,7 +1064,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[10]:
+# In[46]:
 
 
 #load icmecat as pandas dataframe
@@ -1087,27 +1076,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[11]:
+# In[47]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[12]:
+# In[48]:
 
 
 ic_pandas
 
 
-# In[13]:
+# In[34]:
 
 
 #
 ic_nprec
 
 
-# In[14]:
+# In[35]:
 
 
 ic_nprec.icmecat_id
@@ -1115,7 +1104,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[15]:
+# In[36]:
 
 
 ic=ic_pandas
@@ -1177,7 +1166,7 @@ ax1.xaxis.set_major_formatter(myformat)
 ax1.tick_params(axis="x", labelsize=12)
 ax1.tick_params(axis="y", labelsize=12)
 
-ax1.set_xlim([datetime.datetime(2007,1,1),datetime.datetime.utcnow()])
+ax1.set_xlim([datetime.datetime(2007,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=50)])
 
 
 ax1.set_yticks(np.arange(0,2,0.1))
@@ -1229,20 +1218,20 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[16]:
+# In[37]:
 
 
 #markersize
-ms=25
-ms2=7
+ms=12
+ms2=4
 #alpha
-al=0.7
+al=0.6
 
 sns.set_context("talk")     
 sns.set_style('darkgrid')
 
 ###############################################################################
-fig=plt.figure(3,figsize=(9,9),dpi=200)
+fig=plt.figure(3,figsize=(9,9),dpi=100)
 
 #########################################################################
 ax2=plt.subplot(111,projection='polar')
@@ -1258,22 +1247,43 @@ ax2.scatter(np.radians(ic.mo_sc_long_heeq[istb]),ic.mo_sc_heliodistance[istb],s=
 ax2.scatter(np.radians(ic.mo_sc_long_heeq[imav]),ic.mo_sc_heliodistance	[imav],s=ms,c='orangered', alpha=al)
 ax2.scatter(np.radians(ic.mo_sc_long_heeq[ista]),ic.mo_sc_heliodistance[ista],s=ms,c='red', alpha=al)
 
-ax2.plot(np.radians(ic.mo_sc_long_heeq[ipsp]),ic.mo_sc_heliodistance[ipsp],'s',markersize=ms2, c='black', alpha=1.0)
+ax2.plot(np.radians(ic.mo_sc_long_heeq[ipsp]),ic.mo_sc_heliodistance[ipsp],'o',markersize=ms2, c='black', alpha=al)
 ax2.plot(np.radians(ic.mo_sc_long_heeq[isol]),ic.mo_sc_heliodistance[isol],'s',markersize=ms2, c='black',markerfacecolor='white', alpha=al)
 ax2.plot(np.radians(ic.mo_sc_long_heeq[ibep]),ic.mo_sc_heliodistance[ibep],'s',markersize=ms2, c='darkblue',markerfacecolor='lightgrey', alpha=al)
 
 
 
-ax2.set_ylim([0,1.8])
-ax2.tick_params(labelsize=12,zorder=3)
+
+#ax2.set_yticks(np.arange(0,2,0.1))
+#ax2.tick_params(axis='x',labelsize=15,zorder=3, labelrotation=0)
+#ax2.tick_params(axis='y',labelsize=11,zorder=3, labelrotation=0)
+
+
+fsize=15
+backcolor='black'
+frame='HEEQ'
+plt.rgrids((0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.3,1.6),('0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0','1.3','1.6 AU'),angle=180, fontsize=fsize-4,alpha=0.6, color=backcolor,zorder=5)
+plt.thetagrids(range(0,360,45),(u'0\u00b0',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='left',fontsize=fsize,color=backcolor, zorder=5, alpha=0.9)
+
+ax2.set_ylim([0,1.2])
+ax2.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
+ax2.text(0,1.1,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
+ax2.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)
+    
 
 plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview2.png', dpi=100,bbox_inches='tight')
 
 
+# In[38]:
+
+
+#same for latitude
+
+
 # ## Parameter distribution plots
 
-# In[17]:
+# In[39]:
 
 
 #make distribution plots
@@ -1330,7 +1340,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview3.png', dpi=150,bbox_inches='tight')
 
 
-# In[18]:
+# In[40]:
 
 
 t1all = time.time()
@@ -1343,10 +1353,11 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 
 
 
-# In[ ]:
+# In[20]:
 
 
-
+#check this for pushing the files to figshare
+#https://colab.research.google.com/drive/13CAM8mL1u7ZsqNhfZLv7bNb1rdhMI64d?usp=sharing
 
 
 # In[ ]:

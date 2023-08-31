@@ -12,7 +12,7 @@
 # need to copy kernel files manually to the kernel paths
 # 
 
-# In[16]:
+# In[7]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -107,7 +107,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[8]:
 
 
 if sys.platform == 'linux': 
@@ -175,7 +175,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### OMNI2
 
-# In[5]:
+# In[9]:
 
 
 if debug_mode > 0: 
@@ -201,7 +201,7 @@ hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 
 # ### Wind 
 
-# In[14]:
+# In[12]:
 
 
 print(' ')
@@ -272,7 +272,7 @@ else:
  
 
 
-# In[15]:
+# In[13]:
 
 
 #data checks
@@ -315,7 +315,7 @@ if get_wind > 0:
 # ### Parker Solar Probe
 # 
 
-# In[9]:
+# In[23]:
 
 
 print(' ')
@@ -372,7 +372,7 @@ else:
   
 
 
-# In[10]:
+# In[24]:
 
 
 if get_psp > 0:   
@@ -392,7 +392,7 @@ if get_psp > 0:
 
 # ### Solar Orbiter
 
-# In[11]:
+# In[25]:
 
 
 print(' ')
@@ -409,8 +409,8 @@ solo_file=data_path+'solo_2020_now_rtn.p'
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
-    start_time= datetime(2022,1,25)
-    end_time  = datetime(2022,2,10)
+    start_time= datetime(2023,2,25)
+    end_time  = datetime(2023,3,10)
     solo_file=data_path+'solo_rtn_test.p'
 
 
@@ -423,8 +423,8 @@ if get_solo > 0:
     print(solo_path)
 
     #don't check all years for faster download
-    hd.download_solomag_1min(datetime(2022,1,1),end_time,solo_path)
-    hd.download_soloplas(datetime(2022,1,1),end_time,solo_path)
+    hd.download_solomag_1min(datetime(2023,1,1),end_time,solo_path)
+    hd.download_soloplas(datetime(2023,1,1),end_time,solo_path)
 
     print('process Solar Orbiter to pickle')
     hd.create_solo_pkl(start_time,end_time,solo_file,solo_path,kernels_path)
@@ -439,7 +439,7 @@ else:
     print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[12]:
+# In[22]:
 
 
 if get_solo > 0:  

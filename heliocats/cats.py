@@ -884,20 +884,29 @@ def load_pickle(file):
 def create_icme_indices(sc,sci,ic,name):
 
     # extract indices of ICMEs in the respective data and save
-
+    
     #this is the bottleneck
     sc_numtime=mdates.date2num(sc.time)
 
     sc_icme_start=mdates.date2num(ic.icme_start_time[sci])
     sc_mo_start=mdates.date2num(ic.mo_start_time[sci])
     sc_mo_end=mdates.date2num(ic.mo_end_time[sci])
-
+  
     #search where the minimum is in the array between the given time and the time in the data array
     #this is fast
+    
+    #for i in np.arange(0,len(sc_icme_start)):
+    
+    #     print(np.argmin(abs(sc_icme_start[i]-sc_numtime)))
+    #     print(np.argmin(abs(sc_mo_start[i]-sc_numtime)))
+    #     print(np.argmin(abs(sc_mo_end[i]-sc_numtime)))
+    #     print()
+    
     icme_start_ind=[np.argmin(abs(sc_icme_start[i]-sc_numtime)) for i in np.arange(0,len(sc_icme_start))]
     mo_start_ind=[np.argmin(abs(sc_mo_start[i]-sc_numtime)) for i in np.arange(0,len(sc_mo_end))]
     mo_end_ind=[np.argmin(abs(sc_mo_end[i]-sc_numtime)) for i in np.arange(0,len(sc_mo_end))]
 
+    
     
     fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
     pickle.dump([icme_start_ind, mo_start_ind,mo_end_ind], open(fileind, 'wb'))
@@ -932,9 +941,10 @@ def get_cat_parameters(sc, sci, ic, name):
     if name=='ULYSSES': plasma=True
     if name=='MAVEN': plasma=True
     if name=='PSP': plasma=True
+    if name=='SolarOrbiter': plasma=True    
+    
     if name=='VEX': plasma=False
     if name=='MESSENGER': plasma=False
-    if name=='SolarOrbiter': plasma=False
     if name=='BepiColombo': plasma=False
 
     print('Get parameters for ',name)
@@ -965,6 +975,9 @@ def get_cat_parameters(sc, sci, ic, name):
         sci_iend=mdates.date2num(ic.mo_end_time[sci[i]])   
         ic.at[sci[i],'mo_duration']=np.round((sci_iend-sci_istart)*24,2)      
     
+    
+    
+    #########icme values
 
     for i in np.arange(len(sci))-1:
 
@@ -986,6 +999,9 @@ def get_cat_parameters(sc, sci, ic, name):
         
     if plasma==True:        
         #ICME speed_mean and std
+        
+        ###### check whether all nan values in this interval - set to nan and skip next        
+        
         for i in np.arange(len(sci))-1:
             ic.at[sci[i],'icme_speed_mean']=np.round(np.nanmean(sc.vt[icme_start_ind[i]:mo_end_ind[i]]),1)
             ic.at[sci[i],'icme_speed_std']=np.round(np.nanstd(sc.vt[icme_start_ind[i]:mo_end_ind[i]]),1)            
