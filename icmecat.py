@@ -25,6 +25,7 @@
 # 
 # **Adding a new ICME event:** 
 # - use the notebook data_update_web_science.ipynb in this package to create pickle files for new science data. The current data can be found on figshare.
+# - the solar orbiter kernel should be manually updated with every icmecat update
 # - use measure.ipynb to manually derive the 3 times for each ICME event
 # - manually edit the file icmecat/HELCATS_ICMECAT_v21_master.xlsx to add 3 times for each event, the event id and spacecraft name
 # - set the switch to create_indices greater 0 and the indices will be redone for the new events so the script quickly loads the info where the ICMEs are in the data files
@@ -34,14 +35,13 @@
 # **ISSUES**
 # 
 # - west,north,east,south indicators better onto the plot position and not in the axis
-# - time on the positions plot is not exactly (but should within 10 min) the time of the positions shown, should not make a difference; the position on the plots taken from the positions file is not exactly similar to the position in the catalog taken from the data (check for different kernels, correct for PSP, not for SolO)
 # - STEREO A beacon data (used from 2023 Jan 1 onwards) contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 
-# In[79]:
+# In[1]:
 
 
-last_update='2023-September-2'
+last_update='2023-September-1'
 
 debug_mode=1
 
@@ -53,11 +53,11 @@ create_indices=0
 #define number of processes for plotting
 used=8 
 #which plots to make
-solo_plots=0
-bepi_plots=0
+solo_plots=1
+bepi_plots=1
 psp_plots=1
-wind_plots=0
-sta_plots=0
+wind_plots=1
+sta_plots=1
 
 
 import os
@@ -150,7 +150,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[80]:
+# In[13]:
 
 
 # the positions file is generated with positions.ipynb, and the positions from messenger, ulysses and stereob are taken from an older file
@@ -211,21 +211,21 @@ if make_positions > 0:
     [p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p', "rb" ) )
 
     pos = np.array([p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_uly_new, p_mes_new, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune])
-    pickle.dump(pos, open('results/positions/positions_HEEQ_1hr_new.p', 'wb'))
+    pickle.dump(pos, open('results/positions/positions_HEEQ_10min_new.p', 'wb'))
     
     t1 = time.time()
     print('making positions takes', int(np.round(t1-t0,0)), 'seconds')
     print('merged positions file made')
     
 
-pos=pickle.load( open( 'results/positions/positions_HEEQ_1hr_new.p', "rb" ) )
+pos=pickle.load( open( 'results/positions/positions_HEEQ_10min_new.p', "rb" ) )
 
 print('positions file loaded')
 
 
 # ## (1) load data 
 
-# In[81]:
+# In[3]:
 
 
 load_data=1
@@ -419,7 +419,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (2) measure new events with measure.ipynb
 
-# In[82]:
+# In[4]:
 
 
 #for adding Juno
@@ -437,7 +437,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[83]:
+# In[7]:
 
 
 if debug_mode > 0: 
@@ -506,7 +506,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[94]:
+# In[8]:
 
 
 ###### 3c make all plots if wanted
@@ -543,8 +543,8 @@ def plot_icmecat_events_multi(i):
     outer=60*36 #36h for 1 min resolution
     dayslim=1.5 #36h
 
-    if name=='BepiColombo':
-        hp.plot_insitu_icmecat_mag(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
+    if name=='BepiColombo': #if you want to make different plots for Bepi, they are now set similar to the others
+        hp.plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
                              ic.mo_end_time[sci[i]]+datetime.timedelta(dayslim),name, icplotsdir,ic,sci[i],pos)
     elif name=='Wind':
@@ -697,7 +697,7 @@ print('done')
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[43]:
+# In[7]:
 
 
 ###### 3c make all plots if wanted
@@ -724,7 +724,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[44]:
+# In[8]:
 
 
 ######## sort ICMECAT by date
@@ -888,7 +888,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[45]:
+# In[9]:
 
 
 ########## python formats
@@ -1064,7 +1064,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[46]:
+# In[10]:
 
 
 #load icmecat as pandas dataframe
@@ -1076,27 +1076,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[47]:
+# In[11]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[48]:
+# In[12]:
 
 
 ic_pandas
 
 
-# In[34]:
+# In[13]:
 
 
 #
 ic_nprec
 
 
-# In[35]:
+# In[14]:
 
 
 ic_nprec.icmecat_id
@@ -1104,7 +1104,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[36]:
+# In[15]:
 
 
 ic=ic_pandas
@@ -1145,12 +1145,12 @@ ax1.plot_date(ic_mo_start_time_num[imes],ic.mo_sc_heliodistance[imes],'o',c='cor
 ax1.plot_date(ic_mo_start_time_num[ivex],ic.mo_sc_heliodistance[ivex],'o',c='orange', alpha=al,ms=ms)
 ax1.plot_date(ic_mo_start_time_num[istb],ic.mo_sc_heliodistance[istb],'o',c='royalblue', alpha=al,ms=ms)
 ax1.plot_date(ic_mo_start_time_num[iwin],ic.mo_sc_heliodistance[iwin],'o',c='mediumseagreen', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[imav],ic.mo_sc_heliodistance[imav],'s',c='orangered', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[imav],ic.mo_sc_heliodistance[imav],'o',c='orangered', alpha=al,ms=ms)
 ax1.plot_date(ic_mo_start_time_num[ista],ic.mo_sc_heliodistance[ista],'o',c='red', alpha=al,ms=ms)
 
 ax1.plot_date(ic_mo_start_time_num[ipsp],ic.mo_sc_heliodistance[ipsp],'o',c='black', alpha=al,ms=ms)
 ax1.plot_date(ic_mo_start_time_num[isol],ic.mo_sc_heliodistance[isol],'o',c='black',markerfacecolor='white', alpha=1.0,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[ibep],ic.mo_sc_heliodistance[ibep],'s',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ibep],ic.mo_sc_heliodistance[ibep],'o',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms)
 
 
 
@@ -1186,13 +1186,13 @@ ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c='royalblue', alpha
 ax3.plot(ic.mo_sc_heliodistance[imes],ic.mo_bmean[imes],'o',c='coral', alpha=al,ms=ms,label='MESSENGER')
 ax3.plot(ic.mo_sc_heliodistance[ivex],ic.mo_bmean[ivex],'o',c='orange', alpha=al,ms=ms,label='Venus Express')
 ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c='brown', alpha=al,ms=ms, label='Ulysses')
-ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'s',c='orangered', alpha=al,ms=ms, label='MAVEN')
+ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'o',c='orangered', alpha=al,ms=ms, label='MAVEN')
 
 
 
 ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c='red', alpha=al,ms=ms, label='STEREO-A')
 ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c='mediumseagreen', alpha=al,ms=ms,label='Wind at L1')
-ax3.plot(ic.mo_sc_heliodistance[ibep],ic.mo_bmean[ibep],'s',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms,label='Bepi Colombo')
+ax3.plot(ic.mo_sc_heliodistance[ibep],ic.mo_bmean[ibep],'o',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms,label='Bepi Colombo')
 ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c='black', alpha=al,ms=ms, label='Parker Solar Probe',zorder=3)
 ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c='black', markerfacecolor='white',alpha=al,ms=ms, label='Solar Orbiter',zorder=3)
 
@@ -1218,12 +1218,12 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
 
 
-# In[37]:
+# In[16]:
 
 
 #markersize
 ms=12
-ms2=4
+ms2=5
 #alpha
 al=0.6
 
@@ -1248,8 +1248,8 @@ ax2.scatter(np.radians(ic.mo_sc_long_heeq[imav]),ic.mo_sc_heliodistance	[imav],s
 ax2.scatter(np.radians(ic.mo_sc_long_heeq[ista]),ic.mo_sc_heliodistance[ista],s=ms,c='red', alpha=al)
 
 ax2.plot(np.radians(ic.mo_sc_long_heeq[ipsp]),ic.mo_sc_heliodistance[ipsp],'o',markersize=ms2, c='black', alpha=al)
-ax2.plot(np.radians(ic.mo_sc_long_heeq[isol]),ic.mo_sc_heliodistance[isol],'s',markersize=ms2, c='black',markerfacecolor='white', alpha=al)
-ax2.plot(np.radians(ic.mo_sc_long_heeq[ibep]),ic.mo_sc_heliodistance[ibep],'s',markersize=ms2, c='darkblue',markerfacecolor='lightgrey', alpha=al)
+ax2.plot(np.radians(ic.mo_sc_long_heeq[isol]),ic.mo_sc_heliodistance[isol],'o',markersize=ms2, c='black',markerfacecolor='white', alpha=al)
+ax2.plot(np.radians(ic.mo_sc_long_heeq[ibep]),ic.mo_sc_heliodistance[ibep],'o',markersize=ms2, c='darkblue',markerfacecolor='lightgrey', alpha=al)
 
 
 
@@ -1275,7 +1275,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview2.png', dpi=100,bbox_inches='tight')
 
 
-# In[38]:
+# In[17]:
 
 
 #same for latitude
@@ -1283,7 +1283,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=100,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[39]:
+# In[18]:
 
 
 #make distribution plots
@@ -1340,7 +1340,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_overview3.png', dpi=150,bbox_inches='tight')
 
 
-# In[40]:
+# In[19]:
 
 
 t1all = time.time()

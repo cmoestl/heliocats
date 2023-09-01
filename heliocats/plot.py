@@ -1538,7 +1538,7 @@ def plot_icmecat_positions_mag(time_date1,frame,ax,pos):
     
 
 
-def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos):
+def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     
     sns.set_style('darkgrid')
     sns.set_context('paper')    
@@ -1632,7 +1632,7 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos):
     ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_planet, c='mediumseagreen', alpha=1,lw=0,zorder=3)    
     #ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
 
-    
+        
     #text thats always there on the plot
     ax.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
     ax.text(0,earth.r[earth_timeind]+0.12,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
@@ -1663,10 +1663,15 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos):
     earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{0.0:8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
     f10=plt.figtext(xset1,yset-ydiff*1,earth_text, fontsize=fsize, ha='left',color='mediumseagreen')
     
+    
+     #make a ring around if its the active spacecraft
+    if name=='Wind':
+               ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), marker='o',s=350, zorder=4,edgecolors='black',facecolors='none')
+
+    
     mars_text='Mars:  '+str(f'{mars.r[mars_timeind]:6.2f}')+str(f'{np.rad2deg(mars.lon[mars_timeind]):8.1f}')+str(f'{np.rad2deg(mars.lat[mars_timeind]):8.1f}')
     f9=plt.figtext(xset1,yset-ydiff*2,mars_text, fontsize=fsize, ha='left',c='tomato')
 
-    
     #stereo-a    
     if time1>mdates.date2num(datetime.datetime(2007,1,1)):        
 
@@ -1680,6 +1685,12 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos):
 
         #plot stereo hi fov
         plot_stereo_hi_fov(sta,time1, sta_timeind, ax,'A')
+        
+        #make a ring around if its the active spacecraft
+        if name=='STEREO-A':
+               ax.scatter(sta.lon[sta_timeind], sta.r[sta_timeind]*np.cos(sta.lat[sta_timeind]), marker='o',s=350, zorder=4,edgecolors='black',facecolors='none')
+
+        
 
         if plot_orbit: 
             ax.plot(sta.lon[earth_timeind:earth_timeind+fadeind], sta.r[earth_timeind:earth_timeind+fadeind]*np.cos(sta.lat[earth_timeind:earth_timeind+fadeind]), c='red', alpha=0.6,lw=1,zorder=3)
@@ -1694,6 +1705,12 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos):
         f5=plt.figtext(xset2,yset-ydiff*1,psp_text, fontsize=fsize, ha='left',color=psp_color)
         plt.text(psp.lon[psp_timeind]-0.15,psp.r[psp_timeind],'Parker Solar Probe', color='black', ha='center',fontsize=fsize-4,verticalalignment='top')
 
+        #make a ring around if its the active spacecraft
+        if name=='PSP':
+               ax.scatter(psp.lon[psp_timeind], psp.r[psp_timeind]*np.cos(psp.lat[psp_timeind]), marker='o',s=350, zorder=4,edgecolors='black',facecolors='none')
+
+        
+        
         if plot_orbit: 
             ax.plot(psp.lon[psp_timeind:psp_timeind+fadeind], psp.r[psp_timeind:psp_timeind+fadeind]*np.cos(psp.lat[psp_timeind:psp_timeind+fadeind]), c=psp_color, alpha=0.6,lw=1,zorder=3)
 
@@ -1703,7 +1720,14 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos):
         ax.scatter(bepi.lon[bepi_timeind], bepi.r[bepi_timeind]*np.cos(bepi.lat[bepi_timeind]), s=symsize_spacecraft, c=bepi_color, marker='s', alpha=1,lw=0,zorder=3)
         bepi_text='Bepi:   '+str(f'{bepi.r[bepi_timeind]:6.2f}')+str(f'{np.rad2deg(bepi.lon[bepi_timeind]):8.1f}')+str(f'{np.rad2deg(bepi.lat[bepi_timeind]):8.1f}')
         f6=plt.figtext(xset2,yset-ydiff*2,bepi_text, fontsize=fsize, ha='left',color=bepi_color)
-        plt.text(bepi.lon[bepi_timeind]-0.15,bepi.r[bepi_timeind],'Bepi Colombo', color='blue', ha='center',fontsize=fsize-4,verticalalignment='top')
+        plt.text(bepi.lon[bepi_timeind]-0.15,bepi.r[bepi_timeind],'BepiColombo', color='blue', ha='center',fontsize=fsize-4,verticalalignment='top')
+        
+        
+        #make a ring around if its the active spacecraft
+        if name=='BepiColombo':
+               ax.scatter(bepi.lon[bepi_timeind], bepi.r[bepi_timeind]*np.cos(bepi.lat[bepi_timeind]), marker='o',s=350, zorder=4,edgecolors='black',facecolors='none')
+
+        
   
         if plot_orbit: 
             ax.plot(bepi.lon[bepi_timeind:bepi_timeind+fadeind], bepi.r[bepi_timeind:bepi_timeind+fadeind]*np.cos(bepi.lat[bepi_timeind:bepi_timeind+fadeind]), c=bepi_color, alpha=0.6,lw=1,zorder=3)
@@ -1715,6 +1739,11 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos):
         solo_text='SolO:  '+str(f'{solo.r[solo_timeind]:6.2f}')+str(f'{np.rad2deg(solo.lon[solo_timeind]):8.1f}')+str(f'{np.rad2deg(solo.lat[solo_timeind]):8.1f}')
         f7=plt.figtext(xset2,yset-ydiff*3,solo_text, fontsize=fsize, ha='left',color=solo_color)
         plt.text(solo.lon[solo_timeind]-0.15,solo.r[solo_timeind],'Solar Orbiter', color='green', ha='center',fontsize=fsize-4,verticalalignment='top')
+        
+        #make a ring around if its the active spacecraft
+        if name=='SolarOrbiter':
+               ax.scatter(solo.lon[solo_timeind], solo.r[solo_timeind]*np.cos(solo.lat[solo_timeind]), marker='o',s=350, zorder=4,edgecolors='black',facecolors='none')
+
 
         if plot_orbit: 
             ax.plot(solo.lon[solo_timeind:solo_timeind+fadeind], solo.r[solo_timeind:solo_timeind+fadeind]*np.cos(solo.lat[solo_timeind:solo_timeind+fadeind]), c=solo_color, alpha=0.6,lw=1,zorder=3)
@@ -1765,7 +1794,12 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos):
     
     
     ########### time
-    plt.figtext(0.50,0.08,time_date1.strftime("%Y %B %d  %H:%M")+' UT',fontsize=fsize, ha='left',c='black')
+    #this is the icme_start_time
+    #plt.figtext(0.50,0.08,time_date1.strftime("%Y %B %d  %H:%M")+' UT',fontsize=fsize, ha='left',c='black')
+
+    #this is the time thats used from the positions file for Earth
+    plt.figtext(0.50,0.08,mdates.num2date(earth.time[earth_timeind]).strftime("%Y %B %d  %H:%M")+' UT',fontsize=fsize, ha='left',c='black')
+
     
     ########## legend    
     plt.figtext(0.99,0.01,'helioforecast.space   Austrian Space Weather Office   GeoSphere Austria', color='black', ha='right',fontsize=fsize-9)
@@ -1818,7 +1852,7 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
         
      fs=13
 
-     fig=plt.figure(1,figsize=(16,10), dpi=100)    
+     fig=plt.figure(1,figsize=(16,10), dpi=150)    
        
      ax1 = plt.subplot2grid((4,2), (0, 0))
      
@@ -1838,8 +1872,6 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
      ax1.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[-2000,2000],'-k',linewidth=1)            
      ax1.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[-2000,2000],'-k',linewidth=1)            
        
-        
-        
         
      coord_string='RTN'   
     
@@ -1928,9 +1960,9 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
         
 
      #plot vertical lines
-     ax4.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,10],'-k',linewidth=1)            
-     ax4.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,10],'-k',linewidth=1)            
-     ax4.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,10],'-k',linewidth=1)            
+     ax4.plot_date([ic.icme_start_time[i],ic.icme_start_time[i]],[0,100],'-k',linewidth=1)            
+     ax4.plot_date([ic.mo_start_time[i],ic.mo_start_time[i]],[0,100],'-k',linewidth=1)            
+     ax4.plot_date([ic.mo_end_time[i],ic.mo_end_time[i]],[0,100],'-k',linewidth=1)            
      ax4.set_ylabel('T [MK]', fontsize=fs)
      ax4.set_xlim(start,end)
      ax4.set_ylim(0,1)   
@@ -1946,24 +1978,28 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
      ################positions plot
      ax5 = plt.subplot2grid((4,2), (0, 1), rowspan=4, projection='polar')
 
-     plot_icmecat_positions_mag_plasma(ic.icme_start_time[i],'HEEQ',ax5,pos)
+     plot_icmecat_positions_mag_plasma(ic.icme_start_time[i],'HEEQ',ax5,pos,sc_label)
     
         
         
      if sc_label=='PSP': 
-        plt.figtext(0.5,0.01,'Data source: Parker Solar Probe (FIELDS, UCB, SWEAP, UMich)',fontsize=10, ha='left',color='black')
+        plt.figtext(0.5,0.03,'Data source: Parker Solar Probe (FIELDS, UCBerkeley; SWEAP, UMich)',fontsize=11, ha='left',color='black')
        
      if sc_label=='STEREO-A': 
-        plt.figtext(0.5,0.01,'Data source: STEREO-Ahead (IMPACT, UCB, PLASTIC, UNH)',fontsize=10, ha='left',color='black')
+        plt.figtext(0.5,0.03,'Data source: STEREO-Ahead (IMPACT, UCBerkeley; PLASTIC, UNH)',fontsize=11, ha='left',color='black')
 
      if sc_label=='STEREO-B': 
-        plt.figtext(0.5,0.01,'Data source: STEREO-Behind (IMPACT, UCB, PLASTIC, UNH)',fontsize=10, ha='left',color='black')
+        plt.figtext(0.5,0.03,'Data source: STEREO-Behind (IMPACT, UCBerkeley; PLASTIC, UNH)',fontsize=11, ha='left',color='black')
         
      if sc_label=='Wind': 
-        plt.figtext(0.5,0.01,'Data source: Wind (MFI, SWE, NASA/Goddard)',fontsize=10, ha='left',color='black')
+        plt.figtext(0.5,0.03,'Data source: Wind (MFI, SWE, NASA/Goddard)',fontsize=11, ha='left',color='black')
 
      if sc_label=='SolarOrbiter': 
-        plt.figtext(0.5,0.03,'Data source: Solar Orbiter MAG Imperial College, SWA  University College London',fontsize=13, ha='left',color='black')
+        plt.figtext(0.5,0.03,'Data source: Solar Orbiter (MAG, Imperial College; SWA, University College London)',fontsize=11, ha='left',color='black')
+        
+     if sc_label=='BepiColombo': 
+        plt.figtext(0.5,0.03,'Data source: BepiColombo MPO-MAG (IGEP/IWF/ISAS/IC)',fontsize=11, ha='left',color='black')
+  
         
      plt.tight_layout()
      #plt.show()
@@ -3174,7 +3210,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
         
      
 
-def plot_positions_new(time_date1, path,frame, **kwargs):
+def _new(time_date1, path,frame, **kwargs):
     '''
     sc = data
     this takes the numeric positions fiel

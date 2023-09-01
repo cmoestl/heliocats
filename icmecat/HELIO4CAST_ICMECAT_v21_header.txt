@@ -14,8 +14,8 @@ Number of events in ICMECAT: 1252
 ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   
 Time range: 1995-02 to 2023-08 
  
-Authors: Christian Moestl, E. Weiler, Emma E. Davies, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, 
-Austrian Space Weather Office, GeoSphere Austria, Graz, Austria; NASA CCMC, USA.
+Authors: Christian Moestl, Eva Weiler, Emma E. Davies, Rachel L. Bailey, Martin A. Reiss, Andreas J. Weiss 
+(1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria. (2) Conrad Observatory, GeoSphere Austria, Vienna, Austria. (3) NASA CCMC, USA. (4) NASA GSFC, USA.
 Contributors: Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, 
 Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, 
 Johan von Forstner, Mateja Dumbovic, Benoit Lavraud.  
@@ -30,19 +30,19 @@ in RTN coordinates that are not used for producing the catalog, can be downloade
 
 The python source code for producing this catalog is available at https://github.com/cmoestl/heliocats icmecat.ipynb
 
-Each event has unique identifier - the icmecat_id - which has a tag in it that indicates from which catalog the ICME times were taken: 
+Each event has unique identifier - the icmecat_id - which has a tag in it that indicates from which catalog the ICME times were taken, 
+or if they were included in the catalog by ourselves, as identified by Christian Möstl or Eva Weiler.  
 
-Wind:         Nieves-Chinchilla et al. (2018), tag: NASA. 
-STEREO-A:     Jian et al. (2018), tag: JIAN. 
-STEREO-B:     Jian et al. (2018), tag: JIAN. 
-VEX:          Good et al. (2018), tag: SGOOD 
-MESSENGER:    Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW. 
-MAVEN:        Made by us according to the method in the comments, tag: MOESTL.
-Ulysses:      Added by us, tag: MOESTL. 
-SolarOrbiter: Added by us, tag: MOESTL. 
-BepiColomo:   Added by us, tag: MOESTL. 
-PSP:          Added by us, tag: MOESTL. 
-
+Solar Orbiter: Added by us, tag: MOESTL 
+Parker Solar Probe: Added by us, tag: MOESTL 
+BepiColombo: Added by us, tag: MOESTL 
+Wind: Nieves-Chinchilla et al. (2018), tags: NASA, MOESTL, WEILER 
+STEREO-A: Jian et al. (2018), tags: JIAN, MOESTL, WEILER 
+STEREO-B: Jian et al. (2018), tags: JIAN 
+VEX: Good et al. (2018), tag: SGOOD or MOESTL 
+MESSENGER: Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW, MOESTL 
+MAVEN: Made by us according to the method in the comments, tag: MOESTL 
+Ulysses: Added by us, tag: MOESTL 
 We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL or MOESTL_SALMAN in icmecat_id).
 
 References: 
@@ -58,7 +58,9 @@ Comments:
 
 - Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. 
 
-- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth) and Ulysses (RTN, because of high latitude positions) and MAVEN (MSO). 
+- - The coordinate system for all magnetic field components is RTN, except for MESSENGER (SCEQ), VEX (SCEQ), STEREO-B (SCEQ), and MAVEN (MSO).  
+There are some legacy data files for the older spacecraft available in SCEQ. The difference to results for RTN in all parameters is usually very small.  
+
         Definition of SpaceCraft Equatorial Coordinates (SCEQ): 
         Z is the solar rotation axis. 
         Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.
@@ -67,11 +69,9 @@ This system is thus like HEEQ but centered on the respective in situ spacecraft,
 base vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.
 The Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors 
 are rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within 
-a few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).
-We choose SCEQ for the advantage that a comparison of the data of multipoint CME events 
-and comparisons to simulations are simpler because there is always a similar reference plane (the solar equatorial plane).
+a few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually). However, since 2023 September 1 most parameters are given in the RTN system. 
 
-- Venus Express and MESSENGER do not have plasma parameters available. For events that do not have plasma parameters at Solar Orbiter or PSP, they may become available in the future.
+- Venus Express, MESSENGER, and BepiColombo do not have plasma parameters available.
 
 - If there is no sheath or density pileup region, so the ICME starts immediately with a magnetic obstacle, the icme_start_time is similar to mo_start_time.
 
