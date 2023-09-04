@@ -34,11 +34,12 @@
 # 
 # **ISSUES**
 # 
-# - west,north,east,south indicators better onto the plot position and not in the axis
+# - west, north, east, south indicators better onto the plot position and not in the axis
 # - STEREO A beacon data (used from 2023 Jan 1 onwards) contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
+# - for adding Juno data the pickle file needs to be made for the data
 
-# In[47]:
+# In[53]:
 
 
 last_update='2023-September-1'
@@ -250,13 +251,14 @@ if load_data > 0:
     filestb='stereob_2007_2014_sceq.p'
     [stb,hstb]=pickle.load(open(data_path+filestb, "rb" ) )      
     
-    print('load Juno data ') #from Emma Davies https://doi.org/10.6084/m9.figshare.19517257.v1
-    hd.convert_juno_data(data_path)
-    filejuno='juno_2011_2016_rtn.p'
-    juno=pickle.load(open(data_path+filejuno, "rb" ) )   
+    
+    #TBD
+    #print('load Juno data ') #from Emma Davies https://doi.org/10.6084/m9.figshare.19517257.v1
+    #hd.convert_juno_data(data_path)
+    #filejuno='juno_2011_2016_rtn.p'
+    #juno=pickle.load(open(data_path+filejuno, "rb" ) )   
     
     
-
     
 
     ########### CURRENT ACTIVE SPACECRAFT    
@@ -431,7 +433,7 @@ if debug_mode > 0:
     importlib.reload(hc) 
     importlib.reload(hp)
 
-#master file from 1995 onwards
+#master file
 ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master.xlsx')
 
 print(len(ic),' events' )
@@ -442,6 +444,8 @@ vexi=np.where(ic.sc_insitu == 'VEX')[:][0]
 mesi=np.where(ic.sc_insitu == 'MESSENGER')[:][0]   
 ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]    
 mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
+juni=np.where(ic.sc_insitu == 'Juno')[:][0]  
+
 
 stai=np.where(ic.sc_insitu == 'STEREO-A')[:][0]    
 wini=np.where(ic.sc_insitu == 'Wind')[:][0] 
@@ -465,6 +469,7 @@ if create_indices > 0:
     
     #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
     #hc.create_icme_indices(vex,vexi,ic,'VEX')
+    #hc.create_icme_indices(juno,juni,ic,'Juno')
 
     
     t1 = time.time()

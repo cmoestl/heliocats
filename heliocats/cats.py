@@ -946,6 +946,7 @@ def get_cat_parameters(sc, sci, ic, name):
     if name=='VEX': plasma=False
     if name=='MESSENGER': plasma=False
     if name=='BepiColombo': plasma=False
+    if name=='Juno': plasma=False
 
     print('Get parameters for ',name)
     

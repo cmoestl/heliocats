@@ -10,8 +10,8 @@ References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017
 The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at 
 https://helioforecast.space/icmecat 
 
-Number of events in ICMECAT: 1252 
-ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   
+Number of events in ICMECAT: 1286 
+ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, Juno, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   
 Time range: 1995-02 to 2023-08 
  
 Authors: Christian Moestl, Eva Weiler, Emma E. Davies, Rachel L. Bailey, Martin A. Reiss, Andreas J. Weiss 
@@ -38,6 +38,7 @@ Parker Solar Probe: Added by us, tag: MOESTL
 BepiColombo: Added by us, tag: MOESTL 
 Wind: Nieves-Chinchilla et al. (2018), tags: NASA, MOESTL, WEILER 
 STEREO-A: Jian et al. (2018), tags: JIAN, MOESTL, WEILER 
+Juno: Davies et al. (2022), tags: DAVIES 
 STEREO-B: Jian et al. (2018), tags: JIAN 
 VEX: Good et al. (2018), tag: SGOOD or MOESTL 
 MESSENGER: Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW, MOESTL 
@@ -50,7 +51,8 @@ Nieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z
                                       https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php 
 Jian, L. et al. (2018), https://doi.org/10.3847/1538-4357/aab189 
                         https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/ 
-Good, S. et al. (2018) https://doi.org/10.1007/s11207-015-0828-3 
+Good, S. et al. (2018), https://doi.org/10.1007/s11207-015-0828-3 
+Davies, E. E., et al., (2022) https://iopscience.iop.org/article/10.3847/1538-4357/ac731a   
 Winslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 
 
 
@@ -58,7 +60,7 @@ Comments:
 
 - Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. 
 
-- - The coordinate system for all magnetic field components is RTN, except for MESSENGER (SCEQ), VEX (SCEQ), STEREO-B (SCEQ), and MAVEN (MSO).  
+- - The coordinate system for all magnetic field components is RTN, except for MESSENGER (SCEQ), VEX (SCEQ), and MAVEN (MSO).  
 There are some legacy data files for the older spacecraft available in SCEQ. The difference to results for RTN in all parameters is usually very small.  
 
         Definition of SpaceCraft Equatorial Coordinates (SCEQ): 
@@ -69,9 +71,9 @@ This system is thus like HEEQ but centered on the respective in situ spacecraft,
 base vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.
 The Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors 
 are rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within 
-a few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually). However, since 2023 September 1 most parameters are given in the RTN system. 
+a few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually). 
 
-- Venus Express, MESSENGER, and BepiColombo do not have plasma parameters available.
+- Venus Express, Juno, MESSENGER, and BepiColombo do not have plasma parameters available.
 
 - If there is no sheath or density pileup region, so the ICME starts immediately with a magnetic obstacle, the icme_start_time is similar to mo_start_time.
 
