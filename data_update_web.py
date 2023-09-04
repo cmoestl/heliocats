@@ -13,8 +13,11 @@
 # 
 # for updating data every day on the servers
 # 
+# Issues:
+# 
+# 
 
-# In[8]:
+# In[1]:
 
 
 #switches

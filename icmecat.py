@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat.
 # 
-# latest release: version 2.1, 2021 November 29, updated 2023 TBD
+# latest release: version 2.1, 2021 November 29, updated 2023 September 1
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -38,7 +38,7 @@
 # - STEREO A beacon data (used from 2023 Jan 1 onwards) contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 
-# In[1]:
+# In[47]:
 
 
 last_update='2023-September-1'
@@ -150,7 +150,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[13]:
+# In[2]:
 
 
 # the positions file is generated with positions.ipynb, and the positions from messenger, ulysses and stereob are taken from an older file
@@ -225,7 +225,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[3]:
+# In[4]:
 
 
 load_data=1
@@ -250,9 +250,12 @@ if load_data > 0:
     filestb='stereob_2007_2014_sceq.p'
     [stb,hstb]=pickle.load(open(data_path+filestb, "rb" ) )      
     
-    #use pickle5 to read
-    #print('load Juno data ') #Emma Davies https://figshare.com/articles/dataset/Juno_Cruise_Phase_Magnetometer_and_Position_Data/19517257
-    #juno_df = pd.read_pickle(data_path+'juno_2011_2016_rtn.pkl') 
+    print('load Juno data ') #from Emma Davies https://doi.org/10.6084/m9.figshare.19517257.v1
+    hd.convert_juno_data(data_path)
+    filejuno='juno_2011_2016_rtn.p'
+    juno=pickle.load(open(data_path+filejuno, "rb" ) )   
+    
+    
 
     
 
@@ -419,25 +422,9 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (2) measure new events with measure.ipynb
 
-# In[4]:
-
-
-#for adding Juno
-#junocat='data/HELIO4CAST_ICMECAT_juno_davies_chris.csv'
-
-#jc=pd.read_csv(junocat)
-
-#convert all times to datetime objects
-#for i in np.arange(0,ic.shape[0]):    
-#remove leading and ending blank spaces if any and write datetime object into dataframe
-#        ic.at[i,'icme_start_time']= parse_time(str(ic.icme_start_time[i]).strip()).datetime 
-#        ic.at[i,'mo_start_time']=parse_time(str(ic.mo_start_time[i]).strip()).datetime
-#        ic.at[i,'mo_end_time']=parse_time(str(ic.mo_end_time[i]).strip()).datetime
-
-
 # ## (3) make ICMECAT 
 
-# In[7]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -506,7 +493,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[8]:
+# In[7]:
 
 
 ###### 3c make all plots if wanted
@@ -697,7 +684,7 @@ print('done')
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[7]:
+# In[8]:
 
 
 ###### 3c make all plots if wanted
@@ -724,7 +711,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[8]:
+# In[73]:
 
 
 ######## sort ICMECAT by date
@@ -751,8 +738,8 @@ https://helioforecast.space/icmecat \n\n\
 Number of events in ICMECAT: '+str(len(ic))+' \n\
 ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   \n\
 Time range: '+first_date[0:7]+' to '+last_date[0:7]+' \n \n\
-Authors: Christian Moestl, E. Weiler, Emma E. Davies, Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, \n\
-Austrian Space Weather Office, GeoSphere Austria, Graz, Austria; NASA CCMC, USA.\n\
+Authors: Christian Moestl, Eva Weiler, Emma E. Davies, Rachel L. Bailey, Martin A. Reiss, Andreas J. Weiss \n\
+(1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria. (2) Conrad Observatory, GeoSphere Austria, Vienna, Austria. (3) NASA CCMC, USA. (4) NASA GSFC, USA.\n\
 Contributors: Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, \n\
 Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, \n\
 Johan von Forstner, Mateja Dumbovic, Benoit Lavraud.  \n\n\
@@ -764,17 +751,18 @@ The in situ data that were used for the catalog, with a size of around 10 GB in 
 in RTN coordinates that are not used for producing the catalog, can be downloaded in python pickle format as recarrays from \
 https://doi.org/10.6084/m9.figshare.11973693 \n\n\
 The python source code for producing this catalog is available at https://github.com/cmoestl/heliocats icmecat.ipynb\n\n\
-Each event has unique identifier - the icmecat_id - which has a tag in it that indicates from which catalog the ICME times were taken: \n\n\
-Wind:         Nieves-Chinchilla et al. (2018), tag: NASA. \n\
-STEREO-A:     Jian et al. (2018), tag: JIAN. \n\
-STEREO-B:     Jian et al. (2018), tag: JIAN. \n\
-VEX:          Good et al. (2018), tag: SGOOD \n\
-MESSENGER:    Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW. \n\
-MAVEN:        Made by us according to the method in the comments, tag: MOESTL.\n\
-Ulysses:      Added by us, tag: MOESTL. \n\
-SolarOrbiter: Added by us, tag: MOESTL. \n\
-BepiColomo:   Added by us, tag: MOESTL. \n\
-PSP:          Added by us, tag: MOESTL. \n\n\
+Each event has unique identifier - the icmecat_id - which has a tag in it that indicates from which catalog the ICME times were taken, \n\
+or if they were included in the catalog by ourselves, as identified by Christian Möstl or Eva Weiler.  \n\n\
+Solar Orbiter: Added by us, tag: MOESTL \n\
+Parker Solar Probe: Added by us, tag: MOESTL \n\
+BepiColombo: Added by us, tag: MOESTL \n\
+Wind: Nieves-Chinchilla et al. (2018), tags: NASA, MOESTL, WEILER \n\
+STEREO-A: Jian et al. (2018), tags: JIAN, MOESTL, WEILER \n\
+STEREO-B: Jian et al. (2018), tags: JIAN \n\
+VEX: Good et al. (2018), tag: SGOOD or MOESTL \n\
+MESSENGER: Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW, MOESTL \n\
+MAVEN: Made by us according to the method in the comments, tag: MOESTL \n\
+Ulysses: Added by us, tag: MOESTL \n\
 We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL or MOESTL_SALMAN in icmecat_id).\n\n\
 References: \n\
 Nieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z \n\
@@ -785,7 +773,8 @@ Good, S. et al. (2018) https://doi.org/10.1007/s11207-015-0828-3 \n\
 Winslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 \n\n\n\
 Comments: \n\n\
 - Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n\n\
-- The coordinate system for all magnetic field components is SCEQ, except for Wind (HEEQ, which is the equivalent for SCEQ for Earth) and Ulysses (RTN, because of high latitude positions) and MAVEN (MSO). \n\
+- - The coordinate system for all magnetic field components is RTN, except for MESSENGER (SCEQ), VEX (SCEQ), STEREO-B (SCEQ), and MAVEN (MSO).  \n\
+There are some legacy data files for the older spacecraft available in SCEQ. The difference to results for RTN in all parameters is usually very small.  \n\n\
         Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n\
         Z is the solar rotation axis. \n\
         Y is the cross product of Z and R, with R being the vector that points from the Sun to the spacecraft.\n\
@@ -794,10 +783,8 @@ This system is thus like HEEQ but centered on the respective in situ spacecraft,
 base vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\n\
 The Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \n\
 are rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \n\
-a few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually).\n\
-We choose SCEQ for the advantage that a comparison of the data of multipoint CME events \n\
-and comparisons to simulations are simpler because there is always a similar reference plane (the solar equatorial plane).\n\n\
-- Venus Express and MESSENGER do not have plasma parameters available. For events that do not have plasma parameters at Solar Orbiter or PSP, they may become available in the future.\n\n\
+a few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually). However, since 2023 September 1 most parameters are given in the RTN system. \n\n\
+- Venus Express, MESSENGER, and BepiColombo do not have plasma parameters available.\n\n\
 - If there is no sheath or density pileup region, so the ICME starts immediately with a magnetic obstacle, the icme_start_time is similar to mo_start_time.\n\n\
 - At MESSENGER and VEX, for events cataloged by Simon Good, icme_start_time has been added by V. Krupar (Imperial College) and C. Moestl (IWF Graz). \n\n\
 - For the calculation of the parameters at MESSENGER during the orbit around Mercury, all data points inside the bowshock of Mercury have been removed, \n\
@@ -888,7 +875,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[9]:
+# In[74]:
 
 
 ########## python formats
@@ -1064,7 +1051,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[10]:
+# In[75]:
 
 
 #load icmecat as pandas dataframe
@@ -1076,27 +1063,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[11]:
+# In[76]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[12]:
+# In[77]:
 
 
 ic_pandas
 
 
-# In[13]:
+# In[78]:
 
 
 #
 ic_nprec
 
 
-# In[14]:
+# In[79]:
 
 
 ic_nprec.icmecat_id
@@ -1104,7 +1091,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[15]:
+# In[80]:
 
 
 ic=ic_pandas
@@ -1182,17 +1169,17 @@ ax3.set_ylabel('$<B>$ [nT]')
 
 
 
-ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c='royalblue', alpha=al,ms=ms, label='STEREO-B')
+
 ax3.plot(ic.mo_sc_heliodistance[imes],ic.mo_bmean[imes],'o',c='coral', alpha=al,ms=ms,label='MESSENGER')
 ax3.plot(ic.mo_sc_heliodistance[ivex],ic.mo_bmean[ivex],'o',c='orange', alpha=al,ms=ms,label='Venus Express')
 ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c='brown', alpha=al,ms=ms, label='Ulysses')
 ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'o',c='orangered', alpha=al,ms=ms, label='MAVEN')
-
+ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c='royalblue', alpha=al,ms=ms, label='STEREO-B')
 
 
 ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c='red', alpha=al,ms=ms, label='STEREO-A')
-ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c='mediumseagreen', alpha=al,ms=ms,label='Wind at L1')
-ax3.plot(ic.mo_sc_heliodistance[ibep],ic.mo_bmean[ibep],'o',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms,label='Bepi Colombo')
+ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c='mediumseagreen', alpha=al,ms=ms,label='Wind')
+ax3.plot(ic.mo_sc_heliodistance[ibep],ic.mo_bmean[ibep],'o',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms,label='BepiColombo')
 ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c='black', alpha=al,ms=ms, label='Parker Solar Probe',zorder=3)
 ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c='black', markerfacecolor='white',alpha=al,ms=ms, label='Solar Orbiter',zorder=3)
 
@@ -1215,17 +1202,16 @@ ax3.set_yscale('log')
 
 
 plt.tight_layout()
-plt.savefig('icmecat/icmecat_overview.png', dpi=150,bbox_inches='tight')
+plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[16]:
+# In[81]:
 
 
 #markersize
-ms=12
-ms2=5
+ms=7
 #alpha
-al=0.6
+al=0.7
 
 sns.set_context("talk")     
 sns.set_style('darkgrid')
@@ -1236,46 +1222,42 @@ fig=plt.figure(3,figsize=(9,9),dpi=100)
 #########################################################################
 ax2=plt.subplot(111,projection='polar')
 
-plt.title('ICMECAT events [HEEQ longitude, AU]')
+plt.title('ICMECAT event longitudes [HEEQ]')
 
-ax2.scatter(np.radians(ic.mo_sc_long_heeq[iuly]),ic.mo_sc_heliodistance[iuly],s=ms,c='brown', alpha=al)
-ax2.scatter(np.radians(ic.mo_sc_long_heeq[imes]),ic.mo_sc_heliodistance	[imes],s=ms,c='coral', alpha=0.6)
-ax2.scatter(np.radians(ic.mo_sc_long_heeq[ivex]),ic.mo_sc_heliodistance	[ivex],s=ms,c='orange', alpha=al)
-ax2.scatter(np.radians(ic.mo_sc_long_heeq[iwin]),ic.mo_sc_heliodistance	[iwin],s=ms,c='mediumseagreen', alpha=al)
-ax2.scatter(np.radians(ic.mo_sc_long_heeq[istb]),ic.mo_sc_heliodistance[istb],s=ms,c='royalblue', alpha=al)
+ax2.plot(np.radians(ic.mo_sc_long_heeq[iuly]),ic.mo_sc_heliodistance[iuly],'o',markersize=ms,c='brown', alpha=al)
+ax2.plot(np.radians(ic.mo_sc_long_heeq[imav]),ic.mo_sc_heliodistance[imav],'o',markersize=ms,c='orangered', alpha=al)
 
-ax2.scatter(np.radians(ic.mo_sc_long_heeq[imav]),ic.mo_sc_heliodistance	[imav],s=ms,c='orangered', alpha=al)
-ax2.scatter(np.radians(ic.mo_sc_long_heeq[ista]),ic.mo_sc_heliodistance[ista],s=ms,c='red', alpha=al)
+#only inner heliosphere
+ax2.plot(np.radians(ic.mo_sc_long_heeq[imes]),ic.mo_sc_heliodistance[imes],'o',markersize=ms,c='coral', alpha=al,label='MESSENGER')
+ax2.plot(np.radians(ic.mo_sc_long_heeq[ivex]),ic.mo_sc_heliodistance[ivex],'o',markersize=ms,c='orange', alpha=al,label='Venus Express')
+ax2.plot(np.radians(ic.mo_sc_long_heeq[istb]),ic.mo_sc_heliodistance[istb],'o',markersize=ms,c='royalblue', alpha=al,label='STEREO-B')
 
-ax2.plot(np.radians(ic.mo_sc_long_heeq[ipsp]),ic.mo_sc_heliodistance[ipsp],'o',markersize=ms2, c='black', alpha=al)
-ax2.plot(np.radians(ic.mo_sc_long_heeq[isol]),ic.mo_sc_heliodistance[isol],'o',markersize=ms2, c='black',markerfacecolor='white', alpha=al)
-ax2.plot(np.radians(ic.mo_sc_long_heeq[ibep]),ic.mo_sc_heliodistance[ibep],'o',markersize=ms2, c='darkblue',markerfacecolor='lightgrey', alpha=al)
+ax2.plot(np.radians(ic.mo_sc_long_heeq[ista]),ic.mo_sc_heliodistance[ista],'o',markersize=ms, c='red', alpha=al, label='STEREO-A')
+ax2.plot(np.radians(ic.mo_sc_long_heeq[iwin]),ic.mo_sc_heliodistance[iwin],'o',markersize=ms, c='mediumseagreen', alpha=al, label='Wind')
+ax2.plot(np.radians(ic.mo_sc_long_heeq[ipsp]),ic.mo_sc_heliodistance[ipsp],'o',markersize=ms, c='black', alpha=al,label='Parker Solar Probe')
+ax2.plot(np.radians(ic.mo_sc_long_heeq[isol]),ic.mo_sc_heliodistance[isol],'o',markersize=ms, c='black',markerfacecolor='white', alpha=al, label='Solar Orbiter')
+ax2.plot(np.radians(ic.mo_sc_long_heeq[ibep]),ic.mo_sc_heliodistance[ibep],'o',markersize=ms, c='darkblue',markerfacecolor='lightgrey', alpha=al, label='BepiColombo')
 
-
-
-
-#ax2.set_yticks(np.arange(0,2,0.1))
-#ax2.tick_params(axis='x',labelsize=15,zorder=3, labelrotation=0)
-#ax2.tick_params(axis='y',labelsize=11,zorder=3, labelrotation=0)
+plt.legend(loc=2,fontsize=10)
 
 
 fsize=15
 backcolor='black'
 frame='HEEQ'
-plt.rgrids((0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.3,1.6),('0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0','1.3','1.6 AU'),angle=180, fontsize=fsize-4,alpha=0.6, color=backcolor,zorder=5)
-plt.thetagrids(range(0,360,45),(u'0\u00b0',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='left',fontsize=fsize,color=backcolor, zorder=5, alpha=0.9)
+plt.rgrids((0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1, 1.2, 1.3,1.6),('0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0','1.1','1.2','1.3','1.6 AU'),angle=180, fontsize=fsize-4,alpha=0.6, ha='center',color=backcolor,zorder=5)
+plt.thetagrids(range(0,360,45),(u'0\u00b0',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='center',fontsize=fsize,color=backcolor, zorder=5, alpha=1.0)
 
 ax2.set_ylim([0,1.2])
 ax2.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
-ax2.text(0,1.1,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
+ax2.text(0,1.1,'Earth', color='green', ha='center',fontsize=fsize-5,verticalalignment='center')
 ax2.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)
     
 
 plt.tight_layout()
-plt.savefig('icmecat/icmecat_overview2.png', dpi=100,bbox_inches='tight')
+plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 
-# In[17]:
+# In[82]:
 
 
 #same for latitude
@@ -1283,7 +1265,7 @@ plt.savefig('icmecat/icmecat_overview2.png', dpi=100,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[18]:
+# In[83]:
 
 
 #make distribution plots
@@ -1337,10 +1319,10 @@ ax7.set_xlim(0,np.max(ic.icme_duration-ic.mo_duration)+5)
 
 
 plt.tight_layout()
-plt.savefig('icmecat/icmecat_overview3.png', dpi=150,bbox_inches='tight')
+plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[19]:
+# In[84]:
 
 
 t1all = time.time()

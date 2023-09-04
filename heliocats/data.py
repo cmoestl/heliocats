@@ -60,6 +60,76 @@ from bs4 import BeautifulSoup
 #OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+
+
+#################################################################################
+
+
+
+
+
+
+def convert_juno_data(data_path):
+    
+    
+    print('convert Juno data')
+    #convert juno from pandas dataframe to our recarray format
+    juno_df = pd.read_pickle(data_path+'juno_2011_2016_rtn_pandas.p') 
+    junorec=juno_df.to_records(index=False)
+    
+    #change datetime format
+    
+    #make array with length time1
+    juno=np.zeros(len(junorec),dtype=[('time',object),('bx', float),('by', float),\
+                    ('bz', float),('bt', float),('x', float),('y', float),('z', float),\
+                    ('r', float),('lat', float),('lon', float)])   
+
+    #convert to recarray
+    juno = juno.view(np.recarray)  
+    
+    #convert to normal datetime object
+    juno.time=mdates.num2date(mdates.date2num(junorec.Timestamp))
+    juno.bt=junorec.B_TOT
+    juno.bx=junorec.B_R
+    juno.by=junorec.B_T
+    juno.bz=junorec.B_N
+
+    juno.r=junorec.r_HEEQ
+    juno.lat=junorec.lat_HEEQ
+    juno.lon=junorec.lon_HEEQ
+
+    #add if needed
+    juno.x=np.nan
+    juno.y=np.nan
+    juno.z=np.nan
+    
+    file='juno_2011_2016_rtn.p'
+    pickle.dump(juno, open(data_path+file, 'wb') )
+    
+    print('saved as', file)
+    
+    return 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ####################################### get new data ####################################
 
 

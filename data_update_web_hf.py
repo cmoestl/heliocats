@@ -8,12 +8,16 @@
 # https://github.com/cmoestl/heliocats
 # 
 # uses environment 'envs/env_helio4.yml'
+# 
+# Issues:
+# 
+# - use new positions file created by positions.ipynb
 
-# In[8]:
+# In[1]:
 
 
 #switches
-debug_mode=0
+debug_mode=1
 
 #download and save as pickle
 get_noaa=1
@@ -129,7 +133,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[3]:
+# In[19]:
 
 
 #if debug_mode > 0: 
@@ -142,6 +146,8 @@ print(' ')
 print('------ POSITIONS ')
 
 # spacecraft positions image
+
+#!! use new positions file
 hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
 
 
@@ -168,7 +174,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind 
 
-# In[4]:
+# In[14]:
 
 
 if debug_mode > 0: 
@@ -275,7 +281,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[5]:
+# In[15]:
 
 
 if debug_mode > 0: 
@@ -328,7 +334,7 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[6]:
+# In[16]:
 
 
 if debug_mode > 0:     
@@ -341,7 +347,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[7]:
+# In[17]:
 
 
 t1all = time.time()

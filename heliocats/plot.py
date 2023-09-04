@@ -2946,7 +2946,7 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat,wsa,ms
         
      
 
-def plot_positions(time_date1, path,frame, **kwargs):
+def plot_positions_old(time_date1, path,frame, **kwargs):
     '''
     sc = data
     '''
@@ -2955,25 +2955,11 @@ def plot_positions(time_date1, path,frame, **kwargs):
     
     time1=mdates.date2num(time_date1)
 
-    [psp, bepi, solo, sta, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
+    #[psp, bepi, solo, sta, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load(open('results/positions/positions_HEEQ_1hr.p', "rb" ) )
+    [psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p', "rb" ) )
     
-    #pos=pickle.load( open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
-    #[psp, solo, sta, bepi, l1, stb, uly, mes, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pos
+    #pos=pickle.load( open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )   #[psp, solo, sta, bepi, l1, stb, uly, mes, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pos
     
-    
-    #convert matplotlib times, need to do a new file
-    psp.time=psp.time+mdates.date2num(np.datetime64('0000-12-31'))
-    solo.time=solo.time+mdates.date2num(np.datetime64('0000-12-31'))
-    bepi.time=bepi.time+mdates.date2num(np.datetime64('0000-12-31'))
-    sta.time=sta.time+mdates.date2num(np.datetime64('0000-12-31'))
-    earth.time=earth.time+mdates.date2num(np.datetime64('0000-12-31'))
-    venus.time=venus.time+mdates.date2num(np.datetime64('0000-12-31'))
-    mars.time=mars.time+mdates.date2num(np.datetime64('0000-12-31'))
-    mercury.time=mercury.time+mdates.date2num(np.datetime64('0000-12-31'))
-    jupiter.time=jupiter.time+mdates.date2num(np.datetime64('0000-12-31'))
-    saturn.time=saturn.time+mdates.date2num(np.datetime64('0000-12-31'))
-    uranus.time=uranus.time+mdates.date2num(np.datetime64('0000-12-31'))
-    neptune.time=neptune.time+mdates.date2num(np.datetime64('0000-12-31'))
     
 
     #sidereal solar rotation rate
@@ -3210,7 +3196,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
         
      
 
-def _new(time_date1, path,frame, **kwargs):
+def plot_positions(time_date1, path,frame, **kwargs):
     '''
     sc = data
     this takes the numeric positions fiel
@@ -3220,27 +3206,13 @@ def _new(time_date1, path,frame, **kwargs):
     
     time1=mdates.date2num(time_date1)
 
-    #made with sc_positions_for_vr
-    #[psp, bepi, solo, sta, earth, venus, mars, mercury,jupiter, saturn, uranus, neptune,frame]=pickle.load( open( #'results/positions/positions_HEEQ_1hr.p', "rb" ) )
-    #[psp,bepi,solo,sta,earth,venus,mars,mercury]=make_positions(time1,frame)
-    
-    pos=pickle.load( open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
-    [psp, solo, sta, bepi, l1, stb, uly, mes, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pos
+    #made with positions.ipynb
+    [psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p', "rb" ) )
+    res_in_days=1/(24*6) #10 min resolution of positions file
     
     
-    #convert matplotlib times, need to do a new file
-    #psp.time=psp.time+mdates.date2num(np.datetime64('0000-12-31'))
-    #solo.time=solo.time+mdates.date2num(np.datetime64('0000-12-31'))
-    #bepi.time=bepi.time+mdates.date2num(np.datetime64('0000-12-31'))
-    #sta.time=sta.time+mdates.date2num(np.datetime64('0000-12-31'))
-    #earth.time=earth.time+mdates.date2num(np.datetime64('0000-12-31'))
-    #venus.time=venus.time+mdates.date2num(np.datetime64('0000-12-31'))
-    #mars.time=mars.time+mdates.date2num(np.datetime64('0000-12-31'))
-    #mercury.time=mercury.time+mdates.date2num(np.datetime64('0000-12-31'))
-    #jupiter.time=jupiter.time+mdates.date2num(np.datetime64('0000-12-31'))
-    #saturn.time=saturn.time+mdates.date2num(np.datetime64('0000-12-31'))
-    #uranus.time=uranus.time+mdates.date2num(np.datetime64('0000-12-31'))
-    #neptune.time=neptune.time+mdates.date2num(np.datetime64('0000-12-31'))
+    #[psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_1hour_rad.p', "rb" ) )
+    #res_in_days=1/(24) #1hour resolution of positions file
     
 
     #sidereal solar rotation rate
@@ -3252,12 +3224,12 @@ def _new(time_date1, path,frame, **kwargs):
 
     #for parker spiral   
     theta=np.arange(0,np.deg2rad(180),0.01)
-    res_in_days=1/24
+
+    fadeind=int(100/res_in_days)
     k=0
     
     plot_orbit=True
     plot_parker=True
-    fadeind=int(100/res_in_days)
     fsize=17 
     symsize_planet=140
     symsize_spacecraft=100
@@ -3290,9 +3262,6 @@ def _new(time_date1, path,frame, **kwargs):
     dct=time1-stb.time
     stb_timeind=np.argmin(abs(dct))
 
-    dct=time1-mes.time
-    mes_timeind=np.argmin(abs(dct))
-
 
     
     ################## figure    
@@ -3303,16 +3272,16 @@ def _new(time_date1, path,frame, **kwargs):
     bepi_color='blue'
     solo_color='green'
 
-    ax.scatter(venus.lon[earth_timeind], venus.r[earth_timeind]*np.cos(venus.lat[earth_timeind]), s=symsize_planet, c='orange', alpha=1,lw=0,zorder=3)
-    ax.scatter(mercury.lon[earth_timeind], mercury.r[earth_timeind]*np.cos(mercury.lat[earth_timeind]), s=symsize_planet, c='dimgrey', alpha=1,lw=0,zorder=3)
+    ax.scatter(venus.lon[venus_timeind], venus.r[venus_timeind]*np.cos(venus.lat[venus_timeind]), s=symsize_planet, c='orange', alpha=1,lw=0,zorder=3)
+    ax.scatter(mercury.lon[mercury_timeind], mercury.r[mercury_timeind]*np.cos(mercury.lat[mercury_timeind]), s=symsize_planet, c='dimgrey', alpha=1,lw=0,zorder=3)
     ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_planet, c='mediumseagreen', alpha=1,lw=0,zorder=3)
-    ax.scatter(sta.lon[earth_timeind], sta.r[earth_timeind]*np.cos(sta.lat[earth_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
-    ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
+    ax.scatter(sta.lon[sta_timeind], sta.r[sta_timeind]*np.cos(sta.lat[sta_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
+    ax.scatter(mars.lon[mars_timeind], mars.r[mars_timeind]*np.cos(mars.lat[mars_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
 
-    plt.text(sta.lon[earth_timeind]-0.15,sta.r[earth_timeind],'STEREO-A', color='red', ha='center',fontsize=fsize-4,verticalalignment='top')
+    plt.text(sta.lon[sta_timeind]-0.15,sta.r[sta_timeind],'STEREO-A', color='red', ha='center',fontsize=fsize-4,verticalalignment='top')
   
     plt.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
-    plt.text(0,earth.r[earth_timeind]+0.12,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
+    plt.text(0,earth.r[earth_timeind]+0.08,'Earth', color='mediumseagreen', ha='center',fontsize=fsize-5,verticalalignment='center')
     
     plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
     plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
@@ -3322,7 +3291,6 @@ def _new(time_date1, path,frame, **kwargs):
   
     
     '''
-
     plt.figtext(0.95,0.5,'Wind', color='mediumseagreen', ha='center',fontsize=fsize+3)
     plt.figtext(0.95,0.25,'STEREO-A', color='red', ha='center',fontsize=fsize+3)
     plt.figtext(0.9,0.9,'Mercury', color='dimgrey', ha='center',fontsize=fsize+5)
@@ -3378,16 +3346,16 @@ def _new(time_date1, path,frame, **kwargs):
             
 
     if plot_orbit: 
-        ax.plot(sta.lon[earth_timeind:earth_timeind+fadeind], sta.r[earth_timeind:earth_timeind+fadeind]*np.cos(sta.lat[earth_timeind:earth_timeind+fadeind]), c='red', alpha=0.6,lw=1,zorder=3)
-        ax.plot(sta.lon[earth_timeind-fadeind:earth_timeind], sta.r[earth_timeind-fadeind:earth_timeind]*np.cos(sta.lat[earth_timeind-fadeind:earth_timeind]), c='red', linestyle='--', alpha=0.5,lw=1,zorder=3)
+        ax.plot(sta.lon[sta_timeind:sta_timeind+fadeind], sta.r[sta_timeind:sta_timeind+fadeind]*np.cos(sta.lat[sta_timeind:sta_timeind+fadeind]), c='red', alpha=0.6,lw=1,zorder=3)
+        ax.plot(sta.lon[sta_timeind-fadeind:sta_timeind], sta.r[sta_timeind-fadeind:sta_timeind]*np.cos(sta.lat[sta_timeind-fadeind:sta_timeind]), c='red', linestyle='--', alpha=0.5,lw=1,zorder=3)
 
         
         
         
     if time1<mdates.date2num(datetime.datetime(2014,11,26)):        
-        vex_text='VEX:   '+str(f'{venus.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(venus.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(venus.lat[earth_timeind]):8.1f}')
+        vex_text='VEX:   '+str(f'{venus.r[venus_timeind]:6.2f}')+str(f'{np.rad2deg(venus.lon[venus_timeind]):8.1f}')+str(f'{np.rad2deg(venus.lat[venus_timeind]):8.1f}')
         f11=plt.figtext(0.01,0.78,vex_text, fontsize=fsize, ha='left',color='orange')
-        plt.text(venus.lon[earth_timeind],venus.r[earth_timeind]+0.12,'VEX', color='orange', ha='center',fontsize=fsize-5,verticalalignment='center')
+        plt.text(venus.lon[venus_timeind],venus.r[venus_timeind]+0.12,'VEX', color='orange', ha='center',fontsize=fsize-5,verticalalignment='center')
 
     #if time1<mdates.date2num(datetime.datetime(2011,3,18))):        
     #    mes_text='MES:   '+str(f'{mercury.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(mercury.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(mercury.lat[earth_timeind]):8.1f}')
@@ -3396,9 +3364,9 @@ def _new(time_date1, path,frame, **kwargs):
         
         
     if np.logical_and(time1>mdates.date2num(datetime.datetime(2011,3,18)), time1<mdates.date2num(datetime.datetime(2015,4,30))):        
-        mes_text='MES:   '+str(f'{mercury.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(mercury.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(mercury.lat[earth_timeind]):8.1f}')
+        mes_text='MES:   '+str(f'{mercury.r[mercury_timeind]:6.2f}')+str(f'{np.rad2deg(mercury.lon[mercury_timeind]):8.1f}')+str(f'{np.rad2deg(mercury.lat[earth_timeind]):8.1f}')
         f12=plt.figtext(0.01,0.74,mes_text, fontsize=fsize, ha='left',color='darkgrey')
-        plt.text(mercury.lon[earth_timeind],mercury.r[earth_timeind]+0.12,'MESSENGER', color='darkgrey', ha='center',fontsize=fsize-5,verticalalignment='center')
+        plt.text(mercury.lon[mercury_timeind],mercury.r[mercury_timeind]+0.12,'MESSENGER', color='darkgrey', ha='center',fontsize=fsize-5,verticalalignment='center')
 
 
 
@@ -3408,8 +3376,8 @@ def _new(time_date1, path,frame, **kwargs):
     if frame=='HEEQ': earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{0.0:8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
     else: earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(earth.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
 
-    mars_text='Mars:  '+str(f'{mars.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(mars.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(mars.lat[earth_timeind]):8.1f}')
-    sta_text='STA:   '+str(f'{sta.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(sta.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(sta.lat[earth_timeind]):8.1f}')
+    mars_text='Mars:  '+str(f'{mars.r[mars_timeind]:6.2f}')+str(f'{np.rad2deg(mars.lon[mars_timeind]):8.1f}')+str(f'{np.rad2deg(mars.lat[mars_timeind]):8.1f}')
+    sta_text='STA:   '+str(f'{sta.r[sta_timeind]:6.2f}')+str(f'{np.rad2deg(sta.lon[sta_timeind]):8.1f}')+str(f'{np.rad2deg(sta.lat[sta_timeind]):8.1f}')
 
     #Sun
     ax.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)
@@ -3421,7 +3389,7 @@ def _new(time_date1, path,frame, **kwargs):
     f8=plt.figtext(0.01,0.82,sta_text, fontsize=fsize, ha='left',c='red')
     
     #time
-    plt.figtext(0.7,0.9,time_date1.strftime("%Y %B %d  %H:%M UT"),fontsize=fsize+6, ha='left',c='black')
+    plt.figtext(0.95,0.9,time_date1.strftime("%Y %B %d  %H:%M UT"),fontsize=fsize+4, ha='right',c='black')
 
     #parker spiral
     if plot_parker:
@@ -3443,7 +3411,7 @@ def _new(time_date1, path,frame, **kwargs):
     plt.rgrids((0.1,0.3,0.5,0.7,1.0,1.3,1.6),('0.1','0.3','0.5','0.7','1.0','1.3','1.6 AU'),angle=125, fontsize=fsize-2,alpha=0.4, color=backcolor)
 
     #ax.set_ylim(0, 1.75) with Mars
-    ax.set_ylim(0, 1.25) 
+    ax.set_ylim(0, 1.15) 
 
     plt.thetagrids(range(0,360,45),(u'0\u00b0 '+frame+' longitude',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='left',fontsize=fsize,color=backcolor, zorder=5, alpha=0.9)
 
