@@ -11,13 +11,13 @@
 # 
 # Issues:
 # 
-# - use new positions file created by positions.ipynb
+# 
 
-# In[1]:
+# In[28]:
 
 
 #switches
-debug_mode=1
+debug_mode=0
 
 #download and save as pickle
 get_noaa=1
@@ -79,7 +79,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[29]:
 
 
 if sys.platform == 'linux': 
@@ -133,7 +133,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[19]:
+# In[40]:
 
 
 #if debug_mode > 0: 
@@ -145,9 +145,7 @@ t0 = time.time()
 print(' ')
 print('------ POSITIONS ')
 
-# spacecraft positions image
-
-#!! use new positions file
+# spacecraft positions image, uses positions file  /results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p'
 hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
 
 
