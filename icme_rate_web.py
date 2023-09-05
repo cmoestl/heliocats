@@ -443,7 +443,7 @@ print('loading all data takes', np.round(t1-t0,2), 'seconds')
     
 
 
-# In[4]:
+# In[3]:
 
 
 ########### load ICMECAT made with icmecat.py or ipynb
@@ -498,7 +498,7 @@ print('HELCATS HIGeoCAT     ',str(higeocat_time[0])[0:10],str(higeocat_time[-1])
 print('HELCATS ARRCAT       ',np.sort(ac_pandas.sse_launch_time)[0][0:10],np.sort(ac_pandas.sse_launch_time)[-1][0:10])
 
 
-# In[5]:
+# In[4]:
 
 
 ############### set limits of solar minimum, rising/declining phase and solar maximum
@@ -571,7 +571,7 @@ print(len(ic))
 print('done')
 
 
-# In[6]:
+# In[5]:
 
 
 ic
@@ -581,7 +581,7 @@ ic
 
 # ### Check data days available each year for each planet or spacecraft
 
-# In[7]:
+# In[6]:
 
 
 ######################## make bin for each year for yearly histograms
@@ -776,7 +776,7 @@ print('done')
 
 # ### get yearly ICME rates at each spacecraft
 
-# In[8]:
+# In[7]:
 
 
 #define dates of January 1 from 2007 to 2022
@@ -886,7 +886,7 @@ plt.plot(icrate.year,icrate.mean1,'ok',markerfacecolor='white', label='mean +/- 
 plt.legend(loc=2,fontsize=10)
 
 
-# In[9]:
+# In[8]:
 
 
 icrate
@@ -894,7 +894,7 @@ icrate
 
 # ### get Richardson and Cane ICME rate for comparison
 
-# In[10]:
+# In[9]:
 
 
 #convert times in dataframe from richardson and cane list to numpy array
@@ -945,7 +945,7 @@ print(rc_rate_time)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[33]:
+# In[10]:
 
 
 sns.set_context("talk")     
@@ -954,7 +954,7 @@ sns.set_context("talk")
 sns.set_style("ticks",{'grid.linestyle': '--'})
 fsize=15
 
-fig=plt.figure(1,figsize=(14,5),dpi=80)
+fig=plt.figure(1,figsize=(12,5),dpi=100)
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
 
@@ -968,7 +968,7 @@ ax3=ax2.twinx()
 ax3.plot(ssn_m.time,ssn_m.spot,'-k',alpha=0.4,linewidth=1.5,label='monthly sunspot number',zorder=0)
 ax3.set_ylabel('Sunspot number SIDC')
 ax3.set_ylim(0,155)
-ax3.legend(loc=1,fontsize=10)
+ax3.legend(loc=1,fontsize=12)
 
 #grid for icme rate
 for i in np.arange(0,100,10):
@@ -1025,7 +1025,7 @@ plt.tight_layout()
 #plt.annotate('(b)',[0.01,0.47],xycoords='figure fraction')
 
 #plt.savefig('results/cycle25_icme_rate.pdf', dpi=100)
-plt.savefig(outputdirectory+'/icmecat_icme_rate.png', dpi=100)
+plt.savefig(outputdirectory+'/icmecat_icme_rate.png', dpi=150)
 
 
 
@@ -1033,7 +1033,7 @@ plt.savefig(outputdirectory+'/icmecat_icme_rate.png', dpi=100)
 
 # ## solar cycle 23
 
-# In[12]:
+# In[11]:
 
 
 print('cycle 23\n')
@@ -1117,7 +1117,7 @@ print()
 
 # ## solar cycle 24
 
-# In[13]:
+# In[12]:
 
 
 print('cycle 24\n')
@@ -1177,7 +1177,7 @@ print(np.round(np.mean(rc_rate24/ic_rate24),2))
 
 # ## solar cycle 25
 
-# In[14]:
+# In[13]:
 
 
 print('cycle 25\n')
@@ -1237,7 +1237,7 @@ print()
 # ## **Figure 2** correlation SSN with ICME rate and fit
 # plot SSN vs ICME rate, linear fit with confidence interval
 
-# In[15]:
+# In[14]:
 
 
 #add spots23/24 and rc_rate23/24 into 1 array for correlation
@@ -1365,7 +1365,7 @@ plt.savefig(outputdirectory+'/fig2_rate_ssn.png', dpi=300)
 # ## predictions for solar cycle 25: SSN and ICME rate
 # ### 1. Mean cycle model
 
-# In[16]:
+# In[15]:
 
 
 # from heliocats import stats as hs
@@ -1480,7 +1480,7 @@ print('Std in ICME rate from fit and ICMECAT range for each year:')
 print(ic_rate_25_m_std)
 
 
-# In[17]:
+# In[16]:
 
 
 ########################################################### 2. SC25 panel prediction (SC25PP)
@@ -1619,7 +1619,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_pp_std)
 
 
-# In[18]:
+# In[17]:
 
 
 ################################### SC25MC
@@ -1719,7 +1719,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_mc20_std)
 
 
-# In[19]:
+# In[18]:
 
 
 ################################### SC25MC
@@ -1820,7 +1820,7 @@ print(times_25_daily[np.argmax(spots_predict_25_mc23_daily)])
 #print(np.round(spots_predict_25_mc23-spots_predict_25_mc23_upper68))
 
 
-# In[20]:
+# In[19]:
 
 
 print('start of sc25 here in MC23',start_25-shift_t03)
@@ -1912,7 +1912,7 @@ print(ic_rate_25_mc23_std)
 
 # ## **Figure 3** ICME rate predictions
 
-# In[21]:
+# In[29]:
 
 
 sns.set_context("talk")     
@@ -1952,7 +1952,7 @@ ax2.set_xlim(datetime.datetime(1995,8,1),datetime.datetime(2033,8,1))
 ax2.set_ylim(0,max_spot)
 years = mdates.YearLocator()   # every year
 ax2.xaxis.set_minor_locator(years)
-legend1=ax2.legend(loc='upper center',fontsize=12)
+legend1=ax2.legend(loc=1,fontsize=10)
 legend1.get_frame().set_alpha(None)
 
 ########
@@ -1965,7 +1965,7 @@ ax1.plot([icrate.year[2:],icrate.year[2:]],[icrate.mean1[2:]-icrate.std1[2:],icr
 ax1.plot(yearly_mid_times_25[0:3],ic_rate25, color='blue', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC25',linestyle='')
 ax1.errorbar(yearly_mid_times_25,icmes_predict_25_mc23,yerr=ic_rate_25_mc23_std, color='black', marker='o',markerfacecolor='lightgrey',label='Predicted ICME rate McIntosh+ 2023',linestyle='')
 ax1.set_ylabel('number of ICMEs per year',fontsize=fsize)
-legend2=ax1.legend(loc=2,fontsize=12)
+legend2=ax1.legend(loc=2,fontsize=10)
 legend2.get_frame().set_alpha(None)
 
 ax1.set_zorder(3) 
@@ -1991,7 +1991,7 @@ ax3.plot(yearly_mid_times_25[0:3],ic_rate25, color='blue', marker='s',markerface
 ax3.errorbar(yearly_mid_times_25,icmes_predict_25pp,yerr=ic_rate_25_pp_std, color='black', marker='o',markerfacecolor='lightgrey',label='Predicted ICME rate PP19',linestyle='', zorder=3)
 
 ax3.set_ylabel('number of ICMEs per year',fontsize=fsize)
-ax3.legend(loc=2,fontsize=12)
+ax3.legend(loc=2,fontsize=10)
 
 ######SSN axis
 ax4=ax3.twinx()
@@ -2007,7 +2007,7 @@ ax4.set_xlim(datetime.datetime(1995,8,1),datetime.datetime(2033,8,1))
 ax4.set_ylim(0,max_spot)
 years = mdates.YearLocator()   # every year
 ax4.xaxis.set_minor_locator(years)
-ax4.legend(loc='upper center',fontsize=12)
+ax4.legend(loc=1,fontsize=10)
 
 ax3.set_ylim(0,78)
 for i in np.arange(0,70,10):
@@ -2026,13 +2026,13 @@ plt.tight_layout()
 #plt.annotate('(b)',[0.0,0.47],xycoords='figure fraction',weight='bold')
 
 #plt.savefig('results/plots_rate/fig3_sc25_predictions.pdf', dpi=100)
-plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions_mc23.png', dpi=100)
-plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions_mc23.pdf', dpi=100)
+plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.png', dpi=100)
+plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.pdf', dpi=100)
 
 
 # ## solar cycle progression
 
-# In[22]:
+# In[21]:
 
 
 sns.set_context('talk')
@@ -2118,7 +2118,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short.png',dpi=100)
 plt.savefig(outputdirectory+'/cycle25_prediction_short.pdf')
 
 
-# In[23]:
+# In[22]:
 
 
 #with shortest interval
@@ -2204,23 +2204,11 @@ plt.tight_layout()
 plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
 # # 4 Parker Probe ICME rate prediction
 
 # ### make PSP and Solar Orbiter position
 
-# In[24]:
+# In[23]:
 
 
 frame='HEEQ'
@@ -2325,7 +2313,7 @@ bepi_lat2=np.hstack([bepi_lat,mercury_lat])
 #plt.xlabel('AU')
 
 
-# In[25]:
+# In[24]:
 
 
 #get the speed in hourly resolution
@@ -2357,7 +2345,7 @@ print('psp maximum speed ',np.max(psp_highres_speed),' km/s at ',psp_highres_r[n
 
 # ### Make trajectory plots 
 
-# In[26]:
+# In[25]:
 
 
 #%matplotlib inline
@@ -2441,7 +2429,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[27]:
+# In[26]:
 
 
 #same thing for Solar Orbiter
@@ -2550,7 +2538,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
-# In[28]:
+# In[27]:
 
 
 t1all = time.time()
