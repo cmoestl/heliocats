@@ -39,7 +39,7 @@
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # - for adding Juno data the pickle file needs to be made for the data
 
-# In[53]:
+# In[73]:
 
 
 last_update='2023-September-1'
@@ -151,7 +151,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[2]:
+# In[74]:
 
 
 # the positions file is generated with positions.ipynb, and the positions from messenger, ulysses and stereob are taken from an older file
@@ -226,7 +226,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[4]:
+# In[119]:
 
 
 load_data=1
@@ -247,16 +247,13 @@ if load_data > 0:
     filemes='messenger_2007_2015_sceq_removed.p'
     [mes,hmes]=pickle.load(open(data_path+filemes, 'rb' ) )
  
-    print('load STEREO-B data SCEQ') #yearly magplasma files from stereo science center, conversion to SCEQ 
-    filestb='stereob_2007_2014_sceq.p'
+    print('load STEREO-B data RTN') #yearly magplasma files from stereo science center, conversion to SCEQ 
+    filestb='stereob_2007_2014_rtn.p'
     [stb,hstb]=pickle.load(open(data_path+filestb, "rb" ) )      
     
-    
-    #TBD
-    #print('load Juno data ') #from Emma Davies https://doi.org/10.6084/m9.figshare.19517257.v1
-    #hd.convert_juno_data(data_path)
-    #filejuno='juno_2011_2016_rtn.p'
-    #juno=pickle.load(open(data_path+filejuno, "rb" ) )   
+    print('load Juno data ') 
+    filejuno='juno_2011_2016_rtn.p'
+    [juno,hjuno]=pickle.load(open(data_path+filejuno, "rb" ) )   
     
     
     
@@ -401,6 +398,7 @@ print('MAVEN                ',str(mav.time[0])[0:10],str(mav.time[-1])[0:10])
 print('MSL/RAD              ',str(rad.time[0])[0:10],str(rad.time[-1])[0:10])
 print()
 print('missions finished:')
+print('Juno                 ',str(juno.time[0])[0:10],str(juno.time[-1])[0:10])
 print('VEX                  ',str(vex.time[0])[0:10],str(vex.time[-1])[0:10])
 print('MESSENGER            ',str(mes.time[0])[0:10],str(mes.time[-1])[0:10])
 print('STEREO-B             ',str(stb.time[0])[0:10],str(stb.time[-1])[0:10])
@@ -426,7 +424,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[6]:
+# In[82]:
 
 
 if debug_mode > 0: 
@@ -469,7 +467,7 @@ if create_indices > 0:
     
     #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
     #hc.create_icme_indices(vex,vexi,ic,'VEX')
-    #hc.create_icme_indices(juno,juni,ic,'Juno')
+    hc.create_icme_indices(juno,juni,ic,'Juno')
 
     
     t1 = time.time()
@@ -490,6 +488,7 @@ ic=hc.get_cat_parameters(bepi,beci,ic,'BepiColombo')
 
 ic=hc.get_cat_parameters(mav,mavi,ic,'MAVEN')
 #finished missions
+ic=hc.get_cat_parameters(juno,juni,ic,'Juno')
 ic=hc.get_cat_parameters(stb,stbi,ic,'STEREO-B')
 ic=hc.get_cat_parameters(vex,vexi,ic,'VEX')
 ic=hc.get_cat_parameters(mes,mesi,ic,'MESSENGER')
@@ -716,7 +715,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[73]:
+# In[120]:
 
 
 ######## sort ICMECAT by date
@@ -741,7 +740,7 @@ References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017
 The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at \n\
 https://helioforecast.space/icmecat \n\n\
 Number of events in ICMECAT: '+str(len(ic))+' \n\
-ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   \n\
+ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, Juno, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   \n\
 Time range: '+first_date[0:7]+' to '+last_date[0:7]+' \n \n\
 Authors: Christian Moestl, Eva Weiler, Emma E. Davies, Rachel L. Bailey, Martin A. Reiss, Andreas J. Weiss \n\
 (1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria. (2) Conrad Observatory, GeoSphere Austria, Vienna, Austria. (3) NASA CCMC, USA. (4) NASA GSFC, USA.\n\
@@ -763,6 +762,7 @@ Parker Solar Probe: Added by us, tag: MOESTL \n\
 BepiColombo: Added by us, tag: MOESTL \n\
 Wind: Nieves-Chinchilla et al. (2018), tags: NASA, MOESTL, WEILER \n\
 STEREO-A: Jian et al. (2018), tags: JIAN, MOESTL, WEILER \n\
+Juno: Davies et al. (2022), tags: DAVIES \n\
 STEREO-B: Jian et al. (2018), tags: JIAN \n\
 VEX: Good et al. (2018), tag: SGOOD or MOESTL \n\
 MESSENGER: Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW, MOESTL \n\
@@ -774,11 +774,12 @@ Nieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z 
                                       https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php \n\
 Jian, L. et al. (2018), https://doi.org/10.3847/1538-4357/aab189 \n\
                         https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/ \n\
-Good, S. et al. (2018) https://doi.org/10.1007/s11207-015-0828-3 \n\
+Good, S. et al. (2018), https://doi.org/10.1007/s11207-015-0828-3 \n\
+Davies, E. E., et al., (2022) https://iopscience.iop.org/article/10.3847/1538-4357/ac731a   \n\
 Winslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 \n\n\n\
 Comments: \n\n\
 - Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n\n\
-- - The coordinate system for all magnetic field components is RTN, except for MESSENGER (SCEQ), VEX (SCEQ), STEREO-B (SCEQ), and MAVEN (MSO).  \n\
+- - The coordinate system for all magnetic field components is RTN, except for MESSENGER (SCEQ), VEX (SCEQ), and MAVEN (MSO).  \n\
 There are some legacy data files for the older spacecraft available in SCEQ. The difference to results for RTN in all parameters is usually very small.  \n\n\
         Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n\
         Z is the solar rotation axis. \n\
@@ -788,8 +789,8 @@ This system is thus like HEEQ but centered on the respective in situ spacecraft,
 base vectors are rotated by the HEEQ longitude of the in situ spacecraft from HEEQ X and Y.\n\
 The Y vector is similar to the T vector in an RTN system for each spacecraft, but the X and Z vectors \n\
 are rotated around Y compared to an RTN system. The differences between RTN and SCEQ for spacecraft within \n\
-a few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually). However, since 2023 September 1 most parameters are given in the RTN system. \n\n\
-- Venus Express, MESSENGER, and BepiColombo do not have plasma parameters available.\n\n\
+a few degrees of the solar equatorial plane are very small (within a few 0.1 nT usually). \n\n\
+- Venus Express, Juno, MESSENGER, and BepiColombo do not have plasma parameters available.\n\n\
 - If there is no sheath or density pileup region, so the ICME starts immediately with a magnetic obstacle, the icme_start_time is similar to mo_start_time.\n\n\
 - At MESSENGER and VEX, for events cataloged by Simon Good, icme_start_time has been added by V. Krupar (Imperial College) and C. Moestl (IWF Graz). \n\n\
 - For the calculation of the parameters at MESSENGER during the orbit around Mercury, all data points inside the bowshock of Mercury have been removed, \n\
@@ -880,7 +881,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[74]:
+# In[121]:
 
 
 ########## python formats
@@ -1056,7 +1057,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[75]:
+# In[122]:
 
 
 #load icmecat as pandas dataframe
@@ -1068,27 +1069,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[76]:
+# In[123]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[77]:
+# In[124]:
 
 
 ic_pandas
 
 
-# In[78]:
+# In[125]:
 
 
 #
 ic_nprec
 
 
-# In[79]:
+# In[126]:
 
 
 ic_nprec.icmecat_id
@@ -1096,7 +1097,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[80]:
+# In[127]:
 
 
 ic=ic_pandas
@@ -1108,6 +1109,7 @@ imes=np.where(ic.sc_insitu=='MESSENGER')[0]
 ivex=np.where(ic.sc_insitu=='VEX')[0]
 iwin=np.where(ic.sc_insitu=='Wind')[0]
 imav=np.where(ic.sc_insitu=='MAVEN')[0]
+ijun=np.where(ic.sc_insitu=='Juno')[0]
 
 ista=np.where(ic.sc_insitu=='STEREO-A')[0]
 istb=np.where(ic.sc_insitu=='STEREO-B')[0]
@@ -1139,6 +1141,7 @@ ax1.plot_date(ic_mo_start_time_num[istb],ic.mo_sc_heliodistance[istb],'o',c='roy
 ax1.plot_date(ic_mo_start_time_num[iwin],ic.mo_sc_heliodistance[iwin],'o',c='mediumseagreen', alpha=al,ms=ms)
 ax1.plot_date(ic_mo_start_time_num[imav],ic.mo_sc_heliodistance[imav],'o',c='orangered', alpha=al,ms=ms)
 ax1.plot_date(ic_mo_start_time_num[ista],ic.mo_sc_heliodistance[ista],'o',c='red', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ijun],ic.mo_sc_heliodistance[ijun],'o',c='black',markerfacecolor='yellow', alpha=1,ms=ms)
 
 ax1.plot_date(ic_mo_start_time_num[ipsp],ic.mo_sc_heliodistance[ipsp],'o',c='black', alpha=al,ms=ms)
 ax1.plot_date(ic_mo_start_time_num[isol],ic.mo_sc_heliodistance[isol],'o',c='black',markerfacecolor='white', alpha=1.0,ms=ms)
@@ -1161,8 +1164,8 @@ ax1.tick_params(axis="y", labelsize=12)
 ax1.set_xlim([datetime.datetime(2007,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=50)])
 
 
-ax1.set_yticks(np.arange(0,2,0.1))
-ax1.set_ylim([0,1.7])
+ax1.set_yticks(np.arange(0,4,0.2))
+ax1.set_ylim([0,2.5])
 
 
 
@@ -1180,6 +1183,7 @@ ax3.plot(ic.mo_sc_heliodistance[ivex],ic.mo_bmean[ivex],'o',c='orange', alpha=al
 ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c='brown', alpha=al,ms=ms, label='Ulysses')
 ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'o',c='orangered', alpha=al,ms=ms, label='MAVEN')
 ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c='royalblue', alpha=al,ms=ms, label='STEREO-B')
+ax3.plot(ic.mo_sc_heliodistance[ijun],ic.mo_bmean[ijun],'o', c='black',markerfacecolor='yellow', alpha=al,ms=ms, label='Juno')
 
 
 ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c='red', alpha=al,ms=ms, label='STEREO-A')
@@ -1191,9 +1195,9 @@ ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c='black', markerfac
 
 ax3.legend(loc=1,fontsize=15)
 
-ax3.set_xticks(np.arange(0,2,0.1))
+ax3.set_xticks(np.arange(0,5,0.2))
 ax3.tick_params(axis="x", labelsize=12)
-ax3.set_xlim([0,1.7])
+ax3.set_xlim([0,2.5])
 
 ax3.set_yscale('log')
 
@@ -1204,13 +1208,11 @@ ax3.set_yscale('log')
 #ax3.tick_params(axis="y", labelsize=12)
 
 
-
-
 plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[81]:
+# In[128]:
 
 
 #markersize
@@ -1262,7 +1264,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 
-# In[82]:
+# In[129]:
 
 
 #same for latitude
@@ -1270,7 +1272,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[83]:
+# In[130]:
 
 
 #make distribution plots
@@ -1303,7 +1305,7 @@ ax4.set_xlabel('plasma bulk speed $V$ [km/s]')
 
 ax5=plt.subplot(234)
 sns.histplot(ic.mo_sc_heliodistance,color='coral',bins=np.arange(0,1.8,0.1))
-ax5.set_xlim(0,1.8)
+ax5.set_xlim(0,2.3)
 ax5.set_xlabel('Heliocentric distance $R$[AU]')
 
 
@@ -1327,7 +1329,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[84]:
+# In[96]:
 
 
 t1all = time.time()
