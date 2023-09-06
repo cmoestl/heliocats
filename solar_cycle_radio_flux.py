@@ -10,8 +10,11 @@
 # 
 # Tiwari and Kumar
 # https://journals.aijr.org/index.php/ias/article/view/751/172
+# 
+# We use the Clette 2021 model Equation 2 with a 2nd order polynomial. An error range may be added in the future.
+# 
 
-# In[6]:
+# In[1]:
 
 
 import pickle
@@ -54,7 +57,7 @@ os.system('jupyter nbconvert --to script solar_cycle_radio_flux.ipynb')
 
 # #### load data from NOAA
 
-# In[7]:
+# In[2]:
 
 
 #observations
@@ -83,7 +86,7 @@ noaa_obs
 
 # #### figure out relationship for SSN to SFU
 
-# In[8]:
+# In[3]:
 
 
 #define models to convert SSN to SFU
@@ -92,11 +95,11 @@ def tk_model(SSN_in):
     return SFU_out
 
 def clette_model(SSN_in):
-    SFU_out = 62.87 + 0.6279*SSN_in +6.141*1e-5*SSN_in**2 #equation 2 in Clette 2021
+    SFU_out = 62.87 + 0.6279*SSN_in +6.141*1e-5*SSN_in**2 #equation 2 in Clette 2021 for order 2 polynomial
     return SFU_out
 
 
-###################### load the NOAA predicted data file from 2020
+###################### load the NOAA predicted data file 
     
 noaa_url='https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json'
 urllib.request.urlretrieve(noaa_url,noaa_path+'predicted-solar-cycle.json')
@@ -151,7 +154,7 @@ plt.plot(noaa_pred_times,tk_model(SSN_pred),'b--')
 
 # ### define Hathaway function for SSN from McIntosh+ 2022
 
-# In[9]:
+# In[4]:
 
 
 def hathaway(x,x0, a, b, c):
@@ -210,7 +213,7 @@ print(int(np.max(SFU_mc_prediction_1)))
 print(int(np.max(SFU_mc_prediction_2)))
 
 
-# In[20]:
+# In[5]:
 
 
 years=np.arange(2005,2040) 
