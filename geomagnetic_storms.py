@@ -3,34 +3,22 @@
 
 # ## Geomagnetic storm magnitude in a historic context
 
-# In[1]:
+# In[7]:
 
 
-from scipy import stats
-import scipy.io
-from matplotlib import cm
-import sys
-import pandas as pd
+import pickle
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
 import datetime
 from datetime import timedelta
-import astropy.constants as const
-from sunpy.time import parse_time
-import sunpy.time
-import time
-import pickle
 import seaborn as sns
-import os
 import urllib
-import json
-import warnings
-import importlib
-import heliopy.spice as spice
-import heliopy.data.spice as spicedata
-import astropy
-import copy
+import pandas as pd
+import os
+import sys
+
 
 import plotly.graph_objects as go
 import numpy as np
