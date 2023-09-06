@@ -11,7 +11,7 @@
 # Tiwari and Kumar
 # https://journals.aijr.org/index.php/ias/article/view/751/172
 
-# In[6]:
+# In[7]:
 
 
 import pickle
@@ -217,7 +217,7 @@ yearly_start_times=[datetime.datetime(year,1,1) for year in years]
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
-fig=plt.figure(1,figsize=(14,11),dpi=100)
+fig=plt.figure(1,figsize=(14,11),dpi=150)
 
 ax1 = plt.subplot(211) 
 ax1.plot_date(noaa_obs_times,SSN_obs,'-', label='observed monthly SSN')
