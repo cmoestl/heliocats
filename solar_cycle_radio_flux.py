@@ -11,11 +11,11 @@
 # Tiwari and Kumar
 # https://journals.aijr.org/index.php/ias/article/view/751/172
 
-# In[1]:
+# In[6]:
 
 
 import pickle
-import matp
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
