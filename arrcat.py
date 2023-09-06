@@ -25,13 +25,14 @@
 # **Issues:**
 # - may add Ulysses again with the position in the ulysses data file
 # - same for messenger
+# - the kernel for Solar Orbiter needs to be manually updated, see cats.py astrospice.SPKKernel in make_arrival_catalog ...
 # 
 
-# In[ ]:
+# In[8]:
 
 
 last_update='2023-August-16'
-debug_mode=0
+debug_mode=1
 
 
 import numpy as np
@@ -86,13 +87,18 @@ if os.path.isdir(icplotsdir) == False: os.mkdir(icplotsdir)
 if sys.platform == 'linux': 
     print('system is linux')
     matplotlib.use('Agg') 
+    from config_server import kernels_path
+    
+    
 #mac - make sure the dpi is always set similar to plt.savefig
 if sys.platform =='darwin':  
     print('system is mac')
     #for testing
     get_ipython().run_line_magic('matplotlib', 'inline')
+    from config_local import kernels_path
     #matplotlib.use('Agg') 
 
+print(kernels_path)
 
 #Convert this notebook to a script with jupyter nbconvert --to script icmecat.ipynb
 os.system('jupyter nbconvert --to script arrcat.ipynb') 
@@ -107,7 +113,7 @@ warnings.filterwarnings("ignore")
 
 # ## 1 Make arrival catalog 
 
-# In[2]:
+# In[11]:
 
 
 t0=time.time()
@@ -139,22 +145,22 @@ column_list=['id', 'sc','target_name','sse_launch_time','target_arrival_time','t
 #pandas dataframe for current version with iteration in calculating arrival time
 ac = pd.DataFrame([], columns = column_list)
 
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'PSP',column_list)
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'SolarOrbiter',column_list)
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'BepiColombo',column_list)  
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-A',column_list)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'PSP',column_list,kernels_path)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'SolarOrbiter',column_list,kernels_path)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'BepiColombo',column_list,kernels_path)  
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-A',column_list,kernels_path)
 
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-B',column_list)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-B',column_list,kernels_path)
 #need to get Ulysses position
 #ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Ulysses',column_list)
 #add messenger similarly
 #ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Messenger',column_list)
 
 
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Mercury',column_list)
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Venus',column_list)
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Earth_L1',column_list)
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Mars',column_list)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Mercury',column_list,kernels_path)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Venus',column_list,kernels_path)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Earth_L1',column_list,kernels_path)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Mars',column_list,kernels_path)
 
 
 ac = ac.sort_values(by='target_arrival_time',ascending=False)

@@ -187,7 +187,7 @@ def calculate_arrival(vsse,delta,lamda,rdist,t0_num):
 
 
 
-def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, target_name, column_list):
+def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, target_name, column_list,kernels_path):
     
     #get parameters from HIGEOCAT for arrival catalog
 
@@ -209,7 +209,9 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, target_name, column_list
         kernels_psp = astrospice.registry.get_kernels('psp', 'predict')
   
     if target_name=='SolarOrbiter':
-        kernels_solo = astrospice.registry.get_kernels('solar orbiter', 'predict')
+        solo_path= kernels_path+'solo/'
+        kernels_solo = astrospice.SPKKernel(solo_path+'solo_ANC_soc-orbit_20200210-20301120_L014_V1_00275_V01.bsp')
+        #kernels_solo = astrospice.registry.get_kernels('solar orbiter', 'predict')
         
     if target_name=='STEREO-A':
         kernels_stereo_recon = astrospice.registry.get_kernels('stereo-a', 'recon')
