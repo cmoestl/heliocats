@@ -945,7 +945,7 @@ print(rc_rate_time)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[10]:
+# In[29]:
 
 
 sns.set_context("talk")     
@@ -1018,6 +1018,11 @@ myformat = mdates.DateFormatter('%Y')
 ax2.xaxis.set_major_formatter(myformat)
 plt.xticks(yearly_start_times, fontsize=fsize) 
 plt.xlabel('Year',fontsize=fsize)
+
+
+    
+plt.figtext(0.05,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
 
 plt.tight_layout()
 
@@ -1912,7 +1917,7 @@ print(ic_rate_25_mc23_std)
 
 # ## **Figure 3** ICME rate predictions
 
-# In[29]:
+# In[28]:
 
 
 sns.set_context("talk")     
@@ -2019,7 +2024,9 @@ ax4.set_zorder(1)
 ax3.patch.set_visible(False)
 
     
-    
+plt.figtext(0.05,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
+
 plt.tight_layout()
 
 #plt.annotate('(a)',[0.0,0.965],xycoords='figure fraction',weight='bold')
