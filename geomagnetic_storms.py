@@ -43,7 +43,6 @@ importlib.reload(hd) #reload again while debugging
 
 from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
-from config_local import data_path
 
 
 outputdir='results/icme_rate/'
