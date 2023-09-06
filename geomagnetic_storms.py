@@ -3,7 +3,7 @@
 
 # ## Geomagnetic storm magnitude in a historic context
 
-# In[16]:
+# In[1]:
 
 
 import pickle
@@ -48,8 +48,8 @@ if sys.platform == 'linux':
 if sys.platform =='darwin':  
     print('system is mac')
     from config_local import data_path    
-    matplotlib.use('Agg') 
-    #%matplotlib inline     
+    #matplotlib.use('Agg') 
+    get_ipython().run_line_magic('matplotlib', 'inline')
 
 print(data_path)
 
@@ -84,7 +84,7 @@ n=pickle.load(open(data_path+filenoaa, "rb" ) )
 
 # ### plot Dst
 
-# In[12]:
+# In[3]:
 
 
 years=np.arange(1995,2040) 
@@ -130,7 +130,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
 
-# In[15]:
+# In[4]:
 
 
 years=np.arange(1995,2040) 
