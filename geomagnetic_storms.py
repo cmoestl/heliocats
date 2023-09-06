@@ -3,7 +3,7 @@
 
 # ## Geomagnetic storm magnitude in a historic context
 
-# In[2]:
+# In[9]:
 
 
 import pickle
@@ -18,7 +18,7 @@ import urllib
 import pandas as pd
 import os
 import sys
-import importl
+import importlib
 
 
 import plotly.graph_objects as go
@@ -60,7 +60,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[ ]:
+# In[4]:
 
 
 ##get omni dst data
@@ -83,7 +83,7 @@ n=pickle.load(open(data_path+filenoaa, "rb" ) )
 
 # ### plot Dst
 
-# In[ ]:
+# In[5]:
 
 
 years=np.arange(1995,2040) 
@@ -127,7 +127,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.pdf',dpi=150)
 
 
 
-# In[ ]:
+# In[6]:
 
 
 years=np.arange(1995,2040) 
@@ -184,7 +184,7 @@ plt.savefig(outputdir+'geomagnetic_storm_latest.pdf',dpi=150)
 
 # #### looking into the data
 
-# In[ ]:
+# In[7]:
 
 
 #https://plotly.com/python/
@@ -205,7 +205,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[ ]:
+# In[8]:
 
 
 if data_lookup > 0:
