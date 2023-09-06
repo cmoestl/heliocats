@@ -3,7 +3,7 @@
 
 # ## Geomagnetic storm magnitude in a historic context
 
-# In[1]:
+# In[ ]:
 
 
 import pickle
@@ -61,7 +61,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[2]:
+# In[45]:
 
 
 ##get omni dst data
@@ -73,7 +73,7 @@ if get_new_data: hd.save_omni_data(data_path,fileomni)
 
 start=datetime.datetime.utcnow() - datetime.timedelta(days=2*365)
 end=datetime.datetime.utcnow() 
-hp.plot_insitu_update(o, start, end,'OMNI2',outputdir,now=True)
+#hp.plot_insitu_update(o, start, end,'OMNI2',outputdir,now=True)
 
 
 
@@ -82,9 +82,22 @@ filenoaa='noaa_dst_last_300files_now.p'
 n=pickle.load(open(data_path+filenoaa, "rb" ) )  
 
 
+
+#take only last year in the omni data
+os=o.dst[-24*365:]
+ot=o.time[-24*365:]
+#search for the latest data point of omni in noaa dst, and cutoff the noaa dst
+cutoff=np.where(np.isfinite(os)==False)[0][0]
+print(ot[cutoff])
+cutoffnoaa=np.where(n.time > ot[cutoff])[0][0]
+print(cutoffnoaa)
+#cut noaa dst array
+n=n[cutoffnoaa:]
+
+
 # ### plot Dst
 
-# In[3]:
+# In[71]:
 
 
 years=np.arange(1995,2040) 
@@ -94,8 +107,8 @@ sns.set_context('talk')
 sns.set_style('darkgrid')
 fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
 
-ax1.plot(o.time,o.dst,color='k',linewidth=0.3,alpha=0.7)
-ax1.plot(n.time,n.dst,color='b',linewidth=0.3,alpha=0.7)
+ax1.plot(o.time,o.dst,color='k',linewidth=0.7,alpha=0.8, label='OMNI Dst')
+ax1.plot(n.time,n.dst,color='royalblue',linewidth=0.9,alpha=1.0,label='NOAA Dst')
 
 #ax1.plot(o.time,np.zeros(np.size(o.time))-187, 'g')
 #stack both OMNI and NOAA Dst and determine min max for last 25 years
@@ -121,16 +134,18 @@ ax1.set_xlim(datetime.datetime(1996,1,1),datetime.datetime(2024,1,1))
 plt.title('Geomagnetic storms in solar cycles 23 / 24 / 25',fontsize=18)
 
 fsize=12
+plt.legend(loc=3,fontsize=13)
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
+plt.figtext(0.96,0.93,'last update: '+str(datetime.datetime.utcnow())[0:10], ha='right', fontsize=10)
 plt.tight_layout()
 
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
 
-# In[4]:
+# In[72]:
 
 
 years=np.arange(1995,2040) 
@@ -143,8 +158,8 @@ sns.set_style('darkgrid')
 fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
 
 
-ax1.plot(o.time,o.dst,color='k',linewidth=0.7,alpha=0.8)
-ax1.plot(n.time,n.dst,color='b',linewidth=0.7,alpha=0.8)
+ax1.plot(o.time,o.dst,color='k',linewidth=0.7,alpha=0.8, label='OMNI Dst')
+ax1.plot(n.time,n.dst,color='royalblue',linewidth=0.9,alpha=1.0,label='NOAA Dst')
 
 #ax1.plot(o.time,np.zeros(np.size(o.time))-187, 'g')
 
@@ -155,7 +170,7 @@ plotmax=np.nanmax(np.hstack([o.dst,n.dst])[-365*24:-1])
 print(plotmax, plotmin)
 
 ax1.set_xlim(start,end)
-ax1.set_ylim(plotmin-50,plotmax+20)
+ax1.set_ylim(plotmin-30,plotmax+20)
 plt.ylabel('Dst [nT]')
 
 ax1.xaxis_date()
@@ -172,9 +187,10 @@ ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=365),datetime.da
 plt.title('Latest geomagnetic storms',fontsize=15)
 
 fsize=12
+plt.legend(loc=3,fontsize=13)
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
-
+plt.figtext(0.96,0.93,'last update: '+str(datetime.datetime.utcnow())[0:10], ha='right', fontsize=10)
 plt.tight_layout()
 
 plt.savefig(outputdir+'geomagnetic_storm_latest.png',dpi=100)
@@ -185,7 +201,7 @@ plt.savefig(outputdir+'geomagnetic_storm_latest.png',dpi=100)
 
 # #### looking into the data
 
-# In[5]:
+# In[48]:
 
 
 #https://plotly.com/python/
