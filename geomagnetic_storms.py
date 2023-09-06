@@ -61,7 +61,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[17]:
+# In[2]:
 
 
 ##get omni dst data
@@ -84,7 +84,7 @@ n=pickle.load(open(data_path+filenoaa, "rb" ) )
 
 # ### plot Dst
 
-# In[36]:
+# In[12]:
 
 
 years=np.arange(1995,2040) 
@@ -98,9 +98,9 @@ ax1.plot(o.time,o.dst,color='k',linewidth=0.3,alpha=0.7)
 ax1.plot(n.time,n.dst,color='b',linewidth=0.3,alpha=0.7)
 
 #ax1.plot(o.time,np.zeros(np.size(o.time))-187, 'g')
-#stack both OMNI and NOAA Dst and determine min max for all data
-plotmin=np.nanmin(np.hstack([o.dst[-365*24*20:-1],n.dst]) )
-plotmax=np.nanmax(np.hstack([o.dst[-365*24*20:-1],n.dst]))
+#stack both OMNI and NOAA Dst and determine min max for last 25 years
+plotmin=np.nanmin(np.hstack([o.dst,n.dst])[-365*24*25:-1] )
+plotmax=np.nanmax(np.hstack([o.dst,n.dst])[-365*24*25:-1] )
 print(plotmax, plotmin)
 ax1.set_ylim(plotmin-50,plotmax+20)
 
@@ -111,7 +111,7 @@ plt.ylabel('Dst [nT]')
 ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
-plt.xticks(yearly_start_times, fontsize=12,rotation=45) 
+plt.xticks(yearly_start_times, fontsize=14,rotation=45) 
 
 ax1.set_xlim(datetime.datetime(1996,1,1),datetime.datetime(2024,1,1))
 
@@ -122,7 +122,7 @@ plt.title('Geomagnetic storms in solar cycles 23 / 24 / 25',fontsize=18)
 
 fsize=12
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
 plt.tight_layout()
 
@@ -130,7 +130,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
 
-# In[29]:
+# In[15]:
 
 
 years=np.arange(1995,2040) 
@@ -140,11 +140,11 @@ monthly_start_times=[datetime.datetime(year,month,1) for year in years for month
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
-fig, ax1=plt.subplots(1,figsize=(15,7),dpi=100)
+fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
 
 
-ax1.plot(o.time,o.dst,color='k',linewidth=0.5,alpha=0.7)
-ax1.plot(n.time,n.dst,color='b',linewidth=0.5,alpha=0.7)
+ax1.plot(o.time,o.dst,color='k',linewidth=0.7,alpha=0.8)
+ax1.plot(n.time,n.dst,color='b',linewidth=0.7,alpha=0.8)
 
 #ax1.plot(o.time,np.zeros(np.size(o.time))-187, 'g')
 
@@ -152,16 +152,16 @@ ax1.plot(n.time,n.dst,color='b',linewidth=0.5,alpha=0.7)
 #stack both OMNI and NOAA Dst and determine min max for last year
 plotmin=np.nanmin(np.hstack([o.dst,n.dst])[-365*24:-1])
 plotmax=np.nanmax(np.hstack([o.dst,n.dst])[-365*24:-1])
-
+print(plotmax, plotmin)
 
 ax1.set_xlim(start,end)
-ax1.set_ylim(plotmin-20,plotmax+20)
+ax1.set_ylim(plotmin-50,plotmax+20)
 plt.ylabel('Dst [nT]')
 
 ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y %B')
 ax1.xaxis.set_major_formatter(myformat)
-plt.xticks(monthly_start_times, fontsize=12,rotation=30) 
+plt.xticks(monthly_start_times, fontsize=14,rotation=30) 
 
 
 ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=365),datetime.datetime.utcnow()+datetime.timedelta(days=10))
@@ -169,15 +169,15 @@ ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=365),datetime.da
 #ax1.set_xlim(datetime.datetime(2023,1,1),datetime.datetime(2024,1,1))
 
 #plt.title('Geomagnetische Stürme 2015-2023')
-plt.title('Latest geomagnetic storms',fontsize=13)
+plt.title('Latest geomagnetic storms',fontsize=15)
 
 fsize=12
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
 plt.tight_layout()
 
-plt.savefig(outputdir+'geomagnetic_storm_latest.png',dpi=150)
+plt.savefig(outputdir+'geomagnetic_storm_latest.png',dpi=100)
 
 
 ##histogram
@@ -185,7 +185,7 @@ plt.savefig(outputdir+'geomagnetic_storm_latest.png',dpi=150)
 
 # #### looking into the data
 
-# In[20]:
+# In[5]:
 
 
 #https://plotly.com/python/
@@ -206,7 +206,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[21]:
+# In[6]:
 
 
 if data_lookup > 0:
