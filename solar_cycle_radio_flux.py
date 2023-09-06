@@ -11,7 +11,7 @@
 # Tiwari and Kumar
 # https://journals.aijr.org/index.php/ias/article/view/751/172
 
-# In[7]:
+# In[6]:
 
 
 import pickle
@@ -42,6 +42,7 @@ if sys.platform == 'linux':
 if sys.platform =='darwin':  
     print('system is mac')
     from config_local import noaa_path    
+    #matplotlib.use('Agg')
     get_ipython().run_line_magic('matplotlib', 'inline')
 
 print(noaa_path)
@@ -53,7 +54,7 @@ os.system('jupyter nbconvert --to script solar_cycle_radio_flux.ipynb')
 
 # #### load data from NOAA
 
-# In[2]:
+# In[7]:
 
 
 #observations
@@ -82,7 +83,7 @@ noaa_obs
 
 # #### figure out relationship for SSN to SFU
 
-# In[3]:
+# In[8]:
 
 
 #define models to convert SSN to SFU
@@ -150,7 +151,7 @@ plt.plot(noaa_pred_times,tk_model(SSN_pred),'b--')
 
 # ### define Hathaway function for SSN from McIntosh+ 2022
 
-# In[4]:
+# In[9]:
 
 
 def hathaway(x,x0, a, b, c):
@@ -209,7 +210,7 @@ print(int(np.max(SFU_mc_prediction_1)))
 print(int(np.max(SFU_mc_prediction_2)))
 
 
-# In[5]:
+# In[20]:
 
 
 years=np.arange(2005,2040) 
@@ -217,31 +218,28 @@ yearly_start_times=[datetime.datetime(year,1,1) for year in years]
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
-fig=plt.figure(1,figsize=(14,11),dpi=150)
 
-ax1 = plt.subplot(211) 
+fig1, (ax1, ax2) = plt.subplots(2, figsize=(15,10),dpi=100)
 ax1.plot_date(noaa_obs_times,SSN_obs,'-', label='observed monthly SSN')
 
 #predictions
 ax1.plot(noaa_pred_times,SSN_pred,'b-',lw=2,label='NOAA prediction')
 ax1.plot(times_25_daily,SSN_mc_prediction,'-r',alpha=1,linewidth=2.5,label='McIntosh+ 2023')
 
-
-
 ax1.set_ylabel('SSN')
 ax1.set_ylim(0,250)
 ax1.legend(loc=2,fontsize=12)
 ax1.set_title('Monthly sunspot number (SSN) with McIntosh+ 2023 forecast')
+
 ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
-plt.xticks(yearly_start_times, fontsize=12) 
-ax1.set_xlim(datetime.datetime(2007,1,1),datetime.datetime(2033,1,1))
+ax1.set_xticks(yearly_start_times, fontsize=12) 
+ax1.set_xlim(datetime.datetime(2009,1,1),datetime.datetime(2031,1,1))
 
 ############
 
 
-ax2 = plt.subplot(212) 
 ax2.plot(noaa_obs_times,SFU_obs,'-',label='observed monthly SFU')
 
 #predictions
@@ -252,6 +250,9 @@ ax2.plot(times_25_daily,SFU_mc_prediction_1,'r-',alpha=1,linewidth=2,label='Clet
 #ax2.plot(noaa_obs_times,tk_model(SSN_obs),'k--',lw=1, label='TK model')
 
 ax2.plot(noaa_obs_times,clette_model(SSN_obs),'r--',lw=1,label='Clette model applied to SSN data')
+ax2.legend(loc=2,fontsize=12)
+
+ax2.set_title('Monthly 10.7 cm solar radio flux for McIntosh+ 2023 forecast')
 
 
 ax2.set_ylim(50,225)
@@ -260,20 +261,19 @@ ax2.set_ylabel('solar flux units (SFU)')
 ax2.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax2.xaxis.set_major_formatter(myformat)
-plt.xticks(yearly_start_times, fontsize=12) 
+ax2.set_xticks(yearly_start_times, fontsize=12) 
 #plt.xlabel('Year',fontsize=12)
 
-ax2.set_xlim(datetime.datetime(2007,1,1),datetime.datetime(2033,1,1))
-ax2.legend(loc=2,fontsize=12)
-
-ax2.set_title('Monthly 10.7 cm solar radio flux for McIntosh+ 2023 forecast')
+ax2.set_xlim(datetime.datetime(2009,1,1),datetime.datetime(2031,1,1))
 
 fsize=14   
 plt.figtext(0.05,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
 
 plt.tight_layout()
-plt.savefig(outputdir+'sfu_prediction.png', dpi=150)
+plt.savefig(outputdir+'sfu_prediction.png',dpi=100)
+
+print('done')
 
 
 # In[ ]:
