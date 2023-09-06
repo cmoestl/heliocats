@@ -3,7 +3,7 @@
 
 # ## Geomagnetic storm magnitude in a historic context
 
-# In[9]:
+# In[15]:
 
 
 import pickle
@@ -48,6 +48,7 @@ if sys.platform == 'linux':
 if sys.platform =='darwin':  
     print('system is mac')
     from config_local import data_path    
+    #matplotlib.use('Agg') 
     get_ipython().run_line_magic('matplotlib', 'inline')
 
 print(data_path)
@@ -60,7 +61,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[4]:
+# In[16]:
 
 
 ##get omni dst data
@@ -83,7 +84,7 @@ n=pickle.load(open(data_path+filenoaa, "rb" ) )
 
 # ### plot Dst
 
-# In[5]:
+# In[19]:
 
 
 years=np.arange(1995,2040) 
@@ -91,8 +92,7 @@ yearly_start_times=[datetime.datetime(year,1,1) for year in years]
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
-fig=plt.figure(1,figsize=(10,5),dpi=100)
-ax1 = plt.subplot(111) 
+fig, ax1=plt.subplots(1,figsize=(10,5),dpi=100)
 
 ax1.plot(o.time,o.dst,color='k',linewidth=0.3,alpha=0.7)
 ax1.plot(n.time,n.dst,color='b',linewidth=0.3,alpha=0.7)
@@ -127,9 +127,10 @@ plt.savefig(outputdir+'geomagnetic_storm_all.pdf',dpi=150)
 
 
 
-# In[6]:
+# In[14]:
 
 
+plt.
 years=np.arange(1995,2040) 
 months=np.arange(1,13)
 monthly_start_times=[datetime.datetime(year,month,1) for year in years for month in months]
@@ -137,8 +138,8 @@ monthly_start_times=[datetime.datetime(year,month,1) for year in years for month
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
-fig=plt.figure(1,figsize=(10,5),dpi=100)
-ax1 = plt.subplot(111) 
+fig, ax1=plt.subplots(1,figsize=(10,5),dpi=100)
+
 
 ax1.plot(o.time,o.dst,color='k',linewidth=0.5,alpha=0.7)
 ax1.plot(n.time,n.dst,color='b',linewidth=0.5,alpha=0.7)
