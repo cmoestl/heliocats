@@ -40,7 +40,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[1]:
+# In[30]:
 
 
 from scipy import stats
@@ -954,7 +954,7 @@ sns.set_context("talk")
 sns.set_style("ticks",{'grid.linestyle': '--'})
 fsize=15
 
-fig=plt.figure(1,figsize=(12,5),dpi=100)
+fig=plt.figure(1,figsize=(12,6),dpi=100)
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
 

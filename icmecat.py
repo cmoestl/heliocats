@@ -37,27 +37,27 @@
 # - west, north, east, south indicators better onto the plot position and not in the axis
 # - STEREO A beacon data (used from 2023 Jan 1 onwards) contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
-# - for adding Juno data the pickle file needs to be made for the data
+# 
 
-# In[73]:
+# In[1]:
 
 
-last_update='2023-September-1'
+last_update='2023-September-30'
 
 debug_mode=1
 
 #redo positions file
 make_positions=0
 #red indices file
-create_indices=0
+create_indices=1
 
 #define number of processes for plotting
 used=8 
 #which plots to make
 solo_plots=1
-bepi_plots=1
+bepi_plots=0
 psp_plots=1
-wind_plots=1
+wind_plots=0
 sta_plots=1
 
 
@@ -151,7 +151,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[74]:
+# In[2]:
 
 
 # the positions file is generated with positions.ipynb, and the positions from messenger, ulysses and stereob are taken from an older file
@@ -226,7 +226,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[119]:
+# In[3]:
 
 
 load_data=1
@@ -424,7 +424,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[82]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -497,7 +497,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[7]:
+# In[5]:
 
 
 ###### 3c make all plots if wanted
@@ -688,7 +688,7 @@ print('done')
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[8]:
+# In[6]:
 
 
 ###### 3c make all plots if wanted
@@ -715,7 +715,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[120]:
+# In[7]:
 
 
 ######## sort ICMECAT by date
@@ -881,7 +881,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[121]:
+# In[8]:
 
 
 ########## python formats
@@ -1057,7 +1057,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[122]:
+# In[9]:
 
 
 #load icmecat as pandas dataframe
@@ -1069,27 +1069,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[123]:
+# In[10]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[124]:
+# In[11]:
 
 
 ic_pandas
 
 
-# In[125]:
+# In[12]:
 
 
 #
 ic_nprec
 
 
-# In[126]:
+# In[13]:
 
 
 ic_nprec.icmecat_id
@@ -1097,7 +1097,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[127]:
+# In[14]:
 
 
 ic=ic_pandas
@@ -1212,7 +1212,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[128]:
+# In[15]:
 
 
 #markersize
@@ -1264,7 +1264,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 
-# In[129]:
+# In[16]:
 
 
 #same for latitude
@@ -1272,7 +1272,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[130]:
+# In[17]:
 
 
 #make distribution plots
@@ -1329,7 +1329,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[96]:
+# In[18]:
 
 
 t1all = time.time()
@@ -1342,7 +1342,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 
 
 
-# In[20]:
+# In[19]:
 
 
 #check this for pushing the files to figshare

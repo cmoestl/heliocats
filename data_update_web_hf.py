@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[28]:
+# In[4]:
 
 
 #switches
@@ -79,7 +79,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[29]:
+# In[17]:
 
 
 if sys.platform == 'linux': 
@@ -133,7 +133,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[40]:
+# In[67]:
 
 
 #if debug_mode > 0: 

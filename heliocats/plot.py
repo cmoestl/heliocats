@@ -2964,12 +2964,15 @@ def plot_positions(time_date1, path,frame, **kwargs):
     time1=mdates.date2num(time_date1)
 
     #made with positions.ipynb
-    #[psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p', "rb" ) )
-    #res_in_days=1/(24*6) #10 min resolution of positions file
+    [psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p', "rb" ) )
+    res_in_days=1/(24*6) #10 min resolution of positions file
     
     
-    [psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_1hour_rad.p', "rb" ) )
-    res_in_days=1/(24) #1hour resolution of positions file
+    #[psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_1hour_rad.p', "rb" ) )
+    #res_in_days=1/(24) #1hour resolution of positions file
+    
+    
+    
     
 
     #sidereal solar rotation rate
@@ -3003,6 +3006,9 @@ def plot_positions(time_date1, path,frame, **kwargs):
 
     dct=time1-earth.time
     earth_timeind=np.argmin(abs(dct))
+    
+    dct=time1-l1.time
+    l1_timeind=np.argmin(abs(dct))
     
     dct=time1-venus.time
     venus_timeind=np.argmin(abs(dct))
@@ -3193,6 +3199,59 @@ def plot_positions(time_date1, path,frame, **kwargs):
     plt.savefig(plotfile)
     print('saved as ',plotfile)
     
+    
+    #write txt file with positions 30 days prior to and later than current time
+    #and pickle file
+    
+    #psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune
+    #10 min resolution
+    psp_cut=psp[psp_timeind-6*24*30:psp_timeind+6*24*30]
+    solo_cut=solo[solo_timeind-6*24*30:solo_timeind+6*24*30]
+    sta_cut=sta[sta_timeind-6*24*30:sta_timeind+6*24*30]
+    bepi_cut=bepi[bepi_timeind-6*24*30:bepi_timeind+6*24*30]
+    l1_cut=l1[l1_timeind-6*24*30:l1_timeind+6*24*30]
+    earth_cut=psp[earth_timeind-6*24*30:earth_timeind+6*24*30]
+    mercury_cut=mercury[mercury_timeind-6*24*30:mercury_timeind+6*24*30]
+    venus_cut=venus[venus_timeind-6*24*30:venus_timeind+6*24*30]
+    mars_cut=mars[mars_timeind-6*24*30:mars_timeind+6*24*30]
+    jupiter_cut=jupiter[jupiter_timeind-6*24*30:jupiter_timeind+6*24*30]
+    
+    
+    
+    pickle.dump([psp_cut,solo_cut,sta_cut,bepi_cut,l1_cut, earth_cut, mercury_cut, venus_cut, mars_cut, jupiter_cut], open( path+'positions_now.p', "wb" ) ) 
+    print('saved as ',path+'positions_now.p')
+    
+    
+    #print(np.concatenate((psp_cut, solo_cut, sta_cut, bepi_cut, l1_cut), axis=0))
+
+    #make adjustments for txt file
+    output_format='%Y-%m-%dT%H:%MZ'
+    psp_cut.time=[mdates.num2date(ts).strftime(output_format) for ts in psp_cut.time]
+    psp_cut.lon=np.rad2deg(psp_cut.lon)
+    psp_cut.lat=np.rad2deg(psp_cut.lat)
+    
+    solo_cut.time=[mdates.num2date(ts).strftime(output_format) for ts in solo_cut.time]
+    solo_cut.lon=np.rad2deg(solo_cut.lon)
+    solo_cut.lat=np.rad2deg(solo_cut.lat)
+    
+    bepi_cut.time=[mdates.num2date(ts).strftime(output_format) for ts in bepi_cut.time]
+    bepi_cut.lon=np.rad2deg(bepi_cut.lon)
+    bepi_cut.lat=np.rad2deg(bepi_cut.lat)
+
+    sta_cut.time=[mdates.num2date(ts).strftime(output_format) for ts in sta_cut.time]
+    sta_cut.lon=np.rad2deg(solo_cut.lon)
+    sta_cut.lat=np.rad2deg(solo_cut.lat)
+
+    l1_cut.time=[mdates.num2date(ts).strftime(output_format) for ts in l1_cut.time]
+    l1_cut.lon=np.rad2deg(l1_cut.lon)
+    l1_cut.lat=np.rad2deg(l1_cut.lat)
+
+    
+
+    np.savetxt(path+'positions_now.txt', np.concatenate((psp_cut,solo_cut,bepi_cut,sta_cut,l1_cut), axis=0), delimiter=' ', fmt='%s %s %f %f %f %f %f %f', header='spacecraft time     R [AU] lon [deg] lat [deg]   x [AU]   y [AU]  z [AU]  HEEQ coordinates / ASWO, GeoSphere Austria')
+    
+#    np.savetxt(path+'current_positions.txt', np.concatenate((psp_cut, solo_cut, sta_cut, bepi_cut, l1_cut), axis=0), delimiter=' ', fmt='%s %f %f %f %f %f %f %f ')
+    print('saved as ',path+'positions_now.txt')
 
 
     #if now exists as keyword, save as the file with just now in filename:     
