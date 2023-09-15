@@ -3239,8 +3239,8 @@ def plot_positions(time_date1, path,frame, **kwargs):
     bepi_cut.lat=np.rad2deg(bepi_cut.lat)
 
     sta_cut.time=[mdates.num2date(ts).strftime(output_format) for ts in sta_cut.time]
-    sta_cut.lon=np.rad2deg(solo_cut.lon)
-    sta_cut.lat=np.rad2deg(solo_cut.lat)
+    sta_cut.lon=np.rad2deg(sta_cut.lon)
+    sta_cut.lat=np.rad2deg(sta_cut.lat)
 
     l1_cut.time=[mdates.num2date(ts).strftime(output_format) for ts in l1_cut.time]
     l1_cut.lon=np.rad2deg(l1_cut.lon)
@@ -3248,7 +3248,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
 
     
 
-    np.savetxt(path+'positions_now.txt', np.concatenate((psp_cut,solo_cut,bepi_cut,sta_cut,l1_cut), axis=0), delimiter=' ', fmt='%s %s %f %f %f %f %f %f', header='spacecraft time     R [AU] lon [deg] lat [deg]   x [AU]   y [AU]  z [AU]  HEEQ coordinates / ASWO, GeoSphere Austria')
+    np.savetxt(path+'positions_now.txt', np.concatenate((psp_cut,solo_cut,bepi_cut,sta_cut,l1_cut), axis=0), delimiter=' ', fmt='%s %s %f %f %f %f %f %f', header='spacecraft time     R [AU] lon [deg] lat [deg]   x [AU]   y [AU]  z [AU]  HEEQ coordinates / ASWO, GeoSphere Austria created '+str(datetime.datetime.utcnow())[0:16])
     
 #    np.savetxt(path+'current_positions.txt', np.concatenate((psp_cut, solo_cut, sta_cut, bepi_cut, l1_cut), axis=0), delimiter=' ', fmt='%s %f %f %f %f %f %f %f ')
     print('saved as ',path+'positions_now.txt')
