@@ -3,7 +3,7 @@
 
 # ## Geomagnetic storm magnitude in a historic context
 
-# In[49]:
+# In[51]:
 
 
 import pickle
@@ -61,7 +61,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[44]:
+# In[52]:
 
 
 ##get omni dst data
@@ -105,7 +105,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[45]:
+# In[72]:
 
 
 years=np.arange(1995,2040) 
@@ -146,14 +146,14 @@ plt.legend(loc=3,fontsize=13)
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
-plt.figtext(0.96,0.93,'last update: '+str(datetime.datetime.utcnow())[0:10], ha='right', fontsize=10)
+plt.figtext(0.92,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=10)
 plt.tight_layout()
 
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
 
-# In[48]:
+# In[73]:
 
 
 years=np.arange(1995,2040) 
@@ -189,7 +189,8 @@ plt.xticks(monthly_start_times, fontsize=14,rotation=30)
 
 ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=365),datetime.datetime.utcnow()+datetime.timedelta(days=10))
 
-#ax1.set_xlim(datetime.datetime(2023,1,1),datetime.datetime(2024,1,1))
+#ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=10))
+
 
 #plt.title('Geomagnetische Stürme 2015-2023')
 plt.title('Latest geomagnetic storms',fontsize=15)
@@ -198,7 +199,7 @@ fsize=12
 plt.legend(loc=3,fontsize=13)
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
-plt.figtext(0.96,0.93,'last update: '+str(datetime.datetime.utcnow())[0:10], ha='right', fontsize=10)
+plt.figtext(0.92,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=10)
 plt.tight_layout()
 
 plt.savefig(outputdir+'geomagnetic_storm_latest.png',dpi=100)
@@ -208,10 +209,13 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[47]:
+# In[74]:
 
 
 #save data for last few months as txt
+
+
+## to do: indicate if data comes from OMNI or NOAA
 
 dst=np.hstack([os[cutoff-24*180:cutoff],n.dst])
 time=np.hstack([ot[cutoff-24*180:cutoff],n.time])
@@ -234,7 +238,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[29]:
+# In[61]:
 
 
 print(' ')
@@ -246,7 +250,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[30]:
+# In[62]:
 
 
 #https://plotly.com/python/
@@ -267,7 +271,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[31]:
+# In[63]:
 
 
 if data_lookup > 0:
@@ -279,10 +283,16 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[ ]:
+# In[64]:
 
 
-
+if data_lookup > 0:
+    
+    fig=plt.figure(figsize=(8,10), dpi=150)
+    x = np.arange(10)
+    fig = go.Figure(data=go.Scatter(x=data.time, y=data.dst))
+    fig.write_html(f'geomagnetic_storms.html')
+    fig.show()
 
 
 # In[ ]:
