@@ -3,7 +3,7 @@
 
 # ## Geomagnetic storm magnitude in a historic context
 
-# In[ ]:
+# In[7]:
 
 
 import pickle
@@ -61,7 +61,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[ ]:
+# In[8]:
 
 
 ##get omni dst data
@@ -96,7 +96,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[ ]:
+# In[9]:
 
 
 years=np.arange(1995,2040) 
@@ -144,7 +144,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
 
-# In[ ]:
+# In[10]:
 
 
 years=np.arange(1995,2040) 
@@ -199,7 +199,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[ ]:
+# In[14]:
 
 
 #save data for last few months as txt
@@ -209,7 +209,7 @@ time=np.hstack([ot[cutoff-24*180:cutoff],n.time])
 output_format='%Y-%m-%dT%H:%MZ'
 time=[ts.strftime(output_format) for ts in time]
 
-data=np.zeros(len(time),dtype=[('time','U16'),('dst', float)])   
+data=np.zeros(len(time),dtype=[('time','U17'),('dst', float)])   
 
 #convert to recarray
 data = data.view(np.recarray)  
@@ -218,7 +218,21 @@ data.dst=dst
 
 
 #save latest year as file
-np.savetxt(outputdir+'geomagnetic_storm_latest.txt',data, delimiter=' ', fmt='%s %d', header='time   Dst [nT] / data from OMNI2, NOAA. ASWO, GeoSphere Austria')
+np.savetxt(outputdir+'geomagnetic_storm_latest.txt',data, delimiter=' ', fmt='%s %d', header='time [UT]   Dst [nT] / data from OMNI2, NOAA. ASWO, GeoSphere Austria  created '+str(datetime.datetime.utcnow())[0:16])
+print('saved as', outputdir+'geomagnetic_storm_latest.txt')
+
+print(' ')
+print('latest data point',data.time[-1])
+
+
+# In[13]:
+
+
+print(' ')
+print(' ')
+print('Dst update png and txt done ')
+
+print('------------------------')
 
 
 # #### looking into the data
