@@ -3,7 +3,7 @@
 
 # ## Geomagnetic storm magnitude in a historic context
 
-# In[7]:
+# In[49]:
 
 
 import pickle
@@ -61,7 +61,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[8]:
+# In[44]:
 
 
 ##get omni dst data
@@ -71,14 +71,23 @@ fileomni="omni_1963_now.p"
 if get_new_data: hd.save_omni_data(data_path,fileomni)
 [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
 
+print(data_path+fileomni)
+
 start=datetime.datetime.utcnow() - datetime.timedelta(days=2*365)
 end=datetime.datetime.utcnow() 
 #hp.plot_insitu_update(o, start, end,'OMNI2',outputdir,now=True)
 
 
-#get current dst
-filenoaa='noaa_dst_last_300files_now.p'
+#get current dst last 35 days
+filenoaa='noaa_dst_last_35files_now.p'
 n=pickle.load(open(data_path+filenoaa, "rb" ) )  
+
+
+#get current dst last 300 days
+#filenoaa='noaa_dst_last_300files_now.p'
+#n2=pickle.load(open(data_path+filenoaa, "rb" ) )  
+
+############### TO DO stitch together n and n2
 
 
 #take only last year in the omni data
@@ -96,7 +105,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[9]:
+# In[45]:
 
 
 years=np.arange(1995,2040) 
@@ -144,7 +153,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
 
-# In[10]:
+# In[48]:
 
 
 years=np.arange(1995,2040) 
@@ -199,7 +208,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[14]:
+# In[47]:
 
 
 #save data for last few months as txt
@@ -225,7 +234,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[13]:
+# In[29]:
 
 
 print(' ')
@@ -237,7 +246,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[6]:
+# In[30]:
 
 
 #https://plotly.com/python/
@@ -258,7 +267,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[7]:
+# In[31]:
 
 
 if data_lookup > 0:
