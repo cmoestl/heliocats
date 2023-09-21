@@ -2811,6 +2811,8 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
     print('file saved ',data_path+filenoaa)
     pickle.dump([nf,header], open(data_path+filenoaa, "wb"))
     
+    
+    
     #################### dst file
     
     print()
@@ -2831,15 +2833,13 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
 
     print(dstlist)
 
-    
-    
+        
     #make array 
-    dst=np.zeros(int(1e7),dtype=[('time',object),('dst', float)])   
+    #dst=np.zeros(int(1e7),dtype=[('time',object),('dst', float),('nc',float)])   
+    dst=np.zeros(int(1e7),dtype=[('time',object),('dst', float)])
 
-  
     #counter    
     k=0
-    
     
     for i in np.arange(len(dstlist))-1:
 
@@ -2857,19 +2857,32 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
             print(dstfile1)
       
            
-
     #cut zeros, sort, convert to recarray, and find unique times and data
 
     dst_cut=dst[0:k]
-    dst_cut.sort()
-    
+    dst_cut.sort()    
              
     dstu=dst_cut.view(np.recarray)
     [dum,ind]=np.unique(dstu.time,return_index=True)  
     dstf=dstu[ind]
     
+    
+    #calculate newell coupling from the solar wind
+    #TBD
+    
+    
+    
+    #put both in a recarray
+    
+    dst_nc=np.zeros(len(dstf),dtype=[('time',object),('dst', float),('nc',float)])   
+    dst_nc=dst_nc.view(np.recarray)
+    
+    dst_nc.time=dstf.time
+    dst_nc.dst=dstf.dst
+    dst_nc.nc=np.zeros(len(dstf))
+    
     print('file saved ',data_path+filedst)
-    pickle.dump(dstf, open(data_path+filedst, "wb"))
+    pickle.dump(dst_nc, open(data_path+filedst, "wb"))
     print(' ')
     print(' ')
     

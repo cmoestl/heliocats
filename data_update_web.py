@@ -17,7 +17,7 @@
 # 
 # 
 
-# In[4]:
+# In[ ]:
 
 
 #switches
@@ -234,8 +234,14 @@ if get_noaa > 0:
     ## SAVE NOAA DATA AS PICKLE, dst as extra file
     # last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file
     
-    
+    #make the last 300 files
     hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,300)
+    
+    #also make the last 2500 files, 3900 available in total
+    filenoaa2='noaa_rtsw_last_2500files_now.p'
+    filedst2='noaa_dst_last_2500_now.p'    
+    hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,2500)
+    
     print('NOAA RTSW saved as pickle file complete')
 
 
