@@ -30,6 +30,7 @@ import os
 import sys
 from numba import njit
 import importlib
+import copy
 
 
 import plotly.graph_objects as go
@@ -93,6 +94,9 @@ end=datetime.datetime.utcnow()
 filenoaa='noaa_dst_last_35files_now.p'
 n=pickle.load(open(data_path+filenoaa, "rb" ) )  
 
+#store the original dst values
+norig=copy.deepcopy(n)
+
 
 #get current dst last 300 days
 #filenoaa='noaa_dst_last_300files_now.p'
@@ -113,103 +117,18 @@ print(cutoffnoaa)
 #cut noaa dst array
 n=n[cutoffnoaa:]
 
-
-# In[3]:
-
-
-#get NOAA solar wind
-
-filenoaa='noaa_rtsw_last_35files_now.p'
-w=pickle.load(open(data_path+filenoaa, "rb" ) )  
+print(norig.time)
 
 
-def calc_avg_solarwind_predstorm(dt,l1wind):
-    """
-    Calculates a weighted average of speed and magnetic field bx, by, bz and the Newell coupling ec
-    for a number of ave_hours (4 by default) back in time
-    input data time resolution in the l1wind array is 1 hour
-    aurora output time resolution as given by dt can be higher
-    corresponds roughly to ap_inter_sol.pro in IDL ovation
-    
-    input: 
-    - datetime object dt (single value)
-    - l1wind: the solar wind input is a recarray containing time 
-      (in matplotlib format), bx, by, bz, v, ec
-      
-    test run time after running aurora_forecast.py with 
-    %timeit oup.calc_avg_solarwind_predstorm(ts[0],l1wind)         
-    """
-    ave_hours=4                # hours previous to integrate over, usually 4
-    prev_hour_weight = 0.65    # reduce weighting by factor with each hour back
-    
-    
-    #initiate array of averaged solar wind variables with size of dt
-    avgsw=np.recarray(np.size(dt),dtype=[('time', float),('bx', float), ('by', float),('bz', float),('v', float),('ec', float)])
-    
-    #make array out of dt if its scalar so subscripts work
-    if np.size(dt) == 1: dt=[dt] 
-
-    avgsw.time = mdates.date2num(dt)
-    
-    
-    #go through all dt times:
-    for i in np.arange(0,np.size(dt)):
-
-       
-        dt_mat_hour = mdates.date2num(round_to_hour_start(dt[i]))  #get with input dt to hour start and continute with matplotlib times
-        closest_time_ind_hour = np.argmin(abs(l1wind.time-dt_mat_hour))  #find index of closest time to dt_mat_hour
-        dt_mat = mdates.date2num(dt[i])  #convert input datetimte dt to matplotlib time
-        closest_time_ind = np.argmin(abs(l1wind.time-dt_mat)) #find index of closest time to dt
-    
-        weights = np.ones(ave_hours)  #make array with weights     
-        for k in np.arange(1,ave_hours,1):  weights[k] = weights[k-1]*prev_hour_weight
-
-        a = (dt_mat-dt_mat_hour)*24 # fraction of hour elapsed
-        #weights[0]=np.sqrt(a)  #the current fraction of hour is weighted as square root (IDL ap_inter_sol.pro)
-        weights[0] = a  #the current fraction of hour is weighted as linear
-
-        times_for_weight_ind = np.arange(closest_time_ind_hour, closest_time_ind_hour-ave_hours,-1)
-        
-        #sum last hours with each weight and normalize    
-        avgsw[i].bx = np.round(np.nansum(l1wind.bx[times_for_weight_ind]*weights)/ np.nansum(weights),2)
-        avgsw[i].by = np.round(np.nansum(l1wind.by[times_for_weight_ind]*weights)/ np.nansum(weights),2)
-        avgsw[i].bz = np.round(np.nansum(l1wind.bz[times_for_weight_ind]*weights)/ np.nansum(weights),2)
-        avgsw[i].v  = np.round(np.nansum(l1wind.v[times_for_weight_ind]*weights)/ np.nansum(weights),1)
-        avgsw[i].ec = np.round(np.nansum(l1wind.ec[times_for_weight_ind]*weights)/ np.nansum(weights),1)
-    
-    return avgsw
+# In[ ]:
 
 
-    
-@njit
-def calc_coupling_newell(by, bz, v):
-    '''    
-    Empirical Formula for dFlux/dt - the Newell coupling
-    e.g. paragraph 25 in Newell et al. 2010 doi:10.1029/2009JA014805
-    IDL ovation: sol_coup.pro - contains 33 coupling functions in total
-    input: needs arrays for by, bz, v    
-    ''' 
-    bt = np.sqrt(by**2 + bz**2)
-    bztemp = bz
-    bztemp[bz == 0] = 0.001
-    tc = np.arctan2(by,bztemp)     #calculate clock angle (theta_c = t_c)
-    neg_tc = bt*np.cos(tc)*bz < 0  #similar to IDL code sol_coup.pro
-    tc[neg_tc] = tc[neg_tc] + np.pi
-    sintc = np.abs(np.sin(tc/2.))
-    ec = (v**1.33333)*(sintc**2.66667)*(bt**0.66667)
-    
-    return ec
-
-
-print(' ')
-print('TBD calculate Newell coupling without propagation first')
-print(' ')
 
 
 
 # ### plot Dst
 
-# In[4]:
+# In[3]:
 
 
 years=np.arange(1995,2040) 
@@ -243,21 +162,21 @@ ax1.set_xlim(datetime.datetime(1996,1,1),datetime.datetime(2024,1,1))
 #ax1.set_xlim(datetime.datetime(2023,1,1),datetime.datetime(2024,1,1))
 
 #plt.title('Geomagnetische Stürme 2015-2023')
-plt.title('Geomagnetic storms in solar cycles 23 / 24 / 25',fontsize=18)
+plt.title('Geomagnetic storms in solar cycles 23, 24, 25',fontsize=18)
 
 fsize=12
 plt.legend(loc=3,fontsize=13)
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
-plt.figtext(0.94,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=10)
+plt.figtext(0.95,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=10)
 plt.tight_layout()
 
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
 
-# In[5]:
+# In[4]:
 
 
 years=np.arange(1995,2040) 
@@ -313,7 +232,95 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[6]:
+# ## Newell Coupling
+
+# In[94]:
+
+
+###add plot and add to txt file without propagation 
+
+#get NOAA solar wind
+
+filenoaa='noaa_rtsw_last_35files_now.p'
+[w,h]=pickle.load(open(data_path+filenoaa, "rb" ) )  
+
+    
+@njit
+def calc_coupling_newell(by, bz, v):
+    #Empirical Formula for dFlux/dt - the Newell coupling
+    #e.g. paragraph 25 in Newell et al. 2010 doi:10.1029/2009JA014805
+    #input: needs arrays for by, bz, v    
+    
+    bt = np.sqrt(by**2 + bz**2)
+    bztemp = bz
+    bztemp[bz == 0] = 0.001
+    tc = np.arctan2(by,bztemp)     #calculate clock angle (theta_c = t_c)
+    neg_tc = bt*np.cos(tc)*bz < 0  #similar to IDL code sol_coup.pro
+    tc[neg_tc] = tc[neg_tc] + np.pi
+    sintc = np.abs(np.sin(tc/2.))
+    nc = (v**1.33333)*(sintc**2.66667)*(bt**0.66667)
+    
+    return nc
+
+
+def nc_weights(nc):    
+
+    #this function is for 1 hour time resolution
+    nc_weight=np.zeros(len(nc))
+
+    prev_hour_weight = 0.65    # reduce weighting by factor with each hour back
+    
+    weights=np.zeros(4)
+
+    weights[3] = 1  #the current fraction of hour is weighted as linear
+    weights[2] = prev_hour_weight  
+    weights[1] = prev_hour_weight**2  
+    weights[0] = prev_hour_weight**3      
+    
+    for i in np.arange(4,len(nc)):
+        #add and normalize
+        nc_weight[i] = np.round(np.nansum(nc[i-3:i+1]*weights)/ np.nansum(weights),1)    
+    
+    return nc_weight
+
+print(' ')
+print('TBD calculate Newell coupling without propagation first')
+print(' ')
+#n-> dst
+#w-> solar wind
+
+
+
+#minute resolution
+w_nc=calc_coupling_newell(w.by,w.bz,w.vt)/4421
+#interpolate to 1 hour first
+n_nci=np.interp(mdates.date2num(norig.time),mdates.date2num(w.time),w_nc)
+#then do weighting
+n_ncw=nc_weights(n_nci)
+
+print(n_ncw)
+
+#check if this process is how its done for ovation
+
+
+
+sns.set_context('talk')
+sns.set_style('darkgrid')
+
+fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
+
+ax1.plot(w.time,w_nc,'-k',linewidth=0.5,alpha=0.4)
+ax1.plot(norig.time,n_nci,'or',linewidth=0.5)
+ax1.plot(norig.time,n_ncw,'-b',linewidth=2)
+
+
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=5),datetime.datetime.utcnow())
+
+print('done')
+
+
+
+# In[95]:
 
 
 #save data for last few months as txt
@@ -328,10 +335,14 @@ time=[ts.strftime(output_format) for ts in time]
 
 data=np.zeros(len(time),dtype=[('time','U17'),('dst', float)])   
 
+#add Nc
+
 #convert to recarray
 data = data.view(np.recarray)  
 data.time=time
 data.dst=dst
+
+#data.nc=nc
 
 
 #save latest year as file
@@ -340,14 +351,6 @@ print('saved as', outputdir+'geomagnetic_storm_latest.txt')
 
 print(' ')
 print('latest data point',data.time[-1])
-
-
-# ## Newell Coupling
-
-# In[ ]:
-
-
-###add plot and add to txt file without propagation 
 
 
 # In[7]:
