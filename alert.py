@@ -5,7 +5,7 @@
 
 # uses environment 'envs/env_alert.yml'
 
-# In[82]:
+# In[5]:
 
 
 import pickle
@@ -26,6 +26,12 @@ import smtplib
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+
+#Dst threshold definition for defining an alert
+threshold=-10
+
+
 
 ##### check for system type
 #server
@@ -49,7 +55,7 @@ os.system('jupyter nbconvert --to script alert.ipynb')
 
 # ### get Dst data and plot
 
-# In[83]:
+# In[41]:
 
 
 #get current dst last 35 days
@@ -65,9 +71,9 @@ sns.set_context('talk')
 sns.set_style('darkgrid')
 fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
 
-
 ax1.plot(n.time,n.dst,color='royalblue',linewidth=1.5,alpha=1.0)
 ax1.plot(n.time,n.dst,'ok',markersize=5)
+ax1.axhline(y=threshold, color='r', linestyle='--', label='Horizontal Line at y=15')
 
 
 plotmin=np.nanmin(n.dst)
@@ -77,15 +83,10 @@ print(plotmax, plotmin)
 
 ax1.set_ylim(plotmin-30,plotmax+20)
 plt.ylabel('Dst [nT]')
-
 ax1.xaxis_date()
 
-
-
 ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=20),datetime.datetime.utcnow()+datetime.timedelta(days=10))
-
 ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=5),datetime.datetime.utcnow()+datetime.timedelta(days=0))
-
 
 #plt.title('Geomagnetische Stürme 2015-2023')
 plt.title('Latest geomagnetic storms',fontsize=15)
@@ -98,9 +99,12 @@ plt.figtext(0.92,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' U
 plt.tight_layout()
 
 
+plt.savefig('alerts/alert_dst.png',dpi=100)
+
+
 # ### alert email function
 
-# In[84]:
+# In[7]:
 
 
 def send_alert_email(time,dstval, recipients):
@@ -150,16 +154,19 @@ def send_alert_email(time,dstval, recipients):
 # ### algorithm for triggering alert email        
 # 
 
-# In[88]:
+# In[39]:
 
 
 #with outlook as sender, gmail does not work
 #use outlook.com aswo-space@outlook.com account for testing
 
-threshold=-5
-
 time_now=datetime.datetime.utcnow()
-print(time_now)
+
+print(' ')
+print('------------------------')
+print('start Dst alert check at',time_now)
+
+
 print()
 time_now_num=mdates.date2num(time_now)
 
@@ -186,9 +193,10 @@ print(' ')
 
 if n.dst[-1]<= threshold: 
     
-    print('current dst is ',n.dst[-1], ' which is below the threshold of <=',threshold,' nT')
+    print('------------ Alert triggered')
+    print('Dst is ',int(n.dst[-1]), ' which is below the threshold of <=',threshold,' nT')
     print(' ')
-    print('check if one alert was already sent in last 24 hours:')
+    print('Was alert already sent in last 24 hours?')
 
     #read list of sent out alert times
     atime_list = []
@@ -196,7 +204,8 @@ if n.dst[-1]<= threshold:
         lines = file.readlines()
 
     for line in lines:
-        atime = line.strip()
+        #atime = line.strip()
+        atime=line[0:17]
         atime_list.append(atime)
 
     #print(atime_list)
@@ -212,13 +221,14 @@ if n.dst[-1]<= threshold:
         #send_alert_email(n.time[-1],n.dst[-1],email_list)
         print('emails would be sent')
         
-        print('alert time written in file')
+        print('Alert time and Dst written to file alerts/alert_list.txt')
         
         alert_time_for_file=n.time[-1].strftime("%Y-%m-%dT%H:%MZ")
-        print(alert_time_for_file)
+        print(alert_time_for_file+' '+str(int(n.dst[-1])))
         
         with open('alerts/alert_list.txt', 'a') as file:
             file.write(alert_time_for_file)
+            file.write(' '+str(int(n.dst[-1])))
         
                 
         #write into file the time of the sent alert
@@ -226,19 +236,13 @@ if n.dst[-1]<= threshold:
         print('yes')
         print('Dst below threshold but alert already sent')
         
-else: print('Dst was never <= threshold of ', threshold, ' nT, no emails sent' )    
+else: print('Dst is not <= threshold of ', threshold, ' nT, no emails sent' )    
 
 print(' ')
 print(' ')
-print('Dst alert done ')
+print('end Dst alert')
 
 print('------------------------')
-
-
-# In[ ]:
-
-
-
 
 
 # In[ ]:
