@@ -17,7 +17,7 @@
 # 
 # 
 
-# In[2]:
+# In[5]:
 
 
 #switches
@@ -76,7 +76,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[6]:
 
 
 if sys.platform == 'linux': 
@@ -237,10 +237,6 @@ if get_noaa > 0:
     #make the last 300 files
     hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,300)
     
-    #also make the last 2500 files, 3900 available in total
-    filenoaa2='noaa_rtsw_last_2500files_now.p'
-    filedst2='noaa_dst_last_2500_now.p'    
-    hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,2500)
     
     print('NOAA RTSW saved as pickle file complete')
 
@@ -337,6 +333,15 @@ print('------------------')
 print('Runtime for full data update web code:', np.round((t1all-t0all)/60,2), 'minutes')
 print('--------------------------------------------------------------------------------------')
 
+
+
+# In[ ]:
+
+
+#also make the last 2500 files, 3900 available in total
+filenoaa2='noaa_rtsw_last_2500files_now.p'
+filedst2='noaa_dst_last_2500_now.p'    
+hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa2,filedst2,2500)
 
 
 # In[ ]:
