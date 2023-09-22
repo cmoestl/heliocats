@@ -5,7 +5,7 @@
 
 # uses environment 'envs/env_alert.yml'
 
-# In[5]:
+# In[ ]:
 
 
 import pickle
@@ -55,7 +55,7 @@ os.system('jupyter nbconvert --to script alert.ipynb')
 
 # ### get Dst data and plot
 
-# In[41]:
+# In[46]:
 
 
 #get current dst last 35 days
@@ -73,7 +73,7 @@ fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
 
 ax1.plot(n.time,n.dst,color='royalblue',linewidth=1.5,alpha=1.0)
 ax1.plot(n.time,n.dst,'ok',markersize=5)
-ax1.axhline(y=threshold, color='r', linestyle='--', label='Horizontal Line at y=15')
+ax1.axhline(y=threshold, color='r', linestyle='-')
 
 
 plotmin=np.nanmin(n.dst)
@@ -102,9 +102,9 @@ plt.tight_layout()
 plt.savefig('alerts/alert_dst.png',dpi=100)
 
 
-# ### alert email function
+# ### alert function
 
-# In[7]:
+# In[47]:
 
 
 def send_alert_email(time,dstval, recipients):
@@ -151,10 +151,10 @@ def send_alert_email(time,dstval, recipients):
    
 
 
-# ### algorithm for triggering alert email        
+# ### algorithm for triggering alert      
 # 
 
-# In[39]:
+# In[49]:
 
 
 #with outlook as sender, gmail does not work
