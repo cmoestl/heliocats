@@ -31,8 +31,8 @@ from email.mime.text import MIMEText
 from alerts import alert_server_ids as aid
 
 #Dst threshold definition for defining an alert
-#threshold=-10 #for testing
-threshold=-50 #for real time application
+threshold=-10 #for testing
+#threshold=-50 #for real time application
 
 #greater 0 means yes
 telegram=1
