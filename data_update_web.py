@@ -17,7 +17,7 @@
 # 
 # 
 
-# In[5]:
+# In[3]:
 
 
 #switches
@@ -76,7 +76,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[6]:
+# In[4]:
 
 
 if sys.platform == 'linux': 

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## Alert email for geomagnetic storms 
+# ## Alerts for geomagnetic storms 
 
 # uses environment 'envs/env_alert.yml'
 
-# In[ ]:
+# In[1]:
 
 
 import pickle
@@ -23,13 +23,19 @@ import sys
 import importlib
 import email
 import smtplib
+import requests
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from alerts import alert_server_ids as aid
 
 #Dst threshold definition for defining an alert
-threshold=-10
+#threshold=-10 #for testing
+threshold=-50 #for real time application
+
+#greater 0 means yes
+telegram=1
 
 
 
@@ -50,12 +56,15 @@ if sys.platform =='darwin':
 
 print(data_path)
 
-os.system('jupyter nbconvert --to script alert.ipynb')    
+os.system('jupyter nbconvert --to script alert.ipynb')  
+
+
+
 
 
 # ### get Dst data and plot
 
-# In[46]:
+# In[2]:
 
 
 #get current dst last 35 days
@@ -102,18 +111,26 @@ plt.tight_layout()
 plt.savefig('alerts/alert_dst.png',dpi=100)
 
 
-# ### alert function
+# ### alert functions
 
-# In[47]:
+# In[3]:
 
 
-def send_alert_email(time,dstval, recipients):
+def send_alert_email(time,dstval):
 
-    #read from file that is not on github
-    from alerts import alert_email_server as aes
+    ######### get email list from file if needed
+    #email_file_path='alerts/alert_email_list.txt'
+    #with open(email_file_path, "r") as file:
+    #    email_list = []
+    #    for line in file:
+    #        # Remove leading and trailing whitespace (e.g., newline characters)
+    #        string = line.strip()
+    #        email_list.append(string)
+    #print(email_list)      
+    recipients=email_list
     
     msg = MIMEMultipart()
-    msg['From'] = aes.smtp_username
+    msg['From'] = aid.smtp_username
     
     msg['Subject'] = 'Geomagnetic storm alert, Austrian Space Weather Office, GeoSphere Austria'
 
@@ -134,9 +151,9 @@ def send_alert_email(time,dstval, recipients):
         
     msg.attach(MIMEText(email_body, 'plain'))
 
-    server = smtplib.SMTP(aes.smtp_server, aes.smtp_port)
+    server = smtplib.SMTP(aid.smtp_server, aid.smtp_port)
     server.starttls()  # Use TLS encryption
-    server.login(aes.smtp_username, aes.smtp_password)
+    server.login(aes.smtp_username, aid.smtp_password)
     
     #add list for all into one string
     msg['Bcc'] = ', '.join(recipients)
@@ -148,13 +165,57 @@ def send_alert_email(time,dstval, recipients):
         
     server.quit()
        
-   
+  
+
+
+# In[4]:
+
+
+def send_telegram_message(time,dstval):
+    
+    
+
+    # Replace 'YOUR_BOT_TOKEN' with the actual token you received from BotFather
+    bot_token = aid.bot_token
+
+    # Replace 'YOUR_CHAT_ID' with the chat ID of the user or group where you want to send the message
+    chat_id = aid.chat_id
+
+    time_formatted=time.strftime("%Y %b %d %Hh UT")
+    
+    dstval=int(dstval)
+    
+    # The message you want to send
+    message_text = """ Hi, there is an ongoing geomagnetic storm: 
+Dst {} nT at {} 
+Happy aurora hunting!     
+The ASWO team
+https://helioforecast.space""".format(dstval, time_formatted)
+
+    # Create the URL for the Telegram Bot API endpoint
+    api_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+
+    # Prepare the parameters for the message
+    params = {
+        'chat_id': chat_id,
+        'text': message_text
+    }
+
+    # Send the message using a POST request
+    response = requests.post(api_url, data=params)
+
+    # Check the response from the Telegram API
+    if response.status_code == 200:
+        print('Message sent successfully to Geomagnetic storm')
+    else:
+        print('Failed to send the message.')
+        print(response.text)
 
 
 # ### algorithm for triggering alert      
 # 
 
-# In[49]:
+# In[5]:
 
 
 #with outlook as sender, gmail does not work
@@ -163,38 +224,29 @@ def send_alert_email(time,dstval, recipients):
 time_now=datetime.datetime.utcnow()
 
 print(' ')
-print('------------------------')
-print('start Dst alert check at',time_now)
+print('------------------------------------------------------------------')
+print('start Dst alert check at',time_now.strftime("%Y-%b-%d %H:%M:%S UT"))
 
 
 print()
 time_now_num=mdates.date2num(time_now)
 
-print('latest data: ')
+print('latest Dst data (NOAA/Kyoto): ')
 for i in np.arange(-4,0):
     formatted_date = n.time[i].strftime("%Y-%b-%d %H UT")
     print(formatted_date, int(n.dst[i]),'nT')
 print(' ')
 
 
-
-######### get email list from file
-        
-email_file_path='alerts/alert_email_list.txt'
-with open(email_file_path, "r") as file:
-    email_list = []
-    for line in file:
-        # Remove leading and trailing whitespace (e.g., newline characters)
-        string = line.strip()
-        email_list.append(string)
-print(email_list)      
 print(' ')
 
+if n.dst[-1]> threshold: 
+    print('Dst above threshold',threshold,'nT, no alert triggered')
 
 if n.dst[-1]<= threshold: 
     
     print('------------ Alert triggered')
-    print('Dst is ',int(n.dst[-1]), ' which is below the threshold of <=',threshold,' nT')
+    print('Dst is ',int(n.dst[-1]), ' nT, below the threshold of <=',threshold,' nT')
     print(' ')
     print('Was alert already sent in last 24 hours?')
 
@@ -217,9 +269,7 @@ if n.dst[-1]<= threshold:
     #go through all times and check whether one was in the last 24 hours or 1 day in matplotlib times
     if np.nanmin(time_now_num-atime_list) > 1:   
         
-        print('no')
-        #send_alert_email(n.time[-1],n.dst[-1],email_list)
-        print('emails would be sent')
+        print('no, alert will be sent')
         
         print('Alert time and Dst written to file alerts/alert_list.txt')
         
@@ -228,21 +278,26 @@ if n.dst[-1]<= threshold:
         
         with open('alerts/alert_list.txt', 'a') as file:
             file.write(alert_time_for_file)
-            file.write(' '+str(int(n.dst[-1])))
-        
+            file.write(' '+str(int(n.dst[-1]))+'\n')
+
+        #send_alert_email(n.time[-1],n.dst[-1],email_list)        
+
+        #if telegram switch is on, send message
+        if telegram > 0: 
+            send_telegram_message(n.time[-1],n.dst[-1])
+   
+            
                 
         #write into file the time of the sent alert
     else: 
-        print('yes')
-        print('Dst below threshold but alert already sent')
+        print('yes, no alert sent')
         
-else: print('Dst is not <= threshold of ', threshold, ' nT, no emails sent' )    
 
 print(' ')
 print(' ')
-print('end Dst alert')
+print('end Dst alert program')
 
-print('------------------------')
+print('------------------------------------------------------------------')
 
 
 # In[ ]:
