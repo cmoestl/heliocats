@@ -13,11 +13,11 @@
 # 
 # 
 
-# In[1]:
+# In[16]:
 
 
 #switches
-debug_mode=1
+debug_mode=0
 
 #always turn off debug mode when deploying!
 
@@ -81,7 +81,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[8]:
 
 
 if sys.platform == 'linux': 
@@ -135,7 +135,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[3]:
+# In[9]:
 
 
 #if debug_mode > 0: 
@@ -174,7 +174,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind 
 
-# In[4]:
+# In[10]:
 
 
 if debug_mode > 0: 
@@ -281,7 +281,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[6]:
+# In[13]:
 
 
 if debug_mode > 0: 
@@ -321,6 +321,11 @@ hp.plot_insitu_update_stereoa_beacon(sta_rtn, start, end,'STEREO-A_beacon_rtn',p
 [sta_gsm,hsta]=pickle.load(open(data_path+file_sta_beacon_gsm, "rb" ) )  
 start=datetime.datetime.utcnow() - datetime.timedelta(days=10)
 end=datetime.datetime.utcnow() 
+
+#!!!!!!!!!!!!!!!!!! ad hoc fix for wrong RTN to GSE conversion
+sta_gsm.by=-sta_gsm.by
+sta_gsm.bx=-sta_gsm.bx
+
 hp.plot_insitu_update_stereoa_beacon(sta_gsm, start, end,'STEREO-A_beacon_gsm',plot_path+'stereoa/',coord='GSM',now=True)
 
 
@@ -334,7 +339,7 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[ ]:
+# In[15]:
 
 
 if debug_mode > 0:     
