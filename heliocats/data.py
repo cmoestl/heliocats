@@ -224,7 +224,7 @@ def convert_RTN_to_GSE_sta_l1(sc_in):
     
     #go through all data points
     for i in np.arange(0,len(sc)):
-
+        #print(sc.time[i])
         #HEEQ vectors
         X_heeq=[1,0,0]
         Y_heeq=[0,1,0]
@@ -268,10 +268,40 @@ def convert_RTN_to_GSE_sta_l1(sc_in):
         #quadrant of theta must be opposite lt2 - omega_node Hapgood 1992 end of section 5   
         #get lambda-omega angle in degree mod 360   
         lambda_omega_deg=np.mod(lt2-omega_node,2*np.pi)*180/np.pi
+        x = np.cos(np.deg2rad(lambda_omega_deg))
+        y = np.sin(np.deg2rad(lambda_omega_deg))
+        
         #get theta_node in deg
         theta_node_deg=theta_node*180/np.pi
+        x_theta = np.cos(theta_node)
+        y_theta = np.sin(theta_node)
         #if in same quadrant, then theta_node = theta_node +pi   
-        if abs(lambda_omega_deg-theta_node_deg) < 180: theta_node=theta_node+np.pi
+        #if abs(lambda_omega_deg-theta_node_deg) < 180: theta_node=theta_node+np.pi ------> diese Zeile mit den if-Schleifen drunter ersetzen.
+        if (x>=0 and y>=0):
+            if (x_theta>=0 and y_theta>=0): theta_node = theta_node - np.pi
+            elif (x_theta<=0 and y_theta<=0): theta_node = theta_node
+            elif (x_theta>=0 and y_theta<=0): theta_node = theta_node - np.pi/2
+            elif (x_theta<=0 and y_theta>=0): theta_node = np.pi+(theta_node-np.pi/2)
+            
+        elif (x<=0 and y<=0):
+            if (x_theta>=0 and y_theta>=0): theta_node = theta_node
+            elif (x_theta<=0 and y_theta<=0): theta_node = theta_node + np.pi
+            elif (x_theta>=0 and y_theta<=0): theta_node = theta_node + np.pi/2
+            elif (x_theta<=0 and y_theta>=0): theta_node = theta_node-np.pi/2
+            
+        elif (x>=0 and y<=0):
+            if (x_theta>=0 and y_theta>=0): theta_node = theta_node + np.pi/2
+            elif (x_theta<=0 and y_theta<=0): theta_node = np.pi+(theta_node-np.pi/2) 
+            elif (x_theta>=0 and y_theta<=0): theta_node = theta_node + np.pi
+            elif (x_theta<=0 and y_theta>=0): theta_node = theta_node
+
+        elif (x<0 and y>0):
+            if (x_theta>=0 and y_theta>=0): theta_node = theta_node - np.pi/2
+            elif (x_theta<=0 and y_theta<=0): theta_node = theta_node + np.pi/2
+            elif (x_theta>=0 and y_theta<=0): theta_node = theta_node
+            elif (x_theta<=0 and y_theta>=0): theta_node = theta_node -np.pi          
+        
+        
         S2_theta=np.matrix([[np.cos(-theta_node), np.sin(-theta_node),  0], [-np.sin(-theta_node) , np.cos(-theta_node) , 0], [0,  0,  1]])
 
         #make S2 matrix

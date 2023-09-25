@@ -5,7 +5,7 @@
 
 # uses environment 'envs/env_alert.yml'
 
-# In[1]:
+# In[2]:
 
 
 import pickle
@@ -31,8 +31,7 @@ from email.mime.text import MIMEText
 from alerts import alert_server_ids as aid
 
 #Dst threshold definition for defining an alert
-threshold=-10 #for testing
-#threshold=-50 #for real time application
+threshold=-30 #for real time application
 
 #greater 0 means yes
 telegram=1
@@ -64,7 +63,7 @@ os.system('jupyter nbconvert --to script alert.ipynb')
 
 # ### get Dst data and plot
 
-# In[2]:
+# In[7]:
 
 
 #get current dst last 35 days
@@ -113,7 +112,7 @@ plt.savefig('alerts/alert_dst.png',dpi=100)
 
 # ### alert functions
 
-# In[3]:
+# In[8]:
 
 
 def send_alert_email(time,dstval):
@@ -168,7 +167,7 @@ def send_alert_email(time,dstval):
   
 
 
-# In[4]:
+# In[9]:
 
 
 def send_telegram_message(time,dstval):
@@ -190,7 +189,7 @@ def send_telegram_message(time,dstval):
 Dst {} nT at {} 
 Happy aurora hunting!     
 The ASWO team
-https://helioforecast.space""".format(dstval, time_formatted)
+https://helioforecast.space/solarwind""".format(dstval, time_formatted)
 
     # Create the URL for the Telegram Bot API endpoint
     api_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
@@ -215,7 +214,7 @@ https://helioforecast.space""".format(dstval, time_formatted)
 # ### algorithm for triggering alert      
 # 
 
-# In[5]:
+# In[15]:
 
 
 #with outlook as sender, gmail does not work
@@ -248,7 +247,7 @@ if n.dst[-1]<= threshold:
     print('------------ Alert triggered')
     print('Dst is ',int(n.dst[-1]), ' nT, below the threshold of <=',threshold,' nT')
     print(' ')
-    print('Was alert already sent in last 24 hours?')
+    print('Was alert already sent in last 12 hours?')
 
     #read list of sent out alert times
     atime_list = []
@@ -266,8 +265,8 @@ if n.dst[-1]<= threshold:
     #print(atime_list)    
     
     
-    #go through all times and check whether one was in the last 24 hours or 1 day in matplotlib times
-    if np.nanmin(time_now_num-atime_list) > 1:   
+    #go through all times and check whether one was in the last 12 hours or 0.5 days in matplotlib times
+    if np.nanmin(time_now_num-atime_list) > 0.5:   
         
         print('no, alert will be sent')
         
@@ -298,6 +297,12 @@ print(' ')
 print('end Dst alert program')
 
 print('------------------------------------------------------------------')
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
