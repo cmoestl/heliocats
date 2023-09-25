@@ -17,7 +17,7 @@
 
 
 #switches
-debug_mode=0
+debug_mode=1
 
 #always turn off debug mode when deploying!
 
@@ -281,7 +281,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[5]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -334,7 +334,7 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[6]:
+# In[ ]:
 
 
 if debug_mode > 0:     
@@ -347,7 +347,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[7]:
+# In[ ]:
 
 
 t1all = time.time()

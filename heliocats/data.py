@@ -3168,7 +3168,7 @@ def save_stereoa_beacon_data(data_path,path,file_rtn,file_gsm,t_start,t_end,coor
 
     print('position end ')
 
-    sta_gse=convert_RTN_to_GSE_sta_l1(sta)
+    sta_gse=convert_RTN_to_GSE_sta_l1(sta) #here is the bug in the conversion 
     sta_gsm=convert_GSE_to_GSM(sta_gse)
     
     header='STEREO-A magnetic field (IMPACT instrument, science data) and plasma data (PLASTIC, preliminary science data), ' + \
