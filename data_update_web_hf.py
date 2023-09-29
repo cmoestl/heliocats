@@ -349,7 +349,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[ ]:
+# In[7]:
 
 
 t1all = time.time()

@@ -117,8 +117,10 @@ print(cutoffnoaa)
 #cut noaa dst array
 n=n[cutoffnoaa:]
 
-print(norig.time)
+#print(norig.time)
 
+
+# ### plot Dst
 
 # In[ ]:
 
@@ -126,9 +128,7 @@ print(norig.time)
 
 
 
-# ### plot Dst
-
-# In[3]:
+# In[10]:
 
 
 years=np.arange(1995,2040) 
@@ -174,6 +174,52 @@ plt.tight_layout()
 
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
+
+# In[10]:
+
+
+years=np.arange(1995,2040) 
+yearly_start_times=[datetime.datetime(year,1,1) for year in years]
+
+sns.set_context('talk')
+sns.set_style('darkgrid')
+fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
+
+ax1.plot(o.time,o.dst,color='k',linewidth=0.7,alpha=0.8, label='OMNI Dst')
+ax1.plot(n.time,n.dst,color='royalblue',linewidth=0.9,alpha=1.0,label='NOAA Dst')
+
+#ax1.plot(o.time,np.zeros(np.size(o.time))-187, 'g')
+#stack both OMNI and NOAA Dst and determine min max for last 25 years
+plotmin=np.nanmin(np.hstack([o.dst,n.dst])[-365*24*25:-1] )
+plotmax=np.nanmax(np.hstack([o.dst,n.dst])[-365*24*25:-1] )
+print(plotmax, plotmin)
+ax1.set_ylim(plotmin-50,plotmax+20)
+
+ax1.set_xlim(start,end)
+
+plt.ylabel('Dst [nT]')
+
+ax1.xaxis_date()
+myformat = mdates.DateFormatter('%Y')
+ax1.xaxis.set_major_formatter(myformat)
+plt.xticks(yearly_start_times, fontsize=14,rotation=45) 
+
+ax1.set_xlim(datetime.datetime(1996,1,1),datetime.datetime(2024,1,1))
+
+#ax1.set_xlim(datetime.datetime(2023,1,1),datetime.datetime(2024,1,1))
+
+#plt.title('Geomagnetische Stürme 2015-2023')
+plt.title('Geomagnetic storms in solar cycles 23, 24, 25',fontsize=18)
+
+fsize=12
+plt.legend(loc=3,fontsize=13)
+plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+
+plt.figtext(0.95,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=10)
+plt.tight_layout()
+
+plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
 # In[4]:
@@ -234,7 +280,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 
 # ## Newell Coupling
 
-# In[94]:
+# In[6]:
 
 
 ###add plot and add to txt file without propagation 
@@ -298,7 +344,7 @@ n_nci=np.interp(mdates.date2num(norig.time),mdates.date2num(w.time),w_nc)
 #then do weighting
 n_ncw=nc_weights(n_nci)
 
-print(n_ncw)
+#print(n_ncw)
 
 #check if this process is how its done for ovation
 
@@ -320,7 +366,7 @@ print('done')
 
 
 
-# In[95]:
+# In[6]:
 
 
 #save data for last few months as txt

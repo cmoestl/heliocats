@@ -4,8 +4,16 @@
 # ## Alerts for geomagnetic storms 
 
 # uses environment 'envs/env_alert.yml'
+# 
+# run data_update_web_hf.pynb to produce a new Dst file
+# 
+# for testing, delete the alert_list.p file
+# 
+# 
+# Issues: 
+# 
 
-# In[2]:
+# In[12]:
 
 
 import pickle
@@ -32,6 +40,8 @@ from alerts import alert_server_ids as aid
 
 #Dst threshold definition for defining an alert
 threshold=-30 #for real time application
+
+threshold2=-100 #for future extra alert
 
 #greater 0 means yes
 telegram=1
@@ -63,7 +73,7 @@ os.system('jupyter nbconvert --to script alert.ipynb')
 
 # ### get Dst data and plot
 
-# In[7]:
+# In[13]:
 
 
 #get current dst last 35 days
@@ -112,7 +122,7 @@ plt.savefig('alerts/alert_dst.png',dpi=100)
 
 # ### alert functions
 
-# In[8]:
+# In[14]:
 
 
 def send_alert_email(time,dstval):
@@ -167,7 +177,7 @@ def send_alert_email(time,dstval):
   
 
 
-# In[9]:
+# In[15]:
 
 
 def send_telegram_message(time,dstval):
@@ -211,10 +221,10 @@ https://helioforecast.space/solarwind""".format(dstval, time_formatted)
         print(response.text)
 
 
-# ### algorithm for triggering alert      
+# ### alert for threshold 1
 # 
 
-# In[15]:
+# In[16]:
 
 
 #with outlook as sender, gmail does not work
@@ -231,7 +241,7 @@ print()
 time_now_num=mdates.date2num(time_now)
 
 print('latest Dst data (NOAA/Kyoto): ')
-for i in np.arange(-4,0):
+for i in np.arange(-15,0):
     formatted_date = n.time[i].strftime("%Y-%b-%d %H UT")
     print(formatted_date, int(n.dst[i]),'nT')
 print(' ')
@@ -248,49 +258,82 @@ if n.dst[-1]<= threshold:
     print('Dst is ',int(n.dst[-1]), ' nT, below the threshold of <=',threshold,' nT')
     print(' ')
     print('Was alert already sent in last 12 hours?')
+    print(' ')
 
-    #read list of sent out alert times
-    atime_list = []
-    with open('alerts/alert_list.txt', 'r') as file:
-        lines = file.readlines()
-
-    for line in lines:
-        #atime = line.strip()
-        atime=line[0:17]
-        atime_list.append(atime)
-
-    #print(atime_list)
+    #read list of sent out alert times from a pickle file
+    file_path = 'alerts/alert_list.p'
+    
+    if os.path.exists(file_path):
+        print('Alerts file exists')
+        atime_list=pickle.load(open(file_path, "rb" ) )   
+        atime_list_num=mdates.date2num(atime_list)
+    else:
+        print('Alerts file does not exist, file created')
+        #create a dummy list if the file is not there, and create the pickle file
+        atime_list=[datetime.datetime(2023, 9, 15, 18, 0), \
+                     datetime.datetime(2023, 9, 25, 7, 0)]        
+        atime_list_num=mdates.date2num(atime_list)
+        pickle.dump(atime_list, open('alerts/alert_list.p', 'wb') )
+    
+    
+    
+    print('latest alerts from pickle file')
     for i in np.arange(0,len(atime_list)):
-        atime_list[i]=mdates.date2num(datetime.datetime.strptime(atime_list[i], "%Y-%m-%dT%H:%MZ"))
-    #print(atime_list)    
+        print(atime_list[i].strftime("%Y-%m-%dT%H:%MZ") )
+    
+    
+    print('')
     
     
     #go through all times and check whether one was in the last 12 hours or 0.5 days in matplotlib times
-    if np.nanmin(time_now_num-atime_list) > 0.5:   
+    if np.nanmin(time_now_num-atime_list_num) > 0.5:   
         
-        print('no, alert will be sent')
-        
-        print('Alert time and Dst written to file alerts/alert_list.txt')
+        print('no, alert will be sent')       
+                     
+        print('Alert time and Dst written to file alerts/alert_list.txt and alert_list.p')
         
         alert_time_for_file=n.time[-1].strftime("%Y-%m-%dT%H:%MZ")
-        print(alert_time_for_file+' '+str(int(n.dst[-1])))
-        
+        print(alert_time_for_file+' '+str(int(n.dst[-1])))        
+                
+        #write this to a text file
         with open('alerts/alert_list.txt', 'a') as file:
             file.write(alert_time_for_file)
             file.write(' '+str(int(n.dst[-1]))+'\n')
-
-        #send_alert_email(n.time[-1],n.dst[-1],email_list)        
-
+            
+        #append to list and write to pickle file    
+        atime_list.append(n.time[-1])
+        pickle.dump(atime_list, open('alerts/alert_list.p', 'wb') )            
+        
+        
         #if telegram switch is on, send message
         if telegram > 0: 
             send_telegram_message(n.time[-1],n.dst[-1])
-   
-            
-                
+
+        
+                        
         #write into file the time of the sent alert
     else: 
         print('yes, no alert sent')
         
+    
+
+
+# ### Alert for threshold 2  
+
+# In[17]:
+
+
+if n.dst[-1]<= threshold2: 
+    print('Dst below threshold 2 ',threshold2,'nT')
+    print('Intense geomagnetic storm ongoing')
+    print('Alerts TBD')
+
+if n.dst[-1]> threshold2: 
+    print('threshold 2 not reached <= ',threshold2,'nT')
+
+
+# In[11]:
+
 
 print(' ')
 print(' ')

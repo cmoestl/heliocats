@@ -40,7 +40,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[30]:
+# In[1]:
 
 
 from scipy import stats
@@ -945,7 +945,7 @@ print(rc_rate_time)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[29]:
+# In[45]:
 
 
 sns.set_context("talk")     
@@ -954,18 +954,14 @@ sns.set_context("talk")
 sns.set_style("ticks",{'grid.linestyle': '--'})
 fsize=15
 
-fig=plt.figure(1,figsize=(12,6),dpi=100)
+fig=plt.figure(1,figsize=(13,6),dpi=100)
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
 
 ax2 = plt.subplot(111) 
 
 ax3=ax2.twinx()
-
-#change matplotlib time before plotting
-#ssn_time2=ssn.time + mdates.date2num(np.datetime64('0000-12-31'))
-
-ax3.plot(ssn_m.time,ssn_m.spot,'-k',alpha=0.4,linewidth=1.5,label='monthly sunspot number',zorder=0)
+ax3.plot(ssn_ms.time,ssn_ms.spot,'-k',alpha=0.4,linewidth=1.5,label='monthly smoothed sunspot number',zorder=0)
 ax3.set_ylabel('Sunspot number SIDC')
 ax3.set_ylim(0,155)
 ax3.legend(loc=1,fontsize=12)
@@ -974,17 +970,17 @@ ax3.legend(loc=1,fontsize=12)
 for i in np.arange(0,100,10):
     ax2.plot([datetime.datetime(2007,1,1),datetime.datetime(2035,1,1)],np.zeros(2)+i,linestyle='--',color='k',alpha=0.4,lw=0.8,zorder=0)
 
-binweite=int(np.round(360/8))
+binweite=int(np.round(360/4))
 bin_edges=bin_edgeswin[:-1]
 
 bin_edges2=bin_edges 
 
-alp=0.8
+alp=0.6
 
-ax2.bar(bin_edges2+5+binweite*3,histsolo, width=binweite,color='black', alpha=alp,label='Solar Orbiter', zorder=1)
-ax2.bar(bin_edges2+5+binweite*4,histwin, width=binweite,color='mediumseagreen', alpha=alp,label='Wind', zorder=1)
-ax2.bar(bin_edges2+5+binweite*5,histsta, width=binweite,color='red', alpha=alp,label='STEREO-A',zorder=1)
-ax2.bar(bin_edges2+5+binweite*3,histstb, width=binweite,color='royalblue', alpha=alp,label='STEREO-B',zorder=1)
+ax2.bar(bin_edges2+binweite*3,histsolo, width=binweite,color='black', alpha=alp,label='Solar Orbiter', zorder=1)
+ax2.bar(bin_edges2+binweite*1,histwin, width=binweite,color='mediumseagreen', alpha=alp,label='Wind', zorder=1)
+ax2.bar(bin_edges2+binweite*2,histsta, width=binweite,color='red', alpha=alp,label='STEREO-A',zorder=1)
+ax2.bar(bin_edges2+binweite*3,histstb, width=binweite,color='royalblue', alpha=alp,label='STEREO-B',zorder=1)
 
 
 #ax2.bar(bin_edges2+5+binweite,histmes, width=binweite,color='coral', alpha=alp,label='MESSENGER')
@@ -1000,10 +996,7 @@ ax2.bar(bin_edges2+5+binweite*3,histstb, width=binweite,color='royalblue', alpha
 
 #mean and standard deviation and min max
 ax2.plot([icrate.year,icrate.year],[icrate.mean1-icrate.std1,icrate.mean1+icrate.std1],'-k',lw=1.1,zorder=3)
-
-#ax2.plot([icrate.year,icrate.year],[icrate.min1,icrate.max1],'--k',lw=1.1)
 ax2.plot(icrate.year,icrate.mean1,'ok',markerfacecolor='white',label='yearly ICME rate mean',zorder=3)
-ax2.plot([icrate.year[1],icrate.year[1]],[icrate.mean1[1]-icrate.std1[1],icrate.mean1[1]+icrate.std1[1]],'--k',lw=1.1,label='yearly ICME rate std')
 
 ax2.set_ylim(0,np.max(icrate.mean1)+15)
 ax2.set_xlim(yearly_bin_edges[0],yearly_bin_edges[-1])
@@ -1034,7 +1027,7 @@ plt.savefig(outputdirectory+'/icmecat_icme_rate.png', dpi=150)
 
 
 
-# # 3 get solar cycle results on ICME rates and sunspot numbers
+# #### 3 get solar cycle results on ICME rates and sunspot numbers
 
 # ## solar cycle 23
 
@@ -1917,7 +1910,7 @@ print(ic_rate_25_mc23_std)
 
 # ## **Figure 3** ICME rate predictions
 
-# In[28]:
+# In[20]:
 
 
 sns.set_context("talk")     
