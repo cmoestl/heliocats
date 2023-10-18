@@ -13,7 +13,7 @@
 # Issues: 
 # 
 
-# In[12]:
+# In[18]:
 
 
 import pickle
@@ -73,7 +73,7 @@ os.system('jupyter nbconvert --to script alert.ipynb')
 
 # ### get Dst data and plot
 
-# In[13]:
+# In[19]:
 
 
 #get current dst last 35 days
@@ -122,7 +122,7 @@ plt.savefig('alerts/alert_dst.png',dpi=100)
 
 # ### alert functions
 
-# In[14]:
+# In[20]:
 
 
 def send_alert_email(time,dstval):
@@ -177,7 +177,7 @@ def send_alert_email(time,dstval):
   
 
 
-# In[15]:
+# In[21]:
 
 
 def send_telegram_message(time,dstval):
@@ -224,7 +224,7 @@ https://helioforecast.space/solarwind""".format(dstval, time_formatted)
 # ### alert for threshold 1
 # 
 
-# In[16]:
+# In[22]:
 
 
 #with outlook as sender, gmail does not work
@@ -320,7 +320,7 @@ if n.dst[-1]<= threshold:
 
 # ### Alert for threshold 2  
 
-# In[17]:
+# In[23]:
 
 
 if n.dst[-1]<= threshold2: 

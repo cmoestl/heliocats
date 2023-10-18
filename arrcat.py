@@ -10,7 +10,7 @@
 # 
 # This code is part of https://github.com/cmoestl/heliocats
 # 
-# **current version is ARRCAT 2.0, released 2020 May 13, updated 2023 September TBD**
+# **current version is ARRCAT 2.0, released 2020 May 13, updated 2023 October 18**
 # 
 # Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
 # The environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
@@ -31,10 +31,10 @@
 # - with next arrcat update, check if Solar Orbiter positions are consistent with general positions file
 # 
 
-# In[1]:
+# In[ ]:
 
 
-last_update='2023-September-30'
+last_update='2023-October-18'
 debug_mode=1
 
 
@@ -116,7 +116,7 @@ warnings.filterwarnings("ignore")
 
 # ## 1 Make arrival catalog 
 
-# In[2]:
+# In[ ]:
 
 
 t0=time.time()
@@ -181,7 +181,7 @@ ac
 
 # #### save header
 
-# In[3]:
+# In[ ]:
 
 
 first_date=ac['target_arrival_time'][len(ac)-1]
@@ -190,7 +190,7 @@ print(last_date[0:7])
 print(first_date[0:7])
 
 
-# In[4]:
+# In[ ]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -277,7 +277,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[5]:
+# In[ ]:
 
 
 ########## python formats
@@ -431,7 +431,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[6]:
+# In[ ]:
 
 
 #load arrcat as pandas dataframe
@@ -451,27 +451,27 @@ ac5 = f['arrcat']
 ac5['sse_launch_time']
 
 
-# In[7]:
+# In[ ]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[8]:
+# In[ ]:
 
 
 ac
 
 
-# In[9]:
+# In[ ]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[10]:
+# In[ ]:
 
 
 ac_struct
@@ -479,7 +479,7 @@ ac_struct
 
 # ### plot directions and targets
 
-# In[11]:
+# In[ ]:
 
 
 sns.set_context('talk')
@@ -551,7 +551,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[12]:
+# In[ ]:
 
 
 fig=plt.figure(2, figsize=(16,8), dpi=70)
@@ -592,7 +592,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[13]:
+# In[ ]:
 
 
 hiai=np.where(higeocat['SC']=='A')[0]
@@ -605,6 +605,8 @@ last_year=datetime.datetime.utcnow().year+1
 #define dates 
 years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,last_year+1) ] 
 yearly_bin_edges=parse_time(years_jan_1_str).plot_date
+
+print(years_jan_1_str)
 
 months_str=[]
 #all previous years
@@ -633,7 +635,10 @@ months_bin_edges=parse_time(months_str).plot_date
 hist_hib_monthly[93:]=-1
 
 
-# In[14]:
+########### TBD add an estimate for the rest of the year
+
+
+# In[ ]:
 
 
 sns.set_context("talk")     
@@ -683,7 +688,7 @@ print('saved as ',plotfile)
 
 
 
-# In[15]:
+# In[ ]:
 
 
 print(' ')
@@ -701,7 +706,7 @@ print(np.sort(arrcat_web.sse_launch_time)[-1])
 
 
 
-# In[16]:
+# In[ ]:
 
 
 t1all = time.time()
@@ -710,6 +715,12 @@ print(' ')
 print('---------------------------------- ')
 print('arrcat.py takes ', np.round((t1all-t0all),1), 'seconds')
     
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:

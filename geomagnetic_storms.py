@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[17]:
+# In[1]:
 
 
 import pickle
@@ -73,7 +73,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[18]:
+# In[2]:
 
 
 ##get omni dst data
@@ -122,7 +122,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[19]:
+# In[3]:
 
 
 years=np.arange(1995,2040) 
@@ -169,7 +169,151 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
-# In[32]:
+# ### Histograms
+
+# In[4]:
+
+
+#years23=np.arange(1996,2009)
+#years24=np.arange(2009,2020)
+#years25=np.arange(2020,2023)
+
+start20=datetime.datetime(1965,1,1)
+start22=datetime.datetime(1986,1,1)
+start23=datetime.datetime(1996,1,1)
+start24=datetime.datetime(2009,1,1)
+start25=datetime.datetime(2020,1,1)
+
+rise20=datetime.datetime(1968,1,1)
+rise22=datetime.datetime(1989,1,1)
+rise23=datetime.datetime(1999,1,1)
+rise24=datetime.datetime(2012,1,1)
+
+
+#ind23=np.where(np.logical_and(o.time > start23,o.time < start24))[0]
+#ind24=np.where(np.logical_and(o.time > start24,o.time < start25))[0]
+
+ind20=np.where(np.logical_and(o.time > start20,o.time < rise20))[0]
+ind22=np.where(np.logical_and(o.time > start22,o.time < rise22))[0]
+ind23=np.where(np.logical_and(o.time > start23,o.time < rise23))[0]
+ind24=np.where(np.logical_and(o.time > start24,o.time < rise24))[0]
+
+ind25=np.where(o.time > start25)[0]
+
+o20=o[ind20]
+o22=o[ind22]
+o23=o[ind23]
+o24=o[ind24]
+o25=o[ind25]
+
+
+# In[5]:
+
+
+#compare rising phases
+
+
+# Create a histogram plot using seaborn
+sns.set_context("talk")     
+#sns.set_style('darkgrid')
+#sns.set_style('whitegrid',{'grid.linestyle': '--'})
+
+sns.set_style("ticks",{'grid.linestyle': '--'})
+fig, ax=plt.subplots(1,figsize=(13,7),dpi=100)
+
+
+bins=np.arange(-500,120,5)
+#print(bins)
+
+
+# Plot the histogram
+sns.histplot(o20.dst, bins=bins, kde=True, color='grey', stat='percent',shrink=0,label='20')
+#sns.histplot(o22.dst, bins=bins, kde=True, color='grey', stat='percent',shrink=0,label='22')
+sns.histplot(o23.dst, bins=bins, kde=True, color='navy', stat='percent',shrink=0,label='23')
+sns.histplot(o24.dst, bins=bins, kde=True, color='coral', stat='percent',label='24')
+sns.histplot(o25.dst, bins=bins, kde=True, color='lightgreen', stat='percent',shrink=0,label='25')
+
+#sns.kdeplot(o24, color='tomato')
+#sns.kdeplot(data=data["total_bill"], fill=True)
+#sns.kdeplot(o25, bins=bins, kde=True, color='yellow', stat='percent')
+
+ax.grid(alpha=0.5)
+ax.set_ylim(0.01, 30)
+ax.set_xlim(-300, 100)
+plt.yscale('log')
+# Add labels and a title
+plt.xlabel('Dst [nT] ')
+plt.ylabel('Percent')
+plt.title('Dst rising phase')
+plt.legend()
+
+# Show the plot
+plt.show()
+
+
+plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+
+plt.tight_layout()
+
+plotfile='arrcat/plots_arrcat/higeocat_rate.png'
+plt.savefig(plotfile,dpi=100)
+print('saved as ',plotfile)
+
+
+# In[6]:
+
+
+sns.set_style("ticks",{'grid.linestyle': '--'})
+fig1, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
+
+ax1.grid(alpha=0.5)
+
+plt.xlabel('B [nT]')
+plt.ylabel('Percent')
+plt.title('Total solar wind magnetic field in OMNI2 near Earth data, rising phase')
+
+
+
+bins=np.arange(0,50,0.5)
+#sns.histplot(o20.bt, bins=bins, kde=True, color='grey', stat='percent',shrink=0,label='cycle 20')
+sns.histplot(o23.bt, bins=bins, kde=True, color='navy', stat='percent',label='cycle 23',multiple="dodge",shrink=0)
+sns.histplot(o24.bt, bins=bins, kde=True, color='coral', stat='percent',label='cycle 24',multiple="dodge")
+sns.histplot(o25.bt, bins=bins, kde=True, color='mediumseagreen', stat='percent',label='cycle 25',multiple="dodge",shrink=0)
+
+#data=[o23.bt,o24.bt,o25.bt]
+#sns.histplot(data, bins=bins, kde=True, stat='percent',multiple="dodge",shrink=0, element="bars")
+
+# Create a custom legend
+
+ax1.set_xlim(0, 20)
+plt.legend()
+
+
+# In[7]:
+
+
+sns.set_style("ticks",{'grid.linestyle': '--'})
+fig1, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
+
+ax1.grid(alpha=0.5)
+
+plt.xlabel('V [km/s]')
+plt.ylabel('Percent')
+plt.title('Solar wind speed in OMNI2 near Earth data, rising phase')
+
+
+bins=np.arange(0,1000,10)
+#sns.histplot(o20.vt, bins=bins, kde=True, color='grey', stat='percent',label='cycle 23',shrink=0)
+sns.histplot(o23.vt, bins=bins, kde=True, color='navy', stat='percent',label='cycle 23',shrink=0)
+sns.histplot(o24.vt, bins=bins, kde=True, color='coral', stat='percent',label='cycle 24')
+sns.histplot(o25.vt, bins=bins, kde=True, color='mediumseagreen', stat='percent',label='cycle 25',shrink=0)
+
+ax1.set_xlim(200, 800)
+plt.legend()
+
+
+# In[8]:
 
 
 years=np.arange(1955,2040,5) 
@@ -216,7 +360,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 
 
-# In[37]:
+# In[9]:
 
 
 years=np.arange(1995,2040) 
@@ -274,7 +418,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 
 # ## Newell Coupling
 
-# In[53]:
+# In[10]:
 
 
 ###add plot and add to txt file without propagation 
@@ -364,7 +508,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 
 
-# In[31]:
+# In[11]:
 
 
 #save data for last few months as txt
@@ -400,7 +544,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[24]:
+# In[12]:
 
 
 print(' ')
@@ -412,7 +556,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[9]:
+# In[13]:
 
 
 #https://plotly.com/python/
@@ -433,7 +577,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[10]:
+# In[14]:
 
 
 if data_lookup > 0:
@@ -445,7 +589,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[11]:
+# In[15]:
 
 
 if data_lookup > 0:
