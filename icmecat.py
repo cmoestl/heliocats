@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat.
 # 
-# latest release: version 2.1, 2021 November 29, updated 2023 September 1
+# latest release: version 2.1, 2021 November 29, updated 2023 November 15
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -14,7 +14,7 @@
 # **Contributors**: 
 # Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Benoit Lavraud, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, Johan von Forstner, Mateja Dumbovic. 
 # 
-# https://twitter.com/chrisoutofspace <br /> https://mastodon.social/@chrisoutofspace
+# https://twitter.com/chrisoutofspace <br /> https://bsky.app/profile/chrisoutofspace.bsky.social
 # 
 # This notebook is part of the heliocats package https://github.com/cmoestl/heliocats
 # 
@@ -34,30 +34,30 @@
 # 
 # **ISSUES**
 # 
-# - west, north, east, south indicators better onto the plot position and not in the axis
+# - add plots for JUNO
 # - STEREO A beacon data (used from 2023 Jan 1 onwards) contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[1]:
+# In[34]:
 
 
-last_update='2023-September-30'
+last_update='2023-November-15'
 
 debug_mode=1
 
 #redo positions file
 make_positions=0
 #red indices file
-create_indices=1
+create_indices=0
 
 #define number of processes for plotting
 used=8 
 #which plots to make
 solo_plots=1
-bepi_plots=0
+bepi_plots=1
 psp_plots=1
-wind_plots=0
+wind_plots=1
 sta_plots=1
 
 
@@ -151,7 +151,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[2]:
+# In[23]:
 
 
 # the positions file is generated with positions.ipynb, and the positions from messenger, ulysses and stereob are taken from an older file
@@ -226,7 +226,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[3]:
+# In[24]:
 
 
 load_data=1
@@ -424,7 +424,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[4]:
+# In[25]:
 
 
 if debug_mode > 0: 
@@ -455,7 +455,7 @@ beci=np.where(ic.sc_insitu == 'BepiColombo')[:][0]
 if create_indices > 0: 
 
     print(' ')
-    print('switch create_indices on - make indices for all events for current mission')
+    print('switch create_indices on - make indices for all events for current 5 missions')
     
     t0 = time.time()
 
@@ -467,7 +467,7 @@ if create_indices > 0:
     
     #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
     #hc.create_icme_indices(vex,vexi,ic,'VEX')
-    hc.create_icme_indices(juno,juni,ic,'Juno')
+    #hc.create_icme_indices(juno,juni,ic,'Juno')
 
     
     t1 = time.time()
@@ -497,7 +497,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[5]:
+# In[33]:
 
 
 ###### 3c make all plots if wanted

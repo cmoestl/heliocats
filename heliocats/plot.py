@@ -1055,14 +1055,14 @@ def plot_stereo_hi_fov(pos, time_num, timeind,ax,sc):
         ang4d=88
         lcolor='red'
 
-        #STA flipped during conjunction
-        if time_num>mdates.date2num(datetime.datetime(2015,11,1)):  
+        #STA flipped during conjunction and then again reversing when crossing the Sun Earth line in 2023
+        
+        if np.logical_and(time_num>mdates.date2num(datetime.datetime(2015,11,1)),time_num<mdates.date2num(datetime.datetime(2023,8,12))   ):  
             ang1d=-4
             ang2d=-24
             ang3d=-18
             ang4d=-88
-
-
+                        
 
     #calculate endpoints
     
@@ -1802,7 +1802,7 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
 
     
     ########## legend    
-    plt.figtext(0.99,0.01,'helioforecast.space   Austrian Space Weather Office   GeoSphere Austria', color='black', ha='right',fontsize=fsize-9)
+    plt.figtext(0.99,0.01,'helioforecast.space/icmecat   Austrian Space Weather Office   GeoSphere Austria', color='black', ha='right',fontsize=fsize-9)
     #plt.figtext(0.87,0.05,'――― 100 days future trajectory', color='black', ha='center',fontsize=fsize-3)
 
      
@@ -1892,9 +1892,19 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
             ax1.set_ylim(-bscale-5,bscale+5)   
 
 
-     ax1.text(sc.time[30],  bscale, 'west    north', fontsize=fs-4, color='black')
-     ax1.text(sc.time[30], -bscale, 'east    south', fontsize=fs-4, color='black')
+     #ax1.text(sc.time[30],  bscale, 'west', fontsize=fs-4, color='green')
+     #ax1.text(sc.time[30], -bscale, 'east', fontsize=fs-4, color='green')
             
+     #ax1.text(sc.time[300],  bscale, 'north', fontsize=fs-4, color='blue')
+     #ax1.text(sc.time[300], -bscale, 'south', fontsize=fs-4, color='blue')
+
+     #add components with position on full figure
+     ax1.text(0.08,0.94,'west', fontsize=fs-4, color='green',ha='center', va='center', transform=fig.transFigure)
+     ax1.text(0.08,0.77,'east', fontsize=fs-4, color='green',ha='center', va='center', transform=fig.transFigure)
+              
+     ax1.text(0.11,0.94,'north', fontsize=fs-4, color='blue',ha='center', va='center', transform=fig.transFigure)
+     ax1.text(0.11,0.77,'south', fontsize=fs-4, color='blue',ha='center', va='center', transform=fig.transFigure)
+        
             
     
      ax1.tick_params(axis='x', labelsize=fs)  
@@ -1998,7 +2008,7 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
         plt.figtext(0.5,0.03,'Data source: Solar Orbiter (MAG, Imperial College; SWA, University College London)',fontsize=11, ha='left',color='black')
         
      if sc_label=='BepiColombo': 
-        plt.figtext(0.5,0.03,'Data source: BepiColombo MPO-MAG (IGEP/IWF/ISAS/IC)',fontsize=11, ha='left',color='black')
+        plt.figtext(0.5,0.03,'Data source: BepiColombo MPO-MAG ib (IGEP/IWF/ISAS/IC)',fontsize=11, ha='left',color='black')
   
         
      plt.tight_layout()

@@ -13,7 +13,24 @@
 # Issues: 
 # 
 
-# In[18]:
+# In[9]:
+
+
+######### !!!!!!! CHECK: do you want to debug or actually send alerts
+
+
+#telegram=False
+telegram=True
+
+if not telegram:
+    print('no telegram alerts will be sent')
+
+    
+if telegram: 
+    print('telegram alerts will be sent')
+
+
+# In[10]:
 
 
 import pickle
@@ -39,13 +56,16 @@ from email.mime.text import MIMEText
 from alerts import alert_server_ids as aid
 
 #Dst threshold definition for defining an alert
-threshold=-30 #for real time application
+threshold1=-50 #for real time application
 
-threshold2=-100 #for future extra alert
+threshold2=-100 #for extra alert
 
-#greater 0 means yes
-telegram=1
+#threshold3=-150 #for extra alert
 
+#threshold4=-200 #for extra alert
+
+
+print('thresholds set to ',threshold1, '  ', threshold2)#'  ', threshold3,'  ', threshold4 )
 
 
 ##### check for system type
@@ -68,22 +88,21 @@ print(data_path)
 os.system('jupyter nbconvert --to script alert.ipynb')  
 
 
-
-
-
 # ### get Dst data and plot
 
-# In[19]:
+# In[3]:
 
 
 #get current dst last 35 days
 filenoaa='noaa_dst_last_35files_now.p'
 n=pickle.load(open(data_path+filenoaa, "rb" ) )  
 
-
+#########################
 
 ## TBD load Nc values from Dst file
 
+
+###################
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
@@ -91,7 +110,10 @@ fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
 
 ax1.plot(n.time,n.dst,color='royalblue',linewidth=1.5,alpha=1.0)
 ax1.plot(n.time,n.dst,'ok',markersize=5)
-ax1.axhline(y=threshold, color='r', linestyle='-')
+ax1.axhline(y=threshold1, color='r', linestyle='--',label='threshold 1')
+ax1.axhline(y=threshold2, color='g', linestyle='--',label='threshold 2')
+#ax1.axhline(y=threshold3, color='b', linestyle='--',label='threshold 3')
+#ax1.axhline(y=threshold4, color='k', linestyle='--',label='threshold 4')
 
 
 plotmin=np.nanmin(n.dst)
@@ -99,21 +121,21 @@ plotmax=np.nanmax(n.dst)
 print(plotmax, plotmin)
 
 
-ax1.set_ylim(plotmin-30,plotmax+20)
+ax1.set_ylim(plotmin-50,plotmax+30)
 plt.ylabel('Dst [nT]')
 ax1.xaxis_date()
 
-ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=20),datetime.datetime.utcnow()+datetime.timedelta(days=10))
-ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=5),datetime.datetime.utcnow()+datetime.timedelta(days=0))
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=3))
+#ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=5),datetime.datetime.utcnow()+datetime.timedelta(days=0))
 
 #plt.title('Geomagnetische Stürme 2015-2023')
 plt.title('Latest geomagnetic storms',fontsize=15)
 
 fsize=12
 
-plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
-plt.figtext(0.92,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=10)
+plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-2, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-2, style='italic')
+plt.figtext(0.92,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=15)
 plt.tight_layout()
 
 
@@ -122,8 +144,11 @@ plt.savefig('alerts/alert_dst.png',dpi=100)
 
 # ### alert functions
 
-# In[20]:
+# In[4]:
 
+
+#with outlook as sender, gmail does not work
+#use outlook.com aswo-space@outlook.com account for testing
 
 def send_alert_email(time,dstval):
 
@@ -177,7 +202,7 @@ def send_alert_email(time,dstval):
   
 
 
-# In[21]:
+# In[5]:
 
 
 def send_telegram_message(time,dstval):
@@ -224,11 +249,11 @@ https://helioforecast.space/solarwind""".format(dstval, time_formatted)
 # ### alert for threshold 1
 # 
 
-# In[22]:
+# In[6]:
 
 
-#with outlook as sender, gmail does not work
-#use outlook.com aswo-space@outlook.com account for testing
+# for testing
+#n.dst[-1]=-55
 
 time_now=datetime.datetime.utcnow()
 
@@ -249,13 +274,13 @@ print(' ')
 
 print(' ')
 
-if n.dst[-1]> threshold: 
-    print('Dst above threshold',threshold,'nT, no alert triggered')
+if n.dst[-1]> threshold1: 
+    print('Dst above threshold',threshold1,'nT, no alert triggered')
 
-if n.dst[-1]<= threshold: 
+if n.dst[-1]<= threshold1: 
     
     print('------------ Alert triggered')
-    print('Dst is ',int(n.dst[-1]), ' nT, below the threshold of <=',threshold,' nT')
+    print('Dst is ',int(n.dst[-1]), ' nT, below the threshold of <=',threshold1,' nT')
     print(' ')
     print('Was alert already sent in last 12 hours?')
     print(' ')
@@ -306,7 +331,7 @@ if n.dst[-1]<= threshold:
         
         
         #if telegram switch is on, send message
-        if telegram > 0: 
+        if telegram: 
             send_telegram_message(n.time[-1],n.dst[-1])
 
         
@@ -318,21 +343,90 @@ if n.dst[-1]<= threshold:
     
 
 
-# ### Alert for threshold 2  
+# ### Alert for threshold 2, same setup as for threshold 1
 
-# In[23]:
+# In[7]:
 
 
-if n.dst[-1]<= threshold2: 
-    print('Dst below threshold 2 ',threshold2,'nT')
-    print('Intense geomagnetic storm ongoing')
-    print('Alerts TBD')
+# for testing
+#n.dst[-1]=-150
+
+
+
+
+print(' ')
+print('------------------------------------------------------------------')
+print('start Dst alert check at',time_now.strftime("%Y-%b-%d %H:%M:%S UT"))
+print(' ')
 
 if n.dst[-1]> threshold2: 
-    print('threshold 2 not reached <= ',threshold2,'nT')
+    print('Dst above threshold',threshold2,'nT, no alert triggered')
+
+if n.dst[-1]<= threshold2: 
+    
+    print('------------ Alert triggered')
+    print('Dst is ',int(n.dst[-1]), ' nT, below the threshold of <=',threshold2,' nT')
+    print(' ')
+    print('Was alert already sent in last 12 hours?')
+    print(' ')
+
+    #read list of sent out alert times from a pickle file
+    file_path = 'alerts/alert_list2.p'
+    
+    if os.path.exists(file_path):
+        print('Alerts file exists')
+        atime_list=pickle.load(open(file_path, "rb" ) )   
+        atime_list_num=mdates.date2num(atime_list)
+    else:
+        print('Alerts file does not exist, file created')
+        #create a dummy list if the file is not there, and create the pickle file
+        atime_list=[datetime.datetime(2023, 9, 15, 18, 0), \
+                     datetime.datetime(2023, 9, 25, 7, 0)]        
+        atime_list_num=mdates.date2num(atime_list)
+        pickle.dump(atime_list, open('alerts/alert_list2.p', 'wb') )
+    
+    
+    
+    print('latest alerts from pickle file')
+    for i in np.arange(0,len(atime_list)):
+        print(atime_list[i].strftime("%Y-%m-%dT%H:%MZ") )
+    
+    
+    print('')
+    
+    
+    #go through all times and check whether one was in the last 12 hours or 0.5 days in matplotlib times
+    if np.nanmin(time_now_num-atime_list_num) > 0.5:   
+        
+        print('no, alert will be sent')       
+                     
+        print('Alert time and Dst written to file alerts/alert_list.txt and alert_list.p')
+        
+        alert_time_for_file=n.time[-1].strftime("%Y-%m-%dT%H:%MZ")
+        print(alert_time_for_file+' '+str(int(n.dst[-1])))        
+                
+        #write this to a text file
+        with open('alerts/alert_list2.txt', 'a') as file:
+            file.write(alert_time_for_file)
+            file.write(' '+str(int(n.dst[-1]))+'\n')
+            
+        #append to list and write to pickle file    
+        atime_list.append(n.time[-1])
+        pickle.dump(atime_list, open('alerts/alert_list2.p', 'wb') )            
+        
+        
+        #if telegram switch is on, send message
+        if telegram: 
+            send_telegram_message(n.time[-1],n.dst[-1])
+        
+                        
+        #write into file the time of the sent alert
+    else: 
+        print('yes, no alert sent')
+        
 
 
-# In[11]:
+# In[8]:
 
 
 print(' ')
