@@ -10,7 +10,7 @@
 # 
 # This code is part of https://github.com/cmoestl/heliocats
 # 
-# **current version is ARRCAT 2.0, released 2020 May 13, updated 2023 October 18**
+# **current version is ARRCAT 2.0, released 2020 May 13, updated 2024 January 4**
 # 
 # Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
 # The environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
@@ -31,10 +31,10 @@
 # - with next arrcat update, check if Solar Orbiter positions are consistent with general positions file
 # 
 
-# In[3]:
+# In[1]:
 
 
-last_update='2023-October-18'
+last_update='2024-January-4'
 debug_mode=1
 
 
@@ -116,7 +116,7 @@ warnings.filterwarnings("ignore")
 
 # ## 1 Make arrival catalog 
 
-# In[4]:
+# In[2]:
 
 
 t0=time.time()
@@ -181,7 +181,7 @@ ac
 
 # #### save header
 
-# In[5]:
+# In[3]:
 
 
 first_date=ac['target_arrival_time'][len(ac)-1]
@@ -190,7 +190,7 @@ print(last_date[0:7])
 print(first_date[0:7])
 
 
-# In[6]:
+# In[4]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -277,7 +277,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[7]:
+# In[5]:
 
 
 ########## python formats
@@ -431,7 +431,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[8]:
+# In[6]:
 
 
 #load arrcat as pandas dataframe
@@ -451,27 +451,27 @@ ac5 = f['arrcat']
 ac5['sse_launch_time']
 
 
-# In[9]:
+# In[7]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[10]:
+# In[8]:
 
 
 ac
 
 
-# In[11]:
+# In[9]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[12]:
+# In[10]:
 
 
 ac_struct
@@ -479,7 +479,7 @@ ac_struct
 
 # ### plot directions and targets
 
-# In[13]:
+# In[11]:
 
 
 sns.set_context('talk')
@@ -551,7 +551,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[14]:
+# In[12]:
 
 
 fig=plt.figure(2, figsize=(16,8), dpi=70)
@@ -592,7 +592,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[15]:
+# In[23]:
 
 
 hiai=np.where(higeocat['SC']=='A')[0]
@@ -614,12 +614,15 @@ for i in np.arange(2007,last_year-1):
     for k in np.arange(1,13):
         months_str.append(str(i)+'-'+str(k).zfill(2)+'-01' )
         
-#current year, use the month before last month in the HIGeoCat
+#current year, use the month before last month in the HIGeoCat, because the month with the current event is not complete
 last_month=parse_time(hia_t0).datetime[-1].month-1
+
+print(last_month)
 
 for k in np.arange(1,last_month+1):
       months_str.append(str(datetime.datetime.utcnow().year)+'-'+str(k).zfill(2)+'-01' )
 
+print(months_str[-10:])
         
 months_bin_edges=parse_time(months_str).plot_date
 #months_bin_edges
@@ -638,7 +641,7 @@ hist_hib_monthly[93:]=-1
 ########### TBD add an estimate for the rest of the year
 
 
-# In[16]:
+# In[26]:
 
 
 sns.set_context("talk")     
@@ -660,8 +663,8 @@ ax1.xaxis.set_major_formatter(myformat)
 
 binweite=365/3
 alp=1.0
-ax1.bar(binedges[0:17]+binweite,hist_hia, width=binweite,color='tomato', alpha=alp,label='yearly CME rate STEREO-A HI')
-ax1.bar(binedges[0:17]+binweite*2,hist_hib, width=binweite,color='mediumslateblue', alpha=alp,label='yearly CME rate STEREO-B HI')
+ax1.bar(binedges[0:-1]+binweite,hist_hia, width=binweite,color='tomato', alpha=alp,label='yearly CME rate STEREO-A HI')
+ax1.bar(binedges[0:-1]+binweite*2,hist_hib, width=binweite,color='mediumslateblue', alpha=alp,label='yearly CME rate STEREO-B HI')
 ax1.plot(binedges_monthly[0:-1], hist_hia_monthly,color='red', label='monthly CME rate STEREO-A HI')
 ax1.plot(binedges_monthly[0:-1], hist_hib_monthly,color='blue',label='monthly CME rate STEREO-B HI')
 
@@ -688,7 +691,7 @@ print('saved as ',plotfile)
 
 
 
-# In[17]:
+# In[18]:
 
 
 print(' ')
@@ -706,7 +709,7 @@ print(np.sort(arrcat_web.sse_launch_time)[-1])
 
 
 
-# In[18]:
+# In[19]:
 
 
 t1all = time.time()

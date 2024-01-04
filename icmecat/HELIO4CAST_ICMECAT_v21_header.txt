@@ -10,13 +10,12 @@ References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017
 The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at 
 https://helioforecast.space/icmecat 
 
-Number of events in ICMECAT: 1343 
+Number of events in ICMECAT: 1342 
 ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, Juno, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   
 Time range: 1995-02 to 2023-11 
  
-Authors: Christian Moestl, Eva Weiler, Emma E. Davies, Rachel L. Bailey, Martin A. Reiss, Andreas J. Weiss 
-(1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria. (2) Conrad Observatory, GeoSphere Austria, Vienna, Austria. (3) NASA CCMC, USA. (4) NASA GSFC, USA.
-Contributors: Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, 
+Authors: Christian Moestl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, GeoSphere Austria, Graz, Austria. 
+Contributors: Rachel L. Bailey, Martin A. Reiss, Andreas J. Weiss, Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, 
 Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, 
 Johan von Forstner, Mateja Dumbovic, Benoit Lavraud.  
 
