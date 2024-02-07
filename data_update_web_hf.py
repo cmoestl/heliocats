@@ -5,7 +5,7 @@
 # 
 # Main author: C. Möstl, Austrian Space Weather Office, GeoSphere Austria
 # 
-# https://github.com/cmoestl/heliocats
+# part of https://github.com/cmoestl/heliocats
 # 
 # uses environment 'envs/env_helio4.yml'
 # 
@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[11]:
+# In[ ]:
 
 
 #switches
@@ -26,10 +26,9 @@ debug_mode=0
 
 #always turn off debug mode when deploying!
 
-#download and save as pickle
+#switches to download and save as pickle
 get_noaa=1
 get_stereoa=1
-
 
 
 import pickle

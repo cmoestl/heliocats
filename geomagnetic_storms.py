@@ -7,13 +7,13 @@
 # 
 # Issues:
 # 
-# - indicate whether Dst comes from NOAA or OMNI
+# 
 # - make Nc plot and add Nc to output file already with the data_update_web_hf program? here for testing, this program is for plotting
 # 
 # 
 # 
 
-# In[1]:
+# In[47]:
 
 
 import pickle
@@ -73,7 +73,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[2]:
+# In[48]:
 
 
 ##get omni dst data
@@ -122,7 +122,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[6]:
+# In[49]:
 
 
 years=np.arange(1995,2040) 
@@ -174,7 +174,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 # ### Histograms
 
-# In[7]:
+# In[50]:
 
 
 #years23=np.arange(1996,2009)
@@ -210,7 +210,7 @@ o24=o[ind24]
 o25=o[ind25]
 
 
-# In[9]:
+# In[51]:
 
 
 #compare rising phases
@@ -265,7 +265,7 @@ plt.savefig(plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
-# In[10]:
+# In[52]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -294,7 +294,7 @@ ax1.set_xlim(0, 20)
 plt.legend()
 
 
-# In[11]:
+# In[53]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -317,7 +317,7 @@ ax1.set_xlim(200, 800)
 plt.legend()
 
 
-# In[44]:
+# In[54]:
 
 
 years=np.arange(1955,2040,5) 
@@ -349,7 +349,7 @@ plt.xticks(yearly_start_times, fontsize=14,rotation=0)
 
 ax1.set_xlim(datetime.datetime(1960,1,1),datetime.datetime(datetime.datetime.utcnow().year+1,1,1))
 
-ax1.axvline(datetime.datetime.utcnow(), color='r', linestyle='--',linewidth=0.8,alpha=0.3)
+#ax1.axvline(datetime.datetime.utcnow(), color='r', linestyle='--',linewidth=0.8,alpha=0.3)
 
 
 #plt.title('Geomagnetische Stürme 2015-2023')
@@ -366,7 +366,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 
 
-# In[38]:
+# In[55]:
 
 
 years=np.arange(1995,2040) 
@@ -404,8 +404,7 @@ ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=300),datetime.da
 
 #ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=10))
 
-ax1.axvline(datetime.datetime.utcnow(), color='r', linestyle='-',linewidth=0.8,alpha=0.5)
-
+ax1.axvline(datetime.datetime.utcnow(), color='r', linestyle='--',linewidth=0.8,alpha=0.3)
 
 #plt.title('Geomagnetische Stürme 2015-2023')
 plt.title('Latest geomagnetic storms',fontsize=15)
@@ -426,7 +425,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 
 # ## Newell Coupling
 
-# In[20]:
+# In[68]:
 
 
 ###add plot and add to txt file without propagation 
@@ -505,10 +504,15 @@ ax1.plot(w.time,w_nc,'-k',linewidth=0.5,alpha=0.3, label='minutes')
 ax1.plot(norig.time,n_nci,'or',linewidth=0.5,markersize=6, label='hourly average')
 ax1.plot(norig.time,n_ncw,'-b',linewidth=2,label='4 hour weighted average')
 
+
+plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+plt.figtext(0.90,0.90,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=10)
+
 plt.ylabel('Nc')
 plt.legend(loc=1,fontsize=12)
 plt.title('Latest Newell coupling')
-ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=7),datetime.datetime.utcnow()+datetime.timedelta(days=0.5))
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=7),datetime.datetime.utcnow())
 
 plt.savefig(outputdir+'newell_coupling_latest.png',dpi=100)
 
@@ -516,7 +520,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 
 
-# In[21]:
+# In[57]:
 
 
 #save data for last few months as txt
@@ -552,7 +556,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[22]:
+# In[58]:
 
 
 print(' ')
@@ -564,7 +568,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[23]:
+# In[59]:
 
 
 #https://plotly.com/python/
@@ -585,7 +589,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[24]:
+# In[60]:
 
 
 if data_lookup > 0:
@@ -597,7 +601,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[25]:
+# In[61]:
 
 
 if data_lookup > 0:
