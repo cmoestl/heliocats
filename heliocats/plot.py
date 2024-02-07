@@ -296,11 +296,11 @@ def plot_insitu_update_stereoa_noaa(sc1, sc2, start, end, sc_label, path, **kwar
      #ax1.text(sc1.time[-600], -bscale+3, 'west   south', fontsize=fsize-2, color='black')
     
     
-     ax1.text(0.88,0.88,'west', fontsize=fsize-2, color='green',ha='center', va='center', transform=fig.transFigure)
-     ax1.text(0.88,0.69,'east', fontsize=fsize-2, color='green',ha='center', va='center', transform=fig.transFigure)
+     ax1.text(0.88,0.89,'east', fontsize=fsize-2, color='green',ha='center', va='center', transform=fig.transFigure)
+     ax1.text(0.88,0.68,'west', fontsize=fsize-2, color='green',ha='center', va='center', transform=fig.transFigure)
               
-     ax1.text(0.92,0.88,'north', fontsize=fsize-2, color='blue',ha='center', va='center', transform=fig.transFigure)
-     ax1.text(0.92,0.69,'south', fontsize=fsize-2, color='blue',ha='center', va='center', transform=fig.transFigure)
+     ax1.text(0.92,0.89,'north', fontsize=fsize-2, color='blue',ha='center', va='center', transform=fig.transFigure)
+     ax1.text(0.92,0.68,'south', fontsize=fsize-2, color='blue',ha='center', va='center', transform=fig.transFigure)
         
     
 

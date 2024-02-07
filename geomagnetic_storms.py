@@ -122,7 +122,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[3]:
+# In[6]:
 
 
 years=np.arange(1995,2040) 
@@ -151,7 +151,10 @@ myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 plt.xticks(yearly_start_times, fontsize=14,rotation=45) 
 
-ax1.set_xlim(datetime.datetime(1996,1,1),datetime.datetime(2024,1,1))
+
+
+
+ax1.set_xlim(datetime.datetime(1996,1,1),datetime.datetime(datetime.datetime.utcnow().year+1,1,1))
 
 #ax1.set_xlim(datetime.datetime(2023,1,1),datetime.datetime(2024,1,1))
 
@@ -171,7 +174,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 # ### Histograms
 
-# In[4]:
+# In[7]:
 
 
 #years23=np.arange(1996,2009)
@@ -207,7 +210,7 @@ o24=o[ind24]
 o25=o[ind25]
 
 
-# In[5]:
+# In[9]:
 
 
 #compare rising phases
@@ -256,12 +259,13 @@ plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=
 
 plt.tight_layout()
 
-plotfile='arrcat/plots_arrcat/higeocat_rate.png'
+plotfile='geomagnetic_storm_dst_cycles.png'
+plt.savefig(outputdir+plotfile,dpi=100)
 plt.savefig(plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
-# In[6]:
+# In[10]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -290,7 +294,7 @@ ax1.set_xlim(0, 20)
 plt.legend()
 
 
-# In[7]:
+# In[11]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -313,7 +317,7 @@ ax1.set_xlim(200, 800)
 plt.legend()
 
 
-# In[8]:
+# In[44]:
 
 
 years=np.arange(1955,2040,5) 
@@ -327,9 +331,9 @@ ax1.plot(o.time,o.dst,color='k',linewidth=0.7,alpha=0.8, label='OMNI Dst')
 ax1.plot(n.time,n.dst,color='royalblue',linewidth=0.9,alpha=1.0,label='NOAA Dst')
 
 #ax1.plot(o.time,np.zeros(np.size(o.time))-187, 'g')
-#stack both OMNI and NOAA Dst and determine min max for last 25 years
-plotmin=np.nanmin(np.hstack([o.dst,n.dst])[-365*24*25:-1] )
-plotmax=np.nanmax(np.hstack([o.dst,n.dst])[-365*24*25:-1] )
+#stack both OMNI and NOAA Dst and determine min max space age
+plotmin=np.nanmin(np.hstack([o.dst,n.dst]) )
+plotmax=np.nanmax(np.hstack([o.dst,n.dst]) )
 print(plotmax, plotmin)
 ax1.set_ylim(-1100,plotmax+20)
 
@@ -342,9 +346,11 @@ myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 plt.xticks(yearly_start_times, fontsize=14,rotation=0) 
 
-ax1.set_xlim(datetime.datetime(1961,1,1),datetime.datetime(2025,1,1))
 
-#ax1.set_xlim(datetime.datetime(2023,1,1),datetime.datetime(2024,1,1))
+ax1.set_xlim(datetime.datetime(1960,1,1),datetime.datetime(datetime.datetime.utcnow().year+1,1,1))
+
+ax1.axvline(datetime.datetime.utcnow(), color='r', linestyle='--',linewidth=0.8,alpha=0.3)
+
 
 #plt.title('Geomagnetische Stürme 2015-2023')
 plt.title('Geomagnetic storms in the space age',fontsize=18)
@@ -360,7 +366,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 
 
-# In[9]:
+# In[38]:
 
 
 years=np.arange(1995,2040) 
@@ -394,9 +400,11 @@ ax1.xaxis.set_major_formatter(myformat)
 plt.xticks(monthly_start_times, fontsize=14,rotation=30) 
 
 
-ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=300),datetime.datetime.utcnow()+datetime.timedelta(days=10))
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=300),datetime.datetime.utcnow()+datetime.timedelta(days=20))
 
 #ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=10))
+
+ax1.axvline(datetime.datetime.utcnow(), color='r', linestyle='-',linewidth=0.8,alpha=0.5)
 
 
 #plt.title('Geomagnetische Stürme 2015-2023')
@@ -418,7 +426,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 
 # ## Newell Coupling
 
-# In[10]:
+# In[20]:
 
 
 ###add plot and add to txt file without propagation 
@@ -500,7 +508,7 @@ ax1.plot(norig.time,n_ncw,'-b',linewidth=2,label='4 hour weighted average')
 plt.ylabel('Nc')
 plt.legend(loc=1,fontsize=12)
 plt.title('Latest Newell coupling')
-ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=7),datetime.datetime.utcnow())
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=7),datetime.datetime.utcnow()+datetime.timedelta(days=0.5))
 
 plt.savefig(outputdir+'newell_coupling_latest.png',dpi=100)
 
@@ -508,7 +516,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 
 
-# In[11]:
+# In[21]:
 
 
 #save data for last few months as txt
@@ -544,7 +552,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[12]:
+# In[22]:
 
 
 print(' ')
@@ -556,7 +564,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[13]:
+# In[23]:
 
 
 #https://plotly.com/python/
@@ -577,7 +585,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[14]:
+# In[24]:
 
 
 if data_lookup > 0:
@@ -589,7 +597,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[15]:
+# In[25]:
 
 
 if data_lookup > 0:

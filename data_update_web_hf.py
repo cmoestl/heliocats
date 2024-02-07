@@ -9,11 +9,16 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 # 
+# 
+# https://github.com/cmoestl/heliocats  data_update_web_hf.py
+# 
+# for updating data with high frequency on the servers
+# 
 # Issues:
 # 
 # 
 
-# In[1]:
+# In[11]:
 
 
 #switches
@@ -26,9 +31,6 @@ get_noaa=1
 get_stereoa=1
 
 
-# https://github.com/cmoestl/heliocats  data_update_web_hf.py
-
-# for updating data with high frequency on the servers
 
 import pickle
 import importlib
@@ -336,9 +338,10 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[6]:
+# In[10]:
 
 
+debug_mode=1
 if debug_mode > 0:     
     importlib.reload(hd) 
     importlib.reload(hp) 
@@ -360,6 +363,12 @@ print(' ')
 print('------------------')
 print('Runtime for full high frequency data update:', np.round((t1all-t0all),2), 'seconds')
 print('--------------------------------------------------------------------------------------')
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
