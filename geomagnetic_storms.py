@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[47]:
+# In[1]:
 
 
 import pickle
@@ -73,7 +73,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[48]:
+# In[49]:
 
 
 ##get omni dst data
@@ -105,7 +105,10 @@ norig=copy.deepcopy(n)
 ############### TO DO stitch together n and n2
 
 
-#take only last year in the omni data
+
+
+
+############ take only last year in the omni data
 os=o.dst[-24*365:]
 ot=o.time[-24*365:]
 
@@ -122,7 +125,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[49]:
+# In[24]:
 
 
 years=np.arange(1995,2040) 
@@ -136,9 +139,9 @@ ax1.plot(o.time,o.dst,color='k',linewidth=0.7,alpha=0.8, label='OMNI Dst')
 ax1.plot(n.time,n.dst,color='royalblue',linewidth=0.9,alpha=1.0,label='NOAA Dst')
 
 #ax1.plot(o.time,np.zeros(np.size(o.time))-187, 'g')
-#stack both OMNI and NOAA Dst and determine min max for last 25 years
-plotmin=np.nanmin(np.hstack([o.dst,n.dst])[-365*24*25:-1] )
-plotmax=np.nanmax(np.hstack([o.dst,n.dst])[-365*24*25:-1] )
+#stack both OMNI and NOAA Dst and determine min max for last 27 years
+plotmin=np.nanmin(np.hstack([o.dst,n.dst])[-365*24*27:-1] )
+plotmax=np.nanmax(np.hstack([o.dst,n.dst])[-365*24*27:-1] )
 print(plotmax, plotmin)
 ax1.set_ylim(plotmin-50,plotmax+20)
 
@@ -174,7 +177,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 # ### Histograms
 
-# In[50]:
+# In[25]:
 
 
 #years23=np.arange(1996,2009)
@@ -210,7 +213,7 @@ o24=o[ind24]
 o25=o[ind25]
 
 
-# In[51]:
+# In[26]:
 
 
 #compare rising phases
@@ -265,7 +268,7 @@ plt.savefig(plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
-# In[52]:
+# In[27]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -294,7 +297,7 @@ ax1.set_xlim(0, 20)
 plt.legend()
 
 
-# In[53]:
+# In[28]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -317,7 +320,7 @@ ax1.set_xlim(200, 800)
 plt.legend()
 
 
-# In[54]:
+# In[29]:
 
 
 years=np.arange(1955,2040,5) 
@@ -366,7 +369,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 
 
-# In[55]:
+# In[61]:
 
 
 years=np.arange(1995,2040) 
@@ -379,15 +382,17 @@ sns.set_style('darkgrid')
 fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
 
 
+
 ax1.plot(o.time,o.dst,color='k',linewidth=0.7,alpha=0.8, label='OMNI Dst')
 ax1.plot(n.time,n.dst,color='royalblue',linewidth=0.9,alpha=1.0,label='NOAA Dst')
 
-#ax1.plot(o.time,np.zeros(np.size(o.time))-187, 'g')
+#search for last data point in omni data in last 2 years, the problem is that omni has nan for the whole year
+os2=o.dst[-24*365*2:]
+#search for the latest data point of omni
+cutoff_2=np.where(np.isfinite(os2)==False)[0][0]
 
-
-#stack both OMNI and NOAA Dst and determine min max for last year
-plotmin=np.nanmin(np.hstack([o.dst,n.dst])[-365*24:-1])
-plotmax=np.nanmax(np.hstack([o.dst,n.dst])[-365*24:-1])
+plotmin=np.nanmin(np.hstack([os2[0:cutoff_2],n.dst])[-365*24:-1])
+plotmax=np.nanmax(np.hstack([os2[0:cutoff_2],n.dst])[-365*24:-1])
 print(plotmax, plotmin)
 
 ax1.set_xlim(start,end)
@@ -400,11 +405,11 @@ ax1.xaxis.set_major_formatter(myformat)
 plt.xticks(monthly_start_times, fontsize=14,rotation=30) 
 
 
-ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=300),datetime.datetime.utcnow()+datetime.timedelta(days=20))
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=365),datetime.datetime.utcnow()+datetime.timedelta(days=20))
 
 #ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=10))
 
-ax1.axvline(datetime.datetime.utcnow(), color='r', linestyle='--',linewidth=0.8,alpha=0.3)
+#ax1.axvline(datetime.datetime.utcnow(), color='r', linestyle='--',linewidth=0.8,alpha=0.3)
 
 #plt.title('Geomagnetische Stürme 2015-2023')
 plt.title('Latest geomagnetic storms',fontsize=15)
@@ -425,7 +430,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 
 # ## Newell Coupling
 
-# In[68]:
+# In[31]:
 
 
 ###add plot and add to txt file without propagation 
@@ -520,7 +525,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 
 
-# In[57]:
+# In[32]:
 
 
 #save data for last few months as txt
@@ -556,7 +561,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[58]:
+# In[33]:
 
 
 print(' ')
@@ -568,7 +573,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[59]:
+# In[34]:
 
 
 #https://plotly.com/python/
