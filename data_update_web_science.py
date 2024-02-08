@@ -15,7 +15,7 @@
 # - need to copy kernel files manually to the kernel paths
 # - PSP end date for data downloads needs to be set manually otherwise processing stops on the server, PSP data ends 2023 July 31, end date set to 2023 Sep 1, fix hd.download_pspmag_1min
 
-# In[12]:
+# In[13]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -356,7 +356,7 @@ if get_psp > 0:
     hd.download_pspplas(datetime(2023,7,1),datetime(2023,9,1),psp_path)
 
     print('process PSP to pickle')
-    #hd.create_psp_pkl(start_time,end_time,psp_file,psp_path)
+    hd.create_psp_pkl(start_time,end_time,psp_file,psp_path)
     #print(psph)
 
     t1=time.time()
