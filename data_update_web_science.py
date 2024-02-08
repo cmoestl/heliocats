@@ -13,9 +13,9 @@
 # 
 # Issues: 
 # - need to copy kernel files manually to the kernel paths
-# - PSP end date for data downloads needs to be set manually otherwise processing stops on the server, PSP data ends 2023 July 31, end date set to 2023 Sep 1, fix hd.download_pspmag_1min
+# - PSP end date for data downloads needs to be set manually otherwise processing stops on the server - due to a timeout when no output for a while?, PSP data ends 2023 July 31, end date set to 2023 Sep 1, need to fix hd.download_pspmag_1min
 
-# In[13]:
+# In[14]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -25,8 +25,8 @@
 #switches
 debug_mode=0
 
-get_omni=0
-get_wind=0 
+get_omni=1
+get_wind=1 
 
 get_psp=1
 get_solo=1
