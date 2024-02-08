@@ -9,26 +9,29 @@
 # 
 # uses environment 'envs/env_helio4.yml'
 # 
-# need to copy kernel files manually to the kernel paths
 # 
+# 
+# Issues: 
+# - need to copy kernel files manually to the kernel paths
+# - PSP end date for data downloads needs to be set manually otherwise processing stops on the server, PSP data ends 2023 July 31, end date set to 2023 Sep 1, fix hd.download_pspmag_1min
 
-# In[7]:
+# In[9]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
 
 # for updating data every day on the servers
 
-
 #switches
 debug_mode=0
 
-get_omni=1
-get_wind=1
+get_omni=1 
+get_wind=1 
+
 get_psp=1
 get_solo=1
-get_bepi=1
 get_stereoa=1
+get_bepi=1 
 
 import numpy as np
 import pandas as pd
@@ -107,7 +110,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[8]:
+# In[7]:
 
 
 if sys.platform == 'linux': 
@@ -175,7 +178,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### OMNI2
 
-# In[9]:
+# In[3]:
 
 
 if debug_mode > 0: 
@@ -201,7 +204,7 @@ hp.plot_insitu_update(o, start, end,'OMNI2',plot_path+'omni2/',now=True)
 
 # ### Wind 
 
-# In[12]:
+# In[4]:
 
 
 print(' ')
@@ -272,7 +275,7 @@ else:
  
 
 
-# In[13]:
+# In[5]:
 
 
 #data checks
@@ -315,7 +318,7 @@ if get_wind > 0:
 # ### Parker Solar Probe
 # 
 
-# In[23]:
+# In[8]:
 
 
 print(' ')
@@ -334,8 +337,8 @@ if debug_mode > 0:
     importlib.reload(hd) 
     importlib.reload(hp) 
 
-    start_time= datetime(2018,10,5)
-    end_time  = datetime(2018,10,7)
+    start_time= datetime(2023,7,5)
+    end_time  = datetime(2023,9,10)
     psp_file=data_path+'psp_rtn_test.p'
 
     
@@ -348,12 +351,12 @@ if get_psp > 0:
     print(psp_path)
     
     
-    #don't check all years for faster runtime
-    hd.download_pspmag_1min(datetime(2022,1,1),end_time,psp_path)
-    hd.download_pspplas(datetime(2022,1,1),end_time,psp_path)
+    #don't check all years for faster runtime, make end time shorter so its not a timeout on the server?
+    hd.download_pspmag_1min(datetime(2023,7,1),datetime(2023,9,1),psp_path)
+    hd.download_pspplas(datetime(2023,7,1),datetime(2023,9,1),psp_path)
 
     print('process PSP to pickle')
-    hd.create_psp_pkl(start_time,end_time,psp_file,psp_path)
+    #hd.create_psp_pkl(start_time,end_time,psp_file,psp_path)
     #print(psph)
 
     t1=time.time()
@@ -372,7 +375,7 @@ else:
   
 
 
-# In[24]:
+# In[7]:
 
 
 if get_psp > 0:   
@@ -392,7 +395,7 @@ if get_psp > 0:
 
 # ### Solar Orbiter
 
-# In[25]:
+# In[8]:
 
 
 print(' ')
@@ -409,8 +412,8 @@ solo_file=data_path+'solo_2020_now_rtn.p'
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
-    start_time= datetime(2023,2,25)
-    end_time  = datetime(2023,3,10)
+    start_time= datetime(2023,9,1)
+    end_time  = datetime(2023,12,31)
     solo_file=data_path+'solo_rtn_test.p'
 
 
@@ -439,7 +442,7 @@ else:
     print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[22]:
+# In[9]:
 
 
 if get_solo > 0:  

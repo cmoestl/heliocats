@@ -18,12 +18,11 @@
 # 
 # 
 
-# In[1]:
+# In[2]:
 
 
 #switches
 debug_mode=0
-
 #always turn off debug mode when deploying!
 
 #switches to download and save as pickle

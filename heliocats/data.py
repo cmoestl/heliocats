@@ -1679,6 +1679,10 @@ def wind_rtn_header(data):
 
 def download_pspmag_1min(start_timestamp,end_timestamp, psp_path):
     
+    
+    
+    ### fix here that the server timeout may happen when there is no output for too long when new files are searched
+    
     path=psp_path+'fields/level2/'
     
     start = start_timestamp.date()
@@ -1699,6 +1703,7 @@ def download_pspmag_1min(start_timestamp,end_timestamp, psp_path):
                     urllib.request.urlretrieve(data_url+filename, f"{path}{filename}")
                     print(f'Successfully downloaded {filename}')
         start+= datetime.timedelta(days=1)
+        
 
 
 def download_pspplas(start_timestamp, end_timestamp,psp_path):

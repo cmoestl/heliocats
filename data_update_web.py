@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## daily data updates for the helioforecast.space website
+# ## daily data updates for the helioforecast.space website 
+# 
+# NOAA L1 and STEREO-A
 # 
 # Main author: C. Möstl, Austrian Space Weather Office, GeoSphere Austria
 # 
@@ -15,9 +17,11 @@
 # 
 # Issues:
 # 
+# - change to last 400 days
+# 
 # 
 
-# In[3]:
+# In[ ]:
 
 
 #switches
@@ -76,7 +80,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[4]:
+# In[2]:
 
 
 if sys.platform == 'linux': 

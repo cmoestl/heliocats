@@ -33,6 +33,7 @@ import importlib
 import copy
 
 
+
 import plotly.graph_objects as go
 import numpy as np
 from plotly.offline import iplot, init_notebook_mode
@@ -264,7 +265,7 @@ plt.tight_layout()
 
 plotfile='geomagnetic_storm_dst_cycles.png'
 plt.savefig(outputdir+plotfile,dpi=100)
-plt.savefig(plotfile,dpi=100)
+#plt.savefig(plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
