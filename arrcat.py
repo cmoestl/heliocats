@@ -10,7 +10,7 @@
 # 
 # This code is part of https://github.com/cmoestl/heliocats
 # 
-# **current version is ARRCAT 2.0, released 2020 May 13, updated 2024 January 4**
+# **current version is ARRCAT 2.0, released 2020 May 13, updated 2024 February 16**
 # 
 # Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
 # The environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
@@ -31,11 +31,11 @@
 # - with next arrcat update, check if Solar Orbiter positions are consistent with general positions file
 # 
 
-# In[1]:
+# In[41]:
 
 
-last_update='2024-January-4'
-debug_mode=1
+last_update='2024-February-16'
+debug_mode=0
 
 
 import numpy as np
@@ -479,7 +479,7 @@ ac_struct
 
 # ### plot directions and targets
 
-# In[11]:
+# In[26]:
 
 
 sns.set_context('talk')
@@ -539,8 +539,14 @@ ax.set_rlabel_position(160)
 #plt.ylim([0,np.max(ac.sse_speed)+100])
 plt.ylim([0,2000])
 
-plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=10, style='italic')
-plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=10, style='italic')
+plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
+
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.91,0.91,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
 
 plt.tight_layout()
 
@@ -551,10 +557,10 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[12]:
+# In[34]:
 
 
-fig=plt.figure(2, figsize=(16,8), dpi=70)
+fig=plt.figure(2, figsize=(16,7), dpi=70)
 
 ax = plt.subplot(121) 
 sns.histplot(ac.sse_speed_err,bins=200,kde=False)
@@ -574,9 +580,13 @@ plt.xlabel('target_arrival_time_err [hours]')
 print('mean target arrival time error from sse_speed error',np.mean(ac.target_arrival_time_err).astype(int),'+/-',np.std(ac.target_arrival_time_err).astype(int),'hours' )
 
 ax2.grid(True)
-plt.figtext(0.05,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=10, style='italic')
-plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=10, style='italic')
+plt.figtext(0.05,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space/arrcat', color='black', ha='right',fontsize=11, style='italic')
 
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.92,0.92,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
 
 plt.tight_layout()
 
@@ -592,7 +602,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[23]:
+# In[13]:
 
 
 hiai=np.where(higeocat['SC']=='A')[0]
@@ -641,7 +651,7 @@ hist_hib_monthly[93:]=-1
 ########### TBD add an estimate for the rest of the year
 
 
-# In[26]:
+# In[37]:
 
 
 sns.set_context("talk")     
@@ -680,8 +690,13 @@ ax1.set_ylabel('Number of CMEs observed ')
 #ax1.text(yearly_bin_edges[-5],150,'latest event: '+str(np.sort(ac.sse_launch_time)[-1][0:10]),fontsize=15,zorder=2,horizontalalignment='center')
 plt.annotate('latest event: '+str(np.sort(ac.sse_launch_time)[-1][0:10]),xy=(0.995,0.95),xycoords='axes fraction',fontsize=12,ha='right')
 
-plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.90,0.90,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
 
 plt.tight_layout()
 
@@ -691,7 +706,7 @@ print('saved as ',plotfile)
 
 
 
-# In[18]:
+# In[38]:
 
 
 print(' ')
@@ -709,7 +724,7 @@ print(np.sort(arrcat_web.sse_launch_time)[-1])
 
 
 
-# In[19]:
+# In[39]:
 
 
 t1all = time.time()

@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat.
 # 
-# latest release: version 2.1, 2021 November 29, updated 2023 November 16
+# latest release: version 2.1, 2021 November 29, updated 2024 February 29
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -25,7 +25,8 @@
 # 
 # **Adding a new ICME event:** 
 # - use the notebook data_update_web_science.ipynb in this package to create pickle files for new science data. The current data can be found on figshare.
-# - the solar orbiter kernel should be manually updated with every icmecat update
+# - the solar orbiter kernel should be manually updated with every icmecat update (where exactly? and should the position file be redone?)
+# - set the transition from STEREO-A science data to beacon data manually
 # - use measure.ipynb to manually derive the 3 times for each ICME event
 # - manually edit the file icmecat/HELCATS_ICMECAT_v21_master.xlsx to add 3 times for each event, the event id and spacecraft name
 # - set the switch to create_indices greater 0 and the indices will be redone for the new events so the script quickly loads the info where the ICMEs are in the data files
@@ -34,28 +35,28 @@
 # 
 # **ISSUES**
 # 
-# - add plots for JUNO
+# - add plots for JUNO, and many new Ulysses events
 # - STEREO A beacon data (used from 2023 Jan 1 onwards) contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[31]:
+# In[1]:
 
 
-last_update='2023-November-16'
+last_update='2023-February-29'
 
 debug_mode=1
 
 #redo positions file
 make_positions=0
-#red indices file
-create_indices=1
+#redo indices file
+create_indices=0
 
 #define number of processes for plotting
 used=8 
 #which plots to make
 solo_plots=0
-bepi_plots=1
+bepi_plots=0
 psp_plots=0
 wind_plots=0
 sta_plots=0
@@ -151,7 +152,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[14]:
+# In[2]:
 
 
 # the positions file is generated with positions.ipynb, and the positions from messenger, ulysses and stereob are taken from an older file
@@ -226,7 +227,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[15]:
+# In[3]:
 
 
 load_data=1
@@ -254,7 +255,6 @@ if load_data > 0:
     print('load Juno data ') 
     filejuno='juno_2011_2016_rtn.p'
     [juno,hjuno]=pickle.load(open(data_path+filejuno, "rb" ) )   
-    
     
     
 
@@ -320,7 +320,7 @@ if load_data > 0:
     
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
     #cutoff with end of science data
-    sta2=sta2[np.where(sta2.time >= parse_time('2023-Jan-01 00:00').datetime)[0]]
+    sta2=sta2[np.where(sta2.time >= parse_time('2023-May-01 00:00').datetime)[0]]
 
     #make array
     sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
@@ -424,7 +424,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[16]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -460,10 +460,13 @@ if create_indices > 0:
     t0 = time.time()
 
     hc.create_icme_indices(solo,soli,ic,'SolarOrbiter')
-    hc.create_icme_indices(win,wini,ic,'Wind')
+    #hc.create_icme_indices(win,wini,ic,'Wind')
     hc.create_icme_indices(psp,pspi,ic,'PSP')
     hc.create_icme_indices(sta,stai,ic,'STEREO-A')
     hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
+    
+    # ********* ULYSSES NEW TO DO
+    #hc.create_icme_indices(ulysses,ulyi,ic,'ULYSSES')
     
     #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
     #hc.create_icme_indices(vex,vexi,ic,'VEX')
@@ -492,12 +495,12 @@ ic=hc.get_cat_parameters(juno,juni,ic,'Juno')
 ic=hc.get_cat_parameters(stb,stbi,ic,'STEREO-B')
 ic=hc.get_cat_parameters(vex,vexi,ic,'VEX')
 ic=hc.get_cat_parameters(mes,mesi,ic,'MESSENGER')
-ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
+#ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 
 print('done')
 
 
-# In[17]:
+# In[5]:
 
 
 ###### 3c make all plots if wanted
@@ -545,7 +548,7 @@ def plot_icmecat_events_multi(i):
                              ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
                              ic.mo_end_time[sci[i]]+datetime.timedelta(dayslim),name, icplotsdir,ic,sci[i],pos)
 
-        
+         
     else:    
         hp.plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
@@ -688,7 +691,7 @@ print('done')
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[18]:
+# In[6]:
 
 
 ###### 3c make all plots if wanted
@@ -715,7 +718,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[19]:
+# In[7]:
 
 
 ######## sort ICMECAT by date
@@ -742,9 +745,8 @@ https://helioforecast.space/icmecat \n\n\
 Number of events in ICMECAT: '+str(len(ic))+' \n\
 ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, Juno, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   \n\
 Time range: '+first_date[0:7]+' to '+last_date[0:7]+' \n \n\
-Authors: Christian Moestl, Eva Weiler, Emma E. Davies, Rachel L. Bailey, Martin A. Reiss, Andreas J. Weiss \n\
-(1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria. (2) Conrad Observatory, GeoSphere Austria, Vienna, Austria. (3) NASA CCMC, USA. (4) NASA GSFC, USA.\n\
-Contributors: Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, \n\
+Authors: Christian Moestl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, GeoSphere Austria, Graz, Austria. \n\
+Contributors: Rachel L. Bailey, Martin A. Reiss, Andreas J. Weiss, Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, \n\
 Vratislav Krupar, Jonathan Eastwood, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, \n\
 Johan von Forstner, Mateja Dumbovic, Benoit Lavraud.  \n\n\
 This catalog has been made by getting the 3 times of each ICME (shock or disturbance begin, magnetic obstacle start and end) \n\
@@ -881,7 +883,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[20]:
+# In[8]:
 
 
 ########## python formats
@@ -1057,7 +1059,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[21]:
+# In[9]:
 
 
 #load icmecat as pandas dataframe
@@ -1069,27 +1071,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[22]:
+# In[10]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[23]:
+# In[11]:
 
 
 ic_pandas
 
 
-# In[24]:
+# In[12]:
 
 
 #
 ic_nprec
 
 
-# In[25]:
+# In[13]:
 
 
 ic_nprec.icmecat_id
@@ -1097,7 +1099,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[26]:
+# In[14]:
 
 
 ic=ic_pandas
@@ -1212,7 +1214,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[27]:
+# In[15]:
 
 
 #markersize
@@ -1264,7 +1266,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 
-# In[28]:
+# In[16]:
 
 
 #same for latitude
@@ -1272,7 +1274,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots
 
-# In[29]:
+# In[17]:
 
 
 #make distribution plots
@@ -1329,7 +1331,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[30]:
+# In[18]:
 
 
 t1all = time.time()

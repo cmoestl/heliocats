@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[1]:
+# In[28]:
 
 
 import pickle
@@ -74,7 +74,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[49]:
+# In[2]:
 
 
 ##get omni dst data
@@ -126,7 +126,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[24]:
+# In[3]:
 
 
 years=np.arange(1995,2040) 
@@ -155,22 +155,26 @@ myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 plt.xticks(yearly_start_times, fontsize=14,rotation=45) 
 
-
-
-
 ax1.set_xlim(datetime.datetime(1996,1,1),datetime.datetime(datetime.datetime.utcnow().year+1,1,1))
 
 #ax1.set_xlim(datetime.datetime(2023,1,1),datetime.datetime(2024,1,1))
 
 #plt.title('Geomagnetische Stürme 2015-2023')
-plt.title('Geomagnetic storms in solar cycles 23, 24, 25',fontsize=18)
+plt.title('Geomagnetic storms in solar cycles 23, 24, 25',fontsize=16)
 
 fsize=12
 plt.legend(loc=3,fontsize=13)
-plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
 
-plt.figtext(0.95,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=10)
+plt.figtext(0.10,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='left', fontsize=10)
+
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.89,0.89,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
 plt.tight_layout()
 
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
@@ -178,7 +182,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 # ### Histograms
 
-# In[25]:
+# In[4]:
 
 
 #years23=np.arange(1996,2009)
@@ -214,7 +218,7 @@ o24=o[ind24]
 o25=o[ind25]
 
 
-# In[26]:
+# In[5]:
 
 
 #compare rising phases
@@ -269,7 +273,7 @@ plt.savefig(outputdir+plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
-# In[27]:
+# In[6]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -298,7 +302,7 @@ ax1.set_xlim(0, 20)
 plt.legend()
 
 
-# In[28]:
+# In[7]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -321,7 +325,7 @@ ax1.set_xlim(200, 800)
 plt.legend()
 
 
-# In[29]:
+# In[8]:
 
 
 years=np.arange(1955,2040,5) 
@@ -361,16 +365,22 @@ plt.title('Geomagnetic storms in the space age',fontsize=18)
 
 fsize=12
 #plt.legend(loc=3,fontsize=13)
-plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+plt.figtext(0.10,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
 
-plt.figtext(0.95,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=10)
+plt.figtext(0.11,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='left', fontsize=10)
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.89,0.89,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
 plt.tight_layout()
 
 plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 
 
-# In[61]:
+# In[16]:
 
 
 years=np.arange(1995,2040) 
@@ -417,10 +427,21 @@ plt.title('Latest geomagnetic storms',fontsize=15)
 
 fsize=12
 plt.legend(loc=3,fontsize=13)
-plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
-plt.figtext(0.92,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=10)
+plt.figtext(0.10,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
+plt.figtext(0.10,0.935,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='left', fontsize=10)
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.87,0.90,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
+
+
 plt.tight_layout()
+
+
+
 
 plt.savefig(outputdir+'geomagnetic_storm_latest.png',dpi=100)
 
@@ -429,9 +450,82 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
+# In[27]:
+
+
+###same in german
+import locale
+
+locale.setlocale(locale.LC_ALL,'de_DE')
+
+years=np.arange(1995,2040) 
+months=np.arange(1,13)
+monthly_start_times=[datetime.datetime(year,month,1) for year in years for month in months]
+
+
+sns.set_context('talk')
+sns.set_style('darkgrid')
+fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
+
+ax1.plot(o.time,o.dst,color='k',linewidth=0.7,alpha=0.8, label='OMNI Dst')
+ax1.plot(n.time,n.dst,color='royalblue',linewidth=0.9,alpha=1.0,label='NOAA Dst')
+
+#search for last data point in omni data in last 2 years, the problem is that omni has nan for the whole year
+os2=o.dst[-24*365*2:]
+#search for the latest data point of omni
+cutoff_2=np.where(np.isfinite(os2)==False)[0][0]
+
+plotmin=np.nanmin(np.hstack([os2[0:cutoff_2],n.dst])[-365*24:-1])
+plotmax=np.nanmax(np.hstack([os2[0:cutoff_2],n.dst])[-365*24:-1])
+print(plotmax, plotmin)
+
+ax1.set_xlim(start,end)
+ax1.set_ylim(plotmin-30,plotmax+20)
+plt.ylabel('magnetischer Index Dst [nT]')
+
+ax1.xaxis_date()
+myformat = mdates.DateFormatter('%Y %B')
+ax1.xaxis.set_major_formatter(myformat)
+plt.xticks(monthly_start_times, fontsize=14,rotation=30) 
+
+
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=365),datetime.datetime.utcnow()+datetime.timedelta(days=20))
+
+#ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=10))
+
+#ax1.axvline(datetime.datetime.utcnow(), color='r', linestyle='--',linewidth=0.8,alpha=0.3)
+
+plt.title('Geomagnetische Stürme')
+#plt.title('Latest geomagnetic storms',fontsize=15)
+
+fsize=12
+plt.legend(loc=3,fontsize=13)
+plt.figtext(0.10,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
+plt.figtext(0.10,0.935,'letztes update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='left', fontsize=10)
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.87,0.90,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
+
+
+plt.tight_layout()
+
+
+
+
+plt.savefig(outputdir+'geomagnetic_storm_latest.png',dpi=100)
+
+
+print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
+##histogram
+
+
 # ## Newell Coupling
 
-# In[31]:
+# In[26]:
 
 
 ###add plot and add to txt file without propagation 
@@ -511,14 +605,21 @@ ax1.plot(norig.time,n_nci,'or',linewidth=0.5,markersize=6, label='hourly average
 ax1.plot(norig.time,n_ncw,'-b',linewidth=2,label='4 hour weighted average')
 
 
-plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
-plt.figtext(0.90,0.90,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=10)
+plt.figtext(0.07,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
+plt.figtext(0.07,0.94,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='left', fontsize=10)
 
 plt.ylabel('Nc')
 plt.legend(loc=1,fontsize=12)
 plt.title('Latest Newell coupling')
 ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=7),datetime.datetime.utcnow())
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.89,0.89,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
+plt.tight_layout()
 
 plt.savefig(outputdir+'newell_coupling_latest.png',dpi=100)
 
@@ -526,7 +627,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 
 
-# In[32]:
+# In[11]:
 
 
 #save data for last few months as txt
@@ -562,7 +663,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[33]:
+# In[12]:
 
 
 print(' ')
@@ -574,7 +675,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[34]:
+# In[13]:
 
 
 #https://plotly.com/python/
@@ -595,7 +696,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[60]:
+# In[14]:
 
 
 if data_lookup > 0:
@@ -607,7 +708,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[61]:
+# In[15]:
 
 
 if data_lookup > 0:
