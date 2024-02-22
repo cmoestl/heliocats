@@ -40,7 +40,7 @@
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[22]:
+# In[203]:
 
 
 last_update='2024-February-29'
@@ -56,8 +56,8 @@ create_indices=1
 used=8 
 #which plots to make
 solo_plots=0
-bepi_plots=1
-psp_plots=
+bepi_plots=0
+psp_plots=0
 wind_plots=0
 sta_plots=0
 
@@ -428,7 +428,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[149]:
+# In[199]:
 
 
 if debug_mode > 0: 
@@ -469,7 +469,7 @@ if create_indices > 0:
     #hc.create_icme_indices(sta,stai,ic,'STEREO-A')
     #hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
     
-    hc.create_icme_indices(uly,ulyi,ic,'ULYSSES')
+    #hc.create_icme_indices(uly,ulyi,ic,'ULYSSES')
     
     #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
     #hc.create_icme_indices(vex,vexi,ic,'VEX')
@@ -503,7 +503,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[150]:
+# In[204]:
 
 
 ###### 3c make all plots if wanted

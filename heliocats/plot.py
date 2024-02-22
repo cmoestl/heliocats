@@ -1582,8 +1582,7 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
 
     
     #order in pos array
-    #[p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_uly, p_mes, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune])
-    #open( 'results/positions/positions_HEEQ_1hr.p', "rb" ) )
+   
 
 
     psp=pos[0]
@@ -1592,12 +1591,14 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     stb=pos[3]
     bepi=pos[4]
     l1=pos[5]
-    uly=pos[6]
-    mes=pos[7]
-    earth=pos[8]
-    mercury=pos[9]
-    venus=pos[10]
-    mars=pos[11]
+    juno=pos[6]
+    juice=pos[7]
+    uly=pos[8]
+    mes=pos[9]
+    earth=pos[10]
+    mercury=pos[11]
+    venus=pos[12]
+    mars=pos[13]
     
     #find index for psp
     dct=time1-psp.time
@@ -1609,6 +1610,8 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     dct=time1-solo.time
     solo_timeind=np.argmin(abs(dct))
 
+    #dct=time1-juno.time
+    #earth_timeind=np.argmin(abs(dct))
 
     dct=time1-earth.time
     earth_timeind=np.argmin(abs(dct))
