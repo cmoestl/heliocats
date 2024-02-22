@@ -10,7 +10,7 @@
 # 
 # This code is part of https://github.com/cmoestl/heliocats
 # 
-# **current version is ARRCAT 2.0, released 2020 May 13, updated 2024 February 16**
+# **current version is ARRCAT 2.0, released 2020 May 13, updated 2024 February 22**
 # 
 # Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
 # The environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
@@ -31,7 +31,7 @@
 # - with next arrcat update, check if Solar Orbiter positions are consistent with general positions file
 # 
 
-# In[41]:
+# In[1]:
 
 
 last_update='2024-February-16'
@@ -479,7 +479,7 @@ ac_struct
 
 # ### plot directions and targets
 
-# In[26]:
+# In[11]:
 
 
 sns.set_context('talk')
@@ -557,7 +557,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[34]:
+# In[19]:
 
 
 fig=plt.figure(2, figsize=(16,7), dpi=70)
@@ -567,14 +567,14 @@ sns.histplot(ac.sse_speed_err,bins=200,kde=False)
 plt.xlim(0,200)
 plt.ylabel('events')
 plt.xlabel('sse_speed_err [km/s]')
-plt.title('HIGeoCAT SSE speed error distribution')
+plt.title('HIGeoCAT SSE speed error distribution ')
 print('mean sse_speed error',np.mean(ac.sse_speed_err).astype(int),'+/-',np.std(ac.sse_speed_err).astype(int),' km/s' )
 ax.grid(True)
 
 ax2 = plt.subplot(122) 
 sns.histplot(ac.target_arrival_time_err,bins=800,kde=False)
 plt.xlim(0,70)
-plt.title('ARRCAT target arrival time error distribution')
+plt.title('ARRCAT target arrival time error')
 plt.ylabel('events')
 plt.xlabel('target_arrival_time_err [hours]')
 print('mean target arrival time error from sse_speed error',np.mean(ac.target_arrival_time_err).astype(int),'+/-',np.std(ac.target_arrival_time_err).astype(int),'hours' )
@@ -651,7 +651,7 @@ hist_hib_monthly[93:]=-1
 ########### TBD add an estimate for the rest of the year
 
 
-# In[37]:
+# In[20]:
 
 
 sns.set_context("talk")     
@@ -680,7 +680,7 @@ ax1.plot(binedges_monthly[0:-1], hist_hib_monthly,color='blue',label='monthly CM
 
 
 ax1.set_yticks(np.arange(0,300,20))
-ax1.set_ylim(0,np.max(hist_hia)+10)
+ax1.set_ylim(0,np.max(hist_hia)+15)
 ax1.set_xticks(yearly_bin_edges) 
 ax1.set_xlim(yearly_bin_edges[0],yearly_bin_edges[-1])
 ax1.legend(loc=2,fontsize=12)
@@ -706,7 +706,7 @@ print('saved as ',plotfile)
 
 
 
-# In[38]:
+# In[15]:
 
 
 print(' ')
@@ -724,7 +724,7 @@ print(np.sort(arrcat_web.sse_launch_time)[-1])
 
 
 
-# In[39]:
+# In[16]:
 
 
 t1all = time.time()

@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat.
 # 
-# latest release: version 2.1, 2021 November 29, updated 2024 February 29
+# latest release: version 2.1, 2021 September 1, updated 2024 February 29
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -25,7 +25,7 @@
 # 
 # **Adding a new ICME event:** 
 # - use the notebook data_update_web_science.ipynb in this package to create pickle files for new science data. The current data can be found on figshare.
-# - the solar orbiter kernel should be manually updated with every icmecat update (where exactly? and should the position file be redone?)
+# - the solar orbiter kernel should be manually updated with every icmecat update, and the position files should be redone 
 # - set the transition from STEREO-A science data to beacon data manually
 # - use measure.ipynb to manually derive the 3 times for each ICME event
 # - manually edit the file icmecat/HELCATS_ICMECAT_v21_master.xlsx to add 3 times for each event, the event id and spacecraft name
@@ -35,29 +35,29 @@
 # 
 # **ISSUES**
 # 
-# - add plots for JUNO, and many new Ulysses events
+# - add plots for JUNO, and Ulysses
 # - STEREO A beacon data (used from 2023 Jan 1 onwards) contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[1]:
+# In[22]:
 
 
-last_update='2023-February-29'
+last_update='2024-February-29'
 
 debug_mode=1
 
 #redo positions file
 make_positions=0
 #redo indices file
-create_indices=0
+create_indices=1
 
 #define number of processes for plotting
 used=8 
 #which plots to make
 solo_plots=0
-bepi_plots=0
-psp_plots=0
+bepi_plots=1
+psp_plots=
 wind_plots=0
 sta_plots=0
 
@@ -152,10 +152,10 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[2]:
+# In[12]:
 
 
-# the positions file is generated with positions.ipynb, and the positions from messenger, ulysses and stereob are taken from an older file
+# the positions file is generated with positions.ipynb (Eva's version!), and the position from messenger is taken from an older file
 # these are merged here into a single file that can be found on the figshare repository
 
 if make_positions > 0:
@@ -165,23 +165,23 @@ if make_positions > 0:
     #get uly and messenger from this file 
     [dum1, dum2, dum3, dum4, dum41, p_mes, p_uly, dum5, dum6, dum7, dum8,dum9,dum10,dum11,dum12,dumframe]=pickle.load( open( 'results/positions/positions_for_stb_uly_mes_HEEQ_1hour.p', "rb" ) )
 
-    #alternatively: get the position of ulysses and messenger from the in situ data files
-    
+    #alternatively: get the position of ulysses and messenger from the in situ data files    
             
     #change old matplotlib date to datetime objects, and make angles in degrees    
-    p_uly_new = np.zeros(np.size(p_uly),dtype=[('time',object),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
-    p_uly_new = p_uly_new.view(np.recarray)        
-    p_uly_new.time = p_uly.time + mdates.date2num(np.datetime64('0000-12-31'))
-    p_uly_new.x=p_uly.x
-    p_uly_new.y=p_uly.y
-    p_uly_new.z=p_uly.z    
-    p_uly_new.r=p_uly.r   
+    #p_uly_new = np.zeros(np.size(p_uly),dtype=[('time',object),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
+    #p_uly_new = p_uly_new.view(np.recarray)        
+    #p_uly_new.time = p_uly.time + mdates.date2num(np.datetime64('0000-12-31'))
+    #p_uly_new.x=p_uly.x
+    #p_uly_new.y=p_uly.y
+    #p_uly_new.z=p_uly.z    
+    #p_uly_new.r=p_uly.r   
     #p_uly_new.lat=np.rad2deg(p_uly.lat)
     #p_uly_new.lon=np.rad2deg(p_uly.lon)
-    p_uly_new.lat=p_uly.lat
-    p_uly_new.lon=p_uly.lon
+    #p_uly_new.lat=p_uly.lat
+    #p_uly_new.lon=p_uly.lon
     
     
+    # MESSENGER
         
     #change old matplotlib date to datetime objects, and make angles in degrees    
     p_mes_new = np.zeros(np.size(p_mes),dtype=[('time',object),('r','f8'),('lon','f8'),('lat','f8'),('x','f8'),('y','f8'),('z','f8')])
@@ -205,29 +205,33 @@ if make_positions > 0:
     p_mes_new.lon=p_mes.lon
     
     
-    #get new spacecraft positions from a pickle file that has been done with positions.ipynb file    
+    #get new spacecraft positions from a pickle file that has been done with positions.ipynb file - but Eva's version!   
     #use rad file with 1 hour
     #[p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_1hour_rad.p', "rb" ) )
     
     #10 min
-    [p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p', "rb" ) )
+    #[p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p', "rb" ) )
 
-    pos = np.array([p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_uly_new, p_mes_new, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune])
-    pickle.dump(pos, open('results/positions/positions_HEEQ_10min_new.p', 'wb'))
+    #10 min  - only messenger missing from old file
+    [p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_juno, p_juice, p_uly, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune]=pickle.load(open('results/positions/positions_psp_solo_sta_bepi_wind_juno_juice_ulysses_planets_HEEQ_10min_rad.p', "rb" ) )
+
+    #add messenger from old file and add to array
+    pos = np.array([p_psp, p_solo, p_sta, p_stb, p_bepi, p_l1, p_juno, p_juice, p_uly, p_mes_new, p_earth, p_mercury, p_venus, p_mars, p_jupiter, p_saturn, p_uranus, p_neptune])
+    pickle.dump(pos, open('results/positions/positions_HEEQ_10min_new2.p', 'wb'))
     
     t1 = time.time()
     print('making positions takes', int(np.round(t1-t0,0)), 'seconds')
     print('merged positions file made')
     
 
-pos=pickle.load( open( 'results/positions/positions_HEEQ_10min_new.p', "rb" ) )
+pos=pickle.load( open( 'results/positions/positions_HEEQ_10min_new2.p', "rb" ) )
 
 print('positions file loaded')
 
 
 # ## (1) load data 
 
-# In[3]:
+# In[13]:
 
 
 load_data=1
@@ -424,7 +428,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[4]:
+# In[149]:
 
 
 if debug_mode > 0: 
@@ -459,14 +463,13 @@ if create_indices > 0:
     
     t0 = time.time()
 
-    hc.create_icme_indices(solo,soli,ic,'SolarOrbiter')
+    #hc.create_icme_indices(solo,soli,ic,'SolarOrbiter')
     #hc.create_icme_indices(win,wini,ic,'Wind')
-    hc.create_icme_indices(psp,pspi,ic,'PSP')
-    hc.create_icme_indices(sta,stai,ic,'STEREO-A')
-    hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
+    #hc.create_icme_indices(psp,pspi,ic,'PSP')
+    #hc.create_icme_indices(sta,stai,ic,'STEREO-A')
+    #hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
     
-    # ********* ULYSSES NEW TO DO
-    #hc.create_icme_indices(ulysses,ulyi,ic,'ULYSSES')
+    hc.create_icme_indices(uly,ulyi,ic,'ULYSSES')
     
     #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
     #hc.create_icme_indices(vex,vexi,ic,'VEX')
@@ -495,12 +498,12 @@ ic=hc.get_cat_parameters(juno,juni,ic,'Juno')
 ic=hc.get_cat_parameters(stb,stbi,ic,'STEREO-B')
 ic=hc.get_cat_parameters(vex,vexi,ic,'VEX')
 ic=hc.get_cat_parameters(mes,mesi,ic,'MESSENGER')
-#ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
+ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 
 print('done')
 
 
-# In[5]:
+# In[150]:
 
 
 ###### 3c make all plots if wanted
@@ -691,7 +694,7 @@ print('done')
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[6]:
+# In[151]:
 
 
 ###### 3c make all plots if wanted
@@ -718,7 +721,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[7]:
+# In[152]:
 
 
 ######## sort ICMECAT by date
@@ -883,7 +886,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[8]:
+# In[153]:
 
 
 ########## python formats
@@ -1059,7 +1062,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[9]:
+# In[154]:
 
 
 #load icmecat as pandas dataframe
@@ -1071,27 +1074,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[10]:
+# In[155]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[11]:
+# In[156]:
 
 
 ic_pandas
 
 
-# In[12]:
+# In[157]:
 
 
 #
 ic_nprec
 
 
-# In[13]:
+# In[158]:
 
 
 ic_nprec.icmecat_id
@@ -1099,7 +1102,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[14]:
+# In[193]:
 
 
 ic=ic_pandas
@@ -1129,14 +1132,14 @@ fig=plt.figure(3,figsize=(18,7),dpi=200)
 
 #########################################################################
 ax1=plt.subplot(121)
-plt.title('ICMECAT event times and distance (from 2007 onwards)')
+plt.title('ICMECAT event times and distance')
 
 #markersize
-ms=6
+ms=5
 #alpha
-al=0.8
+al=0.7
 
-ax1.plot_date(ic_mo_start_time_num[iuly],ic.mo_sc_heliodistance[iuly],'o',c='brown', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[iuly],ic.mo_sc_heliodistance[iuly],'o',c='chocolate', alpha=al,ms=ms)
 ax1.plot_date(ic_mo_start_time_num[imes],ic.mo_sc_heliodistance[imes],'o',c='coral', alpha=al,ms=ms)
 ax1.plot_date(ic_mo_start_time_num[ivex],ic.mo_sc_heliodistance[ivex],'o',c='orange', alpha=al,ms=ms)
 ax1.plot_date(ic_mo_start_time_num[istb],ic.mo_sc_heliodistance[istb],'o',c='royalblue', alpha=al,ms=ms)
@@ -1151,42 +1154,39 @@ ax1.plot_date(ic_mo_start_time_num[ibep],ic.mo_sc_heliodistance[ibep],'o',c='dar
 
 
 
-ax1.set_ylabel('Heliocentric distance $R$ [AU]')
-ax1.set_xlabel('Year')
-ax1.set_ylim([0,1.7])
+ax1.set_ylabel('Heliocentric distance $r$ [au]')
+ax1.set_ylim([0,5.7])
+ax1.set_yticks(np.arange(0,6,0.5))
+#ax1.tick_params(axis="y", labelsize=12)
 
-years = mdates.YearLocator()   # every year
+
+ax1.set_xlabel('Year')
+years = mdates.YearLocator(5)   # every year
 ax1.xaxis.set_major_locator(years)
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 
-ax1.tick_params(axis="x", labelsize=12)
-ax1.tick_params(axis="y", labelsize=12)
+#ax1.tick_params(axis="x", labelsize=12)
 
-ax1.set_xlim([datetime.datetime(2007,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=50)])
+#ax1.set_xlim([datetime.datetime(2007,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=50)])
 
-
-ax1.set_yticks(np.arange(0,4,0.2))
-ax1.set_ylim([0,2.5])
+ax1.set_xlim([datetime.datetime(1990,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=50)])
 
 
 
 ##############################################################################
 ax3=plt.subplot(122)
-plt.title('ICMECAT mean magnetic field in the magnetic obstacle')
-ax3.set_xlabel('Heliocentric distance $R$ [AU]')
-ax3.set_ylabel('$<B>$ [nT]')
-
-
+plt.title('ICMECAT mean MO magnetic field')
+ax3.set_xlabel('Heliocentric distance $r$ [au]')
+ax3.set_ylabel('$B$ [nT]')
 
 
 ax3.plot(ic.mo_sc_heliodistance[imes],ic.mo_bmean[imes],'o',c='coral', alpha=al,ms=ms,label='MESSENGER')
 ax3.plot(ic.mo_sc_heliodistance[ivex],ic.mo_bmean[ivex],'o',c='orange', alpha=al,ms=ms,label='Venus Express')
-ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c='brown', alpha=al,ms=ms, label='Ulysses')
+ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c='chocolate', alpha=al,ms=ms, label='Ulysses')
 ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'o',c='orangered', alpha=al,ms=ms, label='MAVEN')
 ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c='royalblue', alpha=al,ms=ms, label='STEREO-B')
 ax3.plot(ic.mo_sc_heliodistance[ijun],ic.mo_bmean[ijun],'o', c='black',markerfacecolor='yellow', alpha=al,ms=ms, label='Juno')
-
 
 ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c='red', alpha=al,ms=ms, label='STEREO-A')
 ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c='mediumseagreen', alpha=al,ms=ms,label='Wind')
@@ -1195,26 +1195,41 @@ ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c='black', alpha=al,
 ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c='black', markerfacecolor='white',alpha=al,ms=ms, label='Solar Orbiter',zorder=3)
 
 
-ax3.legend(loc=1,fontsize=15)
-
-ax3.set_xticks(np.arange(0,5,0.2))
-ax3.tick_params(axis="x", labelsize=12)
-ax3.set_xlim([0,2.5])
+ax3.set_xticks(np.arange(0,6,0.5))
+#ax3.tick_params(axis="x", labelsize=12)
+ax3.set_xlim([0,5.6])
 
 ax3.set_yscale('log')
-
 #ax3.set_ylim([0,np.max(ic.mo_bmean)+50])
 #ax3.set_yticks(np.arange(0,1000,10))
 #ax3.set_ylim([0,1000])
-
 #ax3.tick_params(axis="y", labelsize=12)
 
+
+ax3.legend(loc=1,fontsize=12)#, rows=2)
+
+
+#ax3.annotate('Quiet Sun',xy=(0.0065,3*1e6),xycoords='data',fontsize=annotfs,ha='left')
+#ax3.axvline(1.5,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(1.0,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(0.72,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(0.3,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(5.3,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#np.max(p_jupiter.r)
+#4,95 – 5,458 AE
+
+
+#Logo
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.89,0.92,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
 
 plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[15]:
+# In[197]:
 
 
 #markersize
@@ -1233,13 +1248,18 @@ ax2=plt.subplot(111,projection='polar')
 
 plt.title('ICMECAT event longitudes [HEEQ]')
 
-ax2.plot(np.radians(ic.mo_sc_long_heeq[iuly]),ic.mo_sc_heliodistance[iuly],'o',markersize=ms,c='brown', alpha=al)
-ax2.plot(np.radians(ic.mo_sc_long_heeq[imav]),ic.mo_sc_heliodistance[imav],'o',markersize=ms,c='orangered', alpha=al)
+ax2.plot(np.radians(ic.mo_sc_long_heeq[iuly]),ic.mo_sc_heliodistance[iuly],'o',markersize=ms,c='brown', alpha=al, label='Ulysses')
+ax2.plot(np.radians(ic.mo_sc_long_heeq[imav]),ic.mo_sc_heliodistance[imav],'o',markersize=ms,c='orangered', alpha=al, label='MAVEN')
 
 #only inner heliosphere
 ax2.plot(np.radians(ic.mo_sc_long_heeq[imes]),ic.mo_sc_heliodistance[imes],'o',markersize=ms,c='coral', alpha=al,label='MESSENGER')
 ax2.plot(np.radians(ic.mo_sc_long_heeq[ivex]),ic.mo_sc_heliodistance[ivex],'o',markersize=ms,c='orange', alpha=al,label='Venus Express')
 ax2.plot(np.radians(ic.mo_sc_long_heeq[istb]),ic.mo_sc_heliodistance[istb],'o',markersize=ms,c='royalblue', alpha=al,label='STEREO-B')
+ax2.plot(np.radians(ic.mo_sc_long_heeq[ijun]),ic.mo_sc_heliodistance[ijun],'o',markersize=ms,c='black',markerfacecolor='yellow',alpha=al,label='Juno')
+
+#ax3.plot(ic.mo_sc_heliodistance[ijun],ic.mo_bmean[ijun],'o', c='black',markerfacecolor='yellow', alpha=al,ms=ms, label='Juno')
+
+
 
 ax2.plot(np.radians(ic.mo_sc_long_heeq[ista]),ic.mo_sc_heliodistance[ista],'o',markersize=ms, c='red', alpha=al, label='STEREO-A')
 ax2.plot(np.radians(ic.mo_sc_long_heeq[iwin]),ic.mo_sc_heliodistance[iwin],'o',markersize=ms, c='mediumseagreen', alpha=al, label='Wind')
@@ -1253,85 +1273,99 @@ plt.legend(loc=2,fontsize=10)
 fsize=15
 backcolor='black'
 frame='HEEQ'
-plt.rgrids((0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1, 1.2, 1.3,1.6),('0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0','1.1','1.2','1.3','1.6 AU'),angle=180, fontsize=fsize-4,alpha=0.6, ha='center',color=backcolor,zorder=5)
+plt.rgrids((0.1,0.2,0.3,0.4,0.6,0.8,1.0,1.2, 1.4,1.6,1.8,2.0),('','0.2','','0.4','0.6','0.8','1.0','1.2','1.4','','',''),angle=180, fontsize=fsize-4,alpha=0.8, ha='center',color=backcolor,zorder=5)
 plt.thetagrids(range(0,360,45),(u'0\u00b0',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='center',fontsize=fsize,color=backcolor, zorder=5, alpha=1.0)
 
-ax2.set_ylim([0,1.2])
+ax2.set_ylim([0,1.6])
 ax2.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
 ax2.text(0,1.1,'Earth', color='green', ha='center',fontsize=fsize-5,verticalalignment='center')
 ax2.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)
     
-
+#logo
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.jpg')
+newax = fig.add_axes([0.88,0.88,0.09,0.09], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+    
 plt.tight_layout()
 plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 
-# In[16]:
+# In[161]:
 
 
 #same for latitude
 
 
-# ## Parameter distribution plots
+# ## Parameter distribution plots near 1 AU
 
-# In[17]:
+# In[162]:
 
 
 #make distribution plots
-plt.figure(10,figsize=(21,12),dpi=200)
+fig=plt.figure(10,figsize=(21,12),dpi=200)
 
+
+i1au=np.hstack([iwin,ista,istb])
 
 
 ax2=plt.subplot(231)
-sns.histplot(ic.mo_bmax, label='magnetic obstacle $max(B_t)$',color='mediumseagreen',kde=True, bins=np.arange(0,100,2.5), stat='probability')
-sns.histplot(ic.mo_bmean, label='magnetic obstacle $<B_t>$',color='coral',alpha=0.5,kde=True, bins=np.arange(0,100,2.5),stat='probability')
+sns.histplot(ic.mo_bmax[i1au], label='magnetic obstacle $max(|B|)$',color='mediumseagreen',kde=True, bins=np.arange(0,100,2.5), stat='probability')
+sns.histplot(ic.mo_bmean[i1au], label='magnetic obstacle $<|B|>$',color='coral',alpha=0.5,kde=True, bins=np.arange(0,100,2.5),stat='probability')
 plt.legend(loc=1)
 ax2.set_xlabel('magnetic field $B$ [nT]')
-ax2.set_xlim(0,100)
+ax2.set_xlim(0,50)
 
 
 ax3=plt.subplot(232)
-sns.histplot(ic.mo_bzmin,label='MO $min(B_z)$',color='mediumseagreen',kde=True, bins=np.arange(-50,50,2.5),stat='probability')
-sns.histplot(ic.mo_bzmean,label='MO $<B_z>$',color='coral',alpha=0.5,kde=True, bins=np.arange(-50,50,2.5),stat='probability')
+sns.histplot(ic.mo_bzmin[i1au],label='MO $min(B_z)$',color='mediumseagreen',kde=True, bins=np.arange(-50,50,2.5),stat='probability')
+sns.histplot(ic.mo_bzmean[i1au],label='MO $<B_z>$',color='coral',alpha=0.5,kde=True, bins=np.arange(-50,50,2.5),stat='probability')
 plt.legend(loc=1)
 ax3.set_xlabel('magnetic field $B$ [nT]')
-plt.xlim(-60,60)
+plt.xlim(-40,40)
 
 
 ax4=plt.subplot(233)
-sns.histplot(ic.mo_speed_mean,label='MO $<V>$',color='mediumseagreen',kde=True,stat='probability')
-sns.histplot(ic.mo_expansion_speed,label='MO $V_{exp}$',color='coral',alpha=0.5,kde=True,stat='probability')
+sns.histplot(ic.mo_speed_mean[i1au],label='MO $<V>$',color='mediumseagreen',kde=True,stat='probability')
+sns.histplot(ic.mo_expansion_speed[i1au],label='MO $V_{exp}$',color='coral',alpha=0.5,kde=True,stat='probability')
 plt.legend(loc=1)
-ax4.set_xlabel('plasma bulk speed $V$ [km/s]')
+ax4.set_xlabel('plasma bulk speed $V$ [km s$^{-1}$]')
 
 
-ax5=plt.subplot(234)
-sns.histplot(ic.mo_sc_heliodistance,color='coral',bins=np.arange(0,1.8,0.1))
-ax5.set_xlim(0,2.3)
-ax5.set_xlabel('Heliocentric distance $R$[AU]')
+ax5=plt.subplot(236)
+sns.histplot(ic.mo_sc_heliodistance,color='coral',bins=np.arange(0,2.5,0.1))
+ax5.set_xlim(0,2.5)
+ax5.set_xlabel('heliocentric distance $r$ [au]')
 
 
 ax6=plt.subplot(235)
-sns.histplot(ic.icme_duration,color='coral',alpha=0.5,bins=np.arange(0,np.max(ic.icme_duration)+5,3),kde=True,stat='count',label='ICME duration')
-sns.histplot(ic.mo_duration,color='mediumseagreen',bins=np.arange(0,np.max(ic.mo_duration)+5,3),kde=True, stat='count',label='Magnetic obstacle duration')
+sns.histplot(ic.icme_duration[i1au],color='coral',alpha=0.5,bins=np.arange(0,np.max(ic.icme_duration[i1au])+5,3),kde=True,stat='count',label='ICME duration')
+sns.histplot(ic.mo_duration[i1au],color='mediumseagreen',bins=np.arange(0,np.max(ic.mo_duration[i1au])+5,3),kde=True, stat='count',label='Magnetic obstacle duration')
 ax6.set_xlabel('duration [hours]')
-ax6.set_xlim(0,np.max(ic.icme_duration)+5)
+ax6.set_xlim(0,np.max(ic.icme_duration[i1au])+5)
 plt.legend(loc=1)
 
-ax7=plt.subplot(236)
+ax7=plt.subplot(234)
 #sns.histplot(ic.mo_duration,color='coral',bins=np.arange(0,np.max(ic.mo_duration)+5,3),kde=True, stat='count')
 #sheath duration
-sns.histplot(ic.icme_duration-ic.mo_duration,color='mediumseagreen',bins=np.arange(0,np.max(ic.icme_duration-ic.mo_duration)+5,2),kde=True, stat='count')
+sns.histplot(ic.icme_duration[i1au]-ic.mo_duration[i1au],color='mediumseagreen',bins=np.arange(0,np.max(ic.icme_duration[i1au]-ic.mo_duration[i1au])+5,2),kde=True, stat='count')
 ax7.set_xlabel('sheath duration [hours]')
-ax7.set_xlim(0,np.max(ic.icme_duration-ic.mo_duration)+5)
+ax7.set_xlim(0,np.max(ic.icme_duration[i1au]-ic.mo_duration[i1au])+5)
 
+########
 
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.90,0.90,0.08,0.08], anchor='NE', zorder=2)
+newax.imshow(logo)
+newax.axis('off')
+
+plt.suptitle('ICMECAT parameters at 1 AU')
 
 plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[18]:
+# In[131]:
 
 
 t1all = time.time()
@@ -1344,11 +1378,17 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 
 
 
-# In[19]:
+# In[37]:
 
 
 #check this for pushing the files to figshare
 #https://colab.research.google.com/drive/13CAM8mL1u7ZsqNhfZLv7bNb1rdhMI64d?usp=sharing
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
