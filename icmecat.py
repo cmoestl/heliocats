@@ -3,7 +3,7 @@
 
 # ## icmecat
 # 
-# Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat.
+# Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
 # latest release: version 2.1, 2021 September 1, updated 2024 February 29
 # 
@@ -23,7 +23,7 @@
 # 
 # Install the helio4 conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
 # 
-# **Adding a new ICME event:** 
+# **With each update:** 
 # - use the notebook data_update_web_science.ipynb in this package to create pickle files for new science data. The current data can be found on figshare.
 # - the solar orbiter kernel should be manually updated with every icmecat update, and the position files should be redone 
 # - set the transition from STEREO-A science data to beacon data manually
@@ -35,12 +35,11 @@
 # 
 # **ISSUES**
 # 
-# - add plots for JUNO, and Ulysses
 # - STEREO A beacon data (used from 2023 Jan 1 onwards) contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[203]:
+# In[1]:
 
 
 last_update='2024-February-29'
@@ -50,16 +49,21 @@ debug_mode=1
 #redo positions file
 make_positions=0
 #redo indices file
-create_indices=1
+create_indices=0
 
 #define number of processes for plotting
 used=8 
+
 #which plots to make
 solo_plots=0
 bepi_plots=0
 psp_plots=0
 wind_plots=0
 sta_plots=0
+
+uly_plots=1 
+juno_plots=0   #ok   
+
 
 
 import os
@@ -152,7 +156,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[12]:
+# In[2]:
 
 
 # the positions file is generated with positions.ipynb (Eva's version!), and the position from messenger is taken from an older file
@@ -231,7 +235,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[13]:
+# In[3]:
 
 
 load_data=1
@@ -256,10 +260,27 @@ if load_data > 0:
     filestb='stereob_2007_2014_rtn.p'
     [stb,hstb]=pickle.load(open(data_path+filestb, "rb" ) )      
     
+    
+    #######
     print('load Juno data ') 
     filejuno='juno_2011_2016_rtn.p'
-    [juno,hjuno]=pickle.load(open(data_path+filejuno, "rb" ) )   
+    [juno_mag,hjuno]=pickle.load(open(data_path+filejuno, "rb" ) )   
     
+    #add fields for plasma so plotting is easier: np, tp, vt
+    new_dtype = juno_mag.dtype.descr + [('np', '<f8')]+[('tp', '<f8')]+[('vt', '<f8')]  # Adding a new integer field
+    juno = np.zeros(juno_mag.shape, dtype=new_dtype)
+
+    # Copy data from the existing array to the new array
+    for name in juno_mag.dtype.names:
+        juno[name] = juno_mag[name]
+        
+    #convert to recarray    
+    juno = juno.view(np.recarray) 
+        
+    juno.np=np.nan    
+    juno.tp=np.nan    
+    juno.vt=np.nan            
+    ############
     
 
     ########### CURRENT ACTIVE SPACECRAFT    
@@ -428,7 +449,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[199]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -444,8 +465,8 @@ print(len(ic),' events' )
 stbi=np.where(ic.sc_insitu == 'STEREO-B')[:][0]    
 vexi=np.where(ic.sc_insitu == 'VEX')[:][0]  
 mesi=np.where(ic.sc_insitu == 'MESSENGER')[:][0]   
-ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]    
 mavi=np.where(ic.sc_insitu == 'MAVEN')[:][0]    
+ulyi=np.where(ic.sc_insitu == 'ULYSSES')[:][0]    
 juni=np.where(ic.sc_insitu == 'Juno')[:][0]  
 
 
@@ -503,7 +524,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[204]:
+# In[5]:
 
 
 ###### 3c make all plots if wanted
@@ -528,6 +549,15 @@ if sys.platform =='darwin':
     
 print()
 
+
+#remove from memory data files that are not needed
+
+#del solo
+#del bepi
+#del win
+#del psp
+#del sta
+
 #https://docs.python.org/3/library/multiprocessing.html
             
 ##### make plots with multiprocessing
@@ -537,22 +567,31 @@ def plot_icmecat_events_multi(i):
     #sc,sci,ic,name needs to change for each event and set before this function is called
     #global: pos, data_path, ic, icplotsdir,data_path,pos
     
-    outer=60*36 #36h for 1 min resolution
-    dayslim=1.5 #36h
 
     if name=='BepiColombo': #if you want to make different plots for Bepi, they are now set similar to the others
+        outer=60*36 #36h for 1 min resolution
+        dayslim=1.5 #36h
         hp.plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
                              ic.mo_end_time[sci[i]]+datetime.timedelta(dayslim),name, icplotsdir,ic,sci[i],pos)
-    elif name=='Wind':
-        
+    elif name=='Wind':        
         outer=30*36 #36h for 2 min resolution
+        dayslim=1.5 #36h
+        hp.plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(dayslim),name, icplotsdir,ic,sci[i],pos)
+
+    elif name=='ULYSSES':        
+        outer=36 #36h for 1 hour time resolution
+        dayslim=1.5 #36h
         hp.plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
                              ic.mo_end_time[sci[i]]+datetime.timedelta(dayslim),name, icplotsdir,ic,sci[i],pos)
 
          
     else:    
+        outer=60*36 #36h for 1 min resolution
+        dayslim=1.5 #36h
         hp.plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-outer:mo_end_ind[i]+outer],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(dayslim), \
                              ic.mo_end_time[sci[i]]+datetime.timedelta(dayslim),name, icplotsdir,ic,sci[i],pos)
@@ -663,11 +702,56 @@ if sta_plots > 0:
     print('plotting takes', np.round(multi_time,2), 'seconds')   
     print(' ')
 
+    
+    
+if uly_plots > 0:
+    sc=uly; sci=ulyi; name='ULYSSES'
+    counter=np.arange(0,len(sci))
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+
+    #define pool using fork and number of processes
+    pool=mp.get_context('fork').Pool(processes=used)
+    # Map the worker function onto the parameters    
+    t0 = time.time()
+    pool.map(plot_icmecat_events_multi, counter) #or use apply_async?,imap
+    pool.close()
+    pool.join()     
+    t1 = time.time()
+    multi_time=np.round(t1-t0,2)
+    print('ULYSSES done')
+    print('plotting takes', np.round(multi_time,2), 'seconds')   
+    print(' ')
+
+
+if juno_plots > 0:
+    sc=juno; sci=juni; name='Juno'
+    counter=np.arange(0,len(sci))
+    fileind='icmecat/indices_icmecat/ICMECAT_indices_'+name+'.p'
+    [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
+
+    #define pool using fork and number of processes
+    pool=mp.get_context('fork').Pool(processes=used)
+    # Map the worker function onto the parameters    
+    t0 = time.time()
+    pool.map(plot_icmecat_events_multi, counter) #or use apply_async?,imap
+    pool.close()
+    pool.join()     
+    t1 = time.time()
+    multi_time=np.round(t1-t0,2)
+    print('Juno done')
+    print('plotting takes', np.round(multi_time,2), 'seconds')   
+    print(' ')
+        
+    
+    
+    
+    
 print(' ')
 print('----------')
 t1plot = time.time()
 all_plot_time=np.round(t1plot-t0plot,2)
-print('all plotting takes', np.round(all_plot_time/60,2), 'minutes')  
+print('all multi-plotting takes', np.round(all_plot_time/60,2), 'minutes')  
 
 
 #mag only
@@ -679,7 +763,21 @@ print('all plotting takes', np.round(all_plot_time/60,2), 'minutes')
 #hp.plot_icmecat_events(psp,pspi,ic,'PSP',icplotsdir,data_path,pos)
 #hp.plot_icmecat_events(win,wini,ic,'Wind',icplotsdir,data_path,pos)
 
-#with single processing for the older missions:
+print(' ')
+print(' ')
+print('start single plotting')
+
+
+plt.close('all')
+
+# Juno
+#hp.plot_icmecat_events(juno,juni,ic,'Juno',icplotsdir,data_path,pos)
+
+
+
+#hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir,data_path,pos)
+####### with single processing for the older missions:
+
 #hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir)
 #finished missions
 #mag only
@@ -687,14 +785,14 @@ print('all plotting takes', np.round(all_plot_time/60,2), 'minutes')
 #hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir)
 #mag and plasma
 #hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir)
-#hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir)
+
 print('done')
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[151]:
+# In[ ]:
 
 
 ###### 3c make all plots if wanted
@@ -721,7 +819,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[152]:
+# In[ ]:
 
 
 ######## sort ICMECAT by date
@@ -886,7 +984,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[153]:
+# In[9]:
 
 
 ########## python formats
@@ -1062,7 +1160,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[154]:
+# In[10]:
 
 
 #load icmecat as pandas dataframe
@@ -1074,27 +1172,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[155]:
+# In[11]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[156]:
+# In[12]:
 
 
 ic_pandas
 
 
-# In[157]:
+# In[13]:
 
 
 #
 ic_nprec
 
 
-# In[158]:
+# In[14]:
 
 
 ic_nprec.icmecat_id
@@ -1102,7 +1200,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[193]:
+# In[15]:
 
 
 ic=ic_pandas
@@ -1229,7 +1327,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[197]:
+# In[16]:
 
 
 #markersize
@@ -1291,7 +1389,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 
-# In[161]:
+# In[17]:
 
 
 #same for latitude
@@ -1299,7 +1397,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots near 1 AU
 
-# In[162]:
+# In[18]:
 
 
 #make distribution plots
@@ -1365,7 +1463,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[131]:
+# In[19]:
 
 
 t1all = time.time()
@@ -1378,7 +1476,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 
 
 
-# In[37]:
+# In[ ]:
 
 
 #check this for pushing the files to figshare

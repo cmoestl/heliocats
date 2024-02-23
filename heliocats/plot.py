@@ -1610,8 +1610,11 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     dct=time1-solo.time
     solo_timeind=np.argmin(abs(dct))
 
-    #dct=time1-juno.time
-    #earth_timeind=np.argmin(abs(dct))
+    dct=time1-juno.time
+    juno_timeind=np.argmin(abs(dct))
+    
+    dct=time1-uly.time
+    uly_timeind=np.argmin(abs(dct))
 
     dct=time1-earth.time
     earth_timeind=np.argmin(abs(dct))
@@ -1665,11 +1668,11 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
             v=400/AUkm #km/s
             r0=695000/AUkm
             r=v/omega*theta+r0*7
-            ax.plot(-theta+np.deg2rad(0+(360/24.47)*res_in_days*k+360/12*q), r, alpha=0.4, lw=0.5,color='grey',zorder=2)
+            ax.plot(-theta+np.deg2rad(0+(360/24.47)*res_in_days*k+360/12*q), r*2, alpha=0.4, lw=0.5,color='grey',zorder=2)
     
     
     xset1=0.49
-    xset2=0.77
+    xset2=0.80 #0.77
     yset=0.97
     ydiff=0.04
     plt.figtext(xset1,yset,'              R     lon     lat', fontsize=fsize+2, ha='left',color=backcolor)
@@ -1677,12 +1680,17 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
 
     earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{0.0:8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
     f10=plt.figtext(xset1,yset-ydiff*1,earth_text, fontsize=fsize, ha='left',color='mediumseagreen')
+       
     
     
-     #make a ring around if its the active spacecraft
+    
+    #make a ring around if its the active spacecraft
     if name=='Wind':
                ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), marker='o',s=350, zorder=4,edgecolors='black',facecolors='none')
 
+                 
+            
+            
     
     mars_text='Mars:  '+str(f'{mars.r[mars_timeind]:6.2f}')+str(f'{np.rad2deg(mars.lon[mars_timeind]):8.1f}')+str(f'{np.rad2deg(mars.lat[mars_timeind]):8.1f}')
     f9=plt.figtext(xset1,yset-ydiff*2,mars_text, fontsize=fsize, ha='left',c='tomato')
@@ -1807,6 +1815,36 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
 
 
     
+    #Juno when active    
+    if time1>mdates.date2num(datetime.datetime(2011, 8, 25, 15, 19)) and time1<mdates.date2num(datetime.datetime(2016, 6, 28, 23, 59)):        
+
+        ax.scatter(juno.lon[juno_timeind], juno.r[juno_timeind]*np.cos(juno.lat[juno_timeind]), s=symsize_spacecraft, c='yellowgreen', marker='s', alpha=1,lw=0,zorder=3)
+        plt.text(juno.lon[juno_timeind],juno.r[juno_timeind]+0.12,'Juno', color='yellowgreen', ha='center',fontsize=fsize-5,verticalalignment='center')
+
+        
+        juno_text='Juno:   '+str(f'{juno.r[juno_timeind]:6.2f}')+str(f'{np.rad2deg(juno.lon[juno_timeind]):8.1f}')+str(f'{np.rad2deg(juno.lat[juno_timeind]):8.1f}')
+        f11=plt.figtext(xset2,yset-ydiff*4,juno_text, fontsize=fsize, ha='left',color='yellowgreen')
+
+    #ring when Juno active
+    if name=='Juno':    
+        ax.scatter(juno.lon[juno_timeind], juno.r[juno_timeind]*np.cos(juno.lat[juno_timeind]), marker='o',s=350, zorder=4, edgecolors='black', facecolors='none')
+
+
+        
+    ############Ulysses when active    
+    if time1>mdates.date2num(datetime.datetime(1990, 10, 7, 0, 0)) and time1<mdates.date2num(datetime.datetime(2009, 12, 31, 22, 0)):        
+
+        ax.scatter(uly.lon[uly_timeind], uly.r[uly_timeind]*np.cos(uly.lat[uly_timeind]), s=symsize_spacecraft, c='chocolate', marker='s', alpha=1,lw=0,zorder=3)
+        plt.text(uly.lon[uly_timeind],uly.r[uly_timeind]*np.cos(uly.lat[uly_timeind])+0.12,'Ulysses', color='chocolate', ha='center',fontsize=fsize-5,verticalalignment='center')
+        
+        uly_text='Ulysses: '+str(f'{uly.r[uly_timeind]:6.2f}')+str(f'{np.rad2deg(uly.lon[uly_timeind]):8.1f}')+str(f'{np.rad2deg(uly.lat[uly_timeind]):8.1f}')
+        f11=plt.figtext(xset2,yset-ydiff*4,uly_text, fontsize=fsize, ha='left',color='chocolate')        
+        
+    #ring when Ulysses active
+    if name=='ULYSSES':    
+        ax.scatter(uly.lon[uly_timeind], uly.r[uly_timeind]*np.cos(uly.lat[uly_timeind]), marker='o',s=350, zorder=4, edgecolors='black', facecolors='none')
+        
+    
     
     ########### time
     #this is the icme_start_time
@@ -1821,22 +1859,38 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     #plt.figtext(0.87,0.05,'――― 100 days future trajectory', color='black', ha='center',fontsize=fsize-3)
 
      
-
     #set axes
     ax.set_theta_zero_location('E')
  
     #plt.rgrids((0.10,0.39,0.72,1.00,1.52),('0.10','0.39','0.72','1.0','1.52 AU'),angle=125, fontsize=fsize,alpha=0.9, color=backcolor)
-    plt.rgrids((0.1,0.3,0.5,0.7,1.0,1.3,1.6),('0.1','0.3','0.5','0.7','1.0','1.3','1.6 AU'),angle=125, fontsize=fsize-2,alpha=0.4, color=backcolor)
+    plt.rgrids((0.1,0.3,0.5,0.7,1.0,1.3,1.6,2.0,2.5),('0.1','0.3','0.5','0.7','1.0','1.3','1.6 AU','2.0','2.5'),angle=125, fontsize=fsize-2,alpha=0.4, color=backcolor)
 
     #ax.set_ylim(0, 1.75) with Mars
     ax.set_ylim(0, 1.25) 
+    
+    ############# Juno and Ulysses different limits
+    
+    if name=='Juno':
+        ax.set_ylim(0,juno.r[juno_timeind]+0.2)
+        #for later times make grid different
+        if time1>mdates.date2num(datetime.datetime(2014, 4, 1)):
+             plt.rgrids((0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5),('0.5','1.0','1.5','2.0','2.5','3.0','3.5 AU','4.0','4.5','5.0','5.5'),angle=125, fontsize=fsize-2,alpha=0.4, color=backcolor)
+             ax.set_ylim(0,juno.r[juno_timeind]+0.2)
+   
+                
+    if name=='ULYSSES':
+        ax.set_ylim(0,uly.r[uly_timeind]+0.2)
+        if uly.r[uly_timeind] > 2.0:
+            plt.rgrids((0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5),('0.5','1.0','1.5','2.0','2.5','3.0','3.5 AU','4.0','4.5','5.0','5.5'),angle=125, fontsize=fsize-2,alpha=0.4, color=backcolor)
+            ax.set_ylim(0,uly.r[uly_timeind]+0.2)
+            
+                            
+            
 
     plt.thetagrids(range(0,360,45),(u'0\u00b0 '+frame,u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='left',fontsize=fsize,color=backcolor, zorder=5, alpha=0.9)
 
     plt.tight_layout()
 
-     
-     
      
      
     
@@ -1899,10 +1953,12 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
      leg=ax1.legend(loc='lower right',ncol=4,fontsize=fs-3)
      for line in leg.get_lines():
          line.set_linewidth(2.0)        
-        
-     bscale=np.nanmax(sc.bt)
+       
         
      ax1.set_xlim(start,end)
+
+     bscale=np.nanmax(sc.bt)
+    
      if np.isfinite(np.nanmin(sc.bt)):
             ax1.set_ylim(-bscale-5,bscale+5)   
 
@@ -1919,16 +1975,11 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
               
      ax1.text(0.11,0.94,'north', fontsize=fs-4, color='blue',ha='center', va='center', transform=fig.transFigure)
      ax1.text(0.11,0.77,'south', fontsize=fs-4, color='blue',ha='center', va='center', transform=fig.transFigure)
-        
-            
     
      ax1.tick_params(axis='x', labelsize=fs)  
      ax1.tick_params(axis='y', labelsize=fs)  
     
      plt.setp(ax1.get_xticklabels(), visible=False)
-        
-        
-        
         
 
      ax2 = plt.subplot2grid((4,2), (1, 0),sharex=ax1)
@@ -2004,8 +2055,16 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
      ax5 = plt.subplot2grid((4,2), (0, 1), rowspan=4, projection='polar')
 
      plot_icmecat_positions_mag_plasma(ic.icme_start_time[i],'HEEQ',ax5,pos,sc_label)
-    
         
+     #make extra plots for wider radial distances for Ulysses and Juno
+        
+     if sc_label=='Juno':############## TO DO 
+         plot_icmecat_positions_mag_plasma(ic.icme_start_time[i],'HEEQ',ax5,pos,sc_label)
+
+     if sc_label=='ULYSSES':############## TO DO 
+         plot_icmecat_positions_mag_plasma(ic.icme_start_time[i],'HEEQ',ax5,pos,sc_label)
+
+         
         
      if sc_label=='PSP': 
         plt.figtext(0.5,0.03,'Data source: Parker Solar Probe (FIELDS, UCBerkeley; SWEAP, UMich)',fontsize=11, ha='left',color='black')
@@ -2025,6 +2084,20 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
      if sc_label=='BepiColombo': 
         plt.figtext(0.5,0.03,'Data source: BepiColombo MPO-MAG ib (IGEP/IWF/ISAS/IC)',fontsize=11, ha='left',color='black')
   
+     if sc_label=='Juno': 
+        plt.figtext(0.5,0.03,'Data source: Juno (MAG, NASA Goddard)',fontsize=11, ha='left',color='black')
+
+     if sc_label=='ULYSSES': 
+        plt.figtext(0.5,0.03,'Data source: Ulysses merged mag/plasma from CDAweb (Imperial College, UK)',fontsize=11, ha='left',color='black')
+        
+        
+    
+     logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+     newax = fig.add_axes([0.93,0.93,0.06,0.06], anchor='NE', zorder=1)
+     newax.imshow(logo)
+     newax.axis('off')
+
+
         
      plt.tight_layout()
      #plt.show()
@@ -2217,11 +2290,14 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir,data_path,pos):
     #get indices of events for this spacecrat
     [icme_start_ind, mo_start_ind,mo_end_ind]=pickle.load(open(fileind, 'rb'))  
     
+    
+        
     #plasma available?
     if name=='Wind': plasma=True
     if name=='STEREO-A': plasma=True
     if name=='STEREO-B': plasma=True
-    if name=='ULYSSES': plasma=True
+  
+    
     if name=='MAVEN': 
         plasma=True
         #load MSL rad data
@@ -2238,24 +2314,38 @@ def plot_icmecat_events(sc,sci,ic,name,icplotsdir,data_path,pos):
     if name=='VEX': plasma=False
     if name=='MESSENGER': plasma=False
     if name=='BepiColombo': plasma=False
-    if name=='SolarOrbiter': plasma=True              
+    if name=='SolarOrbiter': plasma=True   
+  
+
+    if name=='ULYSSES': plasma=True
+    if name=='Juno': plasma=True      #so it has the similar style
+    
         
     
     for i in np.arange(np.size(sci)):    
         
-        beginind=90*24
     
-        if plasma == True:
-            
-            if name!='MAVEN':
-                plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-beginind:mo_end_ind[i]+90*24],\
-                             ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
-                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i],pos)
+        if plasma == True:                
+                
             if name == 'MAVEN':                 
                 plot_insitu_icmecat_maven(sc[icme_start_ind[i]-7*6:mo_end_ind[i]+7*6],\
                              ic.icme_start_time[sci[i]]-datetime.timedelta(days=7), \
                              ic.mo_end_time[sci[i]]+datetime.timedelta(days=7),\
                              name,icplotsdir,ic,sci[i],rad,arrcat,msir,w1)
+                
+            elif name == 'ULYSSES': #different time resolution for ULYSSES            
+                plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-300:mo_end_ind[i]+300],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(days=2), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=2),name, icplotsdir,ic,sci[i],pos)
+                
+            else:             
+                beginind=90*24
+                plot_insitu_icmecat_mag_plasma(sc[icme_start_ind[i]-beginind:mo_end_ind[i]+90*24],\
+                             ic.icme_start_time[sci[i]]-datetime.timedelta(days=1.5), \
+                             ic.mo_end_time[sci[i]]+datetime.timedelta(days=1.5),name, icplotsdir,ic,sci[i],pos)
+
+                
+                
                 
             plt.close('all')
         else:
