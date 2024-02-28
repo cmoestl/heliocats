@@ -1648,7 +1648,7 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     ax.scatter(venus.lon[venus_timeind], venus.r[venus_timeind]*np.cos(venus.lat[venus_timeind]), s=symsize_planet, c='gold', alpha=1,lw=0,zorder=3)
     ax.scatter(mercury.lon[mercury_timeind], mercury.r[mercury_timeind]*np.cos(mercury.lat[mercury_timeind]), s=symsize_planet, c='dimgrey', alpha=1,lw=0,zorder=3)
     ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_planet, c='mediumseagreen', alpha=1,lw=0,zorder=3)    
-    #ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
+    ax.scatter(mars.lon[mars_timeind], mars.r[mars_timeind]*np.cos(mars.lat[mars_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
 
         
     #text thats always there on the plot
@@ -1681,8 +1681,6 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     earth_text='Earth: '+str(f'{earth.r[earth_timeind]:6.2f}')+str(f'{0.0:8.1f}')+str(f'{np.rad2deg(earth.lat[earth_timeind]):8.1f}')
     f10=plt.figtext(xset1,yset-ydiff*1,earth_text, fontsize=fsize, ha='left',color='mediumseagreen')
        
-    
-    
     
     #make a ring around if its the active spacecraft
     if name=='Wind':
@@ -1813,15 +1811,23 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
         plt.text(mercury.lon[mercury_timeind],mercury.r[mercury_timeind]+0.12,'MESSENGER', color='darkgrey', ha='center',fontsize=fsize-5,verticalalignment='center')
 
 
-
     
     #Juno when active    
     if time1>mdates.date2num(datetime.datetime(2011, 8, 25, 15, 19)) and time1<mdates.date2num(datetime.datetime(2016, 6, 28, 23, 59)):        
 
         ax.scatter(juno.lon[juno_timeind], juno.r[juno_timeind]*np.cos(juno.lat[juno_timeind]), s=symsize_spacecraft, c='yellowgreen', marker='s', alpha=1,lw=0,zorder=3)
-        plt.text(juno.lon[juno_timeind],juno.r[juno_timeind]+0.12,'Juno', color='yellowgreen', ha='center',fontsize=fsize-5,verticalalignment='center')
-
         
+        
+        #add annotation only when Juno is the active spacecraft; when not it must be < 1.2 AU, so plots for all other spacecraft are fine
+        if name=='Juno':
+            plt.text(juno.lon[juno_timeind],juno.r[juno_timeind]+0.12,'Juno', color='yellowgreen', ha='center',fontsize=fsize-5,verticalalignment='center')
+        else:
+            if juno.r[juno_timeind]< 1.2: 
+                 plt.text(juno.lon[juno_timeind],juno.r[juno_timeind]+0.12,'Juno', color='yellowgreen', ha='center',fontsize=fsize-5,verticalalignment='center')
+
+                
+
+        #position text always
         juno_text='Juno:   '+str(f'{juno.r[juno_timeind]:6.2f}')+str(f'{np.rad2deg(juno.lon[juno_timeind]):8.1f}')+str(f'{np.rad2deg(juno.lat[juno_timeind]):8.1f}')
         f11=plt.figtext(xset2,yset-ydiff*4,juno_text, fontsize=fsize, ha='left',color='yellowgreen')
 
@@ -1835,7 +1841,15 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     if time1>mdates.date2num(datetime.datetime(1990, 10, 7, 0, 0)) and time1<mdates.date2num(datetime.datetime(2009, 12, 31, 22, 0)):        
 
         ax.scatter(uly.lon[uly_timeind], uly.r[uly_timeind]*np.cos(uly.lat[uly_timeind]), s=symsize_spacecraft, c='chocolate', marker='s', alpha=1,lw=0,zorder=3)
-        plt.text(uly.lon[uly_timeind],uly.r[uly_timeind]*np.cos(uly.lat[uly_timeind])+0.12,'Ulysses', color='chocolate', ha='center',fontsize=fsize-5,verticalalignment='center')
+       
+        
+        #add annotation only when Juno is the active spacecraft; when not it must be < 1.2 AU, so plots for all other spacecraft are fine
+        if name=='ULYSSES':
+            plt.text(uly.lon[uly_timeind],uly.r[uly_timeind]*np.cos(uly.lat[uly_timeind])+0.12,'Ulysses', color='chocolate', ha='center',fontsize=fsize-5,verticalalignment='center')
+        else:     
+            if uly.r[uly_timeind]< 1.2: 
+                plt.text(uly.lon[uly_timeind],uly.r[uly_timeind]*np.cos(uly.lat[uly_timeind])+0.12,'Ulysses', color='chocolate', ha='center',fontsize=fsize-5,verticalalignment='center')
+        
         
         uly_text='Ulysses: '+str(f'{uly.r[uly_timeind]:6.2f}')+str(f'{np.rad2deg(uly.lon[uly_timeind]):8.1f}')+str(f'{np.rad2deg(uly.lat[uly_timeind]):8.1f}')
         f11=plt.figtext(xset2,yset-ydiff*4,uly_text, fontsize=fsize, ha='left',color='chocolate')        
@@ -1871,7 +1885,9 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     ############# Juno and Ulysses different limits
     
     if name=='Juno':
-        ax.set_ylim(0,juno.r[juno_timeind]+0.2)
+        ax.set_ylim(0,juno.r[juno_timeind]+0.2)       
+        
+        
         #for later times make grid different
         if time1>mdates.date2num(datetime.datetime(2014, 4, 1)):
              plt.rgrids((0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5),('0.5','1.0','1.5','2.0','2.5','3.0','3.5 AU','4.0','4.5','5.0','5.5'),angle=125, fontsize=fsize-2,alpha=0.4, color=backcolor)
@@ -2055,15 +2071,7 @@ def plot_insitu_icmecat_mag_plasma(sc, start, end, sc_label, path, ic,i, pos):
      ax5 = plt.subplot2grid((4,2), (0, 1), rowspan=4, projection='polar')
 
      plot_icmecat_positions_mag_plasma(ic.icme_start_time[i],'HEEQ',ax5,pos,sc_label)
-        
-     #make extra plots for wider radial distances for Ulysses and Juno
-        
-     if sc_label=='Juno':############## TO DO 
-         plot_icmecat_positions_mag_plasma(ic.icme_start_time[i],'HEEQ',ax5,pos,sc_label)
-
-     if sc_label=='ULYSSES':############## TO DO 
-         plot_icmecat_positions_mag_plasma(ic.icme_start_time[i],'HEEQ',ax5,pos,sc_label)
-
+       
          
         
      if sc_label=='PSP': 

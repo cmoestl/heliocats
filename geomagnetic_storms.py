@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[28]:
+# In[33]:
 
 
 import pickle
@@ -31,11 +31,8 @@ import sys
 from numba import njit
 import importlib
 import copy
-
-
-
+import locale
 import plotly.graph_objects as go
-import numpy as np
 from plotly.offline import iplot, init_notebook_mode
 
 
@@ -74,7 +71,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[2]:
+# In[34]:
 
 
 ##get omni dst data
@@ -126,7 +123,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[3]:
+# In[35]:
 
 
 years=np.arange(1995,2040) 
@@ -182,7 +179,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 # ### Histograms
 
-# In[4]:
+# In[36]:
 
 
 #years23=np.arange(1996,2009)
@@ -218,7 +215,7 @@ o24=o[ind24]
 o25=o[ind25]
 
 
-# In[5]:
+# In[37]:
 
 
 #compare rising phases
@@ -242,7 +239,7 @@ sns.histplot(o20.dst, bins=bins, kde=True, color='grey', stat='percent',shrink=0
 #sns.histplot(o22.dst, bins=bins, kde=True, color='grey', stat='percent',shrink=0,label='22')
 sns.histplot(o23.dst, bins=bins, kde=True, color='navy', stat='percent',shrink=0,label='23')
 sns.histplot(o24.dst, bins=bins, kde=True, color='coral', stat='percent',label='24')
-sns.histplot(o25.dst, bins=bins, kde=True, color='lightgreen', stat='percent',shrink=0,label='25')
+sns.histplot(o25.dst, bins=bins, kde=True, color='black', stat='percent',shrink=0,label='25')
 
 #sns.kdeplot(o24, color='tomato')
 #sns.kdeplot(data=data["total_bill"], fill=True)
@@ -273,7 +270,7 @@ plt.savefig(outputdir+plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
-# In[6]:
+# In[38]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -291,7 +288,7 @@ bins=np.arange(0,50,0.5)
 #sns.histplot(o20.bt, bins=bins, kde=True, color='grey', stat='percent',shrink=0,label='cycle 20')
 sns.histplot(o23.bt, bins=bins, kde=True, color='navy', stat='percent',label='cycle 23',multiple="dodge",shrink=0)
 sns.histplot(o24.bt, bins=bins, kde=True, color='coral', stat='percent',label='cycle 24',multiple="dodge")
-sns.histplot(o25.bt, bins=bins, kde=True, color='mediumseagreen', stat='percent',label='cycle 25',multiple="dodge",shrink=0)
+sns.histplot(o25.bt, bins=bins, kde=True, color='black', stat='percent',label='cycle 25',multiple="dodge",shrink=0)
 
 #data=[o23.bt,o24.bt,o25.bt]
 #sns.histplot(data, bins=bins, kde=True, stat='percent',multiple="dodge",shrink=0, element="bars")
@@ -302,7 +299,7 @@ ax1.set_xlim(0, 20)
 plt.legend()
 
 
-# In[7]:
+# In[39]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -319,13 +316,13 @@ bins=np.arange(0,1000,10)
 #sns.histplot(o20.vt, bins=bins, kde=True, color='grey', stat='percent',label='cycle 23',shrink=0)
 sns.histplot(o23.vt, bins=bins, kde=True, color='navy', stat='percent',label='cycle 23',shrink=0)
 sns.histplot(o24.vt, bins=bins, kde=True, color='coral', stat='percent',label='cycle 24')
-sns.histplot(o25.vt, bins=bins, kde=True, color='mediumseagreen', stat='percent',label='cycle 25',shrink=0)
+sns.histplot(o25.vt, bins=bins, kde=True, color='black', stat='percent',label='cycle 25',shrink=0)
 
 ax1.set_xlim(200, 800)
 plt.legend()
 
 
-# In[8]:
+# In[40]:
 
 
 years=np.arange(1955,2040,5) 
@@ -380,13 +377,15 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 
 
-# In[16]:
+# In[41]:
 
 
 years=np.arange(1995,2040) 
 months=np.arange(1,13)
 monthly_start_times=[datetime.datetime(year,month,1) for year in years for month in months]
 
+
+locale.setlocale(locale.LC_ALL,'en_US')
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
@@ -407,7 +406,7 @@ plotmax=np.nanmax(np.hstack([os2[0:cutoff_2],n.dst])[-365*24:-1])
 print(plotmax, plotmin)
 
 ax1.set_xlim(start,end)
-ax1.set_ylim(plotmin-30,plotmax+20)
+ax1.set_ylim(plotmin-60,plotmax+20)
 plt.ylabel('Dst [nT]')
 
 ax1.xaxis_date()
@@ -450,11 +449,10 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[27]:
+# In[42]:
 
 
 ###same in german
-import locale
 
 locale.setlocale(locale.LC_ALL,'de_DE')
 
@@ -525,7 +523,7 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 
 # ## Newell Coupling
 
-# In[26]:
+# In[43]:
 
 
 ###add plot and add to txt file without propagation 
@@ -627,7 +625,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 
 
-# In[11]:
+# In[44]:
 
 
 #save data for last few months as txt
@@ -663,7 +661,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[12]:
+# In[45]:
 
 
 print(' ')
@@ -675,7 +673,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[13]:
+# In[46]:
 
 
 #https://plotly.com/python/
@@ -696,7 +694,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[14]:
+# In[47]:
 
 
 if data_lookup > 0:
@@ -708,7 +706,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[15]:
+# In[48]:
 
 
 if data_lookup > 0:

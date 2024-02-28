@@ -10,7 +10,7 @@
 # 
 # This code is part of https://github.com/cmoestl/heliocats
 # 
-# **current version is ARRCAT 2.0, released 2020 May 13, updated 2024 February 29**
+# **current version is ARRCAT 2.0, released 2020 May 13, updated 2024 February 27**
 # 
 # Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
 # The environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
@@ -25,16 +25,16 @@
 # **Issues:**
 # 
 # - need to add plots for each event
-# - may add Ulysses again with the position in the ulysses data file
+# - may add Ulysses again with the position in the ulysses data file 
 # - same for messenger
 # - the kernel for Solar Orbiter needs to be manually updated, see cats.py astrospice.SPKKernel in make_arrival_catalog ...
 # - with next arrcat update, check if Solar Orbiter positions are consistent with general positions file
 # 
 
-# In[1]:
+# In[3]:
 
 
-last_update='2024-February-16'
+last_update='2024-February-27'
 debug_mode=0
 
 
@@ -116,7 +116,7 @@ warnings.filterwarnings("ignore")
 
 # ## 1 Make arrival catalog 
 
-# In[2]:
+# In[4]:
 
 
 t0=time.time()
@@ -181,7 +181,7 @@ ac
 
 # #### save header
 
-# In[ ]:
+# In[5]:
 
 
 first_date=ac['target_arrival_time'][len(ac)-1]
@@ -190,7 +190,7 @@ print(last_date[0:7])
 print(first_date[0:7])
 
 
-# In[ ]:
+# In[6]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -277,7 +277,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[ ]:
+# In[7]:
 
 
 ########## python formats
@@ -431,7 +431,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[ ]:
+# In[8]:
 
 
 #load arrcat as pandas dataframe
@@ -451,27 +451,27 @@ ac5 = f['arrcat']
 ac5['sse_launch_time']
 
 
-# In[ ]:
+# In[9]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[ ]:
+# In[10]:
 
 
 ac
 
 
-# In[ ]:
+# In[11]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[ ]:
+# In[12]:
 
 
 ac_struct
@@ -479,7 +479,7 @@ ac_struct
 
 # ### plot directions and targets
 
-# In[ ]:
+# In[13]:
 
 
 sns.set_context('talk')
@@ -557,7 +557,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[ ]:
+# In[14]:
 
 
 fig=plt.figure(2, figsize=(16,7), dpi=70)
@@ -602,7 +602,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[ ]:
+# In[15]:
 
 
 hiai=np.where(higeocat['SC']=='A')[0]
@@ -651,7 +651,7 @@ hist_hib_monthly[93:]=-1
 ########### TBD add an estimate for the rest of the year
 
 
-# In[ ]:
+# In[16]:
 
 
 sns.set_context("talk")     
@@ -706,7 +706,7 @@ print('saved as ',plotfile)
 
 
 
-# In[ ]:
+# In[17]:
 
 
 print(' ')
@@ -724,7 +724,7 @@ print(np.sort(arrcat_web.sse_launch_time)[-1])
 
 
 
-# In[ ]:
+# In[18]:
 
 
 t1all = time.time()

@@ -5,13 +5,17 @@
 # https://github.com/cmoestl/heliocats
 # 
 # Authors: C. Möstl, Eva Weiler, Emma Davies, Austrian Space Weather Office, GeoSphere Austria
+# 
+# 
 # twitter @chrisoutofspace, https://github.com/cmoestl
+# 
+# 
 # last update: February 2024
 # 
 # needs the helio4 environment (see README.md)
 # 
 
-# In[2]:
+# In[6]:
 
 
 import config_local
@@ -49,9 +53,22 @@ warnings.filterwarnings('ignore')
 #for server
 matplotlib.use('Agg')
 
-#where the in situ data files are located is read, this catalog is produced only locally so far
-import config_local
-from config_local import data_path
+##### check for system type
+#server
+if sys.platform == 'linux': 
+    print('system is linux')
+    matplotlib.use('Agg') 
+    from config_server import data_path
+    
+    
+#mac - make sure the dpi is always set similar to plt.savefig
+if sys.platform =='darwin':  
+    print('system is mac')
+    #for testing
+    get_ipython().run_line_magic('matplotlib', 'inline')
+    from config_local import data_path
+    #matplotlib.use('Agg') 
+
 
 print(data_path)
 
@@ -61,7 +78,7 @@ print(data_path)
 os.system('jupyter nbconvert --to script position_movies.ipynb')    
 
 
-# In[4]:
+# In[7]:
 
 
 print('load positions')
@@ -69,7 +86,7 @@ print('load positions')
 print('done')
 
 
-# In[52]:
+# In[8]:
 
 
 def make_frame(k):
@@ -316,7 +333,7 @@ def make_frame(k):
 
 
 
-# In[53]:
+# In[11]:
 
 
 plt.close('all')
@@ -352,13 +369,13 @@ high_res_mode=False
 #######################Time resolution
 
 #res_in_hours=24
-res_in_hours=48*10
+res_in_hours=6
 
 print('time resolution in hours',res_in_hours)
 
 ############### make time range
 t_start = datetime(2025,4,1)
-t_end   = datetime(2027,4,1)
+t_end   = datetime(2029,12,31)
 
 
 

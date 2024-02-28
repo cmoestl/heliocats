@@ -2,16 +2,14 @@
 Spacecraft and planet trajectories in numpy incl. Bepi Colombo, PSP, Solar Orbiter
 https://github.com/cmoestl/heliocats
 
-Author: C. Moestl, IWF Graz, Austria
+Author: C. Moestl, Austrian Space Weather Office, GeoSphere Austria
 twitter @chrisoutofspace, https://github.com/cmoestl
-last update: January 2020
+last update: February 2024
 
-needs python 3.7 with the conda helio environment (see README.md)
-
-uses heliopy for generating spacecraft positions, for data source files see README.md
+needs the helio4 environment (see README.md)
 
 MIT LICENSE
-Copyright 2019, Christian Moestl 
+Copyright 2019-2024, Christian Moestl 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this 
 software and associated documentation files (the "Software"), to deal in the Software
 without restriction, including without limitation the rights to use, copy, modify, 
@@ -27,7 +25,6 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
-
 
 
 #change path for ffmpeg for animation production at the very end

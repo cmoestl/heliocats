@@ -5,7 +5,7 @@ tracked with the STEREO heliospheric imagers are calculated.
 ARRCAT lists modeled arrivals of CMEs at various spacecraft and planets, 
 based on the HIGeoCAT catalog of CMEs established at RAL Space, UK (D. Barnes, J. A. Davies, R. A. Harrison). 
 
-This is version 2.0, released 2020-May-13, updated 2024-February-16. https://doi.org/10.6084/m9.figshare.12271292
+This is version 2.0, released 2020-May-13, updated 2024-February-27. https://doi.org/10.6084/m9.figshare.12271292
 
 It is based on this HIGeoCAT version: https://www.helcats-fp7.eu/catalogues/data/HCME_WP3_V06.vot using the SSEF30 model.
 

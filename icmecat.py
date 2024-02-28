@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.1, 2021 September 1, updated 2024 February 29
+# latest release: version 2.2, 2024 February 27, updated 2024 February 27
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -21,28 +21,28 @@
 # **Cite this catalog with the doi 10.6084/m9.figshare.6356420**  <br /> https://10.6084/m9.figshare.6356420 <br />
 # If this catalog is used for results that are published in peer-reviewed international journals, please contact chris.moestl@outlook.com for possible co-authorship. 
 # 
-# Install the helio4 conda environment to run this code, see readme at https://github.com/cmoestl/heliocats
+# Install the helio4 conda environment to run this code, see folder /envs and the readme at https://github.com/cmoestl/heliocats
 # 
 # **With each update:** 
 # - use the notebook data_update_web_science.ipynb in this package to create pickle files for new science data. The current data can be found on figshare.
-# - the solar orbiter kernel should be manually updated with every icmecat update, and the position files should be redone 
-# - set the transition from STEREO-A science data to beacon data manually
+# - the solar orbiter kernel should be manually updated with every icmecat update, and the position files should be redone (currently by Eva Weiler)
 # - use measure.ipynb to manually derive the 3 times for each ICME event
-# - manually edit the file icmecat/HELCATS_ICMECAT_v21_master.xlsx to add 3 times for each event, the event id and spacecraft name
+# - manually edit the file icmecat/HELCATS_ICMECAT_v22_master.xlsx to add 3 times for each event, the event id and spacecraft name
+# - set the transition date from STEREO-A science data to beacon data manually
 # - set the switch to create_indices greater 0 and the indices will be redone for the new events so the script quickly loads the info where the ICMEs are in the data files
-# - for a new release, set the the last_update variable to the current date
+# - for a new release, set the the last_update variable to the current date, for bigger updates, make a new version number
 # 
 # 
 # **ISSUES**
 # 
-# - STEREO A beacon data (used from 2023 Jan 1 onwards) contain a few plasma 0s instead of nan
+# - STEREO A beacon data contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[1]:
+# In[37]:
 
 
-last_update='2024-February-29'
+last_update='2024-February-27'
 
 debug_mode=1
 
@@ -61,8 +61,8 @@ psp_plots=0
 wind_plots=0
 sta_plots=0
 
-uly_plots=1 
-juno_plots=0   #ok   
+uly_plots=0
+juno_plots=0  
 
 
 
@@ -156,7 +156,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[2]:
+# In[38]:
 
 
 # the positions file is generated with positions.ipynb (Eva's version!), and the position from messenger is taken from an older file
@@ -235,7 +235,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[3]:
+# In[ ]:
 
 
 load_data=1
@@ -264,22 +264,22 @@ if load_data > 0:
     #######
     print('load Juno data ') 
     filejuno='juno_2011_2016_rtn.p'
-    [juno_mag,hjuno]=pickle.load(open(data_path+filejuno, "rb" ) )   
+    [juno,hjuno]=pickle.load(open(data_path+filejuno, "rb" ) )   
     
     #add fields for plasma so plotting is easier: np, tp, vt
-    new_dtype = juno_mag.dtype.descr + [('np', '<f8')]+[('tp', '<f8')]+[('vt', '<f8')]  # Adding a new integer field
-    juno = np.zeros(juno_mag.shape, dtype=new_dtype)
+    #new_dtype = juno_mag.dtype.descr + [('np', '<f8')]+[('tp', '<f8')]+[('vt', '<f8')]  # Adding a new integer field
+    #juno = np.zeros(juno_mag.shape, dtype=new_dtype)
 
     # Copy data from the existing array to the new array
-    for name in juno_mag.dtype.names:
-        juno[name] = juno_mag[name]
+    #for name in juno_mag.dtype.names:
+    #    juno[name] = juno_mag[name]
         
     #convert to recarray    
-    juno = juno.view(np.recarray) 
+    #juno = juno.view(np.recarray) 
         
-    juno.np=np.nan    
-    juno.tp=np.nan    
-    juno.vt=np.nan            
+    #juno.np=np.nan    
+    #juno.tp=np.nan    
+    #juno.vt=np.nan            
     ############
     
 
@@ -449,7 +449,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[4]:
+# In[ ]:
 
 
 if debug_mode > 0: 
@@ -457,7 +457,7 @@ if debug_mode > 0:
     importlib.reload(hp)
 
 #master file
-ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v21_master.xlsx')
+ic=hc.load_helcats_icmecat_master_from_excel('icmecat/HELIO4CAST_ICMECAT_v22_master.xlsx')
 
 print(len(ic),' events' )
 
@@ -476,7 +476,6 @@ pspi=np.where(ic.sc_insitu == 'PSP')[:][0]
 soli=np.where(ic.sc_insitu == 'SolarOrbiter')[:][0]    
 beci=np.where(ic.sc_insitu == 'BepiColombo')[:][0]    
 
-
 if create_indices > 0: 
 
     print(' ')
@@ -494,7 +493,7 @@ if create_indices > 0:
     
     #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
     #hc.create_icme_indices(vex,vexi,ic,'VEX')
-    #hc.create_icme_indices(juno,juni,ic,'Juno')
+    hc.create_icme_indices(juno,juni,ic,'Juno')
 
     
     t1 = time.time()
@@ -524,7 +523,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[5]:
+# In[ ]:
 
 
 ###### 3c make all plots if wanted
@@ -792,29 +791,6 @@ print('done')
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[ ]:
-
-
-###### 3c make all plots if wanted
-#if debug_mode > 0: 
-#    importlib.reload(hc) 
-#    importlib.reload(hp)
-
-#matplotlib.use('Agg')
-#with single processing for the older missions:
-#hp.plot_icmecat_events(mav,mavi,ic,'MAVEN',icplotsdir, data_path, pos)
-#finished missions
-#mag only
-#hp.plot_icmecat_events(vex,vexi,ic,'VEX',icplotsdir,data_path,pos)
-#hp.plot_icmecat_events(mes,mesi,ic,'MESSENGER',icplotsdir, data_path,pos)
-#mag and plasma
-
-#hp.plot_icmecat_events(stb,stbi,ic,'STEREO-B',icplotsdir,data_path, pos)
-#hp.plot_icmecat_events(uly,ulyi,ic,'ULYSSES',icplotsdir,data_path, pos)
-
-#%matplotlib inline
-
-
 # ### (4) save ICMECAT 
 
 # ### 4a save header
@@ -836,9 +812,9 @@ print(first_date[0:7])
 print()
 
 #save header and parameters as text file and prepare for html website
-header='ICME CATALOGUE v2.1 \n\n\
+header='ICME CATALOGUE v2.2 \n\n\
 This is the HELIO4CAST interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. \n\n\
-This is version 2.1, released 2021-November-29, updated '+last_update+', doi: 10.6084/m9.figshare.6356420 \n\n\
+This is version 2.2, released 2024-February-27, updated '+last_update+', doi: 10.6084/m9.figshare.6356420 \n\n\
 Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact chris.moestl@outlook.com for possible co-authorship. \n\
 References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017SW001614) and Moestl et al. 2020 (https://doi.org/10.3847/1538-4357/abb9a1).  \n\n\
 The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at \n\
@@ -964,7 +940,7 @@ print(parameters)
 
 
 #make header file
-file='icmecat/HELIO4CAST_ICMECAT_v21_header.txt'
+file='icmecat/HELIO4CAST_ICMECAT_v22_header.txt'
 with open(file, "w") as text_file:
     text_file.write(header)
     text_file.write(parameters)
@@ -984,13 +960,13 @@ print()
 
 # ### 4b save into different formats
 
-# In[9]:
+# In[ ]:
 
 
 ########## python formats
 
 # save ICMECAT as pandas dataframe with times as datetime objects as pickle
-file='icmecat/HELIO4CAST_ICMECAT_v21_pandas.p'
+file='icmecat/HELIO4CAST_ICMECAT_v22_pandas.p'
 pickle.dump([ic,header,parameters], open(file, 'wb'))
 print('ICMECAT saved as '+file)
 
@@ -1008,7 +984,7 @@ ic_num_struct=np.array(ic_num_rec,dtype=dtype1)
 
 
 
-file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
+file='icmecat/HELIO4CAST_ICMECAT_v22_numpy.p'
 pickle.dump([ic_num,ic_num_struct,header,parameters], open(file, 'wb'))
 print('ICMECAT saved as '+file)
 
@@ -1038,23 +1014,23 @@ for i in np.arange(len(ic)):
 
 
 #save as Excel
-file='icmecat/HELIO4CAST_ICMECAT_v21.xlsx'
+file='icmecat/HELIO4CAST_ICMECAT_v22.xlsx'
 ic_copy.to_excel(file,sheet_name='ICMECATv2.0')
 print('ICMECAT saved as '+file)
 
 #save as json
-file='icmecat/HELIO4CAST_ICMECAT_v21.json'
+file='icmecat/HELIO4CAST_ICMECAT_v22.json'
 ic_copy.to_json(file)
 print('ICMECAT saved as '+file)
 
 #save as csv
-file='icmecat/HELIO4CAST_ICMECAT_v21.csv'
+file='icmecat/HELIO4CAST_ICMECAT_v22.csv'
 ic_copy.to_csv(file)
 print('ICMECAT saved as '+file)
 
 
 #save as txt
-file='icmecat/HELIO4CAST_ICMECAT_v21.txt'
+file='icmecat/HELIO4CAST_ICMECAT_v22.txt'
 np.savetxt(file, ic_copy.values.astype(str), fmt='%s' )
 print('ICMECAT saved as '+file)
 
@@ -1071,7 +1047,7 @@ print('ICMECAT saved as '+file)
 #########save into hdf5 format , use S for strings http://docs.h5py.org/en/stable/strings.html#what-about-numpy-s-u-type
 dtype2=[('index','i8'),('icmecat_id', 'S30'),('sc_insitu', 'S20')] +[(i, '<f8') for i in ic.keys()[2:len(ic.keys())]]
 ich5=np.array(ic_num_rec,dtype=dtype2)
-file='icmecat/HELIO4CAST_ICMECAT_v21.h5'
+file='icmecat/HELIO4CAST_ICMECAT_v22.h5'
 f=h5py.File(file,mode='w')
 f["icmecat"]= ich5
 #add attributes
@@ -1092,7 +1068,7 @@ f.close()
 
 
 #save as .npy without pickle
-file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.npy'
+file='icmecat/HELIO4CAST_ICMECAT_v22_numpy.npy'
 np.save(file,ich5, allow_pickle=False)
 print('ICMECAT saved as '+file)
 
@@ -1128,20 +1104,20 @@ for i in np.arange(len(ic)):
 
 
 #save as json for webpage with different time format
-file='icmecat/HELIO4CAST_ICMECAT_v21_isot.json'
+file='icmecat/HELIO4CAST_ICMECAT_v22_isot.json'
 ic_copy2.to_json(file)
 print('ICMECAT saved as '+file)
 
 
 #save as html no header
-file='icmecat/HELIO4CAST_ICMECAT_v21_simple.html'
+file='icmecat/HELIO4CAST_ICMECAT_v22_simple.html'
 ic_copy.to_html(file)
 print('ICMECAT saved as '+file)
 
 
 ############ save as html file with header
 #save as html
-file='icmecat/HELIO4CAST_ICMECAT_v21.html'
+file='icmecat/HELIO4CAST_ICMECAT_v22.html'
 #ic.to_html(file,justify='center')
 
 #ichtml='{% extends "_base.html" %} \n \n {% block content %} \n \n \n '
@@ -1160,39 +1136,39 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[10]:
+# In[ ]:
 
 
 #load icmecat as pandas dataframe
-file='icmecat/HELIO4CAST_ICMECAT_v21_pandas.p'
+file='icmecat/HELIO4CAST_ICMECAT_v22_pandas.p'
 [ic_pandas,h,p]=pickle.load( open(file, 'rb'))   
 
 #load icmecat as numpy array
-file='icmecat/HELIO4CAST_ICMECAT_v21_numpy.p'
+file='icmecat/HELIO4CAST_ICMECAT_v22_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[11]:
+# In[ ]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[12]:
+# In[ ]:
 
 
 ic_pandas
 
 
-# In[13]:
+# In[ ]:
 
 
 #
 ic_nprec
 
 
-# In[14]:
+# In[ ]:
 
 
 ic_nprec.icmecat_id
@@ -1200,7 +1176,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[15]:
+# In[ ]:
 
 
 ic=ic_pandas
@@ -1327,7 +1303,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[16]:
+# In[ ]:
 
 
 #markersize
@@ -1389,7 +1365,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 
-# In[17]:
+# In[ ]:
 
 
 #same for latitude
@@ -1397,7 +1373,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots near 1 AU
 
-# In[18]:
+# In[ ]:
 
 
 #make distribution plots
@@ -1463,7 +1439,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[19]:
+# In[ ]:
 
 
 t1all = time.time()
@@ -1476,7 +1452,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 
 
 
-# In[ ]:
+# In[18]:
 
 
 #check this for pushing the files to figshare
