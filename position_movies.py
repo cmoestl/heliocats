@@ -16,9 +16,10 @@
 # 
 # 
 
-# In[14]:
+# In[1]:
 
 
+import os
 import datetime
 from datetime import datetime, timedelta
 
@@ -67,7 +68,7 @@ used=100
 
 ffmpeg_path=''
 
-import os
+
 from sunpy.time import parse_time
 
 import matplotlib
