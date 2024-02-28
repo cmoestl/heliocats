@@ -14,18 +14,35 @@
 # 
 # needs the helio4 environment (see README.md)
 # 
+# 
 
-# In[6]:
-
-
-import config_local
-from config_local import data_path
+# In[13]:
 
 
-#import scipy.io
-import os
 import datetime
 from datetime import datetime, timedelta
+
+
+###################################### MAIN SETTINGS ###################
+
+#######################Time resolution
+
+#res_in_hours=24
+res_in_hours=6
+
+print('time resolution in hours',res_in_hours)
+
+############### make time range
+t_start = datetime(2025,4,1)
+t_end   = datetime(2029,12,31)
+
+
+used=8
+
+
+###########################################################
+
+import os
 from sunpy.time import parse_time
 
 import matplotlib
@@ -366,19 +383,6 @@ high_res_mode=False
 
 
 
-#######################Time resolution
-
-#res_in_hours=24
-res_in_hours=6
-
-print('time resolution in hours',res_in_hours)
-
-############### make time range
-t_start = datetime(2025,4,1)
-t_end   = datetime(2029,12,31)
-
-
-
 def datetime_range(start, end, resolution_hours):
     current = start
     while current < end:
@@ -474,7 +478,7 @@ print()
 #number of processes depends on your machines memory; check with command line "top"
 #how much memory is used by all your processes
 
-used=8
+
 print('Using multiprocessing, nr of cores',mp.cpu_count(), \
       'with nr of processes used: ',used)
 
