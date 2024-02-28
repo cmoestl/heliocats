@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[33]:
+# In[49]:
 
 
 import pickle
@@ -377,7 +377,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 
 
-# In[41]:
+# In[50]:
 
 
 years=np.arange(1995,2040) 
@@ -449,7 +449,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[42]:
+# In[51]:
 
 
 ###same in german
@@ -514,7 +514,7 @@ plt.tight_layout()
 
 
 
-plt.savefig(outputdir+'geomagnetic_storm_latest.png',dpi=100)
+plt.savefig(outputdir+'geomagnetische_stuerme_letztes_Jahr.png',dpi=100)
 
 
 print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
