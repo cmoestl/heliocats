@@ -16,7 +16,7 @@
 # 
 # 
 
-# In[13]:
+# In[14]:
 
 
 import datetime
@@ -24,6 +24,18 @@ from datetime import datetime, timedelta
 
 
 ###################################### MAIN SETTINGS ###################
+
+
+############################ directories
+
+animdirectory   = 'results/positions/movies_2024'
+outputdirectory = 'results/positions/movies_2024/frames'
+
+if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
+if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
+
+movie_filename='positions_punch_2025_2029'
+#movie_filename='positions_2018_2030'
 
 #######################Time resolution
 
@@ -33,14 +45,27 @@ res_in_hours=6
 print('time resolution in hours',res_in_hours)
 
 ############### make time range
+
+##PUNCH 4.5 years
 t_start = datetime(2025,4,1)
 t_end   = datetime(2029,12,31)
 
+## Solar Orbiter 10 years
+#t_start = datetime(2020,2,11)
+#t_end   = datetime(2030,11,19)
 
-used=8
+## from psp launch onwards
+#t_start = datetime(2018,10,1)
+#t_end   = datetime(2030,11,19)
+
+
+
+used=100
 
 
 ###########################################################
+
+ffmpeg_path=''
 
 import os
 from sunpy.time import parse_time
@@ -403,17 +428,6 @@ print('number of frames:',k_all)
 
 
 
-############################ directories
-
-outputdirectory='results/positions/movies_2024/frames'
-animdirectory='results/positions/movies_2024'
-
-
-if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
-if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
-
-positions_plot_directory='results/plots_positions/'
-if os.path.isdir(positions_plot_directory) == False: os.mkdir(positions_plot_directory)
 
 
 
@@ -498,7 +512,7 @@ print('plots done, frames saved in ',outputdirectory)
 
 
 os.system(ffmpeg_path+'ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k \
-    -r 25 '+str(animdirectory)+'/positions_punch.mp4 -y -loglevel quiet')    
+    -r 30 '+str(animdirectory)+'/'+movie_filename+'.mp4 -y -loglevel quiet')    
 print('movie done, saved in ',animdirectory)
 
 
