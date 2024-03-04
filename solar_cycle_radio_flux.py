@@ -17,7 +17,7 @@
 # - An error range may be added in the future.
 # 
 
-# In[6]:
+# In[1]:
 
 
 import pickle
@@ -60,7 +60,7 @@ os.system('jupyter nbconvert --to script solar_cycle_radio_flux.ipynb')
 
 # #### load data from NOAA
 
-# In[7]:
+# In[2]:
 
 
 #observations
@@ -89,7 +89,7 @@ noaa_obs
 
 # #### figure out relationship for SSN to SFU
 
-# In[8]:
+# In[3]:
 
 
 #define models to convert SSN to SFU
@@ -157,7 +157,7 @@ plt.plot(noaa_pred_times,tk_model(SSN_pred),'b--')
 
 # ### define Hathaway function for SSN from McIntosh+ 2022
 
-# In[9]:
+# In[4]:
 
 
 def hathaway(x,x0, a, b, c):
@@ -216,7 +216,7 @@ print(int(np.max(SFU_mc_prediction_1)))
 print(int(np.max(SFU_mc_prediction_2)))
 
 
-# In[11]:
+# In[5]:
 
 
 years=np.arange(2005,2040) 
@@ -276,8 +276,16 @@ fsize=14
 plt.figtext(0.05,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
 
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig1.add_axes([0.86,0.85,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+    
+
 plt.tight_layout()
 plt.savefig(outputdir+'sfu_prediction.png',dpi=100)
+
 
 print('done')
 
