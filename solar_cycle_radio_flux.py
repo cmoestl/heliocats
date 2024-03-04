@@ -11,10 +11,13 @@
 # Tiwari and Kumar
 # https://journals.aijr.org/index.php/ias/article/view/751/172
 # 
-# We use the Clette 2021 model Equation 2 with a 2nd order polynomial. An error range may be added in the future.
+# We use the Clette 2021 model Equation 2 with a 2nd order polynomial. 
+# 
+# **Issues**
+# - An error range may be added in the future.
 # 
 
-# In[1]:
+# In[6]:
 
 
 import pickle
@@ -57,7 +60,7 @@ os.system('jupyter nbconvert --to script solar_cycle_radio_flux.ipynb')
 
 # #### load data from NOAA
 
-# In[2]:
+# In[7]:
 
 
 #observations
@@ -86,7 +89,7 @@ noaa_obs
 
 # #### figure out relationship for SSN to SFU
 
-# In[3]:
+# In[8]:
 
 
 #define models to convert SSN to SFU
@@ -154,7 +157,7 @@ plt.plot(noaa_pred_times,tk_model(SSN_pred),'b--')
 
 # ### define Hathaway function for SSN from McIntosh+ 2022
 
-# In[4]:
+# In[9]:
 
 
 def hathaway(x,x0, a, b, c):
@@ -213,7 +216,7 @@ print(int(np.max(SFU_mc_prediction_1)))
 print(int(np.max(SFU_mc_prediction_2)))
 
 
-# In[5]:
+# In[11]:
 
 
 years=np.arange(2005,2040) 
@@ -226,7 +229,7 @@ fig1, (ax1, ax2) = plt.subplots(2, figsize=(15,10),dpi=100)
 ax1.plot_date(noaa_obs_times,SSN_obs,'-', label='observed monthly SSN')
 
 #predictions
-ax1.plot(noaa_pred_times,SSN_pred,'b-',lw=2,label='NOAA prediction')
+#ax1.plot(noaa_pred_times,SSN_pred,'b-',lw=2,label='NOAA prediction')
 ax1.plot(times_25_daily,SSN_mc_prediction,'-r',alpha=1,linewidth=2.5,label='McIntosh+ 2023')
 
 ax1.set_ylabel('SSN')
@@ -246,7 +249,7 @@ ax1.set_xlim(datetime.datetime(2009,1,1),datetime.datetime(2031,1,1))
 ax2.plot(noaa_obs_times,SFU_obs,'-',label='observed monthly SFU')
 
 #predictions
-ax2.plot(noaa_pred_times,SFU_pred,'b-',lw=2,label='NOAA prediction')
+#ax2.plot(noaa_pred_times,SFU_pred,'b-',lw=2,label='NOAA prediction')
 ax2.plot(times_25_daily,SFU_mc_prediction_1,'r-',alpha=1,linewidth=2,label='Clette model for McIntosh+ 2023')
 
 #ax2.plot(times_25_daily,SFU_mc_prediction_2,'k-',alpha=1,linewidth=1,label='TK model for McIntosh/Leamon 2022')
