@@ -40,8 +40,24 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[1]:
+# In[38]:
 
+
+# -----CHECK LIST
+
+## update every year
+last_year=2024 #2024 means last date is 2023 Dec 31
+
+##update date files, which are independent in folder /data/icme_rate_data_files for the yearly update
+
+#stereoa_2007_now_rtn.p
+#stereoa_beacon_rtn_last_300days_now.p
+#wind_1995_now_rtn.p
+#solo_2020_now_rtn.p
+
+#NOTE: set cutoff date for STEREO-A science data when loading data consistent with ICMECAT
+
+#----------
 
 from scipy import stats
 import scipy.io
@@ -121,7 +137,7 @@ print('path for data files', data_path)
 
 # ## 1 Settings and load data
 
-# In[2]:
+# In[39]:
 
 
 t0 = time.time()
@@ -358,7 +374,7 @@ if load_data > 0:
     
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
     #cutoff with end of science data
-    sta2=sta2[np.where(sta2.time >= parse_time('2023-Jan-01 00:00').datetime)[0]]
+    sta2=sta2[np.where(sta2.time >= parse_time('2023-May-01 00:00').datetime)[0]]
 
     #make array
     sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
@@ -443,11 +459,11 @@ print('loading all data takes', np.round(t1-t0,2), 'seconds')
     
 
 
-# In[3]:
+# In[48]:
 
 
 ########### load ICMECAT made with icmecat.py or ipynb
-file='icmecat/HELIO4CAST_ICMECAT_v21_pandas.p'
+file='icmecat/HELIO4CAST_ICMECAT_v22_pandas.p'
 print()
 print('loaded ', file)
 print()
@@ -498,7 +514,7 @@ print('HELCATS HIGeoCAT     ',str(higeocat_time[0])[0:10],str(higeocat_time[-1])
 print('HELCATS ARRCAT       ',np.sort(ac_pandas.sse_launch_time)[0][0:10],np.sort(ac_pandas.sse_launch_time)[-1][0:10])
 
 
-# In[4]:
+# In[49]:
 
 
 ############### set limits of solar minimum, rising/declining phase and solar maximum
@@ -571,7 +587,7 @@ print(len(ic))
 print('done')
 
 
-# In[5]:
+# In[50]:
 
 
 ic
@@ -581,13 +597,11 @@ ic
 
 # ### Check data days available each year for each planet or spacecraft
 
-# In[6]:
+# In[51]:
 
 
 ######################## make bin for each year for yearly histograms
 #define dates of January 1 from 2007 to end year
-
-last_year=2023 #2022 means last date is 2021 Dec 31
 
 years_jan_1_str=[str(i)+'-01-01' for i in np.arange(2007,last_year) ] 
 yearly_start_times=parse_time(years_jan_1_str).datetime
@@ -776,7 +790,7 @@ print('done')
 
 # ### get yearly ICME rates at each spacecraft
 
-# In[7]:
+# In[52]:
 
 
 #define dates of January 1 from 2007 to 2022
@@ -886,7 +900,7 @@ plt.plot(icrate.year,icrate.mean1,'ok',markerfacecolor='white', label='mean +/- 
 plt.legend(loc=2,fontsize=10)
 
 
-# In[8]:
+# In[53]:
 
 
 icrate
@@ -894,7 +908,7 @@ icrate
 
 # ### get Richardson and Cane ICME rate for comparison
 
-# In[9]:
+# In[54]:
 
 
 #convert times in dataframe from richardson and cane list to numpy array
@@ -945,7 +959,7 @@ print(rc_rate_time)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[10]:
+# In[100]:
 
 
 sns.set_context("talk")     
@@ -961,10 +975,10 @@ sns.set_style("ticks",{'grid.linestyle': '--'})
 ax2 = plt.subplot(111) 
 
 ax3=ax2.twinx()
-ax3.plot(ssn_ms.time,ssn_ms.spot,'-k',alpha=0.4,linewidth=1.5,label='monthly smoothed sunspot number',zorder=0)
+ax3.plot(ssn_m.time,ssn_m.spot,'-k',alpha=0.4,linewidth=1.5,label='monthly sunspot number',zorder=0)
 ax3.set_ylabel('Sunspot number SIDC')
-ax3.set_ylim(0,155)
-ax3.legend(loc=1,fontsize=12)
+ax3.set_ylim(0,np.max(ssn_m.spot[-12:-1])+20)
+ax3.legend(loc='upper center',fontsize=12)
 
 #grid for icme rate
 for i in np.arange(0,100,10):
@@ -1010,14 +1024,20 @@ ax2.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax2.xaxis.set_major_formatter(myformat)
 plt.xticks(yearly_start_times, fontsize=fsize) 
+
 plt.xlabel('Year',fontsize=fsize)
 
 
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.83,0.86,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
     
 plt.figtext(0.05,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
 
 plt.tight_layout()
+
 
 #plt.annotate('(a)',[0.01,0.96],xycoords='figure fraction')
 #plt.annotate('(b)',[0.01,0.47],xycoords='figure fraction')
@@ -1027,11 +1047,11 @@ plt.savefig(outputdirectory+'/icmecat_icme_rate.png', dpi=150)
 
 
 
-# #### 3 get solar cycle results on ICME rates and sunspot numbers
+# # 3 get solar cycle results on ICME rates and sunspot numbers
 
 # ## solar cycle 23
 
-# In[11]:
+# In[101]:
 
 
 print('cycle 23\n')
@@ -1115,7 +1135,7 @@ print()
 
 # ## solar cycle 24
 
-# In[12]:
+# In[102]:
 
 
 print('cycle 24\n')
@@ -1175,7 +1195,7 @@ print(np.round(np.mean(rc_rate24/ic_rate24),2))
 
 # ## solar cycle 25
 
-# In[13]:
+# In[103]:
 
 
 print('cycle 25\n')
@@ -1235,7 +1255,7 @@ print()
 # ## **Figure 2** correlation SSN with ICME rate and fit
 # plot SSN vs ICME rate, linear fit with confidence interval
 
-# In[14]:
+# In[104]:
 
 
 #add spots23/24 and rc_rate23/24 into 1 array for correlation
@@ -1363,7 +1383,7 @@ plt.savefig(outputdirectory+'/fig2_rate_ssn.png', dpi=300)
 # ## predictions for solar cycle 25: SSN and ICME rate
 # ### 1. Mean cycle model
 
-# In[15]:
+# In[105]:
 
 
 # from heliocats import stats as hs
@@ -1478,7 +1498,7 @@ print('Std in ICME rate from fit and ICMECAT range for each year:')
 print(ic_rate_25_m_std)
 
 
-# In[16]:
+# In[106]:
 
 
 ########################################################### 2. SC25 panel prediction (SC25PP)
@@ -1617,7 +1637,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_pp_std)
 
 
-# In[17]:
+# In[107]:
 
 
 ################################### SC25MC
@@ -1717,7 +1737,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_mc20_std)
 
 
-# In[18]:
+# In[108]:
 
 
 ################################### SC25MC
@@ -1818,7 +1838,7 @@ print(times_25_daily[np.argmax(spots_predict_25_mc23_daily)])
 #print(np.round(spots_predict_25_mc23-spots_predict_25_mc23_upper68))
 
 
-# In[19]:
+# In[109]:
 
 
 print('start of sc25 here in MC23',start_25-shift_t03)
@@ -1910,7 +1930,7 @@ print(ic_rate_25_mc23_std)
 
 # ## **Figure 3** ICME rate predictions
 
-# In[20]:
+# In[121]:
 
 
 sns.set_context("talk")     
@@ -1950,7 +1970,8 @@ ax2.set_xlim(datetime.datetime(1995,8,1),datetime.datetime(2033,8,1))
 ax2.set_ylim(0,max_spot)
 years = mdates.YearLocator()   # every year
 ax2.xaxis.set_minor_locator(years)
-legend1=ax2.legend(loc=1,fontsize=10)
+legend1=ax2.legend(loc='upper center'
+,fontsize=10)
 legend1.get_frame().set_alpha(None)
 
 ########
@@ -1960,7 +1981,7 @@ ax1.plot(yearly_mid_times_24,rc_rate24, color='black', marker='o',markerfacecolo
 ax1.plot(yearly_mid_times_24,ic_rate24, color='black', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC24',linestyle='')
 ax1.plot([icrate.year[2:],icrate.year[2:]],[icrate.mean1[2:]-icrate.std1[2:],icrate.mean1[2:]+icrate.std1[2:]],'-k',lw=1.1,label='')
 
-ax1.plot(yearly_mid_times_25[0:3],ic_rate25, color='blue', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC25',linestyle='')
+ax1.plot(yearly_mid_times_25[0:4],ic_rate25, color='blue', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC25',linestyle='')
 ax1.errorbar(yearly_mid_times_25,icmes_predict_25_mc23,yerr=ic_rate_25_mc23_std, color='black', marker='o',markerfacecolor='lightgrey',label='Predicted ICME rate McIntosh+ 2023',linestyle='')
 ax1.set_ylabel('number of ICMEs per year',fontsize=fsize)
 legend2=ax1.legend(loc=2,fontsize=10)
@@ -1985,7 +2006,7 @@ ax3.plot(yearly_mid_times_23,rc_rate23, color='black',marker='o',markerfacecolor
 ax3.plot(yearly_mid_times_24,rc_rate24, color='black', marker='o',markerfacecolor='white',label='RC ICME rate SC24',linestyle='')
 ax3.plot(yearly_mid_times_24,ic_rate24, color='black', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC24',linestyle='')
 ax3.plot([icrate.year[2:],icrate.year[2:]],[icrate.mean1[2:]-icrate.std1[2:],icrate.mean1[2:]+icrate.std1[2:]],'-k',lw=1.1,label='')
-ax3.plot(yearly_mid_times_25[0:3],ic_rate25, color='blue', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC25',linestyle='')
+ax3.plot(yearly_mid_times_25[0:4],ic_rate25, color='blue', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC25',linestyle='')
 ax3.errorbar(yearly_mid_times_25,icmes_predict_25pp,yerr=ic_rate_25_pp_std, color='black', marker='o',markerfacecolor='lightgrey',label='Predicted ICME rate PP19',linestyle='', zorder=3)
 
 ax3.set_ylabel('number of ICMEs per year',fontsize=fsize)
@@ -2005,7 +2026,7 @@ ax4.set_xlim(datetime.datetime(1995,8,1),datetime.datetime(2033,8,1))
 ax4.set_ylim(0,max_spot)
 years = mdates.YearLocator()   # every year
 ax4.xaxis.set_minor_locator(years)
-ax4.legend(loc=1,fontsize=10)
+ax4.legend(loc='upper center',fontsize=10)
 
 ax3.set_ylim(0,78)
 for i in np.arange(0,70,10):
@@ -2015,6 +2036,12 @@ for i in np.arange(0,70,10):
 ax3.set_zorder(3) 
 ax4.set_zorder(1) 
 ax3.patch.set_visible(False)
+
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.825,0.87,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
 
     
 plt.figtext(0.05,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
@@ -2032,7 +2059,7 @@ plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.pdf', dpi=100)
 
 # ## solar cycle progression
 
-# In[21]:
+# In[145]:
 
 
 sns.set_context('talk')
@@ -2107,18 +2134,31 @@ plt.savefig(outputdirectory+'/cycle25_prediction.png',dpi=100)
 
 #with shorter interval
 
+
+
 plt.legend(loc='upper right',fontsize=13)
-ax1.set_xlim(datetime.datetime(1975,1,1),datetime.datetime(2033,1,1))
+ax1.set_xlim(datetime.datetime(1963,1,1),datetime.datetime(2033,1,1))
+
 
 years = mdates.YearLocator(5)   # every year
 ax1.xaxis.set_major_locator(years)
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
-plt.savefig(outputdirectory+'/cycle25_prediction_short.png',dpi=100)
+
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.1,0.85,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
+plt.tight_layout()
+
+plt.savefig(outputdirectory+'/cycle25_prediction_short.png',dpi=150)
 plt.savefig(outputdirectory+'/cycle25_prediction_short.pdf')
+print(outputdirectory+'/cycle25_prediction_short.pdf')
 
 
-# In[22]:
+# In[146]:
 
 
 #with shortest interval
@@ -2200,6 +2240,13 @@ ax1.set_ylim(0,300)
 months = mdates.MonthLocator()   # every year
 ax1.xaxis.set_minor_locator(months)
 ax1.grid(linestyle='--')
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.89,0.85,0.08,0.08], anchor='NE', zorder=1)
+newax.add_patch(matplotlib.patches.Rectangle((0, 0), 1, 1, color='white', transform=newax.transAxes, zorder=0))
+newax.imshow(logo)
+newax.axis('off')
+
 plt.tight_layout()
 plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
@@ -2208,7 +2255,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # ### make PSP and Solar Orbiter position
 
-# In[23]:
+# In[147]:
 
 
 frame='HEEQ'
@@ -2251,56 +2298,52 @@ print('Solo pos')
 
 
 
+#starttime =datetime.datetime(2018, 10, 21)
+#endtime = datetime.datetime(2025, 11, 2)
+#bepi_time = []
+#while starttime < endtime:
+#    bepi_time.append(starttime)
+#    starttime += timedelta(days=res_in_days)
 
+#spice.furnish(spicedata.get_kernel('bepi_pred'))
+#bepi=spice.Trajectory('BEPICOLOMBO MPO') # or BEPICOLOMBO MMO
+#bepi.generate_positions(bepi_time,'Sun',frame)
+#bepi.change_units(astropy.units.AU)  
+#[bepi_r, bepi_lat, bepi_lon]=hd.cart2sphere(bepi.x,bepi.y,bepi.z)
 
-############################################## BepiColombo
-
-starttime =datetime.datetime(2018, 10, 21)
-endtime = datetime.datetime(2025, 11, 2)
-bepi_time = []
-while starttime < endtime:
-    bepi_time.append(starttime)
-    starttime += timedelta(days=res_in_days)
-
-spice.furnish(spicedata.get_kernel('bepi_pred'))
-bepi=spice.Trajectory('BEPICOLOMBO MPO') # or BEPICOLOMBO MMO
-bepi.generate_positions(bepi_time,'Sun',frame)
-bepi.change_units(astropy.units.AU)  
-[bepi_r, bepi_lat, bepi_lon]=hd.cart2sphere(bepi.x,bepi.y,bepi.z)
-
-print('Bepi done')
+#print('Bepi done')
 
 
 #add mercury
-planet_kernel=spicedata.get_kernel('planet_trajectories')
-starttime= datetime.datetime(2025, 11, 3)
-endtime = datetime.datetime(2032, 12, 31)
-mercury_time = []
-while starttime < endtime:
-    mercury_time.append(starttime)
-    starttime += timedelta(days=res_in_days)
+#planet_kernel=spicedata.get_kernel('planet_trajectories')
+#starttime= datetime.datetime(2025, 11, 3)
+#endtime = datetime.datetime(2032, 12, 31)
+#mercury_time = []
+#while starttime < endtime:
+#    mercury_time.append(starttime)
+#    starttime += timedelta(days=res_in_days)
 
 
 
-sta_time=solot_time
-spice.furnish(spicedata.get_kernel('stereo_a_pred'))
-sta=spice.Trajectory('-234')  
-sta.generate_positions(solot_time,'Sun',frame)  
-sta.change_units(astropy.units.AU)  
-[sta_r, sta_lat, sta_lon]=hd.cart2sphere(sta.x,sta.y,sta.z)    
+#sta_time=solot_time
+#spice.furnish(spicedata.get_kernel('stereo_a_pred'))
+#sta=spice.Trajectory('-234')  
+#sta.generate_positions(solot_time,'Sun',frame)  
+#sta.change_units(astropy.units.AU)  
+#[sta_r, sta_lat, sta_lon]=hd.cart2sphere(sta.x,sta.y,sta.z)    
     
     
-mercury=spice.Trajectory('1')  #barycenter
-mercury.generate_positions(mercury_time,'Sun',frame)  
-mercury.change_units(astropy.units.AU)  
-[mercury_r, mercury_lat, mercury_lon]=hd.cart2sphere(mercury.x,mercury.y,mercury.z)
-print('mercury') 
+#mercury=spice.Trajectory('1')  #barycenter
+#mercury.generate_positions(mercury_time,'Sun',frame)  
+#mercury.change_units(astropy.units.AU)  
+#[mercury_r, mercury_lat, mercury_lon]=hd.cart2sphere(mercury.x,mercury.y,mercury.z)
+#print('mercury') 
 
 #combine bepi trajectory with Mercury
-bepi_time2=np.hstack([bepi_time,mercury_time])
-bepi_r2=np.hstack([bepi_r,mercury_r])
-bepi_lon2=np.hstack([bepi_lon,mercury_lon])
-bepi_lat2=np.hstack([bepi_lat,mercury_lat])
+#bepi_time2=np.hstack([bepi_time,mercury_time])
+#bepi_r2=np.hstack([bepi_r,mercury_r])
+#bepi_lon2=np.hstack([bepi_lon,mercury_lon])
+#bepi_lat2=np.hstack([bepi_lat,mercury_lat])
 
 
 #sns.set_style('darkgrid')
@@ -2313,7 +2356,7 @@ bepi_lat2=np.hstack([bepi_lat,mercury_lat])
 #plt.xlabel('AU')
 
 
-# In[24]:
+# In[148]:
 
 
 #get the speed in hourly resolution
@@ -2345,7 +2388,7 @@ print('psp maximum speed ',np.max(psp_highres_speed),' km/s at ',psp_highres_r[n
 
 # ### Make trajectory plots 
 
-# In[25]:
+# In[149]:
 
 
 #%matplotlib inline
@@ -2429,7 +2472,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[26]:
+# In[150]:
 
 
 #same thing for Solar Orbiter
@@ -2538,7 +2581,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
-# In[27]:
+# In[151]:
 
 
 t1all = time.time()
@@ -2547,6 +2590,390 @@ print(' ')
 print('---------------------------------- ')
 print('icme_rate_web.py takes ', np.round((t1all-t0all)/60,2), 'minutes')
     
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:

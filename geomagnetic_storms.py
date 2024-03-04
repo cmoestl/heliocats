@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[49]:
+# In[57]:
 
 
 import pickle
@@ -71,7 +71,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[34]:
+# In[58]:
 
 
 ##get omni dst data
@@ -123,7 +123,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[35]:
+# In[59]:
 
 
 years=np.arange(1995,2040) 
@@ -164,7 +164,7 @@ plt.legend(loc=3,fontsize=13)
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
 
-plt.figtext(0.10,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='left', fontsize=10)
+plt.figtext(0.10,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
 
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
@@ -179,7 +179,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 # ### Histograms
 
-# In[36]:
+# In[60]:
 
 
 #years23=np.arange(1996,2009)
@@ -215,7 +215,7 @@ o24=o[ind24]
 o25=o[ind25]
 
 
-# In[37]:
+# In[61]:
 
 
 #compare rising phases
@@ -270,7 +270,7 @@ plt.savefig(outputdir+plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
-# In[38]:
+# In[62]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -299,7 +299,7 @@ ax1.set_xlim(0, 20)
 plt.legend()
 
 
-# In[39]:
+# In[63]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -322,7 +322,7 @@ ax1.set_xlim(200, 800)
 plt.legend()
 
 
-# In[40]:
+# In[64]:
 
 
 years=np.arange(1955,2040,5) 
@@ -365,7 +365,7 @@ fsize=12
 plt.figtext(0.10,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
 
-plt.figtext(0.11,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='left', fontsize=10)
+plt.figtext(0.11,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
 newax = fig.add_axes([0.89,0.89,0.08,0.08], anchor='NE', zorder=1)
@@ -377,7 +377,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 
 
-# In[50]:
+# In[65]:
 
 
 years=np.arange(1995,2040) 
@@ -428,7 +428,7 @@ fsize=12
 plt.legend(loc=3,fontsize=13)
 plt.figtext(0.10,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
-plt.figtext(0.10,0.935,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='left', fontsize=10)
+plt.figtext(0.10,0.935,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
 newax = fig.add_axes([0.87,0.90,0.08,0.08], anchor='NE', zorder=1)
@@ -449,7 +449,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[51]:
+# In[66]:
 
 
 ###same in german
@@ -500,7 +500,7 @@ fsize=12
 plt.legend(loc=3,fontsize=13)
 plt.figtext(0.10,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
-plt.figtext(0.10,0.935,'letztes update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='left', fontsize=10)
+plt.figtext(0.10,0.935,'letztes update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
 newax = fig.add_axes([0.87,0.90,0.08,0.08], anchor='NE', zorder=1)
@@ -523,7 +523,7 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 
 # ## Newell Coupling
 
-# In[43]:
+# In[67]:
 
 
 ###add plot and add to txt file without propagation 
@@ -605,7 +605,7 @@ ax1.plot(norig.time,n_ncw,'-b',linewidth=2,label='4 hour weighted average')
 
 plt.figtext(0.07,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
-plt.figtext(0.07,0.94,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='left', fontsize=10)
+plt.figtext(0.07,0.94,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
 
 plt.ylabel('Nc')
 plt.legend(loc=1,fontsize=12)
@@ -625,7 +625,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 
 
-# In[44]:
+# In[68]:
 
 
 #save data for last few months as txt
@@ -654,14 +654,14 @@ data.dst=dst
 data=np.flip(data)
 
 #save latest year as file
-np.savetxt(outputdir+'geomagnetic_storm_latest.txt',data, delimiter=' ', fmt='%s %d', header='time [UT]   Dst [nT] / data from OMNI2, NOAA. ASWO, GeoSphere Austria  created '+str(datetime.datetime.utcnow())[0:16])
+np.savetxt(outputdir+'geomagnetic_storm_latest.txt',data, delimiter=' ', fmt='%s %d', header='time [UTC]   Dst [nT] / data from OMNI2, NOAA. ASWO, GeoSphere Austria  created '+str(datetime.datetime.utcnow())[0:16])
 print('saved as', outputdir+'geomagnetic_storm_latest.txt')
 
 print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[45]:
+# In[69]:
 
 
 print(' ')
@@ -673,7 +673,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[46]:
+# In[56]:
 
 
 #https://plotly.com/python/
