@@ -2,7 +2,7 @@ ICME CATALOGUE v2.2
 
 This is the HELIO4CAST interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 
-This is version 2.2, released 2024-February-27, updated 2024-February-27, doi: 10.6084/m9.figshare.6356420 
+This is version 2.2, released 2024-February-27, updated 2024-March-5, doi: 10.6084/m9.figshare.6356420 
 
 Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact chris.moestl@outlook.com for possible co-authorship. 
 References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017SW001614) and Moestl et al. 2020 (https://doi.org/10.3847/1538-4357/abb9a1).  
@@ -37,13 +37,12 @@ Parker Solar Probe: Added by us, tag: MOESTL
 BepiColombo: Added by us, tag: MOESTL 
 Wind: Nieves-Chinchilla et al. (2018), tags: NASA, MOESTL, WEILER 
 STEREO-A: Jian et al. (2018), tags: JIAN, MOESTL, WEILER 
-Juno: Davies et al. (2022), tags: DAVIES 
 STEREO-B: Jian et al. (2018), tags: JIAN 
+Juno: Davies et al. (2022), tags: DAVIES 
 VEX: Good et al. (2018), tag: SGOOD or MOESTL 
 MESSENGER: Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW, MOESTL 
 MAVEN: Made by us according to the method in the comments, tag: MOESTL 
-Ulysses: Added by us, tag: MOESTL 
-We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL or MOESTL_SALMAN in icmecat_id).
+Ulysses: Richardson et al. 2014, tag: RICHARDSON 
 
 References: 
 Nieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z 
@@ -51,15 +50,17 @@ Nieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z
 Jian, L. et al. (2018), https://doi.org/10.3847/1538-4357/aab189 
                         https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/ 
 Good, S. et al. (2018), https://doi.org/10.1007/s11207-015-0828-3 
-Davies, E. E., et al., (2022) https://iopscience.iop.org/article/10.3847/1538-4357/ac731a   
 Winslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 
+Davies, E. E. et al. (2021), https://doi.org/10.3847/1538-4357/ac2ccb 
+Davies, E. E., et al., (2022) https://iopscience.iop.org/article/10.3847/1538-4357/ac731a   
+Richardson, I. G. (2014), https://doi.org/10.1007/s11207-014-0540-8 
 
 
 Comments: 
 
 - Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. 
 
-- - The coordinate system for all magnetic field components is RTN, except for MESSENGER (SCEQ), VEX (SCEQ), and MAVEN (MSO).  
+- The coordinate system for all magnetic field components is RTN, except for MESSENGER (SCEQ), VEX (SCEQ), and MAVEN (MSO).  
 There are some legacy data files for the older spacecraft available in SCEQ. The difference to results for RTN in all parameters is usually very small.  
 
         Definition of SpaceCraft Equatorial Coordinates (SCEQ): 

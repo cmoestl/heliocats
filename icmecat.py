@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.2, 2024 February 27, updated 2024 February 27
+# latest release: version 2.2, 2024 February 27, updated 2024 March 5
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -39,10 +39,10 @@
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[37]:
+# In[1]:
 
 
-last_update='2024-February-27'
+last_update='2024-March-6'
 
 debug_mode=1
 
@@ -156,7 +156,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[38]:
+# In[2]:
 
 
 # the positions file is generated with positions.ipynb (Eva's version!), and the position from messenger is taken from an older file
@@ -235,7 +235,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[ ]:
+# In[3]:
 
 
 load_data=1
@@ -449,7 +449,7 @@ print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
 
 # ## (3) make ICMECAT 
 
-# In[ ]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -523,7 +523,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[ ]:
+# In[5]:
 
 
 ###### 3c make all plots if wanted
@@ -795,7 +795,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[ ]:
+# In[6]:
 
 
 ######## sort ICMECAT by date
@@ -841,24 +841,25 @@ Parker Solar Probe: Added by us, tag: MOESTL \n\
 BepiColombo: Added by us, tag: MOESTL \n\
 Wind: Nieves-Chinchilla et al. (2018), tags: NASA, MOESTL, WEILER \n\
 STEREO-A: Jian et al. (2018), tags: JIAN, MOESTL, WEILER \n\
-Juno: Davies et al. (2022), tags: DAVIES \n\
 STEREO-B: Jian et al. (2018), tags: JIAN \n\
+Juno: Davies et al. (2022), tags: DAVIES \n\
 VEX: Good et al. (2018), tag: SGOOD or MOESTL \n\
 MESSENGER: Good et al. (2018), Winslow et al. (2018), tags: SGOOD, WINSLOW, MOESTL \n\
 MAVEN: Made by us according to the method in the comments, tag: MOESTL \n\
-Ulysses: Added by us, tag: MOESTL \n\
-We have also added extra events at VEX, MESSENGER, Wind and STEREO-A (all tagged with MOESTL or MOESTL_SALMAN in icmecat_id).\n\n\
+Ulysses: Richardson et al. 2014, tag: RICHARDSON \n\n\
 References: \n\
 Nieves-Chinchilla, T. et al. (2018),  https://doi.org/10.1007/s11207-018-1247-z \n\
                                       https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php \n\
 Jian, L. et al. (2018), https://doi.org/10.3847/1538-4357/aab189 \n\
                         https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/ \n\
 Good, S. et al. (2018), https://doi.org/10.1007/s11207-015-0828-3 \n\
+Winslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 \n\
+Davies, E. E. et al. (2021), https://doi.org/10.3847/1538-4357/ac2ccb \n\
 Davies, E. E., et al., (2022) https://iopscience.iop.org/article/10.3847/1538-4357/ac731a   \n\
-Winslow, R. et al. (2015), https://doi.org/10.1002/2015JA021200 \n\n\n\
+Richardson, I. G. (2014), https://doi.org/10.1007/s11207-014-0540-8 \n\n\n\
 Comments: \n\n\
 - Spacecraft positions are given in Heliocentric Earth Equatorial Coordinates (HEEQ) coordinates. \n\n\
-- - The coordinate system for all magnetic field components is RTN, except for MESSENGER (SCEQ), VEX (SCEQ), and MAVEN (MSO).  \n\
+- The coordinate system for all magnetic field components is RTN, except for MESSENGER (SCEQ), VEX (SCEQ), and MAVEN (MSO).  \n\
 There are some legacy data files for the older spacecraft available in SCEQ. The difference to results for RTN in all parameters is usually very small.  \n\n\
         Definition of SpaceCraft Equatorial Coordinates (SCEQ): \n\
         Z is the solar rotation axis. \n\
@@ -960,7 +961,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[ ]:
+# In[7]:
 
 
 ########## python formats
@@ -1136,7 +1137,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[ ]:
+# In[8]:
 
 
 #load icmecat as pandas dataframe
@@ -1148,27 +1149,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v22_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[ ]:
+# In[9]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[ ]:
+# In[10]:
 
 
 ic_pandas
 
 
-# In[ ]:
+# In[11]:
 
 
 #
 ic_nprec
 
 
-# In[ ]:
+# In[12]:
 
 
 ic_nprec.icmecat_id
@@ -1176,7 +1177,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[ ]:
+# In[13]:
 
 
 ic=ic_pandas
@@ -1303,7 +1304,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[ ]:
+# In[14]:
 
 
 #markersize
@@ -1365,7 +1366,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 
-# In[ ]:
+# In[15]:
 
 
 #same for latitude
@@ -1373,7 +1374,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots near 1 AU
 
-# In[ ]:
+# In[16]:
 
 
 #make distribution plots
@@ -1439,7 +1440,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[ ]:
+# In[17]:
 
 
 t1all = time.time()
