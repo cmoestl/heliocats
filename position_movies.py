@@ -16,7 +16,7 @@
 # 
 # 
 
-# In[1]:
+# In[2]:
 
 
 import os
@@ -36,6 +36,7 @@ if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
 if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
 
 movie_filename='positions_punch_2025_2029'
+#movie_filename='positions_punch_2025_2029_zoom'
 #movie_filename='positions_2018_2030'
 
 #######################Time resolution
@@ -60,8 +61,12 @@ t_end   = datetime(2029,12,31)
 #t_end   = datetime(2030,11,19)
 
 
+#rmax=1.72
+rmax=1.1
 
-used=100
+
+#used=100
+used=8
 
 
 ###########################################################
@@ -121,7 +126,8 @@ print(data_path)
 os.system('jupyter nbconvert --to script position_movies.ipynb')    
 
 
-# In[7]:
+
+# In[3]:
 
 
 print('load positions')
@@ -129,7 +135,7 @@ print('load positions')
 print('done')
 
 
-# In[8]:
+# In[4]:
 
 
 def make_frame(k):
@@ -332,7 +338,7 @@ def make_frame(k):
     plt.rgrids((0.1,0.3,0.5,0.7,1.0,1.3),('0.10','0.3','0.5','0.7','1.0','1.3 AU'),angle=125, fontsize=fsize-3,alpha=0.5, color=backcolor)
 
     #ax.set_ylim(0, 1.75) #with Mars
-    ax.set_ylim(0, 1.72) #Mars at 1.66 max 
+    ax.set_ylim(0, rmax) #Mars at 1.66 max 
 
     #Sun
     ax.scatter(0,0,s=100,c='yellow',alpha=1, edgecolors='black', linewidth=0.3)
@@ -376,7 +382,7 @@ def make_frame(k):
 
 
 
-# In[11]:
+# In[ ]:
 
 
 plt.close('all')
@@ -462,7 +468,7 @@ theta=np.arange(0,np.deg2rad(180),0.01)
 
 # ### single processing
 
-# In[54]:
+# In[ ]:
 
 
 #print()
