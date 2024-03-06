@@ -16,7 +16,7 @@
 # 
 # 
 
-# In[2]:
+# In[ ]:
 
 
 import os
@@ -30,14 +30,17 @@ from datetime import datetime, timedelta
 ############################ directories
 
 animdirectory   = 'results/positions/movies_2024'
-outputdirectory = 'results/positions/movies_2024/frames'
+#outputdirectory = 'results/positions/movies_2024/frames'
+outputdirectory = 'results/positions/movies_2024/frames_zoom'
 
 if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
 if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
 
-movie_filename='positions_punch_2025_2029'
-#movie_filename='positions_punch_2025_2029_zoom'
+#movie_filename='positions_punch_2025_2029'
+movie_filename='positions_punch_2025_2029_zoom'
 #movie_filename='positions_2018_2030'
+
+
 
 #######################Time resolution
 
@@ -60,13 +63,19 @@ t_end   = datetime(2029,12,31)
 #t_start = datetime(2018,10,1)
 #t_end   = datetime(2030,11,19)
 
+########## plots
 
 #rmax=1.72
 rmax=1.1
 
 
-#used=100
-used=8
+dpisave=100 #for 1080p
+#dpisave=200 #for 4K
+
+##multiprocessing
+
+used=100
+#used=8
 
 
 ###########################################################
@@ -127,7 +136,7 @@ os.system('jupyter nbconvert --to script position_movies.ipynb')
 
 
 
-# In[3]:
+# In[6]:
 
 
 print('load positions')
@@ -135,7 +144,7 @@ print('load positions')
 print('done')
 
 
-# In[4]:
+# In[13]:
 
 
 def make_frame(k):
@@ -153,8 +162,8 @@ def make_frame(k):
         bepi_color='blue'
         solo_color='green'
 
-    if black: 
-        fig=plt.figure(1, figsize=(19.9,11), dpi=100, facecolor='black', edgecolor='black')
+    if black: #4k resolution        
+        fig=plt.figure(1, figsize=(19.2,10.8), dpi=dpisave, facecolor='black', edgecolor='black')
         ax = plt.subplot(111,projection='polar',facecolor='black') 
         #ax = plt.subplot2grid((5,2), (0, 0), rowspan=5, projection='polar')
         backcolor='white'
@@ -376,13 +385,13 @@ def make_frame(k):
     framestr = '%05i' % (k)  
     filename=outputdirectory+'/pos_anim_'+framestr+'.jpg'  
     if k==0: print(filename)
-    plt.savefig(filename,dpi=300,facecolor=fig.get_facecolor(), edgecolor='none')
+    plt.savefig(filename,dpi=dpisave,facecolor=fig.get_facecolor(), edgecolor='none')
     #plt.clf()
     plt.close('all')
 
 
 
-# In[ ]:
+# In[14]:
 
 
 plt.close('all')
@@ -468,7 +477,7 @@ theta=np.arange(0,np.deg2rad(180),0.01)
 
 # ### single processing
 
-# In[ ]:
+# In[15]:
 
 
 #print()
