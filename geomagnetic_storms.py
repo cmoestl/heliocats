@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[1]:
+# In[18]:
 
 
 import pickle
@@ -455,7 +455,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[ ]:
+# In[10]:
 
 
 ###same in german
@@ -529,7 +529,7 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 
 # ## Newell Coupling
 
-# In[ ]:
+# In[11]:
 
 
 ###add plot and add to txt file without propagation 
@@ -649,7 +649,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 # ### plotly
 
-# In[ ]:
+# In[12]:
 
 
 nrows=1
@@ -683,7 +683,7 @@ print('saved as', outputdir+'newell_coupling_latest.html')
 
 
 
-# In[ ]:
+# In[13]:
 
 
 #save data for last few months as txt
@@ -719,7 +719,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[ ]:
+# In[14]:
 
 
 print(' ')
@@ -731,7 +731,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[ ]:
+# In[15]:
 
 
 #https://plotly.com/python/
@@ -752,7 +752,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[ ]:
+# In[16]:
 
 
 if data_lookup > 0:
@@ -764,7 +764,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[ ]:
+# In[17]:
 
 
 if data_lookup > 0:
