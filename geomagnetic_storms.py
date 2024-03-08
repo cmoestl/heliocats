@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[22]:
+# In[1]:
 
 
 import pickle
@@ -455,7 +455,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[10]:
+# In[ ]:
 
 
 ###same in german
@@ -529,7 +529,7 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 
 # ## Newell Coupling
 
-# In[20]:
+# In[ ]:
 
 
 ###add plot and add to txt file without propagation 
@@ -620,7 +620,7 @@ plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=
 plt.figtext(0.07,0.94,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
 
 plt.ylabel('Nc')
-plt.legend(loc=1,fontsize=12)
+plt.legend(loc=2,fontsize=12)
 plt.title('Latest Newell coupling')
 ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=1))
 ax1.set_ylim(0,np.nanmax(n_ncw)+1)
@@ -649,7 +649,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 # ### plotly
 
-# In[21]:
+# In[ ]:
 
 
 nrows=1
@@ -683,7 +683,7 @@ print('saved as', outputdir+'newell_coupling_latest.html')
 
 
 
-# In[13]:
+# In[ ]:
 
 
 #save data for last few months as txt
@@ -719,7 +719,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[14]:
+# In[ ]:
 
 
 print(' ')
@@ -731,7 +731,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[15]:
+# In[ ]:
 
 
 #https://plotly.com/python/
@@ -752,7 +752,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[16]:
+# In[ ]:
 
 
 if data_lookup > 0:
@@ -764,7 +764,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[17]:
+# In[ ]:
 
 
 if data_lookup > 0:
