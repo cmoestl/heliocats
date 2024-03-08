@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[57]:
+# In[1]:
 
 
 import pickle
@@ -32,8 +32,14 @@ from numba import njit
 import importlib
 import copy
 import locale
+
+
+#Plotly imports
+from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import plotly.io as pio
 from plotly.offline import iplot, init_notebook_mode
+import plotly.express as px
 
 
 #import 
@@ -71,7 +77,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[58]:
+# In[2]:
 
 
 ##get omni dst data
@@ -123,7 +129,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[59]:
+# In[3]:
 
 
 years=np.arange(1995,2040) 
@@ -179,7 +185,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 # ### Histograms
 
-# In[60]:
+# In[4]:
 
 
 #years23=np.arange(1996,2009)
@@ -215,7 +221,7 @@ o24=o[ind24]
 o25=o[ind25]
 
 
-# In[61]:
+# In[5]:
 
 
 #compare rising phases
@@ -270,7 +276,7 @@ plt.savefig(outputdir+plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
-# In[62]:
+# In[6]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -299,7 +305,7 @@ ax1.set_xlim(0, 20)
 plt.legend()
 
 
-# In[63]:
+# In[7]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -322,7 +328,7 @@ ax1.set_xlim(200, 800)
 plt.legend()
 
 
-# In[64]:
+# In[8]:
 
 
 years=np.arange(1955,2040,5) 
@@ -377,7 +383,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 
 
-# In[65]:
+# In[9]:
 
 
 years=np.arange(1995,2040) 
@@ -449,7 +455,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[66]:
+# In[10]:
 
 
 ###same in german
@@ -523,12 +529,15 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 
 # ## Newell Coupling
 
-# In[67]:
+# In[20]:
 
 
 ###add plot and add to txt file without propagation 
 
 #get NOAA solar wind
+
+
+locale.setlocale(locale.LC_ALL,'en_US')
 
 filenoaa='noaa_rtsw_last_35files_now.p'
 [w,h]=pickle.load(open(data_path+filenoaa, "rb" ) )  
@@ -598,8 +607,11 @@ sns.set_style('darkgrid')
 
 fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
 
+ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+
+
 ax1.plot(w.time,w_nc,'-k',linewidth=0.5,alpha=0.3, label='minutes')
-ax1.plot(norig.time,n_nci,'or',linewidth=0.5,markersize=6, label='hourly average')
+ax1.plot(norig.time,n_nci,'or',linewidth=0.5,markersize=5, label='hourly average')
 ax1.plot(norig.time,n_ncw,'-b',linewidth=2,label='4 hour weighted average')
 
 
@@ -610,7 +622,17 @@ plt.figtext(0.07,0.94,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' U
 plt.ylabel('Nc')
 plt.legend(loc=1,fontsize=12)
 plt.title('Latest Newell coupling')
-ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=7),datetime.datetime.utcnow())
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=1))
+ax1.set_ylim(0,np.nanmax(n_ncw)+1)
+
+
+ax1.xaxis_date()
+ax1.xaxis.set_major_locator(mdates.DayLocator())
+myformat = mdates.DateFormatter('%b %d')
+ax1.xaxis.set_major_formatter(myformat)
+plt.xticks(rotation=35)
+
+ax1.set_xlabel(datetime.datetime.utcnow().year)
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
 newax = fig.add_axes([0.89,0.89,0.08,0.08], anchor='NE', zorder=1)
@@ -625,7 +647,43 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 
 
-# In[68]:
+# ### plotly
+
+# In[21]:
+
+
+nrows=1
+fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True)
+
+fig.add_trace(go.Scatter(x=norig.time, y=n_nci, name='Nc hourly', mode='markers',marker=dict(color='red', size=10)) )
+fig.add_trace(go.Scatter(x=norig.time, y=n_ncw, name='4h weighted average',line_color='blue') )
+
+fig.update_layout(title='Newell coupling', font=dict(size=20))
+fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=1)]) )
+
+
+fig.update_layout(
+    xaxis=dict(
+        title=dict(
+            text="time",
+            font=dict(size=20)  # Adjust the font size as needed
+        )
+    ),
+    yaxis=dict(
+        title=dict(
+            text="Nc",
+            font=dict(size=20)  # Adjust the font size as needed
+        )
+    )
+)
+              
+        
+fig.write_html(f''+outputdir+'/newell_coupling_latest.html')
+print('saved as', outputdir+'newell_coupling_latest.html')
+
+
+
+# In[13]:
 
 
 #save data for last few months as txt
@@ -661,7 +719,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[69]:
+# In[14]:
 
 
 print(' ')
@@ -673,7 +731,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[56]:
+# In[15]:
 
 
 #https://plotly.com/python/
@@ -694,7 +752,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[47]:
+# In[16]:
 
 
 if data_lookup > 0:
@@ -706,7 +764,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[48]:
+# In[17]:
 
 
 if data_lookup > 0:

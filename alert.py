@@ -13,7 +13,7 @@
 # Issues: 
 # 
 
-# In[1]:
+# In[20]:
 
 
 ######### CHECK: do you want to debug or actually send alerts
@@ -36,7 +36,7 @@ import os
 os.system('jupyter nbconvert --to script alert.ipynb')  
 
 
-# In[2]:
+# In[21]:
 
 
 import pickle
@@ -103,7 +103,7 @@ print(data_path)
 
 # ### get Dst data and plot
 
-# In[3]:
+# In[38]:
 
 
 #get current dst last 35 days
@@ -121,10 +121,16 @@ sns.set_context('talk')
 sns.set_style('darkgrid')
 fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
 
+ax1.axhline(y=threshold1, color='yellowgreen', linestyle='--',label='threshold 1')
+ax1.axhline(y=threshold2, color='orange', linestyle='--',label='threshold 2')
+ax1.axhline(y=-150, color='red', linestyle='-',label='')
+
+ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+
+
 ax1.plot(n.time,n.dst,color='royalblue',linewidth=1.5,alpha=1.0)
 ax1.plot(n.time,n.dst,'ok',markersize=5)
-ax1.axhline(y=threshold1, color='r', linestyle='--',label='threshold 1')
-ax1.axhline(y=threshold2, color='g', linestyle='--',label='threshold 2')
+
 #ax1.axhline(y=threshold3, color='b', linestyle='--',label='threshold 3')
 #ax1.axhline(y=threshold4, color='k', linestyle='--',label='threshold 4')
 
@@ -138,7 +144,7 @@ ax1.set_ylim(plotmin-50,plotmax+30)
 plt.ylabel('Dst [nT]')
 ax1.xaxis_date()
 
-ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=3))
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=1))
 #ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=5),datetime.datetime.utcnow()+datetime.timedelta(days=0))
 
 plt.title('Latest geomagnetic storms',fontsize=15)
@@ -148,7 +154,9 @@ ax1.xaxis_date()
 ax1.xaxis.set_major_locator(mdates.DayLocator())
 myformat = mdates.DateFormatter('%b %d')
 ax1.xaxis.set_major_formatter(myformat)
-plt.xticks(rotation=45)
+plt.xticks(rotation=35)
+
+ax1.set_xlabel(datetime.datetime.utcnow().year)
 
 fsize=12
 
@@ -170,7 +178,7 @@ plt.savefig('alerts/alert_dst.png',dpi=100)
 
 # ## plotly
 
-# In[11]:
+# In[23]:
 
 
 nrows=1
@@ -205,7 +213,7 @@ fig.write_html(f'alerts/alert_dst.html')
 
 # ### alert functions
 
-# In[5]:
+# In[24]:
 
 
 #with outlook as sender, gmail does not work
@@ -263,7 +271,7 @@ def send_alert_email(time,dstval):
   
 
 
-# In[6]:
+# In[25]:
 
 
 def send_telegram_message(time,dstval):
@@ -310,7 +318,7 @@ https://helioforecast.space/solarwind""".format(dstval, time_formatted)
 # ### alert for threshold 1
 # 
 
-# In[7]:
+# In[26]:
 
 
 # for testing
@@ -406,7 +414,7 @@ if n.dst[-1]<= threshold1:
 
 # ### Alert for threshold 2, same setup as for threshold 1
 
-# In[8]:
+# In[27]:
 
 
 # for testing
@@ -487,7 +495,7 @@ if n.dst[-1]<= threshold2:
         
 
 
-# In[9]:
+# In[28]:
 
 
 print(' ')
