@@ -13,14 +13,15 @@
 # Issues: 
 # 
 
-# In[73]:
+# In[1]:
 
 
 ######### CHECK: do you want to debug or actually send alerts
 
+#for debugging, set to False
 
 telegram=True
-#telegram=True
+#telegram=False
 
 if not telegram:
     print('no telegram alerts will be sent')
@@ -35,7 +36,7 @@ import os
 os.system('jupyter nbconvert --to script alert.ipynb')  
 
 
-# In[65]:
+# In[2]:
 
 
 import pickle
@@ -61,7 +62,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from plotly.offline import iplot, init_notebook_mode
 import plotly.express as px
-pio.renderers.default = 'browser'
+
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -102,7 +103,7 @@ print(data_path)
 
 # ### get Dst data and plot
 
-# In[66]:
+# In[3]:
 
 
 #get current dst last 35 days
@@ -169,7 +170,7 @@ plt.savefig('alerts/alert_dst.png',dpi=100)
 
 # ## plotly
 
-# In[67]:
+# In[11]:
 
 
 nrows=1
@@ -179,7 +180,7 @@ fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True)
 fig.add_trace(go.Scatter(x=n.time, y=n.dst, name='Dst', mode='markers',marker=dict(color='black', size=10)) )
 fig.add_trace(go.Scatter(x=n.time, y=n.dst, name='Dst',line_color='blue') )
 
-fig.update_layout(title='Dst index', font=dict(size=30))
+fig.update_layout(title='Dst index', font=dict(size=20))
 
 fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
 
@@ -188,24 +189,23 @@ fig.update_layout(
     xaxis=dict(
         title=dict(
             text="time",
-            font=dict(size=25)  # Adjust the font size as needed
+            font=dict(size=20)  # Adjust the font size as needed
         )
     ),
     yaxis=dict(
         title=dict(
             text="Dst [nT]",
-            font=dict(size=25)  # Adjust the font size as needed
+            font=dict(size=20)  # Adjust the font size as needed
         )
     )
 )
               
 fig.write_html(f'alerts/alert_dst.html')
-fig.show()
 
 
 # ### alert functions
 
-# In[68]:
+# In[5]:
 
 
 #with outlook as sender, gmail does not work
@@ -263,7 +263,7 @@ def send_alert_email(time,dstval):
   
 
 
-# In[69]:
+# In[6]:
 
 
 def send_telegram_message(time,dstval):
@@ -310,7 +310,7 @@ https://helioforecast.space/solarwind""".format(dstval, time_formatted)
 # ### alert for threshold 1
 # 
 
-# In[70]:
+# In[7]:
 
 
 # for testing
@@ -406,7 +406,7 @@ if n.dst[-1]<= threshold1:
 
 # ### Alert for threshold 2, same setup as for threshold 1
 
-# In[71]:
+# In[8]:
 
 
 # for testing
@@ -487,7 +487,7 @@ if n.dst[-1]<= threshold2:
         
 
 
-# In[72]:
+# In[9]:
 
 
 print(' ')
