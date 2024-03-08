@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[3]:
+# In[1]:
 
 
 #switches
@@ -336,7 +336,7 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[10]:
+# In[6]:
 
 
 debug_mode=1

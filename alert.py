@@ -7,20 +7,20 @@
 # 
 # run data_update_web_hf.pynb to produce a new Dst file
 # 
-# for testing, delete the alert_list.p file
+# for testing, delete the alert_list.p files
 # 
 # 
 # Issues: 
 # 
 
-# In[9]:
+# In[73]:
 
 
-######### !!!!!!! CHECK: do you want to debug or actually send alerts
+######### CHECK: do you want to debug or actually send alerts
 
 
-#telegram=False
 telegram=True
+#telegram=True
 
 if not telegram:
     print('no telegram alerts will be sent')
@@ -29,8 +29,13 @@ if not telegram:
 if telegram: 
     print('telegram alerts will be sent')
 
+    
+import os
 
-# In[10]:
+os.system('jupyter nbconvert --to script alert.ipynb')  
+
+
+# In[65]:
 
 
 import pickle
@@ -43,12 +48,20 @@ from datetime import timedelta
 import seaborn as sns
 import urllib
 import pandas as pd
-import os
 import sys
 import importlib
 import email
 import smtplib
 import requests
+
+
+#Plotly imports
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+import plotly.io as pio
+from plotly.offline import iplot, init_notebook_mode
+import plotly.express as px
+pio.renderers.default = 'browser'
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -85,12 +98,11 @@ if sys.platform =='darwin':
 
 print(data_path)
 
-os.system('jupyter nbconvert --to script alert.ipynb')  
 
 
 # ### get Dst data and plot
 
-# In[3]:
+# In[66]:
 
 
 #get current dst last 35 days
@@ -128,23 +140,72 @@ ax1.xaxis_date()
 ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=3))
 #ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=5),datetime.datetime.utcnow()+datetime.timedelta(days=0))
 
-#plt.title('Geomagnetische Stürme 2015-2023')
 plt.title('Latest geomagnetic storms',fontsize=15)
+
+
+ax1.xaxis_date()
+ax1.xaxis.set_major_locator(mdates.DayLocator())
+myformat = mdates.DateFormatter('%b %d')
+ax1.xaxis.set_major_formatter(myformat)
+plt.xticks(rotation=45)
 
 fsize=12
 
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.87,0.90,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
+
+
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-2, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-2, style='italic')
-plt.figtext(0.92,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='right', fontsize=15)
+plt.figtext(0.10,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UT', ha='left', fontsize=10)
 plt.tight_layout()
 
 
 plt.savefig('alerts/alert_dst.png',dpi=100)
 
 
+# ## plotly
+
+# In[67]:
+
+
+nrows=1
+fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True)
+
+
+fig.add_trace(go.Scatter(x=n.time, y=n.dst, name='Dst', mode='markers',marker=dict(color='black', size=10)) )
+fig.add_trace(go.Scatter(x=n.time, y=n.dst, name='Dst',line_color='blue') )
+
+fig.update_layout(title='Dst index', font=dict(size=30))
+
+fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
+
+
+fig.update_layout(
+    xaxis=dict(
+        title=dict(
+            text="time",
+            font=dict(size=25)  # Adjust the font size as needed
+        )
+    ),
+    yaxis=dict(
+        title=dict(
+            text="Dst [nT]",
+            font=dict(size=25)  # Adjust the font size as needed
+        )
+    )
+)
+              
+fig.write_html(f'alerts/alert_dst.html')
+fig.show()
+
+
 # ### alert functions
 
-# In[4]:
+# In[68]:
 
 
 #with outlook as sender, gmail does not work
@@ -202,7 +263,7 @@ def send_alert_email(time,dstval):
   
 
 
-# In[5]:
+# In[69]:
 
 
 def send_telegram_message(time,dstval):
@@ -249,7 +310,7 @@ https://helioforecast.space/solarwind""".format(dstval, time_formatted)
 # ### alert for threshold 1
 # 
 
-# In[6]:
+# In[70]:
 
 
 # for testing
@@ -345,7 +406,7 @@ if n.dst[-1]<= threshold1:
 
 # ### Alert for threshold 2, same setup as for threshold 1
 
-# In[7]:
+# In[71]:
 
 
 # for testing
@@ -426,7 +487,7 @@ if n.dst[-1]<= threshold2:
         
 
 
-# In[8]:
+# In[72]:
 
 
 print(' ')
