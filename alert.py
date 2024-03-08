@@ -13,7 +13,7 @@
 # Issues: 
 # 
 
-# In[20]:
+# In[39]:
 
 
 ######### CHECK: do you want to debug or actually send alerts
