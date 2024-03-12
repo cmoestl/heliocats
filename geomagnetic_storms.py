@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[1]:
+# In[48]:
 
 
 import pickle
@@ -77,7 +77,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[2]:
+# In[49]:
 
 
 ##get omni dst data
@@ -129,7 +129,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[3]:
+# In[34]:
 
 
 years=np.arange(1995,2040) 
@@ -185,7 +185,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 # ### Histograms
 
-# In[4]:
+# In[35]:
 
 
 #years23=np.arange(1996,2009)
@@ -221,7 +221,7 @@ o24=o[ind24]
 o25=o[ind25]
 
 
-# In[5]:
+# In[36]:
 
 
 #compare rising phases
@@ -276,7 +276,7 @@ plt.savefig(outputdir+plotfile,dpi=100)
 print('saved as ',plotfile)
 
 
-# In[6]:
+# In[37]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -305,7 +305,7 @@ ax1.set_xlim(0, 20)
 plt.legend()
 
 
-# In[7]:
+# In[38]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -328,7 +328,7 @@ ax1.set_xlim(200, 800)
 plt.legend()
 
 
-# In[8]:
+# In[39]:
 
 
 years=np.arange(1955,2040,5) 
@@ -383,7 +383,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 
 
-# In[9]:
+# In[40]:
 
 
 years=np.arange(1995,2040) 
@@ -455,7 +455,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[10]:
+# In[41]:
 
 
 ###same in german
@@ -529,7 +529,7 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 
 # ## Newell Coupling
 
-# In[11]:
+# In[56]:
 
 
 ###add plot and add to txt file without propagation 
@@ -607,7 +607,12 @@ sns.set_style('darkgrid')
 
 fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
 
-ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+
+ax1.axhline(y=3, color='yellowgreen', linestyle='--',alpha=0.5)
+ax1.axhline(y=4, color='orange', linestyle='--',alpha=0.5)
+ax1.axhline(y=5, color='red', linestyle='--',alpha=0.5)
+
+ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.2, linewidth=1.0)
 
 
 ax1.plot(w.time,w_nc,'-k',linewidth=0.5,alpha=0.3, label='minutes')
@@ -623,7 +628,13 @@ plt.ylabel('Nc')
 plt.legend(loc=2,fontsize=12)
 plt.title('Latest Newell coupling')
 ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=1))
-ax1.set_ylim(0,np.nanmax(n_ncw)+1)
+
+
+#minimum 5 for y axis
+if np.nanmax(n_ncw) < 6.5:
+    ax1.set_ylim(0,6.5)
+else:
+    ax1.set_ylim(0,np.nanmax(n_ncw)+1)
 
 
 ax1.xaxis_date()
@@ -639,6 +650,8 @@ newax = fig.add_axes([0.89,0.89,0.08,0.08], anchor='NE', zorder=1)
 newax.imshow(logo)
 newax.axis('off')
 
+
+
 plt.tight_layout()
 
 plt.savefig(outputdir+'newell_coupling_latest.png',dpi=100)
@@ -649,14 +662,24 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 # ### plotly
 
-# In[12]:
+# In[47]:
 
+
+#plot the last 30 days
+
+days_going_back=30
+startind=np.where(norig.time > datetime.datetime.utcnow()-datetime.timedelta(days=days_going_back))[0][0]  
+norig=norig[startind:]    
+n_ncw=n_ncw[startind:]
 
 nrows=1
 fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True)
 
-fig.add_trace(go.Scatter(x=norig.time, y=n_nci, name='Nc hourly', mode='markers',marker=dict(color='red', size=10)) )
+#fig.add_trace(go.Scatter(x=norig.time, y=n_nci, name='Nc hourly', mode='markers',marker=dict(color='red', size=10)) )
+fig.add_trace(go.Scatter(x=norig.time, y=n_ncw, name='4h weighted average',mode='markers',marker=dict(color='black', size=8)) )
 fig.add_trace(go.Scatter(x=norig.time, y=n_ncw, name='4h weighted average',line_color='blue') )
+
+
 
 fig.update_layout(title='Newell coupling', font=dict(size=20))
 fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=1)]) )
@@ -683,7 +706,7 @@ print('saved as', outputdir+'newell_coupling_latest.html')
 
 
 
-# In[13]:
+# In[44]:
 
 
 #save data for last few months as txt
@@ -719,7 +742,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[14]:
+# In[30]:
 
 
 print(' ')
@@ -731,7 +754,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[15]:
+# In[31]:
 
 
 #https://plotly.com/python/
