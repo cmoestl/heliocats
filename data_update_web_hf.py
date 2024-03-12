@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[1]:
+# In[25]:
 
 
 #switches
@@ -81,7 +81,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[11]:
 
 
 if sys.platform == 'linux': 
@@ -133,32 +133,38 @@ if os.path.isdir(noaa_path) == False: os.mkdir(noaa_path)
 if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 
-# ### positions and SDO plot
+# ### positions, Xray and SDO plots
 
-# In[3]:
+# In[24]:
 
 
-#if debug_mode > 0: 
-importlib.reload(hd) 
-importlib.reload(hp) 
+if debug_mode > 0: 
+    importlib.reload(hd) 
+    importlib.reload(hp) 
 
+print(' ')
+print('------ get Xray data and plot ')
+print('NOAA path',noaa_path,'    Data path',data_path)
+
+xraypickle=str('noaa_xray_last_7days_now.p')
+hd.get_noaa_xray(noaa_path,data_path,xraypickle)
+hp.plot_noaa_xray(data_path+xraypickle,plot_path)
+
+
+# In[4]:
+
+
+if debug_mode > 0: 
+    importlib.reload(hd) 
+    importlib.reload(hp) 
 
 t0 = time.time()
+
 print(' ')
 print('------ POSITIONS ')
 
 # spacecraft positions image, uses positions file  /results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p'
 hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
-
-
-#get NOAA xray file and plot on SDO map
-xray='https://services.swpc.noaa.gov/json/goes/primary/xrays-7-day.json'
-
-#try: 
-#    urllib.request.urlretrieve(xray, noaa_path+'xray/xrays-7-day_'+datestr+'.json')
-#    print(noaa_path+'xray/xray-7-day_'+datestr+'.json')
-#except urllib.error.URLError as e:
-#    print(' ', xray,' ',e.reason)
 
 
 

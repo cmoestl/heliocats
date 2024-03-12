@@ -66,8 +66,277 @@ from bs4 import BeautifulSoup
 
 
 
+def get_noaa_xray(noaa_path,data_path,xraypickle):
+
+    #xray data
+    xray='https://services.swpc.noaa.gov/json/goes/primary/xrays-7-day.json'
+
+    #flare list
+    #https://services.swpc.noaa.gov/json/goes/primary/xray-flares-7-day.json
 
 
+    print('download NOAA Xrays')
+    datestr=str(datetime.datetime.utcnow().strftime("%Y-%m-%d"))
+    print(datestr+' UTC')
+
+    try: 
+        urllib.request.urlretrieve(xray, noaa_path+'xray/xrays-7-day_'+datestr+'.json')
+        print(noaa_path+'xray/xray-7-day_'+datestr+'.json')
+        success=True
+
+    except urllib.error.URLError as e:
+        print(' ', xray,' ',e.reason)
+
+    if success: 
+        #convert json to pickle
+
+        xrayfile=open(noaa_path+'xray/xrays-7-day_'+datestr+'.json','r')
+
+        xd = json.loads(xrayfile.read())
+
+        #this is in the time data    
+        #{'time_tag': '2024-03-05T11:43:00Z',
+        #'satellite': 16,
+        #'flux': 1.2437139957910404e-06,
+        #'observed_flux': 1.259415967069799e-06,
+        #'electron_correction': 1.5701953515190326e-08,
+        #'electron_contaminaton': False,
+        #'energy': '0.1-0.8nm'},
+
+        #energy 1 0.1-0.8nm indices
+        xdc1=np.zeros(len(xd),dtype=[('time',object),('flux', float)]) 
+        xdc1=xdc1.view(np.recarray)   
+
+        #energy 2 0.05-0.4nm indices
+        xdc2=np.zeros(len(xd),dtype=[('time',object),('flux', float)]) 
+        xdc2=xdc2.view(np.recarray)   
+
+        #indices for energy 1    
+        e1_ind=np.arange(1,len(xd),2)
+
+        #indices for energy 2
+        e2_ind=np.arange(0,len(xd),2)
+
+        for i in e1_ind:        
+            xdc1[i].time=parse_time(xd[i]['time_tag']).datetime
+            xdc1[i].flux=xd[i]['flux'] 
+
+        #get all data points from flux, and use those indices to remove the 0s from time array
+        datind=np.where(xdc1.flux>1e-7)[0]
+        xdc1=xdc1[datind]
+
+        for i in e2_ind:
+            xdc2[i].time=parse_time(xd[i]['time_tag']).datetime
+            xdc2[i].flux=xd[i]['flux']         
+
+        datind=np.where(xdc2.flux>1e-9)
+        xdc2=xdc2[datind]
+        
+       
+        pickle.dump([xdc1,xdc2], open(data_path+xraypickle, "wb"))
+        print('saved as',data_path+xraypickle,'pickle')    
+
+
+
+        
+def plot_noaa_xray(noaa_path):
+
+    print('plot xray')
+
+ 
+
+def get_sdo_realtime_image(data_path_sun):
+    """Downloads latest SDO image."""
+
+    get_193_file=False
+    get_193_date=False
+    
+
+    #-------------------------- AIA
+
+  
+    
+    
+    
+    ########### 193 Image with timestamp
+    
+    sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193.jpg'
+    #sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193pfss.jpg'
+    
+   
+    
+    #download the file
+    try: 
+        urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_0193.jpg')
+        print('saved ',data_path_sun+'latest_1024_0193.jpg')       
+        get_193_file=True
+
+    except urllib.error.URLError as e:
+        print('Failed downloading 193 image', sdo_latest,' ',e)
+
+ 
+    #get the file creation date
+    sdo_date= 'https://sdo.gsfc.nasa.gov/assets/img/latest/times0193.txt'
+     
+    try: 
+        with urllib.request.urlopen(sdo_date) as response:
+            file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8
+        date1=file_contents[6:14]
+        time1=file_contents[15:]
+
+        #date1=file_contents[6:10]
+        timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
+        print(timestamp)
+        get_193_date=True
+        
+    except urllib.error.URLError as e:        
+        print('Failed downloading 193 date file', sdo_latest,' ',e)
+
+    #if the date file and the image file could both be downloaded add the timestamp
+    if get_193_date and get_193_file:
+        image_path = data_path_sun+'latest_1024_0193.jpg'
+        image = mpimg.imread(image_path)
+
+
+        font_size = 24
+        text_color = 'white'
+        text_bg_color = 'black'
+
+        # Create a figure and axes
+        fig=plt.figure(figsize=(1024 / 80,1024 / 80), dpi=80)
+        ax = fig.add_subplot(111)
+
+        # Display the image
+        ax.imshow(image)
+
+        # Add the timestamp as text
+        ax.text(20, 50, timestamp, fontsize=font_size, color=text_color)
+        ax.text(770, 50, 'SDO/AIA 193', fontsize=font_size, color=text_color)
+
+        # Remove the axis ticks and labels
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.axis('off')
+
+
+        # Save the modified image
+
+        output_path = data_path_sun+'latest_1024_0193.jpg'
+        plt.savefig(output_path,bbox_inches='tight', pad_inches=0,dpi=110)
+
+        # Show the modified image
+        #plt.show()
+
+    
+    
+    
+    #--------------- HMI
+    
+    get_HMI_file=False
+    get_HMI_date=False
+    
+    sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_HMIB.jpg'        
+    try: 
+        urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_HMIB.jpg')
+        get_HMI_file=True
+    except urllib.error.URLError as e:
+        print('Failed downloading ', sdo_latest,' ',e)
+        
+    print('saved ',data_path_sun+'latest_1024_HMIB.jpg')    
+
+    
+ 
+    #get the file creation date
+    sdo_date= 'https://sdo.gsfc.nasa.gov/assets/img/latest/timesHMIB.txt'
+     
+    try: 
+        with urllib.request.urlopen(sdo_date) as response:
+            file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8
+        date1=file_contents[6:14]
+        time1=file_contents[15:]
+
+        #date1=file_contents[6:10]
+        timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
+        print(timestamp)
+        get_HMI_date=True
+        
+    except urllib.error.URLError as e:        
+        print('Failed downloading 193 date file', sdo_latest,' ',e)
+
+    #if the date file and the image file could both be downloaded add the timestamp
+    if get_HMI_date and get_HMI_file:
+        image_path = data_path_sun+'latest_1024_HMIB.jpg'
+        image = mpimg.imread(image_path)
+
+
+        font_size = 24
+        text_color = 'white'
+        text_bg_color = 'black'
+
+        # Create a figure and axes
+        fig=plt.figure(figsize=(1024 / 80,1024 / 80), dpi=80)
+        ax = fig.add_subplot(111)
+
+        # Display the image
+        ax.imshow(image,cmap='gray')
+
+        # Add the timestamp as text
+        ax.text(20, 50, timestamp, fontsize=font_size, color=text_color)
+        ax.text(770, 50, 'SDO/HMI', fontsize=font_size, color=text_color)
+
+        # Remove the axis ticks and labels
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.axis('off')
+
+
+        # Save the modified image
+
+        output_path = data_path_sun+'latest_1024_HMIB.jpg'
+        plt.savefig(output_path,bbox_inches='tight', pad_inches=0,dpi=110)
+
+        # Show the modified image
+        #plt.show()
+        
+        
+        
+        
+        #download 2 more HMI files
+        
+        hmicc='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_HMIIC.jpg'
+
+        try: 
+            urllib.request.urlretrieve(hmicc,data_path_sun+'latest_1024_HMIIC.jpg')
+            print('saved ',data_path_sun+'latest_1024_HMIIC.jpg')        
+
+        except urllib.error.URLError as e:
+            print('Failed downloading HMICC image', hmic,' ',e)
+
+        hmipfss='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_HMIBpfss.jpg'
+        
+        try: 
+            urllib.request.urlretrieve(hmipfss,data_path_sun+'latest_1024_HMIBpfss.jpg')
+            print('saved ',data_path_sun+'latest_1024_HMIBpfss.jpg')        
+
+        except urllib.error.URLError as e:
+            print('Failed downloading HMIBpfss image', sdo_latest,' ',e)
+
+
+        
+    
+        
+    '''    
+    #convert to png
+    #check if ffmpeg is available locally in the folder or systemwide
+    if os.path.isfile('ffmpeg'):
+        os.system('./ffmpeg -i latest_1024_0193.jpg latest_1024_0193.png -loglevel quiet -y')
+        ffmpeg_avail=True
+        logger.info('downloaded SDO latest_1024_0193.jpg converted to png')
+        os.system('rm latest_1024_0193.jpg')
+    else:
+        os.system('ffmpeg -i latest_1024_0193.jpg latest_1024_0193.png -loglevel quiet -y')
+        os.system('rm latest_1024_0193.jpg')
+    '''    
 
 
 
@@ -122,6 +391,23 @@ def cart2sphere_emma(x,y,z):
     theta = np.arctan2(z,np.sqrt(x**2+ y**2)) * 360 / 2 / np.pi
     phi = np.arctan2(y,x) * 360 / 2 / np.pi                   
     return (r, theta, phi)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2502,20 +2788,6 @@ def create_stereoa_pkl(start_timestamp,end_timestamp,stereoa_file,stereoa_path,k
 ###################################################################
 
 
-def get_noaa_xray(xfile):
-    
-    #dm = json.loads(dstfile.read())
-    
-    
-    #make array for 7 days
-    
-    #dst=np.zeros(len(dm)-1,dtype=[('time',object),('dst', float)]) 
-    #dst=dst.view(np.recarray)    
-
-    #dst.time = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S")  for x in dm[1:]]
-    #dst.dst=[x[1] for x in dm[1:]]
-    x=0
-    return x
 
 
 def get_noaa_ephem(ephemfile):
@@ -5277,215 +5549,6 @@ def save_all_stereob_science_data(path,file,sceq):
     
     
     
- 
-
-def get_sdo_realtime_image(data_path_sun):
-    """Downloads latest SDO image."""
-
-    get_193_file=False
-    get_193_date=False
-    
-
-    ##-------------------------- AIA
-    sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193.jpg'
-    #sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0193pfss.jpg'
-    
-    #download the file
-    try: 
-        urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_0193.jpg')
-        print('saved ',data_path_sun+'latest_1024_0193.jpg')       
-        get_193_file=True
-
-    except urllib.error.URLError as e:
-        print('Failed downloading 193 image', sdo_latest,' ',e)
-
- 
-    #get the file creation date
-    sdo_date= 'https://sdo.gsfc.nasa.gov/assets/img/latest/times0193.txt'
-     
-    try: 
-        with urllib.request.urlopen(sdo_date) as response:
-            file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8
-        date1=file_contents[6:14]
-        time1=file_contents[15:]
-
-        #date1=file_contents[6:10]
-        timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
-        print(timestamp)
-        get_193_date=True
-        
-    except urllib.error.URLError as e:        
-        print('Failed downloading 193 date file', sdo_latest,' ',e)
-
-    #if the date file and the image file could both be downloaded add the timestamp
-    if get_193_date and get_193_file:
-        image_path = data_path_sun+'latest_1024_0193.jpg'
-        image = mpimg.imread(image_path)
-
-
-        font_size = 24
-        text_color = 'white'
-        text_bg_color = 'black'
-
-        # Create a figure and axes
-        fig=plt.figure(figsize=(1024 / 80,1024 / 80), dpi=80)
-        ax = fig.add_subplot(111)
-
-        # Display the image
-        ax.imshow(image)
-
-        # Add the timestamp as text
-        ax.text(20, 50, timestamp, fontsize=font_size, color=text_color)
-        ax.text(770, 50, 'SDO/AIA 193', fontsize=font_size, color=text_color)
-
-        # Remove the axis ticks and labels
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.axis('off')
-
-
-        # Save the modified image
-
-        output_path = data_path_sun+'latest_1024_0193.jpg'
-        plt.savefig(output_path,bbox_inches='tight', pad_inches=0,dpi=110)
-
-        # Show the modified image
-        plt.show()
-
-    
-    
-    
-    #--------------- HMI
-    
-    get_HMI_file=False
-    get_HMI_date=False
-    
-    sdo_latest='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_HMIB.jpg'        
-    try: 
-        urllib.request.urlretrieve(sdo_latest,data_path_sun+'latest_1024_HMIB.jpg')
-        get_HMI_file=True
-    except urllib.error.URLError as e:
-        print('Failed downloading ', sdo_latest,' ',e)
-        
-    print('saved ',data_path_sun+'latest_1024_HMIB.jpg')    
-
-    
- 
-    #get the file creation date
-    sdo_date= 'https://sdo.gsfc.nasa.gov/assets/img/latest/timesHMIB.txt'
-     
-    try: 
-        with urllib.request.urlopen(sdo_date) as response:
-            file_contents = response.read().decode('utf-8')  # Decode the bytes to a string using UTF-8
-        date1=file_contents[6:14]
-        time1=file_contents[15:]
-
-        #date1=file_contents[6:10]
-        timestamp=date1[0:4]+'-'+date1[4:6]+'-'+date1[6:8]+' '+time1[0:2]+':'+time1[2:4]+ ' UT'
-        print(timestamp)
-        get_HMI_date=True
-        
-    except urllib.error.URLError as e:        
-        print('Failed downloading 193 date file', sdo_latest,' ',e)
-
-    #if the date file and the image file could both be downloaded add the timestamp
-    if get_HMI_date and get_HMI_file:
-        image_path = data_path_sun+'latest_1024_HMIB.jpg'
-        image = mpimg.imread(image_path)
-
-
-        font_size = 24
-        text_color = 'white'
-        text_bg_color = 'black'
-
-        # Create a figure and axes
-        fig=plt.figure(figsize=(1024 / 80,1024 / 80), dpi=80)
-        ax = fig.add_subplot(111)
-
-        # Display the image
-        ax.imshow(image,cmap='gray')
-
-        # Add the timestamp as text
-        ax.text(20, 50, timestamp, fontsize=font_size, color=text_color)
-        ax.text(770, 50, 'SDO/HMI', fontsize=font_size, color=text_color)
-
-        # Remove the axis ticks and labels
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.axis('off')
-
-
-        # Save the modified image
-
-        output_path = data_path_sun+'latest_1024_HMIB.jpg'
-        plt.savefig(output_path,bbox_inches='tight', pad_inches=0,dpi=110)
-
-        # Show the modified image
-        plt.show()
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-        
-    '''    
-    #convert to png
-    #check if ffmpeg is available locally in the folder or systemwide
-    if os.path.isfile('ffmpeg'):
-        os.system('./ffmpeg -i latest_1024_0193.jpg latest_1024_0193.png -loglevel quiet -y')
-        ffmpeg_avail=True
-        logger.info('downloaded SDO latest_1024_0193.jpg converted to png')
-        os.system('rm latest_1024_0193.jpg')
-    else:
-        os.system('ffmpeg -i latest_1024_0193.jpg latest_1024_0193.png -loglevel quiet -y')
-        os.system('rm latest_1024_0193.jpg')
-    '''    
-
-
     
 
 

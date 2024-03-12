@@ -30,6 +30,14 @@ import heliopy.data.spice as spicedata
 import heliopy.spice as spice
 
 
+#Plotly imports
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+import plotly.io as pio
+from plotly.offline import iplot, init_notebook_mode
+import plotly.express as px
+
+
 
 #import heliosat   #not compatible with astrospice, problems with spiceypy in astrospice.generate
 #from config import data_path
@@ -66,6 +74,122 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ####################################### 
+
+
+
+
+
+def plot_noaa_xray(xrayfile,plot_path): 
+
+    
+    [xdc1,xdc2]=pickle.load(open(xrayfile, 'rb'))  
+    
+    sns.set_style('darkgrid')
+    sns.set_context('paper')
+
+    fig=plt.figure(3,figsize=(12,6),dpi=100)
+    ax=plt.subplot(111)
+    ax.set_yscale('log')
+    ax.set_ylim(1e-9,1e-2)
+    ax.plot(xdc1.time,xdc1.flux,'-r')      
+    ax.plot(xdc2.time,xdc2.flux,'-b')      
+
+    ax.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+
+
+    #plt.title('Geomagnetische Stürme 2015-2023')
+    plt.title('GOES X-Ray flux from NOAA',fontsize=16)
+
+    fsize=12
+    plt.legend(loc=3,fontsize=13)
+    plt.figtext(0.02,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+    plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
+    plt.figtext(0.09,0.95,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
+
+
+    ax.xaxis_date()
+    ax.xaxis.set_major_locator(mdates.DayLocator())
+    myformat = mdates.DateFormatter('%b %d')
+    ax.xaxis.set_major_formatter(myformat)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+
+    ax.set_xlabel(str(datetime.datetime.utcnow().year)+' UTC',fontsize=15)
+    ax.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=6),datetime.datetime.utcnow()+datetime.timedelta(days=0.5))
+
+    ax.set_ylabel('Watts m$^{-2}$',fontsize=15)
+
+
+    logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+    newax = fig.add_axes([0.89,0.91,0.08,0.08], anchor='NE', zorder=1)
+    newax.imshow(logo)
+    newax.axis('off')
+
+    ax.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
+    ax.tick_params(which='both', bottom=True, color='gray')
+
+    plt.tight_layout()
+
+    ax.annotate('X',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-4),xycoords='data',fontsize=15,ha='left')
+    ax.annotate('M',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-5),xycoords='data',fontsize=15,ha='left')
+    ax.annotate('C',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-6),xycoords='data',fontsize=15,ha='left')
+    ax.annotate('B',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-7),xycoords='data',fontsize=15,ha='left')
+    ax.annotate('A',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-8),xycoords='data',fontsize=15,ha='left')
+
+    
+    plotfile=plot_path+'latest_xray.jpg'
+    plt.savefig(plotfile, dpi=200)
+    print('saved as ',plotfile)
+    
+    
+    
+    ## make plotly html plot
+    
+    nrows=1
+    fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True)
+
+    fig.add_trace(go.Scatter(x=xdc1.time, y=xdc1.flux, name='GOES 16 long', line_color='red' ) )
+    fig.add_trace(go.Scatter(x=xdc2.time, y=xdc2.flux, name='GOEs 16 short',line_color='blue') )
+
+    fig.update_layout(title='GOES Xrays', font=dict(size=20))
+    fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=6),datetime.datetime.utcnow()+datetime.timedelta(days=0.5)]) )
+
+
+    fig.update_layout(
+        xaxis=dict(
+            title=dict(
+                text="time",
+                font=dict(size=20)  # Adjust the font size as needed
+            )
+        ),
+        yaxis=dict(
+            title=dict(
+                text="Watts m-2",
+                font=dict(size=20)  # Adjust the font size as needed
+            )
+        )
+    )
+    # Set the x-axis and y-axis type to log scale
+    fig.update_layout(yaxis_type='log')
+    fig.update_layout(yaxis_tickvals=[1e-9, 1e-8, 1e-7,1e-6,1e-5,1e-4,1e-3,1e-2], yaxis_ticktext=["10-^9", "10-^8", "10-^7", "10-^6", "10-^5", "10-^4", "10-^3", "10-^2"])
+    #fig.update_layout(yaxis=dict(range=[1e-9,1e-2]) )
+
+
+
+    plotfile=plot_path+'latest_xray.html'
+    fig.write_html(plotfile)
+    print('saved as ',plotfile)
+
+    
+
+
+
+
+
+
+
+
+
 
 
 
