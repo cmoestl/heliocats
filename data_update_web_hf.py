@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[25]:
+# In[1]:
 
 
 #switches
@@ -81,7 +81,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[11]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -135,7 +135,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions, Xray and SDO plots
 
-# In[24]:
+# In[3]:
 
 
 if debug_mode > 0: 
@@ -180,7 +180,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind 
 
-# In[4]:
+# In[5]:
 
 
 if debug_mode > 0: 
@@ -287,7 +287,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[5]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -342,21 +342,20 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[6]:
+# In[10]:
 
 
-debug_mode=1
 if debug_mode > 0:     
     importlib.reload(hd) 
     importlib.reload(hp) 
 
-start=datetime.datetime.utcnow() - datetime.timedelta(days=3)
+start=datetime.datetime.utcnow() - datetime.timedelta(days=4)
 end=datetime.datetime.utcnow()
 hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A_beacon',plot_path+'combined/',now=True)
     
 
 
-# In[7]:
+# In[8]:
 
 
 t1all = time.time()

@@ -367,149 +367,216 @@ def plot_insitu_update(sc, start, end, sc_label, path, **kwargs):
         
         
         
-def plot_insitu_update_stereoa_noaa(sc1, sc2, start, end, sc_label, path, **kwargs):
-     '''
-     sc = data
+def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **kwargs):
+    '''
+    sc = data
+
+    '''
+
+    #cut out data starting with start time that will be plotted, for better scaling
+    startind=np.where(sc1in.time > start)[0][0]  
+    sc1=sc1in[startind:]    
+
+    startind=np.where(sc2in.time > start)[0][0]  
+    sc2=sc2in[startind:]    
+
+
+    sns.set_style('darkgrid')
+    sns.set_context('paper')
+
+    fsize=10
+
+    #take maximum from both arrays
+    bscale=np.nanmax(np.hstack((sc1.bt, sc2.bt))) +8
+    vscale=np.nanmax(np.hstack((sc1.vt, sc2.vt)))
+
+
+    fig=plt.figure(figsize=(9,6), dpi=150)
+
+    #plt.suptitle(sc_label+' data       start: '+start.strftime("%Y-%b-%d %H:%M UT")+'       end: '+end.strftime("%Y-%b-%d %H:%M UT"),fontsize=fsize+2)
+
+    plt.suptitle('NOAA RTSW and STEREO-A beacon data', fontsize=fsize+2)
+
+    ax1 = plt.subplot(311) 
+
+    ax1.plot_date(sc1.time,sc1.bx,'-r',label='Bx',linewidth=0.8)
+    ax1.plot_date(sc1.time,sc1.by,'-g',label='By',linewidth=0.8)
+    ax1.plot_date(sc1.time,sc1.bz,'-b',label='Bz',linewidth=0.8)
+    ax1.plot_date(sc1.time,sc1.bt,'-k',label='Btotal',lw=0.8)
+    plt.ylabel('B [nT] GSM',fontsize=fsize)
+    plt.legend(loc=3,ncol=4,fontsize=fsize-2)
+    ax1.set_xlim(start,end+datetime.timedelta(days=0.4))
+    ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
+    ax1.tick_params(which='both', bottom=True, color='gray')
+    ax1.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
+    ax1.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
+    ax1.set_ylim((-bscale,bscale))
+    plt.setp(ax1.get_xticklabels(), visible=False)
+    ax1.text(sc2.time[40], bscale, 'NOAA L1 real time solar wind', fontsize=fsize, color='black')
+    pos_string='R '+str(np.round(sc1.r[-1],3))+' AU   '+ 'lon '+str(np.round(sc1.lon[-1],2))+'  ' + 'lat '+str(np.round(sc1.lat[-1],2))+'' 
+    ax1.text(sc1.time[-1350], bscale, pos_string, fontsize=fsize, color='black')
+
+    #ax1.text(sc1.time[-600], bscale-5, 'east   north', fontsize=fsize-2, color='black')
+    #ax1.text(sc1.time[-600], -bscale+3, 'west   south', fontsize=fsize-2, color='black')
+
+
+    ax1.text(0.88,0.89,'east', fontsize=fsize-2, color='green',ha='center', va='center', transform=fig.transFigure)
+    ax1.text(0.88,0.68,'west', fontsize=fsize-2, color='green',ha='center', va='center', transform=fig.transFigure)
+
+    ax1.text(0.92,0.89,'north', fontsize=fsize-2, color='blue',ha='center', va='center', transform=fig.transFigure)
+    ax1.text(0.92,0.68,'south', fontsize=fsize-2, color='blue',ha='center', va='center', transform=fig.transFigure)
+
+
+
+    ax2 = plt.subplot(312,sharex=ax1)  
+    ax2.plot_date(sc2.time,sc2.bx,'-r',label='Bx',linewidth=0.8)
+    ax2.plot_date(sc2.time,sc2.by,'-g',label='By',linewidth=0.8)
+    ax2.plot_date(sc2.time,sc2.bz,'-b',label='Bz',linewidth=0.8)
+    ax2.plot_date(sc2.time,sc2.bt,'-k',label='Btotal',lw=0.8)
+    plt.ylabel('B [nT] GSM',fontsize=fsize)
+    plt.legend(loc=3,ncol=4,fontsize=fsize-2)
+    ax2.set_xlim(start,end+datetime.timedelta(days=0.4))    
+    ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
+    ax2.tick_params(which='both', bottom=True, color='gray')
+    ax2.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
+    ax2.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))    
+    ax2.set_ylim((-bscale,bscale))
+    ax2.text(sc2.time[40], bscale, 'STEREO-A beacon data', fontsize=fsize, color='black')
+    pos_string='R '+str(np.round(sc2.r[-1],3))+' AU   '+ 'lon '+str(np.round(sc2.lon[-1],2))+'  ' + 'lat '+str(np.round(sc2.lat[-1],2))+''
+
+    ax2.text(sc2.time[-1350], bscale, pos_string, fontsize=fsize, color='black')
+
+    #ax2.text(sc1.time[-600], bscale-5, 'east   north', fontsize=fsize-2, color='black')
+    #ax2.text(sc1.time[-600], -bscale+3, 'west   south', fontsize=fsize-2, color='black')
+
+
+    plt.setp(ax2.get_xticklabels(), visible=False)
+
+
+
+    ax3 = plt.subplot(313,sharex=ax1)  
+    ax3.plot_date(sc1.time,sc1.vt,'-k',label='NOAA RTSW',linewidth=1)
+    ax3.plot_date(sc2.time,sc2.vt,'-r',label='STEREO-A beacon',linewidth=1)
+    plt.ylabel('V [km s$^{-1}$]',fontsize=fsize)    
+    ax3.set_xlim(start,end+datetime.timedelta(days=0.4))
+    ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )    
+    ax3.tick_params(which='both', bottom=True, color='gray')
+    ax3.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
+    ax3.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(100))
+    #set after maximum in both   
+    ax3.set_ylim(250, vscale)
+    ax3.text(sc1.time[40], vscale, 'NOAA L1', fontsize=fsize, color='black')
+    ax3.text(sc1.time[540], vscale, 'STEREO-A', fontsize=fsize, color='red')
+
+
+
+    ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
+
+    ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.2, linewidth=1.0)
+    ax2.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.2, linewidth=1.0)
+    ax3.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.2, linewidth=1.0)
+
+
+    plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+    plt.figtext(0.97,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+    plt.figtext(0.085,0.94,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=8)
+
+
+    logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+    newax = fig.add_axes([0.85,0.90,0.08,0.08], anchor='NE', zorder=1)
+    newax.imshow(logo)
+    newax.axis('off')
     
-     '''
-        
-     #cut out data starting with start time that will be plotted, for better scaling
-     startind=np.where(sc1.time > start)[0][0]  
-     sc1=sc1[startind:]    
+    plt.tight_layout()
+    #plt.show()
 
-     startind=np.where(sc2.time > start)[0][0]  
-     sc2=sc2[startind:]    
-
-    
-     sns.set_style('darkgrid')
-     sns.set_context('paper')
-     
-     fsize=10
-
-     #take maximum from both arrays
-     bscale=np.nanmax(np.hstack((sc1.bt, sc2.bt))) +8
-     vscale=np.nanmax(np.hstack((sc1.vt, sc2.vt)))
-    
-                       
-     fig=plt.figure(figsize=(9,6), dpi=150)
-
-     plt.suptitle(sc_label+' data       start: '+start.strftime("%Y-%b-%d %H:%M UT")+'       end: '+end.strftime("%Y-%b-%d %H:%M UT"),fontsize=fsize+2)
-    
-     ax1 = plt.subplot(311) 
+    plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
+    plt.savefig(plotfile)
+    print('saved as ',plotfile)
 
 
-        
-     ax1.plot_date(sc1.time,sc1.bx,'-r',label='Bx',linewidth=0.8)
-     ax1.plot_date(sc1.time,sc1.by,'-g',label='By',linewidth=0.8)
-     ax1.plot_date(sc1.time,sc1.bz,'-b',label='Bz',linewidth=0.8)
-     ax1.plot_date(sc1.time,sc1.bt,'-k',label='Btotal',lw=0.8)
-     plt.ylabel('B [nT] GSM',fontsize=fsize)
-     plt.legend(loc=3,ncol=4,fontsize=fsize-2)
-     ax1.set_xlim(start,end)
-     ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
-     ax1.tick_params(which='both', bottom=True, color='gray')
-     ax1.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
-     ax1.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))
-     ax1.set_ylim((-bscale,bscale))
-     plt.setp(ax1.get_xticklabels(), visible=False)
-     ax1.text(sc2.time[40], bscale, 'NOAA L1 real time solar wind', fontsize=fsize, color='black')
-     pos_string='R '+str(np.round(sc1.r[-1],3))+' AU   '+ 'lon '+str(np.round(sc1.lon[-1],2))+'  ' + 'lat '+str(np.round(sc1.lat[-1],2))+'' 
-     ax1.text(sc1.time[-1350], bscale, pos_string, fontsize=fsize, color='black')
-     
-     #ax1.text(sc1.time[-600], bscale-5, 'east   north', fontsize=fsize-2, color='black')
-     #ax1.text(sc1.time[-600], -bscale+3, 'west   south', fontsize=fsize-2, color='black')
-    
-    
-     ax1.text(0.88,0.89,'east', fontsize=fsize-2, color='green',ha='center', va='center', transform=fig.transFigure)
-     ax1.text(0.88,0.68,'west', fontsize=fsize-2, color='green',ha='center', va='center', transform=fig.transFigure)
-              
-     ax1.text(0.92,0.89,'north', fontsize=fsize-2, color='blue',ha='center', va='center', transform=fig.transFigure)
-     ax1.text(0.92,0.68,'south', fontsize=fsize-2, color='blue',ha='center', va='center', transform=fig.transFigure)
-        
-    
 
 
-    
-     ax2 = plt.subplot(312,sharex=ax1)  
-     ax2.plot_date(sc2.time,sc2.bx,'-r',label='Bx',linewidth=0.8)
-     ax2.plot_date(sc2.time,sc2.by,'-g',label='By',linewidth=0.8)
-     ax2.plot_date(sc2.time,sc2.bz,'-b',label='Bz',linewidth=0.8)
-     ax2.plot_date(sc2.time,sc2.bt,'-k',label='Btotal',lw=0.8)
-     plt.ylabel('B [nT] GSM',fontsize=fsize)
-     plt.legend(loc=3,ncol=4,fontsize=fsize-2)
-     ax2.set_xlim(start,end)    
-     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
-     ax2.tick_params(which='both', bottom=True, color='gray')
-     ax2.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
-     ax2.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(10))    
-     ax2.set_ylim((-bscale,bscale))
-     ax2.text(sc2.time[40], bscale, 'STEREO-A beacon data', fontsize=fsize, color='black')
-     pos_string='R '+str(np.round(sc2.r[-1],3))+' AU   '+ 'lon '+str(np.round(sc2.lon[-1],2))+'  ' + 'lat '+str(np.round(sc2.lat[-1],2))+''
-        
-     ax2.text(sc2.time[-1350], bscale, pos_string, fontsize=fsize, color='black')
-    
-     #ax2.text(sc1.time[-600], bscale-5, 'east   north', fontsize=fsize-2, color='black')
-     #ax2.text(sc1.time[-600], -bscale+3, 'west   south', fontsize=fsize-2, color='black')
-
-    
-     plt.setp(ax2.get_xticklabels(), visible=False)
-
-        
-        
-     ax3 = plt.subplot(313,sharex=ax1)  
-     ax3.plot_date(sc1.time,sc1.vt,'-k',label='NOAA RTSW',linewidth=1)
-     ax3.plot_date(sc2.time,sc2.vt,'-r',label='STEREO-A beacon',linewidth=1)
-     plt.ylabel('V [km s$^{-1}$]',fontsize=fsize)    
-     ax3.set_xlim(start,end)
-     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )    
-     ax3.tick_params(which='both', bottom=True, color='gray')
-     ax3.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
-     ax3.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(100))
-     #set after maximum in both   
-     ax3.set_ylim(250, vscale)
-     ax3.text(sc1.time[40], vscale, 'NOAA L1', fontsize=fsize, color='black')
-     ax3.text(sc1.time[540], vscale, 'STEREO-A', fontsize=fsize, color='red')
-
-
-    
-     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
-
-    
-     
-     plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-     plt.figtext(0.97,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
-
-     
-     plt.tight_layout()
-     #plt.show()
-
-     plotfile=path+sc_label+'_'+start.strftime("%Y_%b_%d")+'_'+end.strftime("%Y_%b_%d")+'.png'
-     plt.savefig(plotfile)
-     print('saved as ',plotfile)
-
-
-    
-
-     #if now exists as keyword, save as the file with just now in filename:     
-     if 'now' in kwargs:
+    #if now exists as keyword, save as the file with just now in filename:     
+    if 'now' in kwargs:
         plotfile=path+sc_label+'_now.png'
         plt.savefig(plotfile)
         print('saved as ',plotfile)
 
-        
-     #if now2 exists as keyword, save as the file with just now2 in filename:     
-     if 'now2' in kwargs:
+
+    #if now2 exists as keyword, save as the file with just now2 in filename:     
+    if 'now2' in kwargs:
         plotfile=path+sc_label+'_now2.png'
         plt.savefig(plotfile)
         print('saved as ',plotfile)
-        
+
         plotfile=path+sc_label+'_now2.pdf'
         plt.savefig(plotfile)
         print('saved as ',plotfile)
-        
-             
-        
-        
+
+
+
+
+
+    ## make plotly html plot
+    
+    
+    #cut out data starting with start time that will be plotted, for better scaling
+    
+    days_going_back=10
+    startind=np.where(sc1in.time > end-datetime.timedelta(days=days_going_back))[0][0]  
+    sc1=sc1in[startind:]    
+
+    startind=np.where(sc2in.time > end-datetime.timedelta(days=days_going_back))[0][0]  
+    sc2=sc2in[startind:]    
+    
+
+    nrows=3
+    fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True,row_heights=[0.35,0.35, 0.3])
+
+    fig.add_trace(go.Scatter(x=sc1.time, y=sc1.bx, name='Bx',line_color='red'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=sc1.time, y=sc1.by, name='By',line_color='green'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=sc1.time, y=sc1.bz, name='Bz',line_color='blue'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=sc1.time, y=sc1.bt, name='Bt',line_color='black'), row=1, col=1)
+    fig.update_yaxes(title_text="L1 B [nT] GSM", row=1, col=1)
+
+    fig.add_trace(go.Scatter(x=sc2.time, y=sc2.bx, name='Bx',line_color='red'), row=2, col=1)
+    fig.add_trace(go.Scatter(x=sc2.time, y=sc2.by, name='By',line_color='green'), row=2, col=1)
+    fig.add_trace(go.Scatter(x=sc2.time, y=sc2.bz, name='Bz',line_color='blue'), row=2, col=1)
+    fig.add_trace(go.Scatter(x=sc2.time, y=sc2.bt, name='Bt',line_color='black'), row=2, col=1)
+    fig.update_yaxes(title_text="STEREO-A B [nT] GSM", row=2, col=1)
+
+
+    fig.add_trace(go.Scatter(x=sc1.time, y=sc1.vt, name='Vt L1',line_color='black'), row=3, col=1)
+    fig.add_trace(go.Scatter(x=sc2.time, y=sc2.vt, name='Vt STEREO-A',line_color='red'), row=3, col=1)
+    fig.update_yaxes(title_text="V [km/s]", row=3, col=1)
+
+
+    fig.update_layout(title='NOAA L1 and STEREO-A solar wind', font=dict(size=20))
+    fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=days_going_back),datetime.datetime.utcnow()+datetime.timedelta(days=0.5)]) )
+
+
+    fig.update_layout(
+        xaxis=dict(
+            title=dict(
+                font=dict(size=20)  # Adjust the font size as needed
+            )
+        ),
+        yaxis=dict(
+            title=dict(                
+                font=dict(size=20)  # Adjust the font size as needed
+            )
+        )
+    )
+
+    plotfile=path+sc_label+'_now.html'
+    fig.write_html(plotfile)
+    print('saved as ',plotfile)
+
+
+
+
+
         
         
         
@@ -637,6 +704,21 @@ def plot_insitu_update_noaa_rtsw(sc, start, end, sc_label, path, **kwargs):
         plotfile=path+sc_label+'_now2.pdf'
         plt.savefig(plotfile)
         print('saved as ',plotfile)
+        
+     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
