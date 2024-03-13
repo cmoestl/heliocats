@@ -13,7 +13,7 @@
 # Issues: 
 # 
 
-# In[13]:
+# In[3]:
 
 
 ######### CHECK: do you want to debug or actually send alerts
@@ -103,7 +103,7 @@ print(data_path)
 
 # ### get Dst data and plot
 
-# In[12]:
+# In[5]:
 
 
 #get current dst last 35 days
@@ -322,7 +322,7 @@ https://helioforecast.space/solarwind""".format(dstval, time_formatted)
 
 
 # for testing
-#n.dst[-1]=-55
+n.dst[-1]=-55
 
 time_now=datetime.datetime.utcnow()
 
