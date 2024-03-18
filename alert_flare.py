@@ -54,7 +54,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from alerts import alert_server_ids as aid
 
-#Dst threshold definition for defining an alert
+#threshold definition for defining an alert
 threshold1=1e-4   #for X1 Watts per m^2
 threshold2=5*1e-4 #for X5
 threshold3=1e-3   #for X10
@@ -86,6 +86,9 @@ print(data_path)
 filenoaa='noaa_xray_last_7days_now.p'
 [d1,d2]=pickle.load(open(data_path+filenoaa, "rb"))
 
+filenoaa2='noaa_xray2_last_7days_now.p'
+[d3,d4]=pickle.load(open(data_path+filenoaa2, "rb"))
+
 
 ####################### for testing set 8 minutes before present to X4 flare
 if debug_mode: 
@@ -104,7 +107,9 @@ ax1.axhline(y=threshold2, color='orange', linestyle='--',label='X5')
 ax1.axhline(y=threshold3, color='red', linestyle='--',label='X10')
 
 ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
-ax1.plot(d1.time,d1.flux,color='royalblue',linewidth=1.5,alpha=1.0)
+ax1.plot(d1.time,d1.flux,color='red',linewidth=1.5,alpha=1.0)
+ax1.plot(d3.time,d3.flux,color='blue',linewidth=1.5,alpha=1.0)
+
 
 ax1.set_yscale('log')
 ax1.set_ylabel('Watt m$^{-2}$')
@@ -256,9 +261,16 @@ time_now_num=mdates.date2num(time_now)
 
 print('latest flare data (GOES): ')
 for i in np.arange(-26,0):
+    
     formatted_date = d1.time[i].strftime("%Y-%b-%d %H:%M UTC")
     flux_x1_level=np.round(d1.flux[i]*1e4,4)
-    print(formatted_date,'   X',flux_x1_level)
+
+    formatted_date = d3.time[i].strftime("%Y-%b-%d %H:%M UTC")
+    flux2_x1_level=np.round(d3.flux[i]*1e4,4)
+
+        
+    print(formatted_date,'   X',flux_x1_level, flux2_x1_level)
+    
 #print('done')
 
 print(' ')
@@ -269,7 +281,39 @@ d1_max_25_xl=np.round(np.nanmax(d1.flux[-26:])*1e4,6)
 #check the time of that maximum data point in the last 25 minutes
 d1_max_25_time=d1.time[-26:][np.nanargmax(d1.flux[-26:])]
 
-print('Maximum flux of the last 25 minutes    X',d1_max_25_xl,' at', d1_max_25_time)
+
+print('Maximum flux of the last 25 minutes GOES primary      X',d1_max_25_xl,' at', d1_max_25_time)
+
+
+######## do the same for the other goes
+
+
+#check the latest 25 minutes and take the maximum (because the frequency of the alert to be called is 10-20 minutes)
+d3_max_25=np.round(np.nanmax(d3.flux[-26:]),6)
+d3_max_25_xl=np.round(np.nanmax(d3.flux[-26:])*1e4,6)
+
+#check the time of that maximum data point in the last 25 minutes
+d3_max_25_time=d3.time[-26:][np.nanargmax(d3.flux[-26:])]
+
+
+print('Maximum flux of the last 25 minutes GOES secondary    X',d3_max_25_xl,' at', d3_max_25_time)
+
+
+print('take the bigger value for going on:')
+if d1_max_25 > d3_max_25: 
+    d_max_25=d1_max_25
+    d_max_25_time=d1_max_25_time
+    d_max_25_xl=d1_max_25_xl
+    d_array='d1'
+    
+if d1_max_25 <= d3_max_25: 
+    d_max_25=d3_max_25
+    d_max_25_time=d3_max_25_time
+    d_max_25_xl=d3_max_25_xl
+    d_array='d3'
+
+
+print('Used for alerts', d_max_25, d_max_25_xl, d3_max_25_time,d_array)
 
 
 # ## Alert for threshold 1
@@ -278,13 +322,13 @@ print('Maximum flux of the last 25 minutes    X',d1_max_25_xl,' at', d1_max_25_t
 # In[8]:
 
 
-if d1_max_25 < threshold1: 
+if d_max_25 < threshold1: 
     print('Flux below threshold',threshold1,'flux, no alert triggered')
 
-if d1_max_25>= threshold1: 
+if d_max_25>= threshold1: 
     
     print('------------ Alert triggered')
-    print('Maximum flux is X',d1_max_25_xl, ' above the threshold of >= X',threshold1*1e4)
+    print('Maximum flux is X',d_max_25_xl, ' above the threshold of >= X',threshold1*1e4)
     print(' ')
     print('Was alert already sent in last 3 hours?')
     print(' ')
@@ -320,12 +364,12 @@ if d1_max_25>= threshold1:
         print('Alert time and flux written to file alerts/alert_list_flare.txt and alert_list_flare.p')
         
         alert_time_for_file=d1.time[-1].strftime("%Y-%m-%dT%H:%MZ")
-        print(alert_time_for_file+' '+str(d1_max_25) )    
+        print(alert_time_for_file+' '+str(d_max_25) )    
                 
         #write this to a text file
         with open('alerts/alert_list_flare.txt', 'a') as file:
             file.write(alert_time_for_file)
-            file.write(' '+str(d1_max_25)+'\n')
+            file.write(' '+str(d_max_25)+'\n')
             
         #append to list and write to pickle file    
         atime_list.append(d1.time[-1])
@@ -334,7 +378,7 @@ if d1_max_25>= threshold1:
         
         #if debug_mode is off, send message
         if debug_mode==False:
-            send_telegram_message(d1_max_25_time,d1_max_25*1e4)
+            send_telegram_message(d_max_25_time,d_max_25*1e4)
         
                         
         #write into file the time of the sent alert

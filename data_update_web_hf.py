@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[3]:
+# In[ ]:
 
 
 #switches
@@ -135,7 +135,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions, Xray and SDO plots
 
-# In[ ]:
+# In[3]:
 
 
 if debug_mode > 0: 
@@ -147,11 +147,12 @@ print('------ get Xray data and plot ')
 print('NOAA path',noaa_path,'    Data path',data_path)
 
 xraypickle=str('noaa_xray_last_7days_now.p')
-hd.get_noaa_xray(noaa_path,data_path,xraypickle)
-hp.plot_noaa_xray(data_path+xraypickle,plot_path)
+xraypickle2=str('noaa_xray2_last_7days_now.p')
+hd.get_noaa_xray(noaa_path,data_path,xraypickle,xraypickle2)
+hp.plot_noaa_xray(data_path+xraypickle,data_path+xraypickle2,plot_path)
 
 
-# In[ ]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -166,6 +167,9 @@ print('------ POSITIONS ')
 # spacecraft positions image, uses positions file  /results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p'
 hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
 
+
+#make positions for specific events as pdf
+#hp.plot_positions(datetime.datetime(2022,9,5,18),position_path, 'HEEQ',pdf=True)
 
 
 print(' ')

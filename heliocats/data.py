@@ -66,14 +66,22 @@ from bs4 import BeautifulSoup
 
 
 
-def get_noaa_xray(noaa_path,data_path,xraypickle):
+def get_noaa_xray(noaa_path,data_path,xraypickle, xraypickle2):
 
+    
+    
+    ################ get primary GOES satellite data
+    
     #xray data
     xray='https://services.swpc.noaa.gov/json/goes/primary/xrays-7-day.json'
 
+    ################ same for secondary GOES satellite
+
+    #xray2 data
+    xray2='https://services.swpc.noaa.gov/json/goes/secondary/xrays-7-day.json'
+
     #flare list
     #https://services.swpc.noaa.gov/json/goes/primary/xray-flares-7-day.json
-
 
     print('download NOAA Xrays')
     datestr=str(datetime.datetime.utcnow().strftime("%Y-%m-%d"))
@@ -83,9 +91,17 @@ def get_noaa_xray(noaa_path,data_path,xraypickle):
         urllib.request.urlretrieve(xray, noaa_path+'xray/xrays-7-day_'+datestr+'.json')
         print(noaa_path+'xray/xray-7-day_'+datestr+'.json')
         success=True
-
     except urllib.error.URLError as e:
         print(' ', xray,' ',e.reason)
+        
+    try: 
+        urllib.request.urlretrieve(xray2, noaa_path+'xray/xrays2-7-day_'+datestr+'.json')
+        print(noaa_path+'xray/xray2-7-day_'+datestr+'.json')
+        success2=True
+    except urllib.error.URLError as e:
+        print(' ', xray2,' ',e.reason)
+        
+        
 
     if success: 
         #convert json to pickle
@@ -131,17 +147,63 @@ def get_noaa_xray(noaa_path,data_path,xraypickle):
 
         datind=np.where(xdc2.flux>1e-9)
         xdc2=xdc2[datind]
-        
-       
+
         pickle.dump([xdc1,xdc2], open(data_path+xraypickle, "wb"))
         print('saved as',data_path+xraypickle,'pickle')    
 
-
-
         
-def plot_noaa_xray(noaa_path):
+        
+    if success2: 
+        #convert json to pickle
 
-    print('plot xray')
+        xrayfile2=open(noaa_path+'xray/xrays2-7-day_'+datestr+'.json','r')
+
+        xd2 = json.loads(xrayfile2.read())
+
+        #energy 1 0.1-0.8nm indices
+        #xray data 2 channel 1
+        xd2c1=np.zeros(len(xd2),dtype=[('time',object),('flux', float)]) 
+        xd2c1=xd2c1.view(np.recarray)   
+
+        #energy 2 0.05-0.4nm indices
+        #xray data 2 channel 2
+        xd2c2=np.zeros(len(xd2),dtype=[('time',object),('flux', float)]) 
+        xd2c2=xd2c2.view(np.recarray)   
+
+        #indices for energy 1    
+        e21_ind=np.arange(1,len(xd2),2)
+
+        #indices for energy 2
+        e22_ind=np.arange(0,len(xd2),2)
+
+        for i in e21_ind:        
+            xd2c1[i].time=parse_time(xd2[i]['time_tag']).datetime
+            xd2c1[i].flux=xd2[i]['flux'] 
+
+        #get all data points from flux, and use those indices to remove the 0s from time array
+        datind2=np.where(xd2c1.flux>1e-7)[0]
+        xd2c1=xd2c1[datind2]
+
+        for i in e22_ind:
+            xd2c2[i].time=parse_time(xd2[i]['time_tag']).datetime
+            xd2c2[i].flux=xd2[i]['flux']         
+
+        datind2=np.where(xd2c2.flux>1e-9)
+        xd2c2=xd2c2[datind2]
+        
+               
+        pickle.dump([xd2c1,xd2c2], open(data_path+xraypickle2, "wb"))
+        print('saved as',data_path+xraypickle2,'pickle')    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
  
 

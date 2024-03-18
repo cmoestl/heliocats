@@ -79,10 +79,14 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-def plot_noaa_xray(xrayfile,plot_path): 
+def plot_noaa_xray(xrayfile,xrayfile2,plot_path): 
 
     
-    [xdc1,xdc2]=pickle.load(open(xrayfile, 'rb'))  
+    #use try except if not available
+    
+    [xdc1,xdc2]=pickle.load(open(xrayfile, 'rb'))
+    
+    [xd2c1,xd2c2]=pickle.load(open(xrayfile2, 'rb'))
     
     sns.set_style('darkgrid')
     sns.set_context('paper')
@@ -92,7 +96,20 @@ def plot_noaa_xray(xrayfile,plot_path):
     ax.set_yscale('log')
     ax.set_ylim(1e-9,1e-2)
     ax.plot(xdc1.time,xdc1.flux,'-r')      
-    ax.plot(xdc2.time,xdc2.flux,'-b')      
+    ax.plot(xdc2.time,xdc2.flux,'-b') 
+    
+    ax.plot(xd2c1.time,xd2c1.flux,color='orange')      
+    ax.plot(xd2c2.time,xd2c2.flux,color='purple') 
+    
+    threshold1=1e-4   #for X1 Watts per m^2
+    threshold2=5*1e-4 #for X5
+    threshold3=1e-3   #for X10
+    
+    
+    ax.axhline(y=threshold1, color='yellowgreen', linestyle='--',label='X1')
+    ax.axhline(y=threshold2, color='orange', linestyle='--',label='X5')
+    ax.axhline(y=threshold3, color='red', linestyle='--',label='X10')
+    
 
     ax.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
 
@@ -101,7 +118,7 @@ def plot_noaa_xray(xrayfile,plot_path):
     plt.title('GOES X-Ray flux from NOAA',fontsize=16)
 
     fsize=12
-    plt.legend(loc=3,fontsize=13)
+    plt.legend(loc=3,fontsize=10, ncol=3)
     plt.figtext(0.02,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
     plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
     plt.figtext(0.09,0.95,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
@@ -121,7 +138,7 @@ def plot_noaa_xray(xrayfile,plot_path):
 
 
     logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
-    newax = fig.add_axes([0.89,0.91,0.08,0.08], anchor='NE', zorder=1)
+    newax = fig.add_axes([0.88,0.91,0.08,0.08], anchor='NE', zorder=1)
     newax.imshow(logo)
     newax.axis('off')
 
@@ -130,6 +147,7 @@ def plot_noaa_xray(xrayfile,plot_path):
 
     plt.tight_layout()
 
+    ax.annotate('X10',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-3),xycoords='data',fontsize=15,ha='left')
     ax.annotate('X',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-4),xycoords='data',fontsize=15,ha='left')
     ax.annotate('M',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-5),xycoords='data',fontsize=15,ha='left')
     ax.annotate('C',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-6),xycoords='data',fontsize=15,ha='left')
@@ -150,6 +168,10 @@ def plot_noaa_xray(xrayfile,plot_path):
 
     fig.add_trace(go.Scatter(x=xdc1.time, y=xdc1.flux, name='GOES 16 long', line_color='red' ) )
     fig.add_trace(go.Scatter(x=xdc2.time, y=xdc2.flux, name='GOEs 16 short',line_color='blue') )
+    
+    fig.add_trace(go.Scatter(x=xd2c1.time, y=xd2c1.flux, name='GOES 18 long', line_color='orange' ) )
+    fig.add_trace(go.Scatter(x=xd2c2.time, y=xd2c2.flux, name='GOEs 18 short',line_color='purple') )
+
 
     fig.update_layout(title='GOES Xrays', font=dict(size=20))
     fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=6),datetime.datetime.utcnow()+datetime.timedelta(days=0.5)]) )
@@ -405,7 +427,7 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
     ax1.plot_date(sc1.time,sc1.bt,'-k',label='Btotal',lw=0.8)
     plt.ylabel('B [nT] GSM',fontsize=fsize)
     plt.legend(loc=3,ncol=4,fontsize=fsize-2)
-    ax1.set_xlim(start,end+datetime.timedelta(days=0.4))
+    ax1.set_xlim(start,end+datetime.timedelta(days=0.5))
     ax1.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
     ax1.tick_params(which='both', bottom=True, color='gray')
     ax1.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
@@ -435,7 +457,7 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
     ax2.plot_date(sc2.time,sc2.bt,'-k',label='Btotal',lw=0.8)
     plt.ylabel('B [nT] GSM',fontsize=fsize)
     plt.legend(loc=3,ncol=4,fontsize=fsize-2)
-    ax2.set_xlim(start,end+datetime.timedelta(days=0.4))    
+    ax2.set_xlim(start,end+datetime.timedelta(days=0.5))    
     ax2.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )
     ax2.tick_params(which='both', bottom=True, color='gray')
     ax2.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
@@ -458,7 +480,7 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
     ax3.plot_date(sc1.time,sc1.vt,'-k',label='NOAA RTSW',linewidth=1)
     ax3.plot_date(sc2.time,sc2.vt,'-r',label='STEREO-A beacon',linewidth=1)
     plt.ylabel('V [km s$^{-1}$]',fontsize=fsize)    
-    ax3.set_xlim(start,end+datetime.timedelta(days=0.4))
+    ax3.set_xlim(start,end+datetime.timedelta(days=0.5))
     ax3.xaxis.set_major_formatter( matplotlib.dates.DateFormatter('%b-%d %Hh') )    
     ax3.tick_params(which='both', bottom=True, color='gray')
     ax3.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
@@ -523,7 +545,7 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
     
     #cut out data starting with start time that will be plotted, for better scaling
     
-    days_going_back=10
+    days_going_back=30
     startind=np.where(sc1in.time > end-datetime.timedelta(days=days_going_back))[0][0]  
     sc1=sc1in[startind:]    
 
@@ -568,6 +590,16 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
             )
         )
     )
+
+    fig.add_annotation(x=0.98, y=1.05, text="East", xref="paper", yref="paper", showarrow=False, font=dict(color='green')  )
+    fig.add_annotation(x=0.98, y=0.72, text="West", xref="paper", yref="paper", showarrow=False,  font=dict(color='green')  )
+    
+    fig.add_annotation(x=0.91, y=1.05, text="North", xref="paper", yref="paper", showarrow=False, font=dict(color='blue')  )
+    fig.add_annotation(x=0.91, y=0.72, text="South", xref="paper", yref="paper", showarrow=False,  font=dict(color='blue')  )
+    
+    
+    fig.add_annotation(x=0.82, y=1.05, text="Away", xref="paper", yref="paper", showarrow=False, font=dict(color='red')  )
+    fig.add_annotation(x=0.82, y=0.72, text="Toward", xref="paper", yref="paper", showarrow=False,  font=dict(color='red')  )
 
     plotfile=path+sc_label+'_now.html'
     fig.write_html(plotfile)
@@ -3288,6 +3320,8 @@ def plot_positions(time_date1, path,frame, **kwargs):
     this takes the numeric positions fiel
     '''
     sns.set_style('darkgrid')
+    #sns.set_style('whitegrid')
+
     sns.set_context('paper')    
     
     time1=mdates.date2num(time_date1)
@@ -3295,6 +3329,9 @@ def plot_positions(time_date1, path,frame, **kwargs):
     #made with positions.ipynb
     [psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p', "rb" ) )
     res_in_days=1/(24*6) #10 min resolution of positions file
+    
+    
+    #!! change to positions_psp_solo_sta_bepi_wind_juno_juice_ulysses_planets_HEEQ_10min_rad.p
     
     
     #[psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_1hour_rad.p', "rb" ) )
@@ -3314,7 +3351,9 @@ def plot_positions(time_date1, path,frame, **kwargs):
     #for parker spiral   
     theta=np.arange(0,np.deg2rad(180),0.01)
 
-    fadeind=int(100/res_in_days)
+    fadeind=int(80/res_in_days)
+
+    #fadeind=int(100/res_in_days)
     k=0
     
     plot_orbit=True
@@ -3382,8 +3421,8 @@ def plot_positions(time_date1, path,frame, **kwargs):
     plt.figtext(0.01,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
     plt.figtext(0.99,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
 
-    plt.figtext(0.80,0.13,'─   100 days future trajectory', color='black', ha='left',fontsize=fsize-3)
-    plt.figtext(0.80,0.1 ,'- -  100 days past trajectory', color='black', ha='left',fontsize=fsize-3)
+    plt.figtext(0.80,0.13,'─   80 days future trajectory', color='black', ha='left',fontsize=fsize-3)
+    plt.figtext(0.80,0.1 ,'- -  80 days past trajectory', color='black', ha='left',fontsize=fsize-3)
   
     
     '''
@@ -3582,6 +3621,15 @@ def plot_positions(time_date1, path,frame, **kwargs):
 #    np.savetxt(path+'current_positions.txt', np.concatenate((psp_cut, solo_cut, sta_cut, bepi_cut, l1_cut), axis=0), delimiter=' ', fmt='%s %f %f %f %f %f %f %f ')
     print('saved as ',path+'positions_now.txt')
 
+    
+
+    #if now exists as keyword, save as the file with just now in filename:     
+    if 'pdf' in kwargs:
+        plotfile=path+'positions_pdf.pdf'
+        plt.savefig(plotfile)
+        print('saved as ',plotfile)
+
+    
 
     #if now exists as keyword, save as the file with just now in filename:     
     if 'now' in kwargs:

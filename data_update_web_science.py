@@ -15,9 +15,9 @@
 # 
 # - change header for STEREO-A beacon data
 # - need to copy kernel files manually to the kernel paths
-# - PSP end date for data downloads needs to be set manually otherwise processing stops on the server - due to a timeout when no output for a while? or entering a loop? PSP data ends 2023 July 31, end date set to 2023 Sep 1, need to fix hd.download_pspmag_1min
+# - PSP end date for data downloads needs to be set manually otherwise processing stops on the server - due to a timeout when no output for a while? or entering a loop? PSP data ends 2023 Oct 15, end date set to 2023 Dec 31, need to fix hd.download_pspmag_1min
 
-# In[15]:
+# In[10]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -33,7 +33,7 @@ get_wind=1
 get_psp=1
 get_solo=1
 get_stereoa=1
-get_bepi=1 
+get_bepi=1
 
 import numpy as np
 import pandas as pd
@@ -112,7 +112,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[7]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -320,7 +320,7 @@ if get_wind > 0:
 # ### Parker Solar Probe
 # 
 
-# In[8]:
+# In[7]:
 
 
 print(' ')
@@ -339,8 +339,8 @@ if debug_mode > 0:
     importlib.reload(hd) 
     importlib.reload(hp) 
 
-    start_time= datetime(2023,7,5)
-    end_time  = datetime(2023,9,10)
+    start_time= datetime(2023,7,20)
+    end_time  = datetime(2023,12,31)
     psp_file=data_path+'psp_rtn_test.p'
 
     
@@ -354,8 +354,8 @@ if get_psp > 0:
     
     
     #don't check all years for faster runtime, make end time shorter so its not a timeout on the server?
-    hd.download_pspmag_1min(datetime(2023,7,1),datetime(2023,9,1),psp_path)
-    hd.download_pspplas(datetime(2023,7,1),datetime(2023,9,1),psp_path)
+    hd.download_pspmag_1min(datetime(2023,7,30),datetime(2023,12,31),psp_path)
+    hd.download_pspplas(datetime(2023,7,30),datetime(2023,12,31),psp_path)
 
     print('process PSP to pickle')
     hd.create_psp_pkl(start_time,end_time,psp_file,psp_path)
@@ -377,7 +377,7 @@ else:
   
 
 
-# In[7]:
+# In[8]:
 
 
 if get_psp > 0:   
