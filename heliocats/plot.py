@@ -591,11 +591,11 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
         )
     )
 
-    fig.add_annotation(x=0.98, y=1.05, text="East", xref="paper", yref="paper", showarrow=False, font=dict(color='green')  )
-    fig.add_annotation(x=0.98, y=0.72, text="West", xref="paper", yref="paper", showarrow=False,  font=dict(color='green')  )
+    fig.add_annotation(x=0.91, y=1.05, text="East", xref="paper", yref="paper", showarrow=False, font=dict(color='green')  )
+    fig.add_annotation(x=0.91, y=0.72, text="West", xref="paper", yref="paper", showarrow=False,  font=dict(color='green')  )
     
-    fig.add_annotation(x=0.91, y=1.05, text="North", xref="paper", yref="paper", showarrow=False, font=dict(color='blue')  )
-    fig.add_annotation(x=0.91, y=0.72, text="South", xref="paper", yref="paper", showarrow=False,  font=dict(color='blue')  )
+    fig.add_annotation(x=0.99, y=1.05, text="North", xref="paper", yref="paper", showarrow=False, font=dict(color='blue')  )
+    fig.add_annotation(x=0.99, y=0.72, text="South", xref="paper", yref="paper", showarrow=False,  font=dict(color='blue')  )
     
     
     fig.add_annotation(x=0.82, y=1.05, text="Away", xref="paper", yref="paper", showarrow=False, font=dict(color='red')  )

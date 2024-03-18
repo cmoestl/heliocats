@@ -17,7 +17,7 @@
 # - need to copy kernel files manually to the kernel paths
 # - PSP end date for data downloads needs to be set manually otherwise processing stops on the server - due to a timeout when no output for a while? or entering a loop? PSP data ends 2023 Oct 15, end date set to 2023 Dec 31, need to fix hd.download_pspmag_1min
 
-# In[10]:
+# In[12]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -25,15 +25,15 @@
 # for updating data every day on the servers
 
 #switches
-debug_mode=0
+debug_mode=1
 
-get_omni=1
-get_wind=1 
+get_omni=0
+get_wind=0 
 
 get_psp=1
-get_solo=1
-get_stereoa=1
-get_bepi=1
+get_solo=0
+get_stereoa=0
+get_bepi=0
 
 import numpy as np
 import pandas as pd
