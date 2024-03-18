@@ -13,7 +13,7 @@
 # - uses environment helio5, see /envs/env_helio5.yml in the heliocats package
 # 
 
-# In[1]:
+# In[3]:
 
 
 from astropy.coordinates import EarthLocation, AltAz
@@ -22,7 +22,7 @@ import astropy.units as u
 from astropy.coordinates import get_sun
 from datetime import datetime, timedelta
 
-import astroplan #sunset sunrise can also be done with astroplan
+#import astroplan #sunset sunrise can also be done with astroplan
 
 import numpy as np
 import pickle
