@@ -630,7 +630,7 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
     fig.add_annotation(x=0.82, y=1.05, text="Toward", xref="paper", yref="paper", showarrow=False, font=dict(color='red')  )
     fig.add_annotation(x=0.82, y=0.72, text="Away", xref="paper", yref="paper", showarrow=False,  font=dict(color='red')  )
     
-    fig.add_annotation(x=1.1, y=0.68, text="toward to or away from the Sun", xref="paper", yref="paper", showarrow=False, font=dict(color='red',size=15))
+    fig.add_annotation(x=1.1, y=-0.05, text="toward to or away from the Sun", xref="paper", yref="paper", showarrow=False, font=dict(color='red',size=15))
 
     plotfile=path+sc_label+'_now.html'
     fig.write_html(plotfile)
