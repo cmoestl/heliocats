@@ -88,29 +88,58 @@ def plot_noaa_xray(xrayfile,xrayfile2,plot_path):
     
     [xd2c1,xd2c2]=pickle.load(open(xrayfile2, 'rb'))
     
+    #remove data points below threshold due to eclipses of the GOES satellites  
+
+    #upper plot
+    
+    rem=np.where(xdc1.flux < 5*1e-7)[0]    
+    for i in rem:
+        xdc1[i-2:i+2]=np.nan
+    
+    rem=np.where(xd2c1.flux < 5*1e-7)[0]    
+    for i in rem:
+        xd2c1[i-2:i+2]=np.nan
+
+        
+    #lower plot     
+        
+    #rem=np.where(xdc2.flux < 5*1e-9)[0]    
+    #for i in rem:
+    #    xdc2[i-2:i+2]=np.nan
+    
+    #rem=np.where(xd2c2.flux < 4*1e-9)[0]    
+    #for i in rem:
+    #    xd2c2[i-2:i+2]=np.nan
+        
+    
     sns.set_style('darkgrid')
     sns.set_context('paper')
 
     fig=plt.figure(3,figsize=(12,6),dpi=100)
     ax=plt.subplot(111)
-    ax.set_yscale('log')
-    ax.set_ylim(1e-9,1e-2)
-    ax.plot(xdc1.time,xdc1.flux,'-r')      
-    ax.plot(xdc2.time,xdc2.flux,'-b') 
+    ax.set_yscale('log')    
+    #ax.set_ylim(1e-9,1e-2)
+    ax.set_ylim(1e-8,1e-2)
+     
     
-    ax.plot(xd2c1.time,xd2c1.flux,color='orange')      
-    ax.plot(xd2c2.time,xd2c2.flux,color='purple') 
+    ax.plot(xdc1.time,xdc1.flux,'-r',label='GOES-16 0.1-0.8nm')      
+    #ax.plot(xdc2.time,xdc2.flux,'-b') 
+    
+    
+    ax.plot(xd2c1.time,xd2c1.flux,color='darkorange', label='GOES-18 0.1-0.8nm')      
+    #ax.plot(xd2c2.time,xd2c2.flux,color='purple')
     
     threshold1=1e-4   #for X1 Watts per m^2
     threshold2=5*1e-4 #for X5
     threshold3=1e-3   #for X10
     
-    
-    ax.axhline(y=threshold1, color='yellowgreen', linestyle='--',label='X1')
-    ax.axhline(y=threshold2, color='orange', linestyle='--',label='X5')
-    ax.axhline(y=threshold3, color='red', linestyle='--',label='X10')
-    
+    ax.axhline(y=5*1e-5, color='grey', linestyle='--', linewidth=0.5)
+    ax.axhline(y=threshold1, color='yellowgreen', linestyle='--',label='X1', linewidth=1.5)
+    ax.axhline(y=threshold2, color='orange', linestyle='--',label='X5',linewidth=1.5)
+    ax.axhline(y=threshold3, color='red', linestyle='--',label='X10',linewidth=1.5)
 
+    ax.annotate('NOAA SWPC M5',xy=(datetime.datetime.utcnow()-datetime.timedelta(days=6),3*1e-5),xycoords='data',fontsize=12,ha='left',alpha=0.5)
+    
     ax.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
 
 
@@ -118,7 +147,7 @@ def plot_noaa_xray(xrayfile,xrayfile2,plot_path):
     plt.title('GOES X-Ray flux from NOAA',fontsize=16)
 
     fsize=12
-    plt.legend(loc=3,fontsize=10, ncol=3)
+    plt.legend(loc=3,fontsize=15, ncol=5)
     plt.figtext(0.02,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
     plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
     plt.figtext(0.09,0.95,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
@@ -144,33 +173,33 @@ def plot_noaa_xray(xrayfile,xrayfile2,plot_path):
 
     ax.xaxis.set_minor_locator(mdates.HourLocator(interval=1))
     ax.tick_params(which='both', bottom=True, color='gray')
+    
 
     plt.tight_layout()
 
-    ax.annotate('X10',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-3),xycoords='data',fontsize=15,ha='left')
-    ax.annotate('X',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-4),xycoords='data',fontsize=15,ha='left')
-    ax.annotate('M',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-5),xycoords='data',fontsize=15,ha='left')
-    ax.annotate('C',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-6),xycoords='data',fontsize=15,ha='left')
-    ax.annotate('B',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-7),xycoords='data',fontsize=15,ha='left')
-    ax.annotate('A',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),2*1e-8),xycoords='data',fontsize=15,ha='left')
+    ax.annotate('X10',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),1.5*1e-3),xycoords='data',fontsize=15,ha='left')
+    ax.annotate('X',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),1.5*1e-4),xycoords='data',fontsize=15,ha='left')
+    ax.annotate('M',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),1.5*1e-5),xycoords='data',fontsize=15,ha='left')
+    ax.annotate('C',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),1.5*1e-6),xycoords='data',fontsize=15,ha='left')
+    ax.annotate('B',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),1.5*1e-7),xycoords='data',fontsize=15,ha='left')
+    ax.annotate('A',xy=(datetime.datetime.utcnow()+datetime.timedelta(days=0.15),1.5*1e-8),xycoords='data',fontsize=15,ha='left')
 
     
     plotfile=plot_path+'latest_xray.jpg'
     plt.savefig(plotfile, dpi=200)
     print('saved as ',plotfile)
-    
-    
-    
+        
     ## make plotly html plot
     
     nrows=1
     fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True)
 
     fig.add_trace(go.Scatter(x=xdc1.time, y=xdc1.flux, name='GOES 16 long', line_color='red' ) )
-    fig.add_trace(go.Scatter(x=xdc2.time, y=xdc2.flux, name='GOEs 16 short',line_color='blue') )
+    
+    #fig.add_trace(go.Scatter(x=xdc2.time, y=xdc2.flux, name='GOEs 16 short',line_color='blue') )
     
     fig.add_trace(go.Scatter(x=xd2c1.time, y=xd2c1.flux, name='GOES 18 long', line_color='orange' ) )
-    fig.add_trace(go.Scatter(x=xd2c2.time, y=xd2c2.flux, name='GOEs 18 short',line_color='purple') )
+    #fig.add_trace(go.Scatter(x=xd2c2.time, y=xd2c2.flux, name='GOEs 18 short',line_color='purple') )
 
 
     fig.update_layout(title='GOES Xrays', font=dict(size=20))
