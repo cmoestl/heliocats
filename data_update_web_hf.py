@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[1]:
+# In[ ]:
 
 
 #switches
@@ -81,7 +81,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[ ]:
 
 
 if sys.platform == 'linux': 
@@ -135,10 +135,9 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions, Xray and SDO plots
 
-# In[8]:
+# In[ ]:
 
 
-debug_mode=1
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
@@ -149,7 +148,7 @@ print('NOAA path',noaa_path,'    Data path',data_path)
 
 xraypickle=str('noaa_xray_last_7days_now.p')
 xraypickle2=str('noaa_xray2_last_7days_now.p')
-#hd.get_noaa_xray(noaa_path,data_path,xraypickle,xraypickle2)
+hd.get_noaa_xray(noaa_path,data_path,xraypickle,xraypickle2)
 hp.plot_noaa_xray(data_path+xraypickle,data_path+xraypickle2,plot_path)
 
 

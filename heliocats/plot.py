@@ -147,7 +147,7 @@ def plot_noaa_xray(xrayfile,xrayfile2,plot_path):
     plt.title('GOES X-Ray flux from NOAA',fontsize=16)
 
     fsize=12
-    plt.legend(loc=3,fontsize=15, ncol=5)
+    plt.legend(loc=3,fontsize=13, ncol=5)
     plt.figtext(0.02,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
     plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
     plt.figtext(0.09,0.95,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
@@ -167,7 +167,7 @@ def plot_noaa_xray(xrayfile,xrayfile2,plot_path):
 
 
     logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
-    newax = fig.add_axes([0.88,0.91,0.08,0.08], anchor='NE', zorder=1)
+    newax = fig.add_axes([0.86,0.91,0.08,0.08], anchor='NE', zorder=1)
     newax.imshow(logo)
     newax.axis('off')
 
