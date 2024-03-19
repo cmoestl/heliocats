@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[ ]:
+# In[1]:
 
 
 #switches
@@ -81,7 +81,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[ ]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -135,7 +135,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions, Xray and SDO plots
 
-# In[ ]:
+# In[3]:
 
 
 if debug_mode > 0: 
@@ -152,7 +152,7 @@ hd.get_noaa_xray(noaa_path,data_path,xraypickle,xraypickle2)
 hp.plot_noaa_xray(data_path+xraypickle,data_path+xraypickle2,plot_path)
 
 
-# In[ ]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -184,7 +184,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind 
 
-# In[ ]:
+# In[5]:
 
 
 if debug_mode > 0: 
@@ -291,7 +291,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[ ]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -346,7 +346,7 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[ ]:
+# In[13]:
 
 
 if debug_mode > 0:     
