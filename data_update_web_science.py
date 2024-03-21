@@ -17,7 +17,7 @@
 # - need to copy kernel files manually to the kernel paths
 # - PSP end date for data downloads needs to be set manually otherwise processing stops on the server - due to a timeout when no output for a while? or entering a loop? PSP data ends 2023 Oct 15, end date set to 2023 Dec 31, need to fix hd.download_pspmag_1min
 
-# In[14]:
+# In[5]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -27,13 +27,13 @@
 #switches
 debug_mode=0
 
-get_omni=1
-get_wind=1 
+get_omni=0
+get_wind=0 
 
-get_psp=1
+get_psp=0
 get_solo=1
-get_stereoa=1
-get_bepi=1
+get_stereoa=0
+get_bepi=0
 
 import numpy as np
 import pandas as pd
@@ -112,7 +112,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[3]:
 
 
 if sys.platform == 'linux': 
@@ -339,7 +339,7 @@ if debug_mode > 0:
     importlib.reload(hd) 
     importlib.reload(hp) 
 
-    start_time= datetime(2023,7,20)
+    start_time= datetime(2023,9,1)
     end_time  = datetime(2023,12,31)
     psp_file=data_path+'psp_rtn_test.p'
 
@@ -354,8 +354,8 @@ if get_psp > 0:
     
     
     #don't check all years for faster runtime, make end time shorter so its not a timeout on the server?
-    hd.download_pspmag_1min(datetime(2023,7,30),datetime(2023,12,31),psp_path)
-    hd.download_pspplas(datetime(2023,7,30),datetime(2023,12,31),psp_path)
+    hd.download_pspmag_1min(datetime(2023,9,1),datetime(2023,12,31),psp_path)
+    hd.download_pspplas(datetime(2023,9,1),datetime(2023,12,31),psp_path)
 
     print('process PSP to pickle')
     hd.create_psp_pkl(start_time,end_time,psp_file,psp_path)
@@ -428,8 +428,8 @@ if get_solo > 0:
     print(solo_path)
 
     #don't check all years for faster download
-    hd.download_solomag_1min(datetime(2023,1,1),end_time,solo_path)
-    hd.download_soloplas(datetime(2023,1,1),end_time,solo_path)
+    hd.download_solomag_1min(datetime(2020,4,14),end_time,solo_path)
+    hd.download_soloplas(datetime(2023,10,1),end_time,solo_path)
 
     print('process Solar Orbiter to pickle')
     hd.create_solo_pkl(start_time,end_time,solo_file,solo_path,kernels_path)

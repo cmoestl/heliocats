@@ -32,5 +32,8 @@ dependencies:
     - glymur==0.12.2
     - h5py==3.8.0
     - h5netcdf==1.1.0
+    - hvpy==1.1.0
+    - glymur==0.12.9
+    - astroquery==0.4.7
     
 
