@@ -21,7 +21,7 @@
 # 
 # **MIT LICENSE**
 # 
-# Copyright 2020-2023, Christian Moestl
+# Copyright 2020-2024, Christian Moestl
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this 
 # software and associated documentation files (the "Software"), to deal in the Software
@@ -959,7 +959,7 @@ print(rc_rate_time)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[29]:
+# In[10]:
 
 
 sns.set_context("talk")     
@@ -2059,7 +2059,7 @@ plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.pdf', dpi=100)
 
 # ## solar cycle progression
 
-# In[28]:
+# In[30]:
 
 
 sns.set_context('talk')
@@ -2158,7 +2158,111 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short.pdf')
 print(outputdirectory+'/cycle25_prediction_short.pdf')
 
 
-# In[22]:
+# ### German plot 
+
+# In[31]:
+
+
+sns.set_context('talk')
+sns.set_style('darkgrid')
+
+fig=plt.figure(30,figsize=(12,6),dpi=100)
+
+#print('get sunspot number from SIDC')    
+#get 13month smoothed sunspot number from SIDC
+#http://www.sidc.be/silso/datafiles
+#add year;month;year2;spot;stand;obs;check in first row to read pandas dataframe
+
+
+file='ssn_m.p'  
+ssn_m=pickle.load(open(data_path+file, "rb"))
+
+fsize=15
+
+
+ax1 = plt.subplot(111) 
+ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.4,linewidth=1.0,label='Sonnenfleckenrelativzahl, täglich (SIDC)')
+#ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
+ax1.plot(ssn_m.time+15,ssn_m.spot,'-k',alpha=1,linewidth=1.5,label='Sonnenfleckenrelativzahl, monatliches Mittel')
+
+
+
+#make pp19 begin time earlier
+import copy
+times_25_daily_shift=copy.deepcopy(times_25_daily)
+
+for i in np.arange(len(times_25_daily_shift)):
+    times_25_daily_shift[i]=times_25_daily_shift[i]-timedelta(days=6*30)
+
+#PP19 prediction
+ax1.plot(times_25_daily_shift,spots_predict_25pp_daily,'-b',alpha=1,linewidth=1.5,label='Vorhersage NASA 2019')
+ax1.fill_between(times_25_daily_shift,spots_predict_25pp_daily_low,spots_predict_25pp_daily_high,alpha=0.2)
+
+#MC20 prediction
+#ax1.plot(times_25_daily,spots_predict_25_daily,'--r',alpha=0.5,linewidth=1.0,label='McIntosh et al. (2020)')
+#ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
+
+#MC22 prediction
+#ax1.plot(times_25_daily,spots_predict_25_daily_mc2,'-r',alpha=1,linewidth=1.5,label='McIntosh+ 2023 ')
+#ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68_mc2, spots_predict_25_daily_upper68_mc2, alpha=0.1, color='red')
+
+
+
+#MC23 prediction
+ax1.plot(times_25_daily,spots_predict_25_daily_mc3,'-r',alpha=1,linewidth=1.5,label='Vorhersage McIntosh+ 2023')
+ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68_mc3, spots_predict_25_daily_upper68_mc3, alpha=0.1, color='red')
+
+
+
+#mean cycle
+ax1.plot(times_25_daily,spots_predict_25m_daily,'-g',alpha=1,linewidth=1.5,label='Mittlerer Sonnenzyklus seit 1750')
+ax1.set_xlim(datetime.datetime(1749,1,1),datetime.datetime(2035,1,1))
+
+
+#ax1.plot(times_25_daily,spots_predict_25_daily,'-k',alpha=1,linewidth=1.5,label='Solar dynamo revolution April 2021')
+#ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
+
+ax1.set_ylim(0,360)
+ax1.set_ylabel('Sonnenfleckenrelativzahl')
+
+plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
+
+
+plt.legend(loc='upper right',fontsize=8)
+plt.tight_layout()
+
+plt.savefig(outputdirectory+'/cycle25_prediction.png',dpi=100)
+
+#with shorter interval
+
+
+
+plt.legend(loc='upper right',fontsize=13)
+ax1.set_xlim(datetime.datetime(1963,1,1),datetime.datetime(2033,1,1))
+
+
+years = mdates.YearLocator(5)   # every year
+ax1.xaxis.set_major_locator(years)
+myformat = mdates.DateFormatter('%Y')
+ax1.xaxis.set_major_formatter(myformat)
+
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.11,0.85,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
+
+
+plt.tight_layout()
+
+plt.savefig(outputdirectory+'/cycle25_prediction_short_german.png',dpi=150)
+plt.savefig(outputdirectory+'/cycle25_prediction_short_german.pdf')
+print(outputdirectory+'/cycle25_prediction_short_german.pdf')
+
+
+# In[46]:
 
 
 #with shortest interval
@@ -2228,17 +2332,19 @@ ax1.set_ylim(0,max_spot)
 ax1.set_ylabel('Sunspot number')
 
 
-plt.legend(loc='upper left',fontsize=12)
+plt.legend(loc='upper left',fontsize=10)
 print('last update: '+str(mdates.num2date(ssn_p.time.tail(1))[0])[0:10])
-plt.annotate('latest data: '+str(mdates.num2date(ssn_p.time.tail(1))[0])[0:10],xy=(0.995,0.02),xycoords='axes fraction',fontsize=9,ha='right')
+plt.annotate('latest data: '+str(mdates.num2date(ssn_p.time.tail(1))[0])[0:10],xy=(0.85,0.02),xycoords='axes fraction',fontsize=9,ha='right')
 
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
 
-ax1.set_xlim(datetime.datetime(2019,1,1),datetime.datetime(2027,6,1))
+ax1.set_xlim(datetime.datetime(2019,6,1),datetime.datetime(2030,6,1))
+#ax1.set_xlim(datetime.datetime(2019,6,1),datetime.datetime(2030,6,1))
 ax1.set_ylim(0,300)
 months = mdates.MonthLocator()   # every year
 ax1.xaxis.set_minor_locator(months)
+ax1.xaxis.set_major_locator(mdates.YearLocator() )
 ax1.grid(linestyle='--')
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
@@ -2253,7 +2359,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # # 4 make PSP and Solar Orbiter position
 
-# In[23]:
+# In[24]:
 
 
 frame='HEEQ'
@@ -2354,7 +2460,7 @@ print('Solo pos')
 #plt.xlabel('AU')
 
 
-# In[24]:
+# In[25]:
 
 
 #get the speed in hourly resolution
@@ -2386,7 +2492,7 @@ print('psp maximum speed ',np.max(psp_highres_speed),' km/s at ',psp_highres_r[n
 
 # ### Make trajectory plots 
 
-# In[25]:
+# In[26]:
 
 
 #%matplotlib inline
@@ -2470,7 +2576,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[26]:
+# In[27]:
 
 
 #same thing for Solar Orbiter
@@ -2579,7 +2685,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
-# In[27]:
+# In[28]:
 
 
 t1all = time.time()
