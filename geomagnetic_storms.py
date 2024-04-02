@@ -9,7 +9,7 @@
 # 
 # 
 
-# In[21]:
+# In[3]:
 
 
 import pickle
@@ -67,7 +67,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[2]:
+# In[4]:
 
 
 ##get omni dst data
@@ -119,7 +119,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[3]:
+# In[5]:
 
 
 years=np.arange(1995,2040) 
@@ -175,7 +175,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
-# In[4]:
+# In[6]:
 
 
 years=np.arange(1955,2040,5) 
@@ -234,7 +234,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 print('saved as', outputdir+'geomagnetic_storm_space_age.png')
 
 
-# In[5]:
+# In[7]:
 
 
 years=np.arange(1995,2040) 
@@ -308,7 +308,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[6]:
+# In[8]:
 
 
 nrows=1
@@ -320,7 +320,7 @@ fig.add_trace(go.Scatter(x=o.time, y=o.dst, name='OMNI Dst',line_color='black') 
 
 fig.update_layout(title='Dst index', font=dict(size=20))
 
-fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
+fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=365),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
 
 
 fig.update_layout(
@@ -342,7 +342,7 @@ fig.write_html(outputdir+'geomagnetic_storm_latest.html')
 print('saved',outputdir+'geomagnetic_storm_latest.html')
 
 
-# In[7]:
+# In[9]:
 
 
 ###same in german
@@ -917,7 +917,7 @@ plt.tight_layout()
 #plotfile='geomagnetic_storm_dst_cycles.png'
 #plt.savefig(outputdir+plotfile,dpi=100)
 #plt.savefig(plotfile,dpi=100)
-print('saved as ',plotfile)
+#print('saved as ',plotfile)
 
 
 # In[27]:
