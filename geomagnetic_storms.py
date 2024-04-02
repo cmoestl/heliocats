@@ -3,17 +3,13 @@
 
 # ## Geomagnetic storm magnitude plots and txt files
 # 
-# Makes txt and png files for Dst and Nc (Newell coupling)
+# Makes txt, png and html files for recent Dst and Nc (Newell coupling)
 # 
 # Issues:
 # 
 # 
-# - make Nc plot and add Nc to output file already with the data_update_web_hf program? here for testing, this program is for plotting
-# 
-# 
-# 
 
-# In[57]:
+# In[21]:
 
 
 import pickle
@@ -33,7 +29,6 @@ import importlib
 import copy
 import locale
 
-
 #Plotly imports
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -41,14 +36,12 @@ import plotly.io as pio
 from plotly.offline import iplot, init_notebook_mode
 import plotly.express as px
 
-
 #import 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
 from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
-
 
 outputdir='results/icme_rate/'
 
@@ -69,15 +62,12 @@ if sys.platform =='darwin':
 
 print(data_path)
 
-
 os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')    
-
-
 
 
 # ### get Dst data
 
-# In[49]:
+# In[2]:
 
 
 ##get omni dst data
@@ -129,7 +119,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[34]:
+# In[3]:
 
 
 years=np.arange(1995,2040) 
@@ -172,6 +162,8 @@ plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=
 
 plt.figtext(0.10,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
 
+ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
 newax = fig.add_axes([0.89,0.89,0.08,0.08], anchor='NE', zorder=1)
@@ -183,152 +175,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
-# ### Histograms
-
-# In[35]:
-
-
-#years23=np.arange(1996,2009)
-#years24=np.arange(2009,2020)
-#years25=np.arange(2020,2023)
-
-start20=datetime.datetime(1965,1,1)
-start22=datetime.datetime(1986,1,1)
-start23=datetime.datetime(1996,1,1)
-start24=datetime.datetime(2009,1,1)
-start25=datetime.datetime(2020,1,1)
-
-rise20=datetime.datetime(1968,1,1)
-rise22=datetime.datetime(1989,1,1)
-rise23=datetime.datetime(1999,1,1)
-rise24=datetime.datetime(2012,1,1)
-
-
-#ind23=np.where(np.logical_and(o.time > start23,o.time < start24))[0]
-#ind24=np.where(np.logical_and(o.time > start24,o.time < start25))[0]
-
-ind20=np.where(np.logical_and(o.time > start20,o.time < rise20))[0]
-ind22=np.where(np.logical_and(o.time > start22,o.time < rise22))[0]
-ind23=np.where(np.logical_and(o.time > start23,o.time < rise23))[0]
-ind24=np.where(np.logical_and(o.time > start24,o.time < rise24))[0]
-
-ind25=np.where(o.time > start25)[0]
-
-o20=o[ind20]
-o22=o[ind22]
-o23=o[ind23]
-o24=o[ind24]
-o25=o[ind25]
-
-
-# In[36]:
-
-
-#compare rising phases
-
-
-# Create a histogram plot using seaborn
-sns.set_context("talk")     
-#sns.set_style('darkgrid')
-#sns.set_style('whitegrid',{'grid.linestyle': '--'})
-
-sns.set_style("ticks",{'grid.linestyle': '--'})
-fig, ax=plt.subplots(1,figsize=(13,7),dpi=100)
-
-
-bins=np.arange(-500,120,5)
-#print(bins)
-
-
-# Plot the histogram
-sns.histplot(o20.dst, bins=bins, kde=True, color='grey', stat='percent',shrink=0,label='20')
-#sns.histplot(o22.dst, bins=bins, kde=True, color='grey', stat='percent',shrink=0,label='22')
-sns.histplot(o23.dst, bins=bins, kde=True, color='navy', stat='percent',shrink=0,label='23')
-sns.histplot(o24.dst, bins=bins, kde=True, color='coral', stat='percent',label='24')
-sns.histplot(o25.dst, bins=bins, kde=True, color='black', stat='percent',shrink=0,label='25')
-
-#sns.kdeplot(o24, color='tomato')
-#sns.kdeplot(data=data["total_bill"], fill=True)
-#sns.kdeplot(o25, bins=bins, kde=True, color='yellow', stat='percent')
-
-ax.grid(alpha=0.5)
-ax.set_ylim(0.01, 30)
-ax.set_xlim(-300, 100)
-plt.yscale('log')
-# Add labels and a title
-plt.xlabel('Dst [nT] ')
-plt.ylabel('Percent')
-plt.title('Dst rising phase')
-plt.legend()
-
-# Show the plot
-plt.show()
-
-
-plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
-plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
-
-plt.tight_layout()
-
-plotfile='geomagnetic_storm_dst_cycles.png'
-plt.savefig(outputdir+plotfile,dpi=100)
-#plt.savefig(plotfile,dpi=100)
-print('saved as ',plotfile)
-
-
-# In[37]:
-
-
-sns.set_style("ticks",{'grid.linestyle': '--'})
-fig1, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
-
-ax1.grid(alpha=0.5)
-
-plt.xlabel('B [nT]')
-plt.ylabel('Percent')
-plt.title('Total solar wind magnetic field in OMNI2 near Earth data, rising phase')
-
-
-
-bins=np.arange(0,50,0.5)
-#sns.histplot(o20.bt, bins=bins, kde=True, color='grey', stat='percent',shrink=0,label='cycle 20')
-sns.histplot(o23.bt, bins=bins, kde=True, color='navy', stat='percent',label='cycle 23',multiple="dodge",shrink=0)
-sns.histplot(o24.bt, bins=bins, kde=True, color='coral', stat='percent',label='cycle 24',multiple="dodge")
-sns.histplot(o25.bt, bins=bins, kde=True, color='black', stat='percent',label='cycle 25',multiple="dodge",shrink=0)
-
-#data=[o23.bt,o24.bt,o25.bt]
-#sns.histplot(data, bins=bins, kde=True, stat='percent',multiple="dodge",shrink=0, element="bars")
-
-# Create a custom legend
-
-ax1.set_xlim(0, 20)
-plt.legend()
-
-
-# In[38]:
-
-
-sns.set_style("ticks",{'grid.linestyle': '--'})
-fig1, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
-
-ax1.grid(alpha=0.5)
-
-plt.xlabel('V [km/s]')
-plt.ylabel('Percent')
-plt.title('Solar wind speed in OMNI2 near Earth data, rising phase')
-
-
-bins=np.arange(0,1000,10)
-#sns.histplot(o20.vt, bins=bins, kde=True, color='grey', stat='percent',label='cycle 23',shrink=0)
-sns.histplot(o23.vt, bins=bins, kde=True, color='navy', stat='percent',label='cycle 23',shrink=0)
-sns.histplot(o24.vt, bins=bins, kde=True, color='coral', stat='percent',label='cycle 24')
-sns.histplot(o25.vt, bins=bins, kde=True, color='black', stat='percent',label='cycle 25',shrink=0)
-
-ax1.set_xlim(200, 800)
-plt.legend()
-
-
-# In[39]:
+# In[4]:
 
 
 years=np.arange(1955,2040,5) 
@@ -373,6 +220,8 @@ plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=
 
 plt.figtext(0.11,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
 
+ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
 newax = fig.add_axes([0.89,0.89,0.08,0.08], anchor='NE', zorder=1)
 newax.imshow(logo)
@@ -382,8 +231,10 @@ plt.tight_layout()
 
 plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 
+print('saved as', outputdir+'geomagnetic_storm_space_age.png')
 
-# In[40]:
+
+# In[5]:
 
 
 years=np.arange(1995,2040) 
@@ -441,6 +292,8 @@ newax = fig.add_axes([0.87,0.90,0.08,0.08], anchor='NE', zorder=1)
 newax.imshow(logo)
 newax.axis('off')
 
+ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+
 
 
 plt.tight_layout()
@@ -455,7 +308,41 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[41]:
+# In[6]:
+
+
+nrows=1
+fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True)
+
+fig.add_trace(go.Scatter(x=n.time, y=n.dst, name='NOAA Dst', mode='markers',marker=dict(color='black', size=10)) )
+fig.add_trace(go.Scatter(x=n.time, y=n.dst, name='NOAA Dst',line_color='blue') )
+fig.add_trace(go.Scatter(x=o.time, y=o.dst, name='OMNI Dst',line_color='black') )
+
+fig.update_layout(title='Dst index', font=dict(size=20))
+
+fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
+
+
+fig.update_layout(
+    xaxis=dict(
+        title=dict(
+            text="time",
+            font=dict(size=20)  # Adjust the font size as needed
+        )
+    ),
+    yaxis=dict(
+        title=dict(
+            text="Dst [nT]",
+            font=dict(size=20)  # Adjust the font size as needed
+        )
+    )
+)
+              
+fig.write_html(outputdir+'geomagnetic_storm_latest.html')
+print('saved',outputdir+'geomagnetic_storm_latest.html')
+
+
+# In[7]:
 
 
 ###same in german
@@ -513,6 +400,8 @@ newax = fig.add_axes([0.87,0.90,0.08,0.08], anchor='NE', zorder=1)
 newax.imshow(logo)
 newax.axis('off')
 
+ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+
 
 
 plt.tight_layout()
@@ -527,9 +416,118 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 ##histogram
 
 
+# ## Dst plot with thresholds
+
+# In[8]:
+
+
+#get current dst last 35 days
+filenoaa='noaa_dst_last_35files_now.p'
+n=pickle.load(open(data_path+filenoaa, "rb" ) )  
+
+locale.setlocale(locale.LC_ALL,'en_US')
+
+#########################
+
+threshold1=-50 #for real time application
+threshold2=-100 
+threshold3=-150 
+
+###################
+
+sns.set_context('talk')
+sns.set_style('darkgrid')
+fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
+
+ax1.axhline(y=threshold1, color='yellowgreen', linestyle='--',label='threshold 1')
+ax1.axhline(y=threshold2, color='orange', linestyle='--',label='threshold 2')
+ax1.axhline(y=threshold3, color='red', linestyle='--',label='')
+
+ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+
+ax1.plot(n.time,n.dst,color='royalblue',linewidth=1.5,alpha=1.0)
+ax1.plot(n.time,n.dst,'ok',markersize=5)
+
+plotmin=np.nanmin(n.dst)-50
+plotmax=np.nanmax(n.dst)+30
+
+#always show the threshold at -150
+if plotmin > -170: plotmin=-170
+print(plotmax, plotmin)
+
+ax1.set_ylim(plotmin,plotmax)
+plt.ylabel('Dst [nT]')
+ax1.xaxis_date()
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=1))
+
+plt.title('Latest geomagnetic storms',fontsize=15)
+ax1.xaxis_date()
+ax1.xaxis.set_major_locator(mdates.DayLocator())
+myformat = mdates.DateFormatter('%b %d')
+ax1.xaxis.set_major_formatter(myformat)
+plt.xticks(rotation=30)
+
+ax1.set_xlabel(datetime.datetime.utcnow().year)
+
+fsize=12
+
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.87,0.90,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
+
+plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-2, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-2, style='italic')
+plt.figtext(0.10,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
+plt.tight_layout()
+
+
+#plt.savefig('alerts/alert_dst.png',dpi=100)
+
+plt.savefig(outputdir+'geomagnetic_storm_latest_zoom.png',dpi=100)
+print('saved',outputdir+'geomagnetic_storm_latest_zoom.png')
+
+
+# ### plotly
+
+# In[9]:
+
+
+nrows=1
+fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True)
+
+
+fig.add_trace(go.Scatter(x=n.time, y=n.dst, name='Dst', mode='markers',marker=dict(color='black', size=10)) )
+fig.add_trace(go.Scatter(x=n.time, y=n.dst, name='Dst',line_color='blue') )
+
+fig.update_layout(title='Dst index', font=dict(size=20))
+
+fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
+
+
+fig.update_layout(
+    xaxis=dict(
+        title=dict(
+            text="time",
+            font=dict(size=20)  # Adjust the font size as needed
+        )
+    ),
+    yaxis=dict(
+        title=dict(
+            text="Dst [nT]",
+            font=dict(size=20)  # Adjust the font size as needed
+        )
+    )
+)
+              
+fig.write_html(outputdir+'geomagnetic_storm_latest_zoom.html')
+print('saved',outputdir+'geomagnetic_storm_latest_zoom.html')
+
+
 # ## Newell Coupling
 
-# In[56]:
+# In[10]:
 
 
 ###add plot and add to txt file without propagation 
@@ -627,10 +625,10 @@ plt.figtext(0.07,0.94,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' U
 plt.ylabel('Nc')
 plt.legend(loc=2,fontsize=12)
 plt.title('Latest Newell coupling')
-ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=1))
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=1))
 
 
-#minimum 5 for y axis
+#minimum 6.5 for y axis
 if np.nanmax(n_ncw) < 6.5:
     ax1.set_ylim(0,6.5)
 else:
@@ -641,7 +639,7 @@ ax1.xaxis_date()
 ax1.xaxis.set_major_locator(mdates.DayLocator())
 myformat = mdates.DateFormatter('%b %d')
 ax1.xaxis.set_major_formatter(myformat)
-plt.xticks(rotation=35)
+plt.xticks(rotation=30)
 
 ax1.set_xlabel(datetime.datetime.utcnow().year)
 
@@ -662,7 +660,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 # ### plotly
 
-# In[47]:
+# In[11]:
 
 
 #plot the last 30 days
@@ -706,10 +704,9 @@ print('saved as', outputdir+'newell_coupling_latest.html')
 
 
 
-# In[44]:
+# ### save data for last few months as txt
 
-
-#save data for last few months as txt
+# In[12]:
 
 
 ## to do: indicate if data comes from OMNI or NOAA
@@ -735,14 +732,14 @@ data.dst=dst
 data=np.flip(data)
 
 #save latest year as file
-np.savetxt(outputdir+'geomagnetic_storm_latest.txt',data, delimiter=' ', fmt='%s %d', header='time [UTC]   Dst [nT] / data from OMNI2, NOAA. ASWO, GeoSphere Austria  created '+str(datetime.datetime.utcnow())[0:16])
+np.savetxt(outputdir+'geomagnetic_storm_latest.txt',data, delimiter=' ', fmt='%s %d', header='time [UTC]   Dst [nT] / data from OMNI2, NOAA. ASWO, GeoSphere Austria, created '+str(datetime.datetime.utcnow())[0:16]+' UTC')
 print('saved as', outputdir+'geomagnetic_storm_latest.txt')
 
 print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[30]:
+# In[13]:
 
 
 print(' ')
@@ -752,9 +749,28 @@ print('Dst update png and txt done ')
 print('------------------------')
 
 
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
 # #### looking into the data
 
-# In[31]:
+# In[14]:
 
 
 #https://plotly.com/python/
@@ -775,7 +791,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[16]:
+# In[15]:
 
 
 if data_lookup > 0:
@@ -787,7 +803,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[17]:
+# In[16]:
 
 
 if data_lookup > 0:
@@ -803,6 +819,157 @@ if data_lookup > 0:
 
 
 
+
+
+# In[ ]:
+
+
+
+
+
+# ### Histograms
+
+# In[17]:
+
+
+#years23=np.arange(1996,2009)
+#years24=np.arange(2009,2020)
+#years25=np.arange(2020,2023)
+
+start20=datetime.datetime(1965,1,1)
+start22=datetime.datetime(1986,1,1)
+start23=datetime.datetime(1996,1,1)
+start24=datetime.datetime(2009,1,1)
+start25=datetime.datetime(2020,1,1)
+
+rise20=datetime.datetime(1968,1,1)
+rise22=datetime.datetime(1989,1,1)
+rise23=datetime.datetime(1999,1,1)
+rise24=datetime.datetime(2012,1,1)
+
+
+#ind23=np.where(np.logical_and(o.time > start23,o.time < start24))[0]
+#ind24=np.where(np.logical_and(o.time > start24,o.time < start25))[0]
+
+ind20=np.where(np.logical_and(o.time > start20,o.time < rise20))[0]
+ind22=np.where(np.logical_and(o.time > start22,o.time < rise22))[0]
+ind23=np.where(np.logical_and(o.time > start23,o.time < rise23))[0]
+ind24=np.where(np.logical_and(o.time > start24,o.time < rise24))[0]
+
+ind25=np.where(o.time > start25)[0]
+
+o20=o[ind20]
+o22=o[ind22]
+o23=o[ind23]
+o24=o[ind24]
+o25=o[ind25]
+
+
+# In[23]:
+
+
+#compare rising phases
+
+
+# Create a histogram plot using seaborn
+sns.set_context("talk")     
+#sns.set_style('darkgrid')
+#sns.set_style('whitegrid',{'grid.linestyle': '--'})
+
+sns.set_style("ticks",{'grid.linestyle': '--'})
+fig, ax=plt.subplots(1,figsize=(13,7),dpi=100)
+
+
+bins=np.arange(-500,120,5)
+#print(bins)
+
+
+# Plot the histogram
+sns.histplot(o20.dst, bins=bins, kde=True, color='grey', stat='percent',shrink=0,label='20')
+#sns.histplot(o22.dst, bins=bins, kde=True, color='grey', stat='percent',shrink=0,label='22')
+sns.histplot(o23.dst, bins=bins, kde=True, color='navy', stat='percent',shrink=0,label='23')
+sns.histplot(o24.dst, bins=bins, kde=True, color='coral', stat='percent',label='24')
+sns.histplot(o25.dst, bins=bins, kde=True, color='black', stat='percent',shrink=0,label='25')
+
+#sns.kdeplot(o24, color='tomato')
+#sns.kdeplot(data=data["total_bill"], fill=True)
+#sns.kdeplot(o25, bins=bins, kde=True, color='yellow', stat='percent')
+
+ax.grid(alpha=0.5)
+ax.set_ylim(0.01, 30)
+ax.set_xlim(-300, 100)
+plt.yscale('log')
+# Add labels and a title
+plt.xlabel('Dst [nT] ')
+plt.ylabel('Percent')
+plt.title('Dst rising phase')
+plt.legend()
+
+# Show the plot
+plt.show()
+
+
+plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=fsize-4, style='italic')
+
+plt.tight_layout()
+
+#plotfile='geomagnetic_storm_dst_cycles.png'
+#plt.savefig(outputdir+plotfile,dpi=100)
+#plt.savefig(plotfile,dpi=100)
+print('saved as ',plotfile)
+
+
+# In[27]:
+
+
+sns.set_style("ticks",{'grid.linestyle': '--'})
+fig1, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
+
+ax1.grid(alpha=0.5)
+
+plt.xlabel('B [nT]')
+plt.ylabel('Percent')
+plt.title('Total solar wind magnetic field in OMNI2 near Earth data, rising phase')
+
+
+
+bins=np.arange(0,50,0.5)
+#sns.histplot(o20.bt, bins=bins, kde=True, color='grey', stat='percent',shrink=0,label='cycle 20')
+sns.histplot(o23.bt, bins=bins, kde=True, color='navy', stat='percent',label='cycle 23',multiple="dodge",shrink=0)
+sns.histplot(o24.bt, bins=bins, kde=True, color='coral', stat='percent',label='cycle 24',multiple="dodge")
+sns.histplot(o25.bt, bins=bins, kde=True, color='black', stat='percent',label='cycle 25',multiple="dodge",shrink=0)
+
+#data=[o23.bt,o24.bt,o25.bt]
+#sns.histplot(data, bins=bins, kde=True, stat='percent',multiple="dodge",shrink=0, element="bars")
+
+# Create a custom legend
+
+ax1.set_xlim(0, 20)
+plt.legend()
+
+
+# In[25]:
+
+
+sns.set_style("ticks",{'grid.linestyle': '--'})
+fig1, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
+
+ax1.grid(alpha=0.5)
+
+plt.xlabel('V [km/s]')
+plt.ylabel('Percent')
+plt.title('Solar wind speed in OMNI2 near Earth data, rising phase')
+
+
+bins=np.arange(0,1000,10)
+#sns.histplot(o20.vt, bins=bins, kde=True, color='grey', stat='percent',label='cycle 23',shrink=0)
+sns.histplot(o23.vt, bins=bins, kde=True, color='navy', stat='percent',label='cycle 23',shrink=0)
+sns.histplot(o24.vt, bins=bins, kde=True, color='coral', stat='percent',label='cycle 24')
+sns.histplot(o25.vt, bins=bins, kde=True, color='black', stat='percent',label='cycle 25',shrink=0)
+
+ax1.set_xlim(200, 800)
+plt.legend()
 
 
 # In[ ]:

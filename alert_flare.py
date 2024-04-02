@@ -13,13 +13,13 @@
 # Issues: 
 # 
 
-# In[1]:
+# In[2]:
 
 
 #debug mode turns telegram notifications off and introduces an artifical flare data point
 #debug_mode=True
 
-#use for deployment
+#use False for deployment
 debug_mode=False
 
 if debug_mode:
@@ -31,7 +31,7 @@ import os
 os.system('jupyter nbconvert --to script alert_flare.ipynb')  
 
 
-# In[2]:
+# In[11]:
 
 
 import pickle
@@ -80,7 +80,7 @@ print(data_path)
 
 # ### get xray data and plot
 
-# In[3]:
+# In[4]:
 
 
 filenoaa='noaa_xray_last_7days_now.p'
@@ -95,7 +95,7 @@ if debug_mode:
     d1.flux[-8]=4*1e-4 #X4 flare
 
 
-# In[4]:
+# In[5]:
 
 
 sns.set_context('talk')
@@ -149,7 +149,7 @@ plt.savefig('alerts/alert_flare.png',dpi=100)
 
 # ### alert functions
 
-# In[5]:
+# In[6]:
 
 
 #with outlook as sender, gmail does not work
@@ -207,7 +207,7 @@ def send_alert_email(time,dstval):
   
 
 
-# In[6]:
+# In[7]:
 
 
 def send_telegram_message(time,fluxval):
@@ -218,13 +218,13 @@ def send_telegram_message(time,fluxval):
     # Replace 'YOUR_CHAT_ID' with the chat ID of the user or group where you want to send the message
     chat_id = aid.chat_id
 
-    time_formatted=time.strftime("%Y %b %d %Hh UTC")
+    time_formatted=time.strftime("%Y %b %d %H:%M UTC")
     
     # The message you want to send
     message_text = """ Hi, there is a strong flare happening: 
 GOES flux X{} at {} 
 The ASWO team
-https://helioforecast.space/dashboard""".format(fluxval, time_formatted)
+https://helioforecast.space/dashboard""".format(np.round(fluxval,2), time_formatted)
 
     # Create the URL for the Telegram Bot API endpoint
     api_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
@@ -248,7 +248,7 @@ https://helioforecast.space/dashboard""".format(fluxval, time_formatted)
 
 # ### Check latest data
 
-# In[7]:
+# In[8]:
 
 
 time_now=datetime.datetime.utcnow()
@@ -319,7 +319,7 @@ print('Used for alerts', d_max_25, d_max_25_xl, d3_max_25_time,d_array)
 # ## Alert for threshold 1
 # 
 
-# In[8]:
+# In[9]:
 
 
 if d_max_25 < threshold1: 
@@ -390,7 +390,7 @@ if d_max_25>= threshold1:
 
 # ### Alert for threshold 2, same setup as for threshold 1, not used so far
 
-# In[9]:
+# In[10]:
 
 
 print(' ')

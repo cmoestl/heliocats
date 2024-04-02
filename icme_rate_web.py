@@ -2059,7 +2059,7 @@ plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.pdf', dpi=100)
 
 # ## solar cycle progression
 
-# In[30]:
+# In[21]:
 
 
 sns.set_context('talk')
@@ -2081,7 +2081,7 @@ fsize=15
 ax1 = plt.subplot(111) 
 ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.4,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
 #ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
-ax1.plot(ssn_m.time+15,ssn_m.spot,'-k',alpha=1,linewidth=1.5,label='Observed sunspot number (SIDC, monthly mean)')
+ax1.plot(ssn_m.time+15,ssn_m.spot,'-k',alpha=1,linewidth=1.5,label='Observed sunspot number (monthly mean)')
 
 
 
@@ -2120,7 +2120,7 @@ ax1.set_xlim(datetime.datetime(1749,1,1),datetime.datetime(2035,1,1))
 #ax1.plot(times_25_daily,spots_predict_25_daily,'-k',alpha=1,linewidth=1.5,label='Solar dynamo revolution April 2021')
 #ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
 
-ax1.set_ylim(0,360)
+ax1.set_ylim(0,370)
 ax1.set_ylabel('Sunspot number')
 
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
@@ -2136,8 +2136,8 @@ plt.savefig(outputdirectory+'/cycle25_prediction.png',dpi=100)
 
 
 
-plt.legend(loc='upper right',fontsize=13)
-ax1.set_xlim(datetime.datetime(1963,1,1),datetime.datetime(2033,1,1))
+plt.legend(loc='upper right',fontsize=11)
+ax1.set_xlim(datetime.datetime(1965,1,1),datetime.datetime(2033,1,1))
 
 
 years = mdates.YearLocator(5)   # every year
@@ -2160,7 +2160,7 @@ print(outputdirectory+'/cycle25_prediction_short.pdf')
 
 # ### German plot 
 
-# In[31]:
+# In[22]:
 
 
 sns.set_context('talk')
@@ -2222,7 +2222,7 @@ ax1.set_xlim(datetime.datetime(1749,1,1),datetime.datetime(2035,1,1))
 #ax1.plot(times_25_daily,spots_predict_25_daily,'-k',alpha=1,linewidth=1.5,label='Solar dynamo revolution April 2021')
 #ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
 
-ax1.set_ylim(0,360)
+ax1.set_ylim(0,370)
 ax1.set_ylabel('Sonnenfleckenrelativzahl')
 
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
@@ -2238,8 +2238,8 @@ plt.savefig(outputdirectory+'/cycle25_prediction.png',dpi=100)
 
 
 
-plt.legend(loc='upper right',fontsize=13)
-ax1.set_xlim(datetime.datetime(1963,1,1),datetime.datetime(2033,1,1))
+plt.legend(loc='upper right',fontsize=12)
+ax1.set_xlim(datetime.datetime(1965,1,1),datetime.datetime(2033,1,1))
 
 
 years = mdates.YearLocator(5)   # every year
@@ -2262,7 +2262,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short_german.pdf')
 print(outputdirectory+'/cycle25_prediction_short_german.pdf')
 
 
-# In[46]:
+# In[23]:
 
 
 #with shortest interval
@@ -2285,7 +2285,7 @@ file='ssn_prelim.p'
 ssn_p=pickle.load(open(data_path+file, "rb"))
 
 fsize=15
-max_spot=420
+max_spot=300
 
 ax1 = plt.subplot(111) 
 ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.5,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
@@ -2297,10 +2297,10 @@ ax1.plot(ssn_m.time+15,ssn_m.spot,'-k',alpha=1,linewidth=2,label='Observed sunsp
 
     
 #PP19 prediction
-ax1.plot(times_25_daily,spots_predict_25pp_daily,color='deepskyblue',alpha=1,linewidth=2.5,label='Prediction Panel NOAA/NASA/ISES')
+ax1.plot(times_25_daily,spots_predict_25pp_daily,color='deepskyblue',alpha=1,linewidth=2.5,label='Prediction NOAA/NASA/ISES')
 #ax1.fill_between(times_25_daily,spots_predict_25pp_daily_low,spots_predict_25pp_daily_high,alpha=0.2)
 
-ax1.plot(times_25_daily_shift,spots_predict_25pp_daily,color='blue',alpha=1,linewidth=2.5,label='Prediction Panel NOAA/NASA/ISES shifted -6 months')
+ax1.plot(times_25_daily_shift,spots_predict_25pp_daily,color='blue',alpha=1,linewidth=2.5,label='Prediction NOAA/NASA/ISES shifted -6 months')
 ax1.fill_between(times_25_daily_shift,spots_predict_25pp_daily_low,spots_predict_25pp_daily_high,alpha=0.2, color='dodgerblue')
 
 
@@ -2323,8 +2323,6 @@ ax1.plot(times_25_daily,spots_predict_25_daily_mc3,'-r',alpha=1,linewidth=2.5,la
 ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68_mc3, spots_predict_25_daily_upper68_mc3, alpha=0.1, color='red')
 
 
-
-
 #mean cycle
 ax1.plot(times_25_daily,spots_predict_25m_daily,'-g',alpha=1,linewidth=2.5,label='Mean solar cycle since 1750')
 ax1.set_xlim(datetime.datetime(1749,1,1),datetime.datetime(2035,1,1))
@@ -2332,7 +2330,7 @@ ax1.set_ylim(0,max_spot)
 ax1.set_ylabel('Sunspot number')
 
 
-plt.legend(loc='upper left',fontsize=10)
+plt.legend(loc='upper right',fontsize=10)
 print('last update: '+str(mdates.num2date(ssn_p.time.tail(1))[0])[0:10])
 plt.annotate('latest data: '+str(mdates.num2date(ssn_p.time.tail(1))[0])[0:10],xy=(0.85,0.02),xycoords='axes fraction',fontsize=9,ha='right')
 
@@ -2341,14 +2339,14 @@ plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right
 
 ax1.set_xlim(datetime.datetime(2019,6,1),datetime.datetime(2030,6,1))
 #ax1.set_xlim(datetime.datetime(2019,6,1),datetime.datetime(2030,6,1))
-ax1.set_ylim(0,300)
+
 months = mdates.MonthLocator()   # every year
 ax1.xaxis.set_minor_locator(months)
 ax1.xaxis.set_major_locator(mdates.YearLocator() )
 ax1.grid(linestyle='--')
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
-newax = fig.add_axes([0.89,0.85,0.08,0.08], anchor='NE', zorder=1)
+newax = fig.add_axes([0.10,0.83,0.09,0.09], anchor='NE', zorder=1)
 newax.add_patch(matplotlib.patches.Rectangle((0, 0), 1, 1, color='white', transform=newax.transAxes, zorder=0))
 newax.imshow(logo)
 newax.axis('off')

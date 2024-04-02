@@ -13,7 +13,7 @@
 # Issues: 
 # 
 
-# In[19]:
+# In[9]:
 
 
 ######### CHECK: do you want to debug or actually send alerts
@@ -36,7 +36,7 @@ import os
 os.system('jupyter nbconvert --to script alert.ipynb')  
 
 
-# In[11]:
+# In[10]:
 
 
 import pickle
@@ -103,7 +103,7 @@ print(data_path)
 
 # ### get Dst data and plot
 
-# In[12]:
+# In[3]:
 
 
 #get current dst last 35 days
@@ -176,44 +176,9 @@ plt.tight_layout()
 plt.savefig('alerts/alert_dst.png',dpi=100)
 
 
-# ## plotly
-
-# In[13]:
-
-
-nrows=1
-fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True)
-
-
-fig.add_trace(go.Scatter(x=n.time, y=n.dst, name='Dst', mode='markers',marker=dict(color='black', size=10)) )
-fig.add_trace(go.Scatter(x=n.time, y=n.dst, name='Dst',line_color='blue') )
-
-fig.update_layout(title='Dst index', font=dict(size=20))
-
-fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
-
-
-fig.update_layout(
-    xaxis=dict(
-        title=dict(
-            text="time",
-            font=dict(size=20)  # Adjust the font size as needed
-        )
-    ),
-    yaxis=dict(
-        title=dict(
-            text="Dst [nT]",
-            font=dict(size=20)  # Adjust the font size as needed
-        )
-    )
-)
-              
-fig.write_html(f'alerts/alert_dst.html')
-
-
 # ### alert functions
 
-# In[14]:
+# In[4]:
 
 
 #with outlook as sender, gmail does not work
@@ -271,7 +236,7 @@ def send_alert_email(time,dstval):
   
 
 
-# In[15]:
+# In[5]:
 
 
 def send_telegram_message(time,dstval):
@@ -318,7 +283,7 @@ https://helioforecast.space/solarwind""".format(dstval, time_formatted)
 # ### alert for threshold 1
 # 
 
-# In[16]:
+# In[6]:
 
 
 # for testing
@@ -414,7 +379,7 @@ if n.dst[-1]<= threshold1:
 
 # ### Alert for threshold 2, same setup as for threshold 1
 
-# In[17]:
+# In[7]:
 
 
 # for testing
@@ -495,7 +460,7 @@ if n.dst[-1]<= threshold2:
         
 
 
-# In[18]:
+# In[8]:
 
 
 print(' ')
