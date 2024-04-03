@@ -92,11 +92,13 @@ def plot_noaa_xray(xrayfile,xrayfile2,plot_path):
 
     #upper plot
     
-    rem=np.where(xdc1.flux < 5*1e-7)[0]    
+    threshold=3*1e-7
+    
+    rem=np.where(xdc1.flux < threshold)[0]    
     for i in rem:
         xdc1[i-2:i+2]=np.nan
     
-    rem=np.where(xd2c1.flux < 5*1e-7)[0]    
+    rem=np.where(xd2c1.flux < threshold)[0]    
     for i in rem:
         xd2c1[i-2:i+2]=np.nan
 
@@ -138,12 +140,15 @@ def plot_noaa_xray(xrayfile,xrayfile2,plot_path):
     ax.axhline(y=threshold2, color='orange', linestyle='--',label='X5',linewidth=1.5)
     ax.axhline(y=threshold3, color='red', linestyle='--',label='X10',linewidth=1.5)
 
+    ax.axhline(y=threshold, color='grey', linestyle='--',alpha=0.5)
+
+    
     ax.annotate('NOAA SWPC M5',xy=(datetime.datetime.utcnow()-datetime.timedelta(days=6),3*1e-5),xycoords='data',fontsize=12,ha='left',alpha=0.5)
     
     ax.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
 
 
-    #plt.title('Geomagnetische Stürme 2015-2023')
+
     plt.title('GOES X-Ray flux from NOAA',fontsize=16)
 
     fsize=12
@@ -517,7 +522,7 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
     #set after maximum in both   
     ax3.set_ylim(250, vscale)
     ax3.text(sc1.time[40], vscale, 'NOAA L1', fontsize=fsize, color='black')
-    ax3.text(sc1.time[540], vscale, 'STEREO-A', fontsize=fsize, color='red')
+    ax3.text(sc1.time[650], vscale, 'STEREO-A', fontsize=fsize, color='red')
 
 
 

@@ -9,7 +9,7 @@
 # 
 # 
 
-# In[3]:
+# In[4]:
 
 
 import pickle
@@ -67,7 +67,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[4]:
+# In[5]:
 
 
 ##get omni dst data
@@ -119,7 +119,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[5]:
+# In[6]:
 
 
 years=np.arange(1995,2040) 
@@ -175,7 +175,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
-# In[6]:
+# In[7]:
 
 
 years=np.arange(1955,2040,5) 
@@ -234,7 +234,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 print('saved as', outputdir+'geomagnetic_storm_space_age.png')
 
 
-# In[7]:
+# In[8]:
 
 
 years=np.arange(1995,2040) 
@@ -308,7 +308,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[8]:
+# In[9]:
 
 
 nrows=1
@@ -342,7 +342,7 @@ fig.write_html(outputdir+'geomagnetic_storm_latest.html')
 print('saved',outputdir+'geomagnetic_storm_latest.html')
 
 
-# In[9]:
+# In[10]:
 
 
 ###same in german
@@ -418,7 +418,7 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 
 # ## Dst plot with thresholds
 
-# In[8]:
+# In[11]:
 
 
 #get current dst last 35 days
@@ -491,7 +491,7 @@ print('saved',outputdir+'geomagnetic_storm_latest_zoom.png')
 
 # ### plotly
 
-# In[9]:
+# In[12]:
 
 
 nrows=1
@@ -527,7 +527,7 @@ print('saved',outputdir+'geomagnetic_storm_latest_zoom.html')
 
 # ## Newell Coupling
 
-# In[10]:
+# In[17]:
 
 
 ###add plot and add to txt file without propagation 
@@ -629,10 +629,10 @@ ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.dat
 
 
 #minimum 6.5 for y axis
-if np.nanmax(n_ncw) < 6.5:
-    ax1.set_ylim(0,6.5)
+if np.nanmax(n_ncw) < 7.0:
+    ax1.set_ylim(0,7.0)
 else:
-    ax1.set_ylim(0,np.nanmax(n_ncw)+1)
+    ax1.set_ylim(0,np.nanmax(n_ncw)+2)
 
 
 ax1.xaxis_date()
@@ -660,7 +660,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 # ### plotly
 
-# In[11]:
+# In[14]:
 
 
 #plot the last 30 days
@@ -706,7 +706,7 @@ print('saved as', outputdir+'newell_coupling_latest.html')
 
 # ### save data for last few months as txt
 
-# In[12]:
+# In[15]:
 
 
 ## to do: indicate if data comes from OMNI or NOAA
@@ -739,7 +739,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[13]:
+# In[16]:
 
 
 print(' ')

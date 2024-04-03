@@ -12,8 +12,10 @@
 # 
 # Issues: 
 # 
+# - add daylight indicators to plot for Austria/central Europe
+# 
 
-# In[2]:
+# In[1]:
 
 
 #debug mode turns telegram notifications off and introduces an artifical flare data point

@@ -2059,7 +2059,7 @@ plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.pdf', dpi=100)
 
 # ## solar cycle progression
 
-# In[21]:
+# In[29]:
 
 
 sns.set_context('talk')
@@ -2262,7 +2262,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short_german.pdf')
 print(outputdirectory+'/cycle25_prediction_short_german.pdf')
 
 
-# In[23]:
+# In[30]:
 
 
 #with shortest interval
@@ -2330,7 +2330,7 @@ ax1.set_ylim(0,max_spot)
 ax1.set_ylabel('Sunspot number')
 
 
-plt.legend(loc='upper right',fontsize=10)
+plt.legend(loc='upper right',fontsize=11)
 print('last update: '+str(mdates.num2date(ssn_p.time.tail(1))[0])[0:10])
 plt.annotate('latest data: '+str(mdates.num2date(ssn_p.time.tail(1))[0])[0:10],xy=(0.85,0.02),xycoords='axes fraction',fontsize=9,ha='right')
 
@@ -2346,7 +2346,7 @@ ax1.xaxis.set_major_locator(mdates.YearLocator() )
 ax1.grid(linestyle='--')
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
-newax = fig.add_axes([0.10,0.83,0.09,0.09], anchor='NE', zorder=1)
+newax = fig.add_axes([0.11,0.83,0.09,0.09], anchor='NE', zorder=1)
 newax.add_patch(matplotlib.patches.Rectangle((0, 0), 1, 1, color='white', transform=newax.transAxes, zorder=0))
 newax.imshow(logo)
 newax.axis('off')
