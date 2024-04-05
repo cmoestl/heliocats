@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.2, 2024 February 27, updated 2024 March 5
+# latest release: version 2.2, 2024 February 27, updated 2024 April 5
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -30,6 +30,7 @@
 # - manually edit the file icmecat/HELCATS_ICMECAT_v22_master.xlsx to add 3 times for each event, the event id and spacecraft name
 # - set the transition date from STEREO-A science data to beacon data manually
 # - set the switch to create_indices greater 0 and the indices will be redone for the new events so the script quickly loads the info where the ICMEs are in the data files
+# - redo the plots for a given spacecraft if there are new events
 # - for a new release, set the the last_update variable to the current date, for bigger updates, make a new version number
 # 
 # 
@@ -42,21 +43,21 @@
 # In[1]:
 
 
-last_update='2024-March-6'
+last_update='2024-April-5'
 
 debug_mode=1
 
 #redo positions file
 make_positions=0
 #redo indices file
-create_indices=0
+create_indices=1
 
 #define number of processes for plotting
 used=8 
 
 #which plots to make
-solo_plots=0
-bepi_plots=0
+solo_plots=1
+bepi_plots=1
 psp_plots=0
 wind_plots=0
 sta_plots=0
@@ -156,7 +157,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[2]:
+# In[ ]:
 
 
 # the positions file is generated with positions.ipynb (Eva's version!), and the position from messenger is taken from an older file
@@ -235,7 +236,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[3]:
+# In[ ]:
 
 
 load_data=1
@@ -345,7 +346,7 @@ if load_data > 0:
     
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
     #cutoff with end of science data
-    sta2=sta2[np.where(sta2.time >= parse_time('2023-May-01 00:00').datetime)[0]]
+    sta2=sta2[np.where(sta2.time >= parse_time('2023-May-31 00:00').datetime)[0]]
 
     #make array
     sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
@@ -442,14 +443,14 @@ print('HELCATS ARRCAT       ',np.sort(ac_pandas.sse_launch_time)[0][0:10],np.sor
 print('done')
 
 t1 = time.time()
-print('loading data takes', int(np.round(t1-t0,0)), 'seconds')
+print('loading data takes', np.round((t1-t0)/60,2), 'minutes')
 
 
 # ## (2) measure new events with measure.ipynb
 
 # ## (3) make ICMECAT 
 
-# In[4]:
+# In[ ]:
 
 
 if debug_mode > 0: 
@@ -483,17 +484,17 @@ if create_indices > 0:
     
     t0 = time.time()
 
-    #hc.create_icme_indices(solo,soli,ic,'SolarOrbiter')
+    hc.create_icme_indices(solo,soli,ic,'SolarOrbiter')
     #hc.create_icme_indices(win,wini,ic,'Wind')
     #hc.create_icme_indices(psp,pspi,ic,'PSP')
     #hc.create_icme_indices(sta,stai,ic,'STEREO-A')
-    #hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
+    hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
     
     #hc.create_icme_indices(uly,ulyi,ic,'ULYSSES')
     
     #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
     #hc.create_icme_indices(vex,vexi,ic,'VEX')
-    hc.create_icme_indices(juno,juni,ic,'Juno')
+    #hc.create_icme_indices(juno,juni,ic,'Juno')
 
     
     t1 = time.time()
@@ -523,7 +524,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[5]:
+# In[ ]:
 
 
 ###### 3c make all plots if wanted
@@ -795,7 +796,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[6]:
+# In[ ]:
 
 
 ######## sort ICMECAT by date
@@ -961,7 +962,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[7]:
+# In[ ]:
 
 
 ########## python formats
@@ -1137,7 +1138,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[8]:
+# In[ ]:
 
 
 #load icmecat as pandas dataframe
@@ -1149,27 +1150,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v22_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[9]:
+# In[ ]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[10]:
+# In[ ]:
 
 
 ic_pandas
 
 
-# In[11]:
+# In[ ]:
 
 
 #
 ic_nprec
 
 
-# In[12]:
+# In[ ]:
 
 
 ic_nprec.icmecat_id
@@ -1177,7 +1178,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[13]:
+# In[ ]:
 
 
 ic=ic_pandas
@@ -1304,7 +1305,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[14]:
+# In[ ]:
 
 
 #markersize
@@ -1366,7 +1367,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 
-# In[15]:
+# In[ ]:
 
 
 #same for latitude
@@ -1374,7 +1375,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ## Parameter distribution plots near 1 AU
 
-# In[16]:
+# In[ ]:
 
 
 #make distribution plots
@@ -1440,7 +1441,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[17]:
+# In[ ]:
 
 
 t1all = time.time()
@@ -1453,7 +1454,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 
 
 
-# In[18]:
+# In[ ]:
 
 
 #check this for pushing the files to figshare
