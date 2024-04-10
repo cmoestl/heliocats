@@ -1,22 +1,25 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# #### Spacecraft and planet trajectory movies
+# ### Spacecraft and planet trajectory movies
+# 
+# 
 # https://github.com/cmoestl/heliocats
-# 
-# Authors: C. Möstl, Eva Weiler, Emma Davies, Austrian Space Weather Office, GeoSphere Austria
-# 
-# 
-# twitter @chrisoutofspace, https://github.com/cmoestl
-# 
-# 
-# last update: February 2024
-# 
-# needs the helio4 environment (see README.md)
-# 
-# 
+#  
+#  Authors: C. Möstl, Eva Weiler, Emma Davies, Austrian Space Weather Office, GeoSphere Austria
+#  
+#  uses env helio4
+#  
+#  
+#  twitter @chrisoutofspace, https://github.com/cmoestl
+#  
+#  
+#  last update: April 2024
+#  
+#  needs the helio4 environment (see README.md)
+#  
 
-# In[1]:
+# In[20]:
 
 
 import os
@@ -24,28 +27,34 @@ import datetime
 from datetime import datetime, timedelta
 
 
-###################################### MAIN SETTINGS ###################
-
-
 ############################ directories
 
-animdirectory   = 'results/positions/movies_2024'
+#animdirectory   = 'results/positions/movies_2024'
 #outputdirectory = 'results/positions/movies_2024/frames'
-outputdirectory = 'results/positions/movies_2024/frames_zoom'
+#outputdirectory = 'results/positions/movies_2024/frames_zoom'
+
+#for the movie
+animdirectory   = 'icmecat'
+#outputdirectory = 'results/positions/movies_2024/frames'
+#for the frames
+outputdirectory = 'icmecat/anim_frames'
+
 
 if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
 if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
 
 #movie_filename='positions_punch_2025_2029'
-movie_filename='positions_punch_2025_2029_zoom'
+#movie_filename='positions_punch_2025_2029_zoom'
 #movie_filename='positions_2018_2030'
+movie_filename='icmecat_visual'
 
 
-
-#######################Time resolution
+####################### Time resolution
 
 #res_in_hours=24
-res_in_hours=6
+#res_in_hours=6
+res_in_hours=4
+
 
 print('time resolution in hours',res_in_hours)
 
@@ -63,6 +72,15 @@ t_end   = datetime(2029,12,31)
 #t_start = datetime(2018,10,1)
 #t_end   = datetime(2030,11,19)
 
+
+## ICME visuals
+#t_start = datetime(2023,3,10)
+#t_end   = datetime(2023,5,10)
+
+t_start = datetime(2020,4,1)
+t_end   = datetime(2024,4,1)
+
+
 ########## plots
 
 #rmax=1.72
@@ -74,8 +92,8 @@ dpisave=100 #for 1080p
 
 ##multiprocessing
 
-used=100
-#used=8
+#used=100
+used=8
 
 
 ###########################################################
@@ -135,16 +153,22 @@ print(data_path)
 os.system('jupyter nbconvert --to script position_movies.ipynb')    
 
 
-
-# In[6]:
+# In[16]:
 
 
 print('load positions')
 [psp, solo, sta, stb, bepi, l1, juno, juice, uly, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load(open(data_path+'/positions_psp_solo_sta_bepi_wind_juno_juice_ulysses_planets_HEEQ_1hour_rad.p', "rb" ) )
+
+print('load icmecat')
+#load icmecat as numpy array 
+file='icmecat/HELIO4CAST_ICMECAT_v22_numpy.p'
+[ic,ic_np,h,p]=pickle.load( open(file, 'rb'))   
+ic=ic.to_records()
+
 print('done')
 
 
-# In[13]:
+# In[17]:
 
 
 def make_frame(k):
@@ -175,6 +199,8 @@ def make_frame(k):
 
 
     frame_time_str=str(mdates.num2date(frame_time_num+k*res_in_hours/24))
+    
+    #print(frame_time_num)
     print( 'current frame_time_num', frame_time_str, '     ',k)
 
 
@@ -248,6 +274,13 @@ def make_frame(k):
         plt.figtext(0.9,0.2,'Solar Orbiter', color=solo_color, ha='center',fontsize=fsize+5)
         plt.figtext(0.9,0.1,'JUICE', color=juice_color, ha='center',fontsize=fsize+5)
 
+        
+    #get 
+    if add_icmes: 
+        #get all indices for icmes starting before ** days of current time
+        cur_icme=np.where(np.logical_and((frame_time_num+k*res_in_hours/24-ic.icme_start_time) > 0,(frame_time_num+k*res_in_hours/24-ic.icme_start_time) < time_diff_icme))[0]
+        #print(cur_icme)
+        
 
 
     #positions text
@@ -258,6 +291,29 @@ def make_frame(k):
 
     mars_text='Mars:  '+str(f'{mars.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(mars.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(mars.lat[earth_timeind]):8.1f}')
     sta_text='STA:   '+str(f'{sta.r[sta_timeind]:6.2f}')+str(f'{np.rad2deg(sta.lon[sta_timeind]):8.1f}')+str(f'{np.rad2deg(sta.lat[sta_timeind]):8.1f}')
+    
+    
+    
+    #ICMEs for Earth    
+    if add_icmes:                        
+            cur_icme_wind=np.where(ic.sc_insitu[cur_icme] == 'Wind')[0]            
+            for i in np.arange(len(cur_icme_wind)):
+                time_dist=frame_time_num+k*res_in_hours/24-ic.icme_start_time[cur_icme][cur_icme_wind]
+                fadedist=1-time_dist/time_diff_icme
+                ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_icme, c='mediumseagreen', marker='o', alpha=fadedist,lw=0,zorder=3)
+
+    #ICMEs for STEREO-A
+    if add_icmes:                        
+            cur_icme_sta=np.where(ic.sc_insitu[cur_icme] == 'STEREO-A')[0]            
+            for i in np.arange(len(cur_icme_sta)):
+                #get difference of icme_start_time to current frame time
+                time_dist=frame_time_num+k*res_in_hours/24-ic.icme_start_time[cur_icme][cur_icme_sta]
+                #define fading
+                fadedist=1-time_dist/time_diff_icme
+                ax.scatter(sta.lon[sta_timeind], sta.r[sta_timeind]*np.cos(sta.lat[sta_timeind]), s=symsize_icme, c=sta_color, marker='o', alpha=fadedist,lw=0,zorder=3)
+
+                
+    
 
     #position and text for PSP only before the kernel ends
     if np.logical_and(psp_timeind > 0,(frame_time_num+k*res_in_hours/24) < psp.time[-1] ):
@@ -271,6 +327,16 @@ def make_frame(k):
             fadestart=psp_timeind-fadeind
             if  fadestart < 0: fadestart=0
             ax.plot(psp.lon[fadestart:psp_timeind+fadeind], psp.r[fadestart:psp_timeind+fadeind]*np.cos(psp.lat[fadestart:psp_timeind+fadeind]), c=psp_color, alpha=0.6,lw=1,zorder=3)
+            
+        if add_icmes:                        
+            cur_icme_psp=np.where(ic.sc_insitu[cur_icme] == 'PSP')[0]            
+            for i in np.arange(len(cur_icme_psp)):
+                time_dist=frame_time_num+k*res_in_hours/24-ic.icme_start_time[cur_icme][cur_icme_psp]
+                #define fading
+                fadedist=1-time_dist/time_diff_icme
+                ax.scatter(psp.lon[psp_timeind], psp.r[psp_timeind]*np.cos(psp.lat[psp_timeind]), s=symsize_icme, c=psp_color, marker='o', alpha=fadedist,lw=0,zorder=3)
+            
+            
 
     if np.logical_and(bepi_timeind > 0,(frame_time_num+k*res_in_hours/24) < bepi.time[-1] ):
         
@@ -280,7 +346,18 @@ def make_frame(k):
         if plot_orbit: 
             fadestart=bepi_timeind-fadeind
             if  fadestart < 0: fadestart=0            
-            ax.plot(bepi.lon[fadestart:bepi_timeind+fadeind], bepi.r[fadestart:bepi_timeind+fadeind]*np.cos(bepi.lat[fadestart:bepi_timeind+fadeind]), c=bepi_color, alpha=0.6,lw=1,zorder=3)
+            ax.plot(bepi.lon[fadestart:bepi_timeind+fadeind], bepi.r[fadestart:bepi_timeind+fadeind]*np.cos(bepi.lat[fadestart:bepi_timeind+fadeind]), c=bepi_color, alpha=0.6,lw=1,zorder=3)            
+        if add_icmes:                        
+            cur_icme_bepi=np.where(ic.sc_insitu[cur_icme] == 'BepiColombo')[0]            
+            for i in np.arange(len(cur_icme_bepi)):
+                time_dist=frame_time_num+k*res_in_hours/24-ic.icme_start_time[cur_icme][cur_icme_bepi]
+                #define fading
+                fadedist=1-time_dist/time_diff_icme
+                ax.scatter(bepi.lon[bepi_timeind], bepi.r[bepi_timeind]*np.cos(bepi.lat[bepi_timeind]), s=symsize_icme, c=bepi_color, marker='o', alpha=fadedist,lw=0,zorder=3)
+            
+                        
+            
+            
             
     #after Bepi kernel is done, mercury position
     if (frame_time_num+k*res_in_hours/24) > bepi.time[-1]:
@@ -292,6 +369,7 @@ def make_frame(k):
             fadestart=earth_timeind-fadeind
             if  fadestart < 0: fadestart=0            
             ax.plot(mercury.lon[fadestart:earth_timeind+fadeind], mercury.r[fadestart:earth_timeind+fadeind]*np.cos(mercury.lat[fadestart:earth_timeind+fadeind]), c=bepi_color, alpha=0.6,lw=1,zorder=3)
+            
             
 
             
@@ -305,6 +383,17 @@ def make_frame(k):
             fadestart=solo_timeind-fadeind
             if  fadestart < 0: fadestart=0            
             ax.plot(solo.lon[fadestart:solo_timeind+fadeind], solo.r[fadestart:solo_timeind+fadeind]*np.cos(solo.lat[fadestart:solo_timeind+fadeind]), c=solo_color, alpha=0.6,lw=1,zorder=3)
+         
+        if add_icmes:                        
+            cur_icme_solo=np.where(ic.sc_insitu[cur_icme] == 'SolarOrbiter')[0]            
+            #plot current solo cmes
+            for i in np.arange(len(cur_icme_solo)):
+                time_dist=frame_time_num+k*res_in_hours/24-ic.icme_start_time[cur_icme][cur_icme_solo]
+                #define fading
+                fadedist=1-time_dist/time_diff_icme
+                ax.scatter(solo.lon[solo_timeind], solo.r[solo_timeind]*np.cos(solo.lat[solo_timeind]), s=symsize_icme, c=solo_color, marker='o', alpha=fadedist,lw=0,zorder=3)
+
+            
 
             
     if juice_timeind > 0:
@@ -322,6 +411,7 @@ def make_frame(k):
     f9=plt.figtext(0.01,0.86,mars_text, fontsize=fsize, ha='left',color='orangered')
     f8=plt.figtext(0.01,0.82,sta_text, fontsize=fsize, ha='left',color=sta_color)
     
+   
     
     
     
@@ -390,8 +480,7 @@ def make_frame(k):
     plt.close('all')
 
 
-
-# In[14]:
+# In[18]:
 
 
 plt.close('all')
@@ -422,6 +511,14 @@ plot_parker=False
 
 high_res_mode=False
 
+
+# for adding ICMECAT indicators for ICMEs
+add_icmes=True
+#this is the time how long an ICME is visible as a faded circle
+time_diff_icme=7 
+#how big the symbol for the ICME is
+symsize_icme=450
+        
 
 
 def datetime_range(start, end, resolution_hours):
@@ -471,13 +568,14 @@ symsize_planet=110
 symsize_spacecraft=80
 
 
+
 #for parker spiral   
 theta=np.arange(0,np.deg2rad(180),0.01)
 
 
 # ### single processing
 
-# In[15]:
+# In[11]:
 
 
 #print()
@@ -496,9 +594,12 @@ theta=np.arange(0,np.deg2rad(180),0.01)
 #    -r 25 '+str(animdirectory)+'/positions_punch.mp4 -y -loglevel quiet')    
 
 
+# In[19]:
+
+
 # ### Multiprocessing
 
-# In[55]:
+# In[ ]:
 
 
 print()
@@ -530,29 +631,6 @@ print('plots done, frames saved in ',outputdirectory)
 os.system(ffmpeg_path+'ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k \
     -r 30 '+str(animdirectory)+'/'+movie_filename+'.mp4 -y -loglevel quiet')    
 print('movie done, saved in ',animdirectory)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
 
 
 

@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.2, 2024 February 27, updated 2024 April 5
+# latest release: version 2.2, 2024 February 27, updated 2024 April 10
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -32,6 +32,7 @@
 # - set the switch to create_indices greater 0 and the indices will be redone for the new events so the script quickly loads the info where the ICMEs are in the data files
 # - redo the plots for a given spacecraft if there are new events
 # - for a new release, set the the last_update variable to the current date, for bigger updates, make a new version number
+# - make an Animation visual with ICMEs popping up for quick lineup determination, see position_movies.ipynb
 # 
 # 
 # **ISSUES**
@@ -43,21 +44,21 @@
 # In[1]:
 
 
-last_update='2024-April-5'
+last_update='2024-April-10'
 
 debug_mode=1
 
 #redo positions file
 make_positions=0
 #redo indices file
-create_indices=1
+create_indices=0
 
 #define number of processes for plotting
 used=8 
 
 #which plots to make
-solo_plots=1
-bepi_plots=1
+solo_plots=0
+bepi_plots=0
 psp_plots=0
 wind_plots=0
 sta_plots=0
@@ -1446,6 +1447,12 @@ plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='t
 
 t1all = time.time()
 print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
