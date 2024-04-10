@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.2, 2024 February 27, updated 2024 April 10
+# latest release: version 2.2, 2024 February 27, updated 2024 April 11
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -32,7 +32,7 @@
 # - set the switch to create_indices greater 0 and the indices will be redone for the new events so the script quickly loads the info where the ICMEs are in the data files
 # - redo the plots for a given spacecraft if there are new events
 # - for a new release, set the the last_update variable to the current date, for bigger updates, make a new version number
-# - make an Animation visual with ICMEs popping up for quick lineup determination, see position_movies.ipynb
+# - make an animation visual with ICMEs popping up for quick lineup determination with position_movies.ipynb
 # 
 # 
 # **ISSUES**
@@ -44,7 +44,7 @@
 # In[1]:
 
 
-last_update='2024-April-10'
+last_update='2024-April-11'
 
 debug_mode=1
 
@@ -96,6 +96,11 @@ import h5py
 
 import plotly.graph_objects as go
 from plotly.offline import iplot, init_notebook_mode
+from plotly.subplots import make_subplots
+import plotly.io as pio
+import plotly.express as px
+pio.renderers.default = 'browser'
+
 
 
 import astropy.units as u
@@ -158,7 +163,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[ ]:
+# In[2]:
 
 
 # the positions file is generated with positions.ipynb (Eva's version!), and the position from messenger is taken from an older file
@@ -237,7 +242,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[ ]:
+# In[3]:
 
 
 load_data=1
@@ -451,7 +456,7 @@ print('loading data takes', np.round((t1-t0)/60,2), 'minutes')
 
 # ## (3) make ICMECAT 
 
-# In[ ]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -525,7 +530,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[ ]:
+# In[5]:
 
 
 ###### 3c make all plots if wanted
@@ -797,7 +802,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[ ]:
+# In[6]:
 
 
 ######## sort ICMECAT by date
@@ -963,7 +968,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[ ]:
+# In[7]:
 
 
 ########## python formats
@@ -1139,7 +1144,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[ ]:
+# In[8]:
 
 
 #load icmecat as pandas dataframe
@@ -1151,27 +1156,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v22_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[ ]:
+# In[9]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[ ]:
+# In[10]:
 
 
 ic_pandas
 
 
-# In[ ]:
+# In[11]:
 
 
 #
 ic_nprec
 
 
-# In[ ]:
+# In[12]:
 
 
 ic_nprec.icmecat_id
@@ -1179,7 +1184,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[ ]:
+# In[13]:
 
 
 ic=ic_pandas
@@ -1306,7 +1311,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[ ]:
+# In[14]:
 
 
 #markersize
@@ -1368,15 +1373,290 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 
-# In[ ]:
+# ## plotly plots as html
+
+# ### plotly radial distance and mean MO field
+
+# In[23]:
 
 
-#same for latitude
+################# 
+nrows=1
+#init_notebook_mode(connected = True)
+#init_notebook_mode(connected = False)
+
+#fig=plt.figure(figsize=(10,6), dpi=150)
+
+fig = make_subplots(rows=nrows, cols=1)
+
+
+
+msize=10
+
+fig.add_trace(go.Scatter(x=ic.mo_sc_heliodistance[istb], y=ic.mo_bmean[istb], name='STEREO-B',mode='markers',marker=dict(color='royalblue', size=msize),
+        hovertemplate='STEREO-B <br>%{x} AU<br>%{y} nT<br>ID: %{text}', text=ic.icmecat_id[istb] ), row=1, col=1)
+
+fig.add_trace(go.Scatter(x=ic.mo_sc_heliodistance[iuly], y=ic.mo_bmean[iuly], name='Ulysses',mode='markers',marker=dict(color='brown', size=msize),
+        hovertemplate='Ulysses <br>%{x} AU<br>%{y} nT<br>ID: %{text}', text=ic.icmecat_id[iuly] ), row=1, col=1)
+
+fig.add_trace(go.Scatter(x=ic.mo_sc_heliodistance[imav], y=ic.mo_bmean[imav], name='MAVEN',mode='markers',marker=dict(color='orangered', size=msize),
+        hovertemplate='MAVEN<br>%{x} AU<br>%{y} nT<br>ID: %{text}', text=ic.icmecat_id[imav] ), row=1, col=1)
+
+fig.add_trace(go.Scatter(x=ic.mo_sc_heliodistance[imes], y=ic.mo_bmean[imes], name='MESSENGER',mode='markers',marker=dict(color='coral', size=msize),
+        hovertemplate='MESSENGER<br>%{x} AU<br>%{y} nT<br>ID: %{text}', text=ic.icmecat_id[imes] ), row=1, col=1)
+
+fig.add_trace(go.Scatter(x=ic.mo_sc_heliodistance[ivex], y=ic.mo_bmean[ivex], name='Venus Express',mode='markers',marker=dict(color='orange', size=msize),
+        hovertemplate='Venus Express<br>%{x} AU<br>%{y} nT<br>ID: %{text}', text=ic.icmecat_id[ivex] ), row=1, col=1)
+
+fig.add_trace(go.Scatter(x=ic.mo_sc_heliodistance[ipsp], y=ic.mo_bmean[ipsp], name='PSP',mode='markers',marker=dict(color='black', size=msize),
+        hovertemplate='Parker Solar Probe<br>%{x} AU<br>%{y} nT<br>ID: %{text}', text=ic.icmecat_id[ipsp] ), row=1, col=1)
+              
+fig.add_trace(go.Scatter(x=ic.mo_sc_heliodistance[isol], y=ic.mo_bmean[isol], name='Solar Orbiter',mode='markers',marker=dict(color='white', size=msize,  
+    line=dict(color='black', width=1)),hovertemplate='Solar Orbiter<br>%{x} AU<br>%{y} nT<br>ID: %{text}', text=ic.icmecat_id[isol]   ), row=1, col=1)
+
+fig.add_trace(go.Scatter(x=ic.mo_sc_heliodistance[iwin], y=ic.mo_bmean[iwin], name='Wind',mode='markers',marker=dict(color='mediumseagreen', size=msize),
+        hovertemplate='Wind<br>%{x} AU<br>%{y} nT<br>ID: %{text}', text=ic.icmecat_id[iwin] ), row=1, col=1)
+
+fig.add_trace(go.Scatter(x=ic.mo_sc_heliodistance[ista], y=ic.mo_bmean[ista], name='STEREO-A',mode='markers',marker=dict(color='red', size=msize),
+        hovertemplate='STEREO-A<br>%{x} AU<br>%{y} nT<br>ID: %{text}', text=ic.icmecat_id[ista] ), row=1, col=1)
+
+
+fig.add_trace(go.Scatter(x=ic.mo_sc_heliodistance[ibep], y=ic.mo_bmean[ibep], name='BepiColombo',mode='markers',marker=dict(color='lightgrey', size=msize,  
+    line=dict(color='darkblue', width=1)),hovertemplate='BepiColombo<br>%{x} AU<br>%{y} nT<br>ID: %{text}', text=ic.icmecat_id[ibep]   ), row=1, col=1)
+
+fig.add_trace(go.Scatter(x=ic.mo_sc_heliodistance[ijun], y=ic.mo_bmean[ijun], name='Juno',mode='markers',marker=dict(color='yellow', size=msize,  
+    line=dict(color='black', width=1)),hovertemplate='Juno<br>%{x} AU<br>%{y} nT<br>ID: %{text}', text=ic.icmecat_id[ijun]   ), row=1, col=1)
+
+fig.update_yaxes(title_text="B [nT]", row=1, col=1)
+fig.update_xaxes(title_text="R [AU]", row=1, col=1)
+
+fig.update_layout(title='ICMECAT magnetic obstacle mean B total field')
+
+
+#fig.update_layout(
+#    hoverlabel=dict(
+#        bgcolor="white",
+#        font_size=16,
+#        font_family="Arial"
+#    )
+#)
+
+
+fig.write_html(f'icmecat/icmecat_distance.html')
+
+
+#https://plotly.com/python/hover-text-and-formatting/
+
+
+# ### plotly event position in 3D
+
+# In[17]:
+
+
+# Create polar plot
+fig = go.Figure()
+
+msize=5
+
+#in AU, make sure conversion is correct so latitude is 0 to 90 
+[x,y,z]=hd.sphere2cart(ic.mo_sc_heliodistance.values, -np.deg2rad(ic.mo_sc_lat_heeq.values-90), np.deg2rad(ic.mo_sc_long_heeq.values))
+    
+
+fig.add_trace(go.Scatter3d(x=x[ipsp], y=y[ipsp], z=z[ipsp], name='PSP',mode='markers',marker=dict(color='black', size=msize),
+        hovertemplate='Parker Solar Probe<br>ID: %{text}',text=ic.icmecat_id[ipsp] ))
+
+fig.add_trace(go.Scatter3d(x=x[isol], y=y[isol], z=z[isol], name='Solar Orbiter',mode='markers',marker=dict(color='white', size=msize,  
+    line=dict(color='black', width=1)),
+        hovertemplate='Solar Orbiter<br>ID: %{text}', text=ic.icmecat_id[isol] ))
+
+fig.add_trace(go.Scatter3d(x=x[iwin], y=y[iwin], z=z[iwin], name='Wind',mode='markers',marker=dict(color='mediumseagreen', size=msize),
+        hovertemplate='Wind<br>ID: %{text}', text=ic.icmecat_id[iwin] ))
+
+fig.add_trace(go.Scatter3d(x=x[ista], y=y[ista], z=z[ista], name='STEREO-A',mode='markers',marker=dict(color='red', size=msize),
+        hovertemplate='STEREO-A<br>ID: %{text}', text=ic.icmecat_id[ista] ))
+
+fig.add_trace(go.Scatter3d(x=x[ijun], y=y[ijun], z=z[ijun], name='Juno',mode='markers',marker=dict(color='yellow', size=msize,  
+    line=dict(color='black', width=1)),
+        hovertemplate='Juno<br>ID: %{text}', text=ic.icmecat_id[ijun] ))
+
+fig.add_trace(go.Scatter3d(x=x[ibep], y=y[ibep], z=z[ibep], name='BepiColombo',mode='markers',marker=dict(color='lightgrey', size=msize,  
+    line=dict(color='darkblue', width=1)),
+        hovertemplate='BepiColombo<br>ID: %{text}', text=ic.icmecat_id[ijun] ))
+
+fig.add_trace(go.Scatter3d(x=x[istb], y=y[istb], z=z[istb], name='STEREO-B',mode='markers',marker=dict(color='royalblue', size=msize),
+        hovertemplate='STEREO-B<br>ID: %{text}', text=ic.icmecat_id[istb] ))
+
+fig.add_trace(go.Scatter3d(x=x[iuly], y=y[iuly], z=z[iuly], name='Ulysses',mode='markers',marker=dict(color='brown', size=msize),
+        hovertemplate='Ulysses<br>ID: %{text}', text=ic.icmecat_id[iuly] ))
+
+fig.add_trace(go.Scatter3d(x=x[imav], y=y[imav], z=z[imav], name='MAVEN',mode='markers',marker=dict(color='orangered', size=msize),
+        hovertemplate='MAVEN<br>ID: %{text}', text=ic.icmecat_id[imav] ))
+
+fig.add_trace(go.Scatter3d(x=x[imes], y=y[imes], z=z[imes], name='MESSENGER',mode='markers',marker=dict(color='coral', size=msize),
+        hovertemplate='MESSENGER<br>ID: %{text}', text=ic.icmecat_id[imes] ))
+
+fig.add_trace(go.Scatter3d(x=x[ivex], y=y[ivex], z=z[ivex], name='Venus Express',mode='markers',marker=dict(color='orange', size=msize),
+        hovertemplate='Venus Express<br>ID: %{text}', text=ic.icmecat_id[ivex] ))
+
+
+
+
+
+
+
+
+############# add Sun
+# Create data for a sphere
+theta = np.linspace(0, np.pi, 100)
+phi = np.linspace(0, 2*np.pi, 100)
+theta, phi = np.meshgrid(theta, phi)
+r = 1/215*10  # radius of the sphere
+
+# Convert spherical coordinates to Cartesian coordinates
+[x,y,z]=hd.sphere2cart(r, theta,phi)
+# Create 3D surface plot
+
+fig.add_trace(go.Surface(x=x, y=y,z=z, colorscale='hot', showscale=False, name='10 R_Sun'))
+
+################### add circle at 1 AU
+
+num_points = 100
+# Create theta values (angles) for the circle
+theta_values = np.linspace(0, 2*np.pi, num_points)
+r = 1  # radius of the circle
+x_values = r * np.cos(theta_values)
+y_values = r * np.sin(theta_values)
+
+fig.add_trace(go.Scatter3d(
+    x=x_values,
+    y=y_values,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='1 AU',
+    line=dict(color='black', width=1)
+))
+
+fig.add_trace(go.Scatter3d(
+    x=x_values*0.5,
+    y=y_values*0.5,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='0.5 AU',
+    line=dict(color='black', width=1)
+))
+
+fig.add_trace(go.Scatter3d(
+    x=x_values*0.3,
+    y=y_values*0.3,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='0.3 AU',
+    line=dict(color='black', width=1)
+))
+
+fig.add_trace(go.Scatter3d(
+    x=x_values*0.1,
+    y=y_values*0.1,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='0.1 AU',
+    line=dict(color='black', width=1)
+))
+
+
+
+zoom=0.2
+
+fig.update_layout(
+    title='ICMECAT event positions in 3D',
+    scene=dict( aspectmode='data',
+        xaxis=dict(title='X '),
+        yaxis=dict(title='Y'),
+        zaxis=dict(title='Z'),
+        camera=dict(
+            eye=dict(x=0, y=-zoom, z=zoom),  # Set the position of the camera
+            center=dict(x=0, y=0, z=0),      # Set the point the camera is looking at
+            up=dict(x=0, y=0, z=1),          # Set the up vector of the camera
+           
+    ))
+)
+
+
+
+fig.write_html(f'icmecat/icmecat_position_3D.html')
+
+
+# ### plotly radial distance and longitude
+
+# In[22]:
+
+
+# Sample data
+
+
+msize=10
+# Create polar plot
+fig = go.Figure()
+
+#fig.add_trace(go.Scatterpolar(r=r_values, theta=theta_values, mode='lines+markers',line=dict(color='blue'), marker=dict(color='blue', size=10)))
+
+fig.add_trace(go.Scatterpolar(r=ic.mo_sc_heliodistance[ipsp], theta=ic.mo_sc_long_heeq[ipsp], name='PSP',mode='markers',marker=dict(color='black', size=msize),
+        hovertemplate='Parker Solar Probe<br>%{r} AU<br>%{theta} °<br>ID: %{text}', text=ic.icmecat_id[ipsp] ))
+
+
+fig.add_trace(go.Scatterpolar(r=ic.mo_sc_heliodistance[istb], theta=ic.mo_sc_long_heeq[istb], name='STEREO-B',mode='markers',marker=dict(color='royalblue', size=msize),
+        hovertemplate='STEREO-B <br>%{r} AU<br>%{theta} °<br>ID: %{text}', text=ic.icmecat_id[istb] ))
+
+
+fig.add_trace(go.Scatterpolar(r=ic.mo_sc_heliodistance[iuly], theta=ic.mo_sc_long_heeq[iuly], name='Ulysses',mode='markers',marker=dict(color='brown', size=msize),
+        hovertemplate='Ulysses <br>%{r} AU<br>%{theta} °<br>ID: %{text}', text=ic.icmecat_id[iuly] ))
+
+fig.add_trace(go.Scatterpolar(r=ic.mo_sc_heliodistance[imav], theta=ic.mo_sc_long_heeq[imav], name='MAVEN',mode='markers',marker=dict(color='orangered', size=msize),
+        hovertemplate='MAVEN<br>%{r} AU<br>%{theta} nT<br>ID: %{text}', text=ic.icmecat_id[imav] ))
+
+fig.add_trace(go.Scatterpolar(r=ic.mo_sc_heliodistance[imes], theta=ic.mo_sc_long_heeq[imes], name='MESSENGER',mode='markers',marker=dict(color='coral', size=msize),
+        hovertemplate='MESSENGER<br>%{r} AU<br>%{theta} nT<br>ID: %{text}', text=ic.icmecat_id[imes] ))
+
+fig.add_trace(go.Scatterpolar(r=ic.mo_sc_heliodistance[ivex], theta=ic.mo_sc_long_heeq[ivex], name='Venus Express',mode='markers',marker=dict(color='orange', size=msize),
+        hovertemplate='Venus Express<br>%{r} AU<br>%{theta} nT<br>ID: %{text}', text=ic.icmecat_id[ivex] ))
+              
+fig.add_trace(go.Scatterpolar(r=ic.mo_sc_heliodistance[isol], theta=ic.mo_sc_long_heeq[isol], name='Solar Orbiter',mode='markers',marker=dict(color='white', size=msize,  
+    line=dict(color='black', width=1)),hovertemplate='Solar Orbiter<br>%{r} AU<br>%{theta} nT<br>ID: %{text}', text=ic.icmecat_id[isol]   ))
+
+fig.add_trace(go.Scatterpolar(r=ic.mo_sc_heliodistance[iwin], theta=ic.mo_sc_long_heeq[iwin], name='Wind',mode='markers',marker=dict(color='mediumseagreen', size=msize),
+        hovertemplate='Wind<br>%{r} AU<br>%{theta} nT<br>ID: %{text}', text=ic.icmecat_id[iwin] ))
+
+fig.add_trace(go.Scatterpolar(r=ic.mo_sc_heliodistance[ista], theta=ic.mo_sc_long_heeq[ista], name='STEREO-A',mode='markers',marker=dict(color='red', size=msize),
+        hovertemplate='STEREO-A<br>%{r} AU<br>%{theta} nT<br>ID: %{text}', text=ic.icmecat_id[ista] ))
+
+
+fig.add_trace(go.Scatterpolar(r=ic.mo_sc_heliodistance[ibep], theta=ic.mo_sc_long_heeq[ibep], name='BepiColombo',mode='markers',marker=dict(color='lightgrey', size=msize,  
+    line=dict(color='darkblue', width=1)),hovertemplate='BepiColombo<br>%{r} AU<br>%{theta} nT<br>ID: %{text}', text=ic.icmecat_id[ibep]   ))
+
+fig.add_trace(go.Scatterpolar(r=ic.mo_sc_heliodistance[ijun], theta=ic.mo_sc_long_heeq[ijun], name='Juno',mode='markers',marker=dict(color='yellow', size=msize,  
+    line=dict(color='black', width=1)),hovertemplate='Juno<br>%{r} AU<br>%{theta} nT<br>ID: %{text}', text=ic.icmecat_id[ijun]   ))
+
+              
+# Update layout if necessary
+fig.update_layout(
+    polar=dict(
+        radialaxis=dict(
+            visible=True,
+            range=[0, 1.7]  # Set the range for the radial axis
+        ),
+        angularaxis=dict(
+            tickmode='array',
+            tickvals=[0, 45, 90, 135, 180, 225, 270, 315],  # Specify tick values for angular axis
+            ticktext=['0°', '45°', '90°', '135°', '180°', '225°', '270°', '315°'],  # Specify tick labels for angular axis
+        )
+    )
+)
+
+
+fig.update_layout(title='ICMECAT radial distance and HEEQ longitude of ICME events')
+
+fig.write_html(f'icmecat/icmecat_longitudes.html')
 
 
 # ## Parameter distribution plots near 1 AU
 
-# In[ ]:
+# In[19]:
 
 
 #make distribution plots
@@ -1442,7 +1722,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[ ]:
+# In[20]:
 
 
 t1all = time.time()
@@ -1461,7 +1741,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 
 
 
-# In[ ]:
+# In[21]:
 
 
 #check this for pushing the files to figshare
