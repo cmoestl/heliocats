@@ -17,11 +17,10 @@
 # 
 # Issues:
 # 
-# - change to last 400 days
 # 
 # 
 
-# In[ ]:
+# In[4]:
 
 
 #switches
@@ -287,8 +286,8 @@ print(' ')
 print('------ STEREO-A beacon data ')
 
 #define filename
-file_sta_beacon_rtn='stereoa_beacon_rtn_last_300days_now.p'   
-file_sta_beacon_gsm='stereoa_beacon_gsm_last_300days_now.p'   
+file_sta_beacon_rtn='stereoa_beacon_rtn_last_400days_now.p'   
+file_sta_beacon_gsm='stereoa_beacon_gsm_last_400days_now.p'   
 
 
 if get_stereoa > 0:
@@ -298,9 +297,9 @@ if get_stereoa > 0:
     hd.stereoa_download_beacon(start=datetime.datetime.utcnow()-datetime.timedelta(days=30),end=datetime.datetime.utcnow(),stereoa_path=stereoa_path)   
     print(' ')
 
-    print('--- process STEREO-A beacon data to pickle last 300 days') 
+    print('--- process STEREO-A beacon data to pickle last 400 days') 
     #save pickle file
-    hd.save_stereoa_beacon_data(data_path,stereoa_path,file_sta_beacon_rtn,file_sta_beacon_gsm,datetime.datetime.utcnow()-datetime.timedelta(days=300),datetime.datetime.utcnow(),coord='RTN' )   
+    hd.save_stereoa_beacon_data(data_path,stereoa_path,file_sta_beacon_rtn,file_sta_beacon_gsm,datetime.datetime.utcnow()-datetime.timedelta(days=400),datetime.datetime.utcnow(),coord='RTN' )   
     
 #plot
   
@@ -322,7 +321,7 @@ hp.plot_insitu_update_stereoa_beacon(sta_gsm, start, end,'STEREO-A_beacon_gsm',p
 t1 = time.time()
 
 print()
-print('STEREO-A beacon downloading last 30 days, save as pickle last 300 days and plotting takes', np.round(t1-t0,2), 'seconds')
+print('STEREO-A beacon downloading last 30 days, save as pickle last 400 days and plotting takes', np.round(t1-t0,2), 'seconds')
 
 
 # In[6]:

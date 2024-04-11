@@ -13,11 +13,10 @@
 # 
 # Issues:
 # 
-# - change header for STEREO-A beacon data
 # - need to copy kernel files manually to the kernel paths
 # - PSP end date for data downloads needs to be set manually otherwise processing stops on the server - due to a timeout when no output for a while? or entering a loop? PSP data ends 2023 Oct 15, end date set to 2023 Dec 31, need to fix hd.download_pspmag_1min
 
-# In[7]:
+# In[3]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -112,7 +111,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[3]:
+# In[2]:
 
 
 if sys.platform == 'linux': 

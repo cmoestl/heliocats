@@ -1377,7 +1377,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ### plotly radial distance and mean MO field
 
-# In[23]:
+# In[15]:
 
 
 ################# 
@@ -1450,7 +1450,7 @@ fig.write_html(f'icmecat/icmecat_distance.html')
 
 # ### plotly event position in 3D
 
-# In[17]:
+# In[16]:
 
 
 # Create polar plot
@@ -1481,7 +1481,7 @@ fig.add_trace(go.Scatter3d(x=x[ijun], y=y[ijun], z=z[ijun], name='Juno',mode='ma
 
 fig.add_trace(go.Scatter3d(x=x[ibep], y=y[ibep], z=z[ibep], name='BepiColombo',mode='markers',marker=dict(color='lightgrey', size=msize,  
     line=dict(color='darkblue', width=1)),
-        hovertemplate='BepiColombo<br>ID: %{text}', text=ic.icmecat_id[ijun] ))
+        hovertemplate='BepiColombo<br>ID: %{text}', text=ic.icmecat_id[ibep] ))
 
 fig.add_trace(go.Scatter3d(x=x[istb], y=y[istb], z=z[istb], name='STEREO-B',mode='markers',marker=dict(color='royalblue', size=msize),
         hovertemplate='STEREO-B<br>ID: %{text}', text=ic.icmecat_id[istb] ))
@@ -1584,7 +1584,7 @@ fig.write_html(f'icmecat/icmecat_position_3D.html')
 
 # ### plotly radial distance and longitude
 
-# In[22]:
+# In[17]:
 
 
 # Sample data
@@ -1656,7 +1656,7 @@ fig.write_html(f'icmecat/icmecat_longitudes.html')
 
 # ## Parameter distribution plots near 1 AU
 
-# In[19]:
+# In[18]:
 
 
 #make distribution plots
@@ -1722,7 +1722,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[20]:
+# In[19]:
 
 
 t1all = time.time()
@@ -1741,7 +1741,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 
 
 
-# In[21]:
+# In[20]:
 
 
 #check this for pushing the files to figshare
