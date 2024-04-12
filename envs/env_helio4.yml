@@ -31,6 +31,8 @@ dependencies:
     - glymur==0.12.2
     - h5py==3.8.0
     - h5netcdf==1.1.0
+    - kaleido==0.2.1
+
 
 
 
