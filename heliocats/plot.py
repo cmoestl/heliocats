@@ -26,8 +26,8 @@ from astropy.time import Time
 import astropy
 import importlib
 
-import heliopy.data.spice as spicedata
-import heliopy.spice as spice
+#import heliopy.data.spice as spicedata
+#import heliopy.spice as spice
 
 
 #Plotly imports

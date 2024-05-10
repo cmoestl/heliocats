@@ -32,10 +32,10 @@ import spiceypy
 import astrospice
 from astrospice.net.reg import RemoteKernel, RemoteKernelsBase
 from numba import njit
-import heliopy.data.cassini as cassinidata
-import heliopy.data.helios as heliosdata
-import heliopy.data.spice as spicedata
-import heliopy.spice as spice
+#import heliopy.data.cassini as cassinidata
+#import heliopy.data.helios as heliosdata
+#import heliopy.data.spice as spicedata
+#import heliopy.spice as spice
 import math
 import h5py
 from bs4 import BeautifulSoup 
