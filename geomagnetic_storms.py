@@ -9,7 +9,7 @@
 # 
 # 
 
-# In[18]:
+# In[ ]:
 
 
 import pickle
@@ -67,7 +67,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[5]:
+# In[13]:
 
 
 ##get omni dst data
@@ -119,7 +119,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[6]:
+# In[14]:
 
 
 years=np.arange(1995,2040) 
@@ -175,7 +175,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
-# In[7]:
+# In[15]:
 
 
 years=np.arange(1955,2040,5) 
@@ -234,7 +234,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 print('saved as', outputdir+'geomagnetic_storm_space_age.png')
 
 
-# In[8]:
+# In[16]:
 
 
 years=np.arange(1995,2040) 
@@ -308,7 +308,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[9]:
+# In[ ]:
 
 
 nrows=1
@@ -342,7 +342,7 @@ fig.write_html(outputdir+'geomagnetic_storm_latest.html')
 print('saved',outputdir+'geomagnetic_storm_latest.html')
 
 
-# In[10]:
+# In[ ]:
 
 
 ###same in german
@@ -418,7 +418,7 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 
 # ## Dst plot with thresholds
 
-# In[11]:
+# In[ ]:
 
 
 #get current dst last 35 days
@@ -491,7 +491,7 @@ print('saved',outputdir+'geomagnetic_storm_latest_zoom.png')
 
 # ### plotly
 
-# In[12]:
+# In[ ]:
 
 
 nrows=1
@@ -527,7 +527,7 @@ print('saved',outputdir+'geomagnetic_storm_latest_zoom.html')
 
 # ## Newell Coupling
 
-# In[17]:
+# In[ ]:
 
 
 ###add plot and add to txt file without propagation 
@@ -660,7 +660,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 # ### plotly
 
-# In[14]:
+# In[ ]:
 
 
 #plot the last 30 days
@@ -706,7 +706,7 @@ print('saved as', outputdir+'newell_coupling_latest.html')
 
 # ### save data for last few months as txt
 
-# In[15]:
+# In[ ]:
 
 
 ## to do: indicate if data comes from OMNI or NOAA
@@ -739,7 +739,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[16]:
+# In[ ]:
 
 
 print(' ')
