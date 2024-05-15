@@ -291,7 +291,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[4]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -361,7 +361,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[ ]:
+# In[8]:
 
 
 t1all = time.time()

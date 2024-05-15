@@ -579,7 +579,7 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
     
     #cut out data starting with start time that will be plotted, for better scaling
     
-    days_going_back=30
+    days_going_back=10
     startind=np.where(sc1in.time > end-datetime.timedelta(days=days_going_back))[0][0]  
     sc1=sc1in[startind:]    
 

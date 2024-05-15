@@ -31,7 +31,7 @@ get_wind=1
 
 get_psp=1
 get_solo=1
-get_stereoa=1
+get_stereoa=0
 get_bepi=1
 
 import numpy as np
@@ -111,7 +111,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[4]:
 
 
 if sys.platform == 'linux': 

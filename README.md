@@ -3,11 +3,9 @@
 This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections (ICMEs) and their analysis. [This is a link to a google colab notebook](https://colab.research.google.com/drive/1_zJMGJnX3XJx7FCHD04SC3Y0KCMdDGMz) for instructions how to read the catalogs produced with this package. The ICMECAT as the main result to be produced with this package is published at https://helioforecast.space/icmecat. It forms the largest living catalog of ICMEs.
 
 
-**Authors**: C. Möstl, Austrian Space Weather Office, Geosphere Austria https:/helioforecast.space; contributions by E. E. Davies, EA. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow.
+**Authors**: C. Möstl, Austrian Space Weather Office, Geosphere Austria https:/helioforecast.space; contributions by E. E. Davies, E. Weiler, A. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow.
 
-Current status (**August 2023**): **work in progress**. I am currently updating the code with a new conda environment (helio4), defined in "/envs/env_helio4.yml" and go through all codes to ensure they work. 
-
-This is a continuation of work done in the EU HELCATS project (2014-2017): 
+Current status (**May 2024**): ICME catalog and data downloads work. This is a continuation of work done in the EU HELCATS project (2014-2017): 
 [https://www.helcats-fp7.eu](https://www.helcats-fp7.eu). 
 
 If you want to use parts of this code for generating results for **peer-reviewed scientific publications, 
@@ -33,11 +31,9 @@ For some scripts there should be a systemwide installation of ffmpeg available.
 
 
 
-
 ### ICME catalog (work in progress)
 
-Before running the icmecat scripts, you need to download data files for 8 spacecraft the we made 
-(in total around 10 GB) from this figshare repository: 
+Before running the icmecat scripts, you need to download data files the we made (in total around 10 GB) from this figshare repository: 
 [https://doi.org/10.6084/m9.figshare.11973693](https://doi.org/10.6084/m9.figshare.11973693)
 and place these files in the a folder e.g. named "data", 
 (the name of this folder is set by the variable *data_path* in file config.py).
@@ -51,7 +47,7 @@ The catalog is available in these formats: .p (pandas dataframe or numpy record 
 Load this catalog into python with 
 
     import pickle
-    file='icmecat/HELCATS_ICMECAT_v20_pandas.p'
+    file='icmecat/HELCATS_ICMECAT_v22_pandas.p'
     [ic,header,parameters]=pickle.load( open(file, 'rb'))
     
     
@@ -77,7 +73,7 @@ gives the header description and the list of all parameters with units.
 Alternatively, you can load the ICMECAT with 
 
     import pickle
-    file='icmecat/HELCATS_ICMECAT_v20_numpy.p'
+    file='icmecat/HELCATS_ICMECAT_v22_numpy.p'
     [ic_nprec,ic_np,header,parameters]=pickle.load( open(file, 'rb'))  
 
 which returns a numpy record array (ic_nprec) or a numpy structured array (ic_np) consisting of strings and floats.
@@ -106,33 +102,6 @@ use either (depending on your preference for jupyter lab, notebook or a script):
 These codes makes the HELCATS CME arrival catalog, see e.g. Möstl et al. (2017, Space Weather). The catalog is available in essentially the same formats as the ICMECAT, and can be used similarly to above.
 
 
-
-
-### ICME statistics (work in progress)
-
-use either (depending on your preference for jupyter lab, notebook or a script):
-
-    jupyter lab cme_statistics.ipynb
-  
-    jupyter notebook cme_statistics.ipynb
-
-    python cme_statistics.py
-    
-These codes make CME statistics to obtain results for planetary space weather studies.
-
-
-### Spacecraft positions and data (work in progress)
-
-    python sc_positions_insitu.py
-
-makes movies of spacecraft positions and in situ data, all configuration variables are set in the script.
-
-
-### Real-time data update (work in progress)
-
-    python data_update.py
-    
-makes real time downloads and plots of various data sources.
 
 
 ---
@@ -177,7 +146,7 @@ on Linux
 
 
 MIT LICENSE
-Copyright 2020-2023, Christian Moestl 
+Copyright 2020-2024, Christian Moestl, Emma Davies, Eva Weiler
 Permission is hereby granted, free of charge, to any person obtaining a copy of this 
 software and associated documentation files (the "Software"), to deal in the Software
 without restriction, including without limitation the rights to use, copy, modify, 

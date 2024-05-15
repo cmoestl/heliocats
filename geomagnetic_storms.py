@@ -9,7 +9,7 @@
 # 
 # 
 
-# In[ ]:
+# In[1]:
 
 
 import pickle
@@ -67,7 +67,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[13]:
+# In[2]:
 
 
 ##get omni dst data
@@ -119,7 +119,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[14]:
+# In[3]:
 
 
 years=np.arange(1995,2040) 
@@ -162,7 +162,7 @@ plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=
 
 plt.figtext(0.10,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
 
-ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+#ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
 
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
@@ -175,7 +175,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
-# In[15]:
+# In[4]:
 
 
 years=np.arange(1955,2040,5) 
@@ -220,7 +220,7 @@ plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=
 
 plt.figtext(0.11,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
 
-ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+#ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
 newax = fig.add_axes([0.89,0.89,0.08,0.08], anchor='NE', zorder=1)
@@ -234,7 +234,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 print('saved as', outputdir+'geomagnetic_storm_space_age.png')
 
 
-# In[16]:
+# In[5]:
 
 
 years=np.arange(1995,2040) 
@@ -292,7 +292,7 @@ newax = fig.add_axes([0.87,0.90,0.08,0.08], anchor='NE', zorder=1)
 newax.imshow(logo)
 newax.axis('off')
 
-ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+#ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
 
 
 
@@ -308,7 +308,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[ ]:
+# In[6]:
 
 
 nrows=1
@@ -320,7 +320,7 @@ fig.add_trace(go.Scatter(x=o.time, y=o.dst, name='OMNI Dst',line_color='black') 
 
 fig.update_layout(title='Dst index', font=dict(size=20))
 
-fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=365),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
+fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=100),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
 
 
 fig.update_layout(
@@ -342,7 +342,7 @@ fig.write_html(outputdir+'geomagnetic_storm_latest.html')
 print('saved',outputdir+'geomagnetic_storm_latest.html')
 
 
-# In[ ]:
+# In[7]:
 
 
 ###same in german
@@ -400,7 +400,7 @@ newax = fig.add_axes([0.87,0.90,0.08,0.08], anchor='NE', zorder=1)
 newax.imshow(logo)
 newax.axis('off')
 
-ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+#ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
 
 
 
@@ -418,7 +418,7 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 
 # ## Dst plot with thresholds
 
-# In[ ]:
+# In[8]:
 
 
 #get current dst last 35 days
@@ -491,7 +491,7 @@ print('saved',outputdir+'geomagnetic_storm_latest_zoom.png')
 
 # ### plotly
 
-# In[ ]:
+# In[9]:
 
 
 nrows=1
@@ -503,7 +503,7 @@ fig.add_trace(go.Scatter(x=n.time, y=n.dst, name='Dst',line_color='blue') )
 
 fig.update_layout(title='Dst index', font=dict(size=20))
 
-fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
+fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=15),datetime.datetime.utcnow()+datetime.timedelta(days=2)]) )
 
 
 fig.update_layout(
@@ -527,7 +527,7 @@ print('saved',outputdir+'geomagnetic_storm_latest_zoom.html')
 
 # ## Newell Coupling
 
-# In[ ]:
+# In[10]:
 
 
 ###add plot and add to txt file without propagation 
@@ -660,7 +660,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 # ### plotly
 
-# In[ ]:
+# In[11]:
 
 
 #plot the last 30 days
@@ -706,7 +706,7 @@ print('saved as', outputdir+'newell_coupling_latest.html')
 
 # ### save data for last few months as txt
 
-# In[ ]:
+# In[12]:
 
 
 ## to do: indicate if data comes from OMNI or NOAA
@@ -739,7 +739,7 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[ ]:
+# In[13]:
 
 
 print(' ')
@@ -865,7 +865,7 @@ o24=o[ind24]
 o25=o[ind25]
 
 
-# In[23]:
+# In[18]:
 
 
 #compare rising phases
@@ -920,7 +920,7 @@ plt.tight_layout()
 #print('saved as ',plotfile)
 
 
-# In[27]:
+# In[19]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -949,7 +949,7 @@ ax1.set_xlim(0, 20)
 plt.legend()
 
 
-# In[25]:
+# In[20]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
