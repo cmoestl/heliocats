@@ -579,7 +579,7 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
     
     #cut out data starting with start time that will be plotted, for better scaling
     
-    days_going_back=10
+    days_going_back=60
     startind=np.where(sc1in.time > end-datetime.timedelta(days=days_going_back))[0][0]  
     sc1=sc1in[startind:]    
 
@@ -609,7 +609,7 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
 
 
     fig.update_layout(title='NOAA L1 and STEREO-A solar wind', font=dict(size=20))
-    fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=days_going_back),datetime.datetime.utcnow()+datetime.timedelta(days=0.5)]) )
+    fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow()+datetime.timedelta(days=0.5)]) )
 
 
     fig.update_layout(
