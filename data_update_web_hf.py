@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[ ]:
+# In[13]:
 
 
 #switches
@@ -311,8 +311,8 @@ file_sta_beacon_gsm='stereoa_beacon_gsm_last_35days_now.p'
 if get_stereoa > 0:
 
     print(' ')
-    print('--- download STEREO-A beacon data last 15 days ')
-    hd.stereoa_download_beacon(start=datetime.datetime.utcnow()-datetime.timedelta(days=15),end=datetime.datetime.utcnow(),stereoa_path=stereoa_path)   
+    print('--- download STEREO-A beacon data last 10 days ')
+    hd.stereoa_download_beacon(start=datetime.datetime.utcnow()-datetime.timedelta(days=10),end=datetime.datetime.utcnow(),stereoa_path=stereoa_path)   
     print(' ')
 
     print('--- process STEREO-A beacon data to pickle last 35 days') 
@@ -361,7 +361,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[10]:
+# In[14]:
 
 
 t1all = time.time()
@@ -370,7 +370,7 @@ print(' ')
 print(' ')
 print(' ')
 print('------------------')
-print('Runtime for full high frequency data update:', np.round((t1all-t0all),2), 'seconds')
+print('Runtime for full high frequency data update:', np.round((t1all-t0all)/60,2), 'minutes')
 print('--------------------------------------------------------------------------------------')
 
 
