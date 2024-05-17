@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[3]:
+# In[11]:
 
 
 #switches
@@ -319,7 +319,7 @@ if get_stereoa > 0:
     #save pickle file
     
     
-    hd.save_stereoa_beacon_data(data_path,stereoa_path,file_sta_beacon_rtn,file_sta_beacon_gsm,datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow(),coord='RTN' )   
+    hd.save_stereoa_beacon_data(data_path,stereoa_path,file_sta_beacon_rtn,file_sta_beacon_gsm,datetime.datetime.utcnow()-datetime.timedelta(days=35),datetime.datetime.utcnow(),coord='RTN' )   
     
     
 #load rtn
