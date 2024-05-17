@@ -183,6 +183,8 @@ yearly_start_times=[datetime.datetime(year,1,1) for year in years]
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
+#sns.set(rc={"xtick.bottom" : True, "ytick.left" : True})
+
 fig, ax1=plt.subplots(1,figsize=(13,7),dpi=100)
 
 ax1.plot(o.time,o.dst,color='k',linewidth=0.7,alpha=0.8, label='OMNI Dst')
@@ -193,19 +195,22 @@ ax1.plot(n.time,n.dst,color='royalblue',linewidth=0.9,alpha=1.0,label='NOAA Dst'
 plotmin=np.nanmin(np.hstack([o.dst,n.dst]) )
 plotmax=np.nanmax(np.hstack([o.dst,n.dst]) )
 print(plotmax, plotmin)
-ax1.set_ylim(-1100,plotmax+20)
 
 ax1.set_xlim(start,end)
 
 plt.ylabel('Dst [nT]')
+ax1.set_yticks(np.arange(-1500,200,100))
+ax1.set_ylim(-1000,plotmax+20)
 
 ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 plt.xticks(yearly_start_times, fontsize=14,rotation=0) 
+ax1.xaxis.set_minor_locator(mdates.YearLocator())
+ax1.tick_params(which='both', bottom=True, color='gray')
 
 
-ax1.set_xlim(datetime.datetime(1960,1,1),datetime.datetime(datetime.datetime.utcnow().year+1,1,1))
+ax1.set_xlim(datetime.datetime(1963,1,1),datetime.datetime(datetime.datetime.utcnow().year+1,1,1))
 
 #ax1.axvline(datetime.datetime.utcnow(), color='r', linestyle='--',linewidth=0.8,alpha=0.3)
 
@@ -223,9 +228,12 @@ plt.figtext(0.11,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' U
 #ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
-newax = fig.add_axes([0.89,0.89,0.08,0.08], anchor='NE', zorder=1)
+newax = fig.add_axes([0.88,0.89,0.08,0.08], anchor='NE', zorder=1)
 newax.imshow(logo)
 newax.axis('off')
+
+    
+
 
 plt.tight_layout()
 
@@ -320,7 +328,7 @@ fig.add_trace(go.Scatter(x=o.time, y=o.dst, name='OMNI Dst',line_color='black') 
 
 fig.update_layout(title='Dst index', font=dict(size=20))
 
-fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=100),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
+fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=365*25),datetime.datetime.utcnow()+datetime.timedelta(days=3)]) )
 
 
 fig.update_layout(

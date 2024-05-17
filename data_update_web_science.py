@@ -13,10 +13,10 @@
 # 
 # Issues:
 # 
-# - need to copy kernel files manually to the kernel paths
+# - need to copy updated kernel files manually to the kernel paths
 # - PSP end date for data downloads needs to be set manually otherwise processing stops on the server - due to a timeout when no output for a while? or entering a loop? PSP data ends 2023 Oct 15, end date set to 2023 Dec 31, need to fix hd.download_pspmag_1min
 
-# In[3]:
+# In[16]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -31,7 +31,7 @@ get_wind=1
 
 get_psp=1
 get_solo=1
-get_stereoa=0
+get_stereoa=1
 get_bepi=1
 
 import numpy as np
@@ -111,7 +111,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[4]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -319,7 +319,7 @@ if get_wind > 0:
 # ### Parker Solar Probe
 # 
 
-# In[7]:
+# In[6]:
 
 
 print(' ')
@@ -376,7 +376,7 @@ else:
   
 
 
-# In[8]:
+# In[7]:
 
 
 if get_psp > 0:   
@@ -464,7 +464,7 @@ if get_solo > 0:
 
 # ### BepiColombo
 
-# In[ ]:
+# In[10]:
 
 
 print(' ')
@@ -539,7 +539,7 @@ else:
     print('Bepi data NOT downloaded and pickled, turn on switch')  
 
 
-# In[14]:
+# In[11]:
 
 
 if get_bepi > 0:  
@@ -594,7 +594,7 @@ if get_bepi > 0:
 
 # ### STEREO-A science data
 
-# In[11]:
+# In[12]:
 
 
 print(' ')
@@ -643,7 +643,7 @@ else:
 
 
 
-# In[12]:
+# In[13]:
 
 
 if get_stereoa > 0:  
@@ -670,7 +670,7 @@ if get_stereoa > 0:
 
 # #### write header file for science daily updates
 
-# In[13]:
+# In[14]:
 
 
 text = open(data_path+'new_data_headers.txt', 'w')

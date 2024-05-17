@@ -20,7 +20,7 @@
 # 
 # 
 
-# In[4]:
+# In[6]:
 
 
 #switches
@@ -324,7 +324,7 @@ print()
 print('STEREO-A beacon downloading last 30 days, save as pickle last 400 days and plotting takes', np.round(t1-t0,2), 'seconds')
 
 
-# In[6]:
+# In[ ]:
 
 
 t1all = time.time()
@@ -345,6 +345,18 @@ print('-------------------------------------------------------------------------
 filenoaa2='noaa_rtsw_last_2500files_now.p'
 filedst2='noaa_dst_last_2500_now.p'    
 hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa2,filedst2,2500)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:

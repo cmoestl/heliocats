@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[10]:
+# In[3]:
 
 
 #switches
@@ -81,7 +81,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[4]:
 
 
 if sys.platform == 'linux': 
@@ -135,7 +135,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions, Xray and SDO plots
 
-# In[3]:
+# In[5]:
 
 
 if debug_mode > 0: 
@@ -152,7 +152,7 @@ hd.get_noaa_xray(noaa_path,data_path,xraypickle,xraypickle2)
 hp.plot_noaa_xray(data_path+xraypickle,data_path+xraypickle2,plot_path)
 
 
-# In[4]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -184,7 +184,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind 
 
-# In[5]:
+# In[7]:
 
 
 if debug_mode > 0: 
@@ -291,7 +291,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[6]:
+# In[8]:
 
 
 if debug_mode > 0: 
@@ -318,8 +318,8 @@ if get_stereoa > 0:
     print('--- process STEREO-A beacon data to pickle last 35 days') 
     #save pickle file
     
-    ####### FIX for SOHO server
-    hd.save_stereoa_beacon_data2(data_path,stereoa_path,file_sta_beacon_rtn,file_sta_beacon_gsm,datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow(),coord='RTN' )   
+    
+    hd.save_stereoa_beacon_data(data_path,stereoa_path,file_sta_beacon_rtn,file_sta_beacon_gsm,datetime.datetime.utcnow()-datetime.timedelta(days=10),datetime.datetime.utcnow(),coord='RTN' )   
     
     
 #load rtn
@@ -361,7 +361,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[8]:
+# In[10]:
 
 
 t1all = time.time()

@@ -443,8 +443,8 @@ def plot_insitu_update_stereoa_noaa(sc1in, sc2in, start, end, sc_label, path, **
     fsize=10
 
     #take maximum from both arrays
-    bscale=np.nanmax(np.hstack((sc1.bt, sc2.bt))) +8
-    vscale=np.nanmax(np.hstack((sc1.vt, sc2.vt)))
+    bscale=np.nanmax(np.hstack((sc1.bt, sc2.bt))) +10
+    vscale=np.nanmax(np.hstack((sc1.vt, sc2.vt)))+50
 
 
     fig=plt.figure(figsize=(9,6), dpi=150)
