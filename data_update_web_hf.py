@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[11]:
+# In[ ]:
 
 
 #switches
@@ -311,8 +311,8 @@ file_sta_beacon_gsm='stereoa_beacon_gsm_last_35days_now.p'
 if get_stereoa > 0:
 
     print(' ')
-    print('--- download STEREO-A beacon data last 10 days ')
-    hd.stereoa_download_beacon(start=datetime.datetime.utcnow()-datetime.timedelta(days=10),end=datetime.datetime.utcnow(),stereoa_path=stereoa_path)   
+    print('--- download STEREO-A beacon data last 15 days ')
+    hd.stereoa_download_beacon(start=datetime.datetime.utcnow()-datetime.timedelta(days=15),end=datetime.datetime.utcnow(),stereoa_path=stereoa_path)   
     print(' ')
 
     print('--- process STEREO-A beacon data to pickle last 35 days') 
