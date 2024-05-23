@@ -27,7 +27,7 @@
 # 
 # **With each update:** 
 # - use the notebook data_update_web_science.ipynb in this package to create pickle files for new science data. The current data can be found on figshare.
-# - the solar orbiter kernel should be manually updated with every icmecat update, and the position files should be redone (currently by Eva Weiler)
+# - the solar orbiter and stereo-a kernel should be manually updated with every icmecat update, and the position files should be redone (currently by Eva Weiler)
 # - use measure.ipynb to manually derive the 3 times for each ICME event
 # - manually edit the file icmecat/HELCATS_ICMECAT_v22_master.xlsx to add 3 times for each event, the event id and spacecraft name
 # - set the transition date from STEREO-A science data to beacon data manually
@@ -46,7 +46,7 @@
 # In[1]:
 
 
-last_update='2024-April-11'
+last_update='2024-May-TBD'
 
 debug_mode=1
 
@@ -165,7 +165,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[4]:
+# In[2]:
 
 
 # the positions file is generated with positions.ipynb (Eva's version!), and the position from messenger is taken from an older file
@@ -244,7 +244,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[3]:
+# In[12]:
 
 
 load_data=1
@@ -354,7 +354,7 @@ if load_data > 0:
     
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
     #cutoff with end of science data
-    sta2=sta2[np.where(sta2.time >= parse_time('2023-Jun-01 00:00').datetime)[0]]
+    sta2=sta2[np.where(sta2.time >= parse_time('2024-Jan-01 00:00').datetime)[0]]
 
     #make array
     sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
