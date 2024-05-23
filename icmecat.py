@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.2, 2024 February 27, updated 2024 April 11
+# latest release: version 2.2, 2024 February 27, updated 2024 May ****
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -14,7 +14,9 @@
 # **Contributors**: 
 # Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Benoit Lavraud, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, Johan von Forstner, Mateja Dumbovic. 
 # 
-# https://twitter.com/chrisoutofspace <br /> https://bsky.app/profile/chrisoutofspace.bsky.social
+# https://twitter.com/chrisoutofspace <br /> 
+# https://twitter.com/ASWOGeoSphere <br /> 
+# 
 # 
 # This notebook is part of the heliocats package https://github.com/cmoestl/heliocats
 # 
@@ -163,7 +165,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[2]:
+# In[4]:
 
 
 # the positions file is generated with positions.ipynb (Eva's version!), and the position from messenger is taken from an older file
@@ -1144,7 +1146,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[3]:
+# In[5]:
 
 
 #load icmecat as pandas dataframe
@@ -1156,27 +1158,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v22_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[4]:
+# In[6]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[5]:
+# In[7]:
 
 
 ic_pandas
 
 
-# In[6]:
+# In[8]:
 
 
 #
 ic_nprec
 
 
-# In[7]:
+# In[9]:
 
 
 ic_nprec.icmecat_id
@@ -1184,7 +1186,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[8]:
+# In[10]:
 
 
 ic=ic_pandas
@@ -1311,7 +1313,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[9]:
+# In[11]:
 
 
 #markersize
@@ -1377,7 +1379,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ### plotly radial distance and mean MO field
 
-# In[10]:
+# In[12]:
 
 
 ################# 
@@ -1450,7 +1452,7 @@ fig.write_html(f'icmecat/icmecat_distance.html')
 
 # ### plotly event position in 3D
 
-# In[31]:
+# In[13]:
 
 
 # Create polar plot
@@ -1613,7 +1615,7 @@ pio.write_image(fig, 'icmecat/icmecat_position_3D.png',scale=2, width=1500, heig
 
 # ### plotly radial distance and longitude
 
-# In[12]:
+# In[14]:
 
 
 # Sample data
@@ -1685,7 +1687,7 @@ fig.write_html(f'icmecat/icmecat_longitudes.html')
 
 # ### 3D plotly for PSP, SolO, Bepi
 
-# In[13]:
+# In[78]:
 
 
 #convert times to datetime
@@ -1701,20 +1703,40 @@ solotime=np.zeros(len(solotime_raw),dtype='object')
 
 for i in np.arange(len(solotime_raw)):
     solotime[i]=datetime.datetime(solotime_raw[i].year,solotime_raw[i].month,solotime_raw[i].day,solotime_raw[i].hour,solotime_raw[i].minute)
-
         
 #interpolate position file to daily values for faster computation and lower file size of the html
-    
+
+#SolO
+start_time = solotime[0]
+end_time = solotime[-1]
+solo_daily = pd.date_range(start=start_time, end=end_time, freq='D').date 
+solo_daily_num = mdates.date2num(solo_daily)
+
+solox=np.interp(solo_daily_num, pos[1].time.astype(float), pos[1].x)
+soloy=np.interp(solo_daily_num, pos[1].time.astype(float), pos[1].y)
+soloz=np.interp(solo_daily_num, pos[1].time.astype(float), pos[1].z)
+
+
+#PSP  
+start_time = psptime[0]
+end_time = psptime[-1]
+psp_daily = pd.date_range(start=start_time, end=end_time, freq='H').date  ##****** need to add this with .time for hourly data
+psp_daily_num = mdates.date2num(psp_daily)
+
+pspx=np.interp(psp_daily_num, pos[0].time.astype(float), pos[0].x)
+pspy=np.interp(psp_daily_num, pos[0].time.astype(float), pos[0].y)
+pspz=np.interp(psp_daily_num, pos[0].time.astype(float), pos[0].z)
     
 
 
-# In[1]:
+# In[111]:
 
 
 # Create polar plot
 fig = go.Figure()
 
-mfac=12
+mfac=10
+
 
 #in AU, make sure conversion is correct so latitude is 0 to 90 
 [x,y,z]=hd.sphere2cart(ic.mo_sc_heliodistance.values, -np.deg2rad(ic.mo_sc_lat_heeq.values-90), np.deg2rad(ic.mo_sc_long_heeq.values))
@@ -1723,13 +1745,16 @@ mfac=12
 #add orbit    
 
 ### PSP
+#fig.add_trace(go.Scatter3d(x=pspx, y=pspy, z=pspz, name='PSP',mode='lines',line=dict(color='black'),
+#        hovertemplate='PSP orbit<br>time: %{text}',text=psp_daily))
+
 #fig.add_trace(go.Scatter3d(x=pos[0].x, y=pos[0].y, z=pos[0].z, name='PSP',mode='lines',line=dict(color='black'),
 #        hovertemplate='PSP orbit<br>time: %{text}',text=psptime))
 
 
 # SOLO
-fig.add_trace(go.Scatter3d(x=pos[1].x, y=pos[1].y, z=pos[1].z, name='Solar Orbiter',mode='lines',line=dict(color='green'), 
-        hovertemplate='Solar Orbiter orbit<br>time: %{text}',text=solotime))
+fig.add_trace(go.Scatter3d(x=solox, y=soloy, z=soloz, name='Solar Orbiter',mode='lines',line=dict(color='green'), 
+        hovertemplate='Solar Orbiter orbit<br>time: %{text}',text=solo_daily))
              
 #fig.add_trace(go.Scatter3d(x=pos[4].x, y=pos[4].y, z=pos[4].z, name='BepiColombo',mode='lines',line=dict(color='blue')))
 #fig.add_trace(go.Scatter3d(x=pos[2].x, y=pos[2].y, z=pos[2].z, name='STEREO-A',mode='lines',line=dict(color='red')))
@@ -1829,21 +1854,81 @@ fig.add_trace(go.Scatter3d(
 
 #add 10° to SE line
 fig.add_trace(go.Scatter3d(
-    x=np.linspace(0,1,num_points)*np.sin(np.deg2rad(10)),
-    y=np.linspace(0,1,num_points)*np.cos(np.deg2rad(10)),
+    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(10)),
+    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(10)),
     z=np.zeros(num_points), 
-    mode='lines', name='Sun-Earth line',
+    mode='lines', name='10°',
     line=dict(color='red', width=1)
 ))
 
 
+
+#add 20° to SE line
+fig.add_trace(go.Scatter3d(
+    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(20)),
+    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(20)),
+    z=np.zeros(num_points), 
+    mode='lines', name='20°',
+    line=dict(color='red', width=1)
+))
+
+
+#add 30° to SE line
+fig.add_trace(go.Scatter3d(
+    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(30)),
+    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(30)),
+    z=np.zeros(num_points), 
+    mode='lines', name='30°',
+    line=dict(color='red', width=1)
+))
+
+#add 10° to SE line
+fig.add_trace(go.Scatter3d(
+    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(-10)),
+    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(-10)),
+    z=np.zeros(num_points), 
+    mode='lines', name='-10°',
+    line=dict(color='red', width=1)
+))
+
+
+#add 20° to SE line
+fig.add_trace(go.Scatter3d(
+    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(-20)),
+    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(-20)),
+    z=np.zeros(num_points), 
+    mode='lines', name='-20°',
+    line=dict(color='red', width=1)
+))
+
+
+
+#add 30° to SE line
+fig.add_trace(go.Scatter3d(
+    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(-30)),
+    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(-30)),
+    z=np.zeros(num_points), 
+    mode='lines', name='-30°',
+    line=dict(color='red', width=1)
+))
+
+
+
+#add 60° to SE line
+fig.add_trace(go.Scatter3d(
+    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(-60)),
+    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(-60)),
+    z=np.zeros(num_points), 
+    mode='lines', name='L5',
+    line=dict(color='blue', width=1)
+))
 
 
 
 zoom=1.2
 
 fig.update_layout(
-    title='ICMECAT event positions in 3D, Solar Orbiter and Parker Solar Probe trajectories (HEEQ coordinates)',
+    title='ICMECAT event positions in 3D, Solar Orbiter trajectory (HEEQ coordinates)',
     scene=dict( aspectmode='data',
         xaxis=dict(title='X '),
         yaxis=dict(title='Y'),
@@ -1861,13 +1946,11 @@ fig.update_layout(
 #plotly.offline.plot(fig, include_plotlyjs=False, output_type='div')
 
 #fig.write_html(f'icmecat/icmecat_orbit_3D_psp_solo.html')
+#fig.write_html(f'icmecat/icmecat_orbit_3D_solo_psp.html')
+#pio.write_image(fig, 'icmecat/icmecat_orbit_3D_solo_psp.png',scale=1, width=1500, height=850)
+
 fig.write_html(f'icmecat/icmecat_orbit_3D_solo.html')
-
-
-# In[ ]:
-
-
-
+pio.write_image(fig, 'icmecat/icmecat_orbit_3D_solo.png',scale=1, width=1500, height=1200)
 
 
 # ## Parameter distribution plots near 1 AU

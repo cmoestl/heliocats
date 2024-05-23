@@ -3,7 +3,7 @@
 
 # ## daily data updates for the helioforecast.space website of science data
 # 
-# Main author: C. Möstl, Austrian Space Weather Office, GeoSphere Austria
+# Authors: C. Möstl, E. E. Davies, E. Weiler, Austrian Space Weather Office, GeoSphere Austria
 # 
 # https://github.com/cmoestl/heliocats
 # 
@@ -13,10 +13,15 @@
 # 
 # Issues:
 # 
-# - need to copy updated kernel files manually to the kernel paths
+# - need to copy these updated kernel files manually to the kernel paths:
+# - SolO Kernels are available at:  https://spiftp.esac.esa.int/data/SPICE/SOLAR-ORBITER/kernels/spk/
+# - STEREO-A kernels are available at: 
+# https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/depm/ahead/
+# 
 # - PSP end date for data downloads needs to be set manually otherwise processing stops on the server - due to a timeout when no output for a while? or entering a loop? PSP data ends 2023 Oct 15, end date set to 2023 Dec 31, need to fix hd.download_pspmag_1min
+# check data availability at: https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min
 
-# In[16]:
+# In[11]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -594,7 +599,7 @@ if get_bepi > 0:
 
 # ### STEREO-A science data
 
-# In[12]:
+# In[9]:
 
 
 print(' ')
@@ -611,8 +616,8 @@ sta_file=data_path+'stereoa_2007_now_rtn.p'
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
-    start_time= datetime(2012,7,1)
-    end_time  = datetime(2012,7,31)
+    start_time= datetime(2023,7,1)
+    end_time  = datetime(2024,12,30)
     sta_file=data_path+'stereoa_rtn_test.p'
 
     
@@ -643,7 +648,7 @@ else:
 
 
 
-# In[13]:
+# In[10]:
 
 
 if get_stereoa > 0:  
