@@ -40,7 +40,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[1]:
+# In[15]:
 
 
 # -----CHECK LIST
@@ -137,7 +137,7 @@ print('path for data files', data_path)
 
 # ## 1 Settings and load data
 
-# In[2]:
+# In[16]:
 
 
 t0 = time.time()
@@ -209,11 +209,19 @@ if load_data > 0:
         try: urllib.request.urlretrieve(ssn_prelim_url,data_path+'EISN_current.csv')
         except urllib.error.URLError as e:
             print('Failed downloading ', ssn_prelim_url,' ',e)
-        
+            
+            
         ssn_prelim_raw = np.loadtxt(data_path+'EISN_current.csv', delimiter=',',usecols=(0,1,2,4,5))
         ssn_p_int=ssn_prelim_raw.astype(int)
-        ssn_p=pd.DataFrame(ssn_p_int,columns=['year','month','day','spot','stand'])        
         
+        #with one entry do this different:
+        if ssn_p_int.size == 5:
+            ssn_p=pd.DataFrame([ssn_p_int],columns=['year','month','day','spot','stand'])        
+
+        if ssn_p_int.size > 5:
+            ssn_p=pd.DataFrame(ssn_p_int,columns=['year','month','day','spot','stand'])        
+
+            
         ssn_p_time=np.zeros(len(ssn_p))
         for k in np.arange(len(ssn_p)):
             ssn_p_time[k]=mdates.date2num(datetime.datetime(ssn_p.year[k],ssn_p.month[k], ssn_p.day[k]))            
@@ -284,8 +292,12 @@ if load_data > 0:
  
 
 
+# In[17]:
 
-    ##----------------------------- spacecraft
+
+if load_data > 0:
+    
+##----------------------------- spacecraft
 
     #fileomni="omni_1963_now.p"
     #if get_new_omni==1: hd.save_omni_data(data_path,fileomni)
@@ -459,7 +471,7 @@ print('loading all data takes', np.round(t1-t0,2), 'seconds')
     
 
 
-# In[3]:
+# In[18]:
 
 
 ########### load ICMECAT made with icmecat.py or ipynb
@@ -514,7 +526,7 @@ print('HELCATS HIGeoCAT     ',str(higeocat_time[0])[0:10],str(higeocat_time[-1])
 print('HELCATS ARRCAT       ',np.sort(ac_pandas.sse_launch_time)[0][0:10],np.sort(ac_pandas.sse_launch_time)[-1][0:10])
 
 
-# In[4]:
+# In[19]:
 
 
 ############### set limits of solar minimum, rising/declining phase and solar maximum
@@ -587,7 +599,7 @@ print(len(ic))
 print('done')
 
 
-# In[5]:
+# In[20]:
 
 
 ic
@@ -597,7 +609,7 @@ ic
 
 # ### Check data days available each year for each planet or spacecraft
 
-# In[6]:
+# In[21]:
 
 
 ######################## make bin for each year for yearly histograms
@@ -790,7 +802,7 @@ print('done')
 
 # ### get yearly ICME rates at each spacecraft
 
-# In[7]:
+# In[22]:
 
 
 #define dates of January 1 from 2007 to 2022
@@ -900,7 +912,7 @@ plt.plot(icrate.year,icrate.mean1,'ok',markerfacecolor='white', label='mean +/- 
 plt.legend(loc=2,fontsize=10)
 
 
-# In[8]:
+# In[23]:
 
 
 icrate
@@ -908,7 +920,7 @@ icrate
 
 # ### get Richardson and Cane ICME rate for comparison
 
-# In[9]:
+# In[24]:
 
 
 #convert times in dataframe from richardson and cane list to numpy array
@@ -959,7 +971,7 @@ print(rc_rate_time)
 
 # ### **Figure 1** plot ICME frequency cycle 24
 
-# In[10]:
+# In[25]:
 
 
 sns.set_context("talk")     
@@ -1051,7 +1063,7 @@ plt.savefig(outputdirectory+'/icmecat_icme_rate.png', dpi=150)
 
 # ## solar cycle 23
 
-# In[11]:
+# In[26]:
 
 
 print('cycle 23\n')
@@ -1135,7 +1147,7 @@ print()
 
 # ## solar cycle 24
 
-# In[12]:
+# In[27]:
 
 
 print('cycle 24\n')
@@ -1195,7 +1207,7 @@ print(np.round(np.mean(rc_rate24/ic_rate24),2))
 
 # ## solar cycle 25
 
-# In[13]:
+# In[28]:
 
 
 print('cycle 25\n')
@@ -1255,7 +1267,7 @@ print()
 # ## **Figure 2** correlation SSN with ICME rate and fit
 # plot SSN vs ICME rate, linear fit with confidence interval
 
-# In[14]:
+# In[29]:
 
 
 #add spots23/24 and rc_rate23/24 into 1 array for correlation
@@ -1383,7 +1395,7 @@ plt.savefig(outputdirectory+'/fig2_rate_ssn.png', dpi=300)
 # ## predictions for solar cycle 25: SSN and ICME rate
 # ### 1. Mean cycle model
 
-# In[15]:
+# In[30]:
 
 
 # from heliocats import stats as hs
@@ -1498,7 +1510,7 @@ print('Std in ICME rate from fit and ICMECAT range for each year:')
 print(ic_rate_25_m_std)
 
 
-# In[16]:
+# In[31]:
 
 
 ########################################################### 2. SC25 panel prediction (SC25PP)
@@ -1637,7 +1649,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_pp_std)
 
 
-# In[17]:
+# In[32]:
 
 
 ################################### SC25MC
@@ -1737,7 +1749,7 @@ print('final Std in ICME rate from SSN prediction, SSN to ICME fit and ICMECAT r
 print(ic_rate_25_mc20_std)
 
 
-# In[18]:
+# In[33]:
 
 
 ################################### SC25MC
@@ -1838,7 +1850,7 @@ print(times_25_daily[np.argmax(spots_predict_25_mc23_daily)])
 #print(np.round(spots_predict_25_mc23-spots_predict_25_mc23_upper68))
 
 
-# In[19]:
+# In[34]:
 
 
 print('start of sc25 here in MC23',start_25-shift_t03)
@@ -1930,7 +1942,7 @@ print(ic_rate_25_mc23_std)
 
 # ## **Figure 3** ICME rate predictions
 
-# In[20]:
+# In[35]:
 
 
 sns.set_context("talk")     
@@ -2059,7 +2071,7 @@ plt.savefig(outputdirectory+'/cycle25_icme_rate_predictions.pdf', dpi=100)
 
 # ## solar cycle progression
 
-# In[29]:
+# In[46]:
 
 
 sns.set_context('talk')
@@ -2120,7 +2132,7 @@ ax1.set_xlim(datetime.datetime(1749,1,1),datetime.datetime(2035,1,1))
 #ax1.plot(times_25_daily,spots_predict_25_daily,'-k',alpha=1,linewidth=1.5,label='Solar dynamo revolution April 2021')
 #ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
 
-ax1.set_ylim(0,370)
+ax1.set_ylim(0,400)
 ax1.set_ylabel('Sunspot number')
 
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
@@ -2160,7 +2172,7 @@ print(outputdirectory+'/cycle25_prediction_short.pdf')
 
 # ### German plot 
 
-# In[22]:
+# In[49]:
 
 
 sns.set_context('talk')
@@ -2222,7 +2234,7 @@ ax1.set_xlim(datetime.datetime(1749,1,1),datetime.datetime(2035,1,1))
 #ax1.plot(times_25_daily,spots_predict_25_daily,'-k',alpha=1,linewidth=1.5,label='Solar dynamo revolution April 2021')
 #ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
 
-ax1.set_ylim(0,370)
+ax1.set_ylim(0,400)
 ax1.set_ylabel('Sonnenfleckenrelativzahl')
 
 plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
@@ -2257,12 +2269,12 @@ newax.axis('off')
 
 plt.tight_layout()
 
-plt.savefig(outputdirectory+'/cycle25_prediction_short_german.png',dpi=150)
+plt.savefig(outputdirectory+'/cycle25_prediction_short_german.png',dpi=200)
 plt.savefig(outputdirectory+'/cycle25_prediction_short_german.pdf')
 print(outputdirectory+'/cycle25_prediction_short_german.pdf')
 
 
-# In[30]:
+# In[45]:
 
 
 #with shortest interval
@@ -2285,7 +2297,7 @@ file='ssn_prelim.p'
 ssn_p=pickle.load(open(data_path+file, "rb"))
 
 fsize=15
-max_spot=300
+max_spot=325
 
 ax1 = plt.subplot(111) 
 ax1.plot(ssn.time,ssn.spot,'-g',alpha=0.5,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
@@ -2357,7 +2369,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # # 4 make PSP and Solar Orbiter position
 
-# In[24]:
+# In[39]:
 
 
 frame='HEEQ'
@@ -2458,7 +2470,7 @@ print('Solo pos')
 #plt.xlabel('AU')
 
 
-# In[25]:
+# In[40]:
 
 
 #get the speed in hourly resolution
@@ -2490,7 +2502,7 @@ print('psp maximum speed ',np.max(psp_highres_speed),' km/s at ',psp_highres_r[n
 
 # ### Make trajectory plots 
 
-# In[26]:
+# In[41]:
 
 
 #%matplotlib inline
@@ -2574,7 +2586,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[27]:
+# In[42]:
 
 
 #same thing for Solar Orbiter
@@ -2683,7 +2695,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
-# In[28]:
+# In[43]:
 
 
 t1all = time.time()
