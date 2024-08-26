@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## daily data updates for the helioforecast.space website of science data
+# ## daily data updates of science data
 # 
 # Authors: C. Möstl, E. E. Davies, E. Weiler, Austrian Space Weather Office, GeoSphere Austria
 # 
@@ -18,12 +18,12 @@
 # - STEREO-A kernels are available at: 
 # https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/depm/ahead/
 # 
-# - STEREO-A science data:
+# - STEREO-A science data: https://spdf.gsfc.nasa.gov/pub/data/stereo/ahead/l2/impact/magplasma/1min/
 # 
 # - PSP end date for data downloads needs to be set manually otherwise processing stops on the server - due to a timeout when no output for a while? or entering a loop? PSP data ends 2023 Oct 15, end date set to 2023 Dec 31, need to fix hd.download_pspmag_1min
 # check data availability at: https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min
 
-# In[21]:
+# In[16]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -31,14 +31,14 @@
 # for updating data every day on the servers
 
 #switches
-debug_mode=0
+debug_mode=1
 
 get_omni=1
 get_wind=1 
 get_psp=1
 get_solo=1
-get_stereoa=1
 get_bepi=1
+get_stereoa=1
 
 import numpy as np
 import pandas as pd
@@ -228,8 +228,8 @@ wind_file_rtn=data_path+'wind_1995_now_rtn.p'
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
-    start_time= datetime(2022,1,1)
-    end_time  = datetime(2022,1,10)
+    start_time= datetime(2024,1,1)
+    end_time  = datetime(2024,1,10)
     wind_file=data_path+'wind_gse_test.p'
     wind_file_heeq=data_path+'wind_heeq_test.p'
     wind_file_rtn=data_path+'wind_rtn_test.p'
@@ -249,7 +249,7 @@ if get_wind > 0:
     #hd.wind_download_ascii(1995, wind_path) 
     
     #when all is downloaded just start with current year to now
-    hd.wind_download_ascii(2023, wind_path) 
+    hd.wind_download_ascii(2024, wind_path) 
     
     print('download Wind data done ')
     
@@ -344,7 +344,7 @@ if debug_mode > 0:
     importlib.reload(hd) 
     importlib.reload(hp) 
 
-    start_time= datetime(2023,9,1)
+    start_time= datetime(2023,10,1)
     end_time  = datetime(2023,12,31)
     psp_file=data_path+'psp_rtn_test.p'
 
@@ -359,8 +359,8 @@ if get_psp > 0:
     
     
     #don't check all years for faster runtime, make end time shorter so its not a timeout on the server?
-    hd.download_pspmag_1min(datetime(2023,9,1),datetime(2023,12,31),psp_path)
-    hd.download_pspplas(datetime(2023,9,1),datetime(2023,12,31),psp_path)
+    hd.download_pspmag_1min(datetime(2023,10,1),datetime(2023,12,31),psp_path)
+    hd.download_pspplas(datetime(2023,10,1),datetime(2023,12,31),psp_path)
 
     print('process PSP to pickle')
     hd.create_psp_pkl(start_time,end_time,psp_file,psp_path)
@@ -419,8 +419,8 @@ solo_file=data_path+'solo_2020_now_rtn.p'
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
-    start_time= datetime(2023,9,1)
-    end_time  = datetime(2023,12,31)
+    start_time= datetime(2024,1,1)
+    end_time  = datetime(2024,2,28)
     solo_file=data_path+'solo_rtn_test.p'
 
 
@@ -433,8 +433,8 @@ if get_solo > 0:
     print(solo_path)
 
     #don't check all years for faster download
-    hd.download_solomag_1min(datetime(2020,4,14),end_time,solo_path)
-    hd.download_soloplas(datetime(2023,10,1),end_time,solo_path)
+    hd.download_solomag_1min(datetime(2024,1,1),end_time,solo_path)
+    hd.download_soloplas(datetime(2024,1,1),end_time,solo_path)
 
     print('process Solar Orbiter to pickle')
     hd.create_solo_pkl(start_time,end_time,solo_file,solo_path,kernels_path)
@@ -492,9 +492,10 @@ if debug_mode > 0:
 
     #testing
     start_time= datetime(2022,3,20)
-    end_time= datetime(2022,4,10)
+    end_time= datetime(2022,5,10)
     #end_time  = datetime(2025,1,31)    
     bepi_file_ob=data_path+'bepi_ob_e2k_test.p'
+    bepi_file_ob_rtn=data_path+'bepi_ob_rtn_test.p'
     bepi_file_ib=data_path+'bepi_ib_e2k_test.p'
     bepi_file_ib_rtn=data_path+'bepi_ib_rtn_test.p'
 
@@ -517,7 +518,7 @@ if get_bepi > 0:
     #outbound
     hd.create_bepi_pickle(start_time,end_time,bepi_file_ob,bepi_path, 'outbound')
     [data,hbepi_ob]=pickle.load(open(bepi_file_ob, "rb"))
-    data_hee=hd.convert_E2K_to_HEE(data)
+    data_hee=hd.convert_E2K_to_HEE(data,kernels_path)
     data_heeq=hd.convert_HEE_to_HEEQ(data_hee)
     data_rtn=hd.convert_HEEQ_to_RTN_mag(data_heeq)       
     header_rtn=hd.bepi_rtn_header(data_rtn,'inbound')        
@@ -530,7 +531,7 @@ if get_bepi > 0:
     [data,hbepi_ib]=pickle.load(open(bepi_file_ib, "rb"))
     
     #convert inbound data to RTN
-    data_hee=hd.convert_E2K_to_HEE(data)
+    data_hee=hd.convert_E2K_to_HEE(data, kernels_path)
     data_heeq=hd.convert_HEE_to_HEEQ(data_hee)
     data_rtn=hd.convert_HEEQ_to_RTN_mag(data_heeq)       
     header_rtn=hd.bepi_rtn_header(data_rtn,'inbound')        
@@ -600,7 +601,7 @@ if get_bepi > 0:
 
 # ### STEREO-A science data
 
-# In[9]:
+# In[13]:
 
 
 print(' ')
@@ -617,8 +618,8 @@ sta_file=data_path+'stereoa_2007_now_rtn.p'
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
-    start_time= datetime(2023,7,1)
-    end_time  = datetime(2024,12,30)
+    start_time= datetime(2023,11,1)
+    end_time  = datetime(2023,12,1)
     sta_file=data_path+'stereoa_rtn_test.p'
 
     
@@ -649,7 +650,7 @@ else:
 
 
 
-# In[10]:
+# In[14]:
 
 
 if get_stereoa > 0:  
@@ -676,7 +677,7 @@ if get_stereoa > 0:
 
 # #### write header file for science daily updates
 
-# In[14]:
+# In[15]:
 
 
 text = open(data_path+'new_data_headers.txt', 'w')
