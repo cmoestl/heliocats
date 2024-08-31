@@ -841,7 +841,7 @@ def convert_HEE_to_HEEQ(sc_in):
 
 
 
-def convert_E2K_to_HEE(sc_in):
+def convert_E2K_to_HEE(sc_in,kernels_path):
     '''
     for Bepi magnetic field components: convert E2K to HEE by projection
     '''
@@ -849,16 +849,45 @@ def convert_E2K_to_HEE(sc_in):
     
     sc=copy.deepcopy(sc_in)
     
-    print('conversion E2K to HEE')                                
+    print('conversion E2K to HEE')     
     
-    #get Earth trajectory in ECLIPJ2000
-    earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
-    earth.generate_positions(sc_in.time,'Sun','ECLIPJ2000')
-    earth.change_units(astropy.units.AU)  
-    earth_x_ej2=earth.x.value
-    earth_y_ej2=earth.y.value
-    earth_z_ej2=earth.z.value
+    
+    #old heliopy code   #get Earth trajectory in ECLIPJ2000
+    #earth=spice.Trajectory('399')  #399 for Earth, not barycenter (because of moon)
+    #earth.generate_positions(sc_in.time,'Sun','ECLIPJ2000')
+    #earth.change_units(astropy.units.AU)  
+    #earth_x_ej2=earth.x.value
+    #earth_y_ej2=earth.y.value
+    #earth_z_ej2=earth.z.value
 
+    
+    #get x y z in ECLIPJ2000 in au
+    #for sc_in.time
+    
+    
+    
+    ###### use spice kernels and spiceypy    
+
+    spice_files = [kernels_path+'generic/naif0012.tls', 
+                   kernels_path+'generic/de430.bsp',
+                   kernels_path+'generic/pck00010.tpc']    
+    spiceypy.furnsh(spice_files)
+    
+    time_spice = [spiceypy.str2et(t.strftime('%Y-%m-%d %H:%M')) for t in sc_in.time]
+
+    positions_earth, lightTimes_earth = spiceypy.spkezr('Earth', time_spice, 'ECLIPJ2000', 'NONE', 'Sun')
+
+    pos_earth = np.array(positions_earth)[:, :3] * u.km
+
+    earth_x_ej2 = pos_earth[:, 0].to(u.au).value
+    earth_y_ej2 = pos_earth[:, 1].to(u.au).value
+    earth_z_ej2 = pos_earth[:, 2].to(u.au).value
+    
+   
+    
+    
+
+    
     sc_len=len(sc_in.bt)
 
     #unit vectors of EJ2 basis

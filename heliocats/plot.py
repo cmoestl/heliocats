@@ -92,7 +92,7 @@ def plot_noaa_xray(xrayfile,xrayfile2,plot_path):
 
     #upper plot
     
-    threshold=3*1e-7
+    threshold=1*1e-7
     
     rem=np.where(xdc1.flux < threshold)[0]    
     for i in rem:
@@ -123,6 +123,10 @@ def plot_noaa_xray(xrayfile,xrayfile2,plot_path):
     #ax.set_ylim(1e-9,1e-2)
     ax.set_ylim(1e-8,1e-2)
      
+    
+    print(xdc1.time)
+    print(xdc2.time)
+    
     
     ax.plot(xdc1.time,xdc1.flux,'-r',label='GOES-16 0.1-0.8nm')      
     #ax.plot(xdc2.time,xdc2.flux,'-b') 
