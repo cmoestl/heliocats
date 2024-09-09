@@ -15,7 +15,6 @@
 # 
 # **Issues**
 # - An error range may be added in the future.
-# - plotly plots are in the making at the end.
 # 
 
 # In[1]:
@@ -329,22 +328,13 @@ fig.add_trace(go.Scatter(x=noaa_obs_times, y=SSN_obs, name='SSN observed',line_c
 fig.add_trace(go.Scatter(x=times_25_daily, y=SSN_mc_prediction, name='SSN prediction (McIntosh+ 2023)',line_color='tomato'), row=2, col=1)
 fig.update_yaxes(title_text="sunspot number (SSN)", row=2, col=1,range=[0,300])
 
-layout = go.Layout(
-    legend=dict(
-        orientation="h",  # Horizontal orientation
-        x=0.5,  # Center horizontally
-        y=-0.3,  # Below the plot
-        xanchor='center',
-        yanchor='top'
-    )
-)
-
 fig.update_layout(title='Solar flux unit forecast', font=dict(size=20))
 
 #fig.add_annotation(x=0.91, y=1.05, text="East", xref="paper", yref="paper", showarrow=False, font=dict(color='green')  )
 
 fig.write_html(outputdir+'sfu_prediction.html')
 print('saved as ',outputdir+'sfu_prediction.html')
+
 
 
 # In[ ]:
