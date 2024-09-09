@@ -11,10 +11,11 @@
 # Tiwari and Kumar
 # https://journals.aijr.org/index.php/ias/article/view/751/172
 # 
-# We use the Clette 2021 model Equation 2 with a 2nd order polynomial. 
+# We use the Clette 2021 model Equation (2) with a 2nd order polynomial. 
 # 
 # **Issues**
 # - An error range may be added in the future.
+# - plotly plots are in the making at the end.
 # 
 
 # In[1]:
@@ -32,6 +33,15 @@ import urllib
 import pandas as pd
 import os
 import sys
+
+
+#Plotly imports
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+import plotly.io as pio
+from plotly.offline import iplot, init_notebook_mode
+import plotly.express as px
+pio.renderers.default = 'browser'
 
 
 outputdir='results/icme_rate/'
@@ -65,9 +75,9 @@ os.system('jupyter nbconvert --to script solar_cycle_radio_flux.ipynb')
 
 #observations
 noaa_url='https://services.swpc.noaa.gov/json/solar-cycle/observed-solar-cycle-indices.json'
-urllib.request.urlretrieve(noaa_url,noaa_path+'observed-solar-cycle-indices_2023_sep_6.json')
+urllib.request.urlretrieve(noaa_url,noaa_path+'observed-solar-cycle-indices_2024_sep_9.json')
 
-noaa_obs=pd.read_json(noaa_path+'observed-solar-cycle-indices_2023_sep_6.json')
+noaa_obs=pd.read_json(noaa_path+'observed-solar-cycle-indices_2024_sep_9.json')
 
 #convert times to matplotlib format
 noaa_obs_times=[]
@@ -83,6 +93,9 @@ noaa_obs_times_num=mdates.date2num(noaa_obs_times)
 
 SSN_obs=noaa_obs['ssn']
 SFU_obs=noaa_obs['f10.7']
+
+#set older SFU values to nan
+SFU_obs[:3069]=np.nan
 
 noaa_obs
 
@@ -155,7 +168,7 @@ plt.plot(noaa_pred_times,clette_model(SSN_pred),'g--')
 plt.plot(noaa_pred_times,tk_model(SSN_pred),'b--')
 
 
-# ### define Hathaway function for SSN from McIntosh+ 2022
+# ### define Hathaway function for SSN from McIntosh+ 2023
 
 # In[4]:
 
@@ -226,51 +239,54 @@ sns.set_context('talk')
 sns.set_style('darkgrid')
 
 fig1, (ax1, ax2) = plt.subplots(2, figsize=(15,10),dpi=100)
-ax1.plot_date(noaa_obs_times,SSN_obs,'-', label='observed monthly SSN')
 
-#predictions
-#ax1.plot(noaa_pred_times,SSN_pred,'b-',lw=2,label='NOAA prediction')
-ax1.plot(times_25_daily,SSN_mc_prediction,'-r',alpha=1,linewidth=2.5,label='McIntosh+ 2023')
+############
 
-ax1.set_ylabel('SSN')
-ax1.set_ylim(0,250)
-ax1.legend(loc=2,fontsize=12)
-ax1.set_title('Monthly sunspot number (SSN) with McIntosh+ 2023 forecast')
+ax1.set_title('Monthly 10.7 cm solar radio flux for McIntosh+ 2023 forecast')
+
+ax1.plot(noaa_obs_times,SFU_obs,'-',label='observed monthly SFU radio flux (NOAA)',color='royalblue')
+ax1.plot(noaa_obs_times,clette_model(SSN_obs),'--',lw=1,label='SFU model Clette 2021 applied to observed SSN',color='royalblue')
+ax1.plot(times_25_daily,SFU_mc_prediction_1,'r-',alpha=1,linewidth=2,label='SFU prediction for McIntosh+ 2023 using Clette 2021')
+
+
+#ax2.plot(noaa_pred_times,SFU_pred,'b-',lw=2,label='NOAA prediction')
+#ax2.plot(times_25_daily,SFU_mc_prediction_2,'k-',alpha=1,linewidth=1,label='TK model for McIntosh/Leamon 2022')
+#ax2.plot(noaa_obs_times,tk_model(SSN_obs),'k--',lw=1, label='TK model')
+
+
+ax1.legend(loc=2,fontsize=15)
+
+
+
+#maximum of last 20 years
+ax1.set_ylim(50,np.nanmax(SFU_obs[-20*12:])+50)
+ax1.set_ylabel('solar flux units (SFU)')
 
 ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 ax1.set_xticks(yearly_start_times, fontsize=12) 
+#plt.xlabel('Year',fontsize=12)
+
 ax1.set_xlim(datetime.datetime(2009,1,1),datetime.datetime(2031,1,1))
 
-############
+##################################
 
+ax2.plot_date(noaa_obs_times,SSN_obs,'-', label='observed monthly sunspot number (SSN)')
+ax2.plot(times_25_daily,SSN_mc_prediction,'-r',alpha=1,linewidth=2.5,label='McIntosh+ 2023 SSN forecast')
 
-ax2.plot(noaa_obs_times,SFU_obs,'-',label='observed monthly SFU')
-
-#predictions
-#ax2.plot(noaa_pred_times,SFU_pred,'b-',lw=2,label='NOAA prediction')
-ax2.plot(times_25_daily,SFU_mc_prediction_1,'r-',alpha=1,linewidth=2,label='Clette model for McIntosh+ 2023')
-
-#ax2.plot(times_25_daily,SFU_mc_prediction_2,'k-',alpha=1,linewidth=1,label='TK model for McIntosh/Leamon 2022')
-#ax2.plot(noaa_obs_times,tk_model(SSN_obs),'k--',lw=1, label='TK model')
-
-ax2.plot(noaa_obs_times,clette_model(SSN_obs),'r--',lw=1,label='Clette model applied to SSN data')
-ax2.legend(loc=2,fontsize=12)
-
-ax2.set_title('Monthly 10.7 cm solar radio flux for McIntosh+ 2023 forecast')
-
-
-ax2.set_ylim(50,225)
-ax2.set_ylabel('solar flux units (SFU)')
+ax2.set_ylabel('sunspot number (SSN)')
+#maximum of last 20 years
+ax2.set_ylim(0,np.nanmax(SSN_obs[-20*12:]+50))
+ax2.legend(loc=2,fontsize=15)
+ax2.set_title('Monthly sunspot number (SIDC) with McIntosh+ 2023 forecast')
 
 ax2.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax2.xaxis.set_major_formatter(myformat)
 ax2.set_xticks(yearly_start_times, fontsize=12) 
-#plt.xlabel('Year',fontsize=12)
-
 ax2.set_xlim(datetime.datetime(2009,1,1),datetime.datetime(2031,1,1))
+
 
 fsize=14   
 plt.figtext(0.05,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
@@ -278,7 +294,7 @@ plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right
 
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
-newax = fig1.add_axes([0.86,0.85,0.08,0.08], anchor='NE', zorder=1)
+newax = fig1.add_axes([0.84,0.83,0.1,0.1], anchor='NE', zorder=1)
 newax.imshow(logo)
 newax.axis('off')
     
@@ -290,10 +306,45 @@ plt.savefig(outputdir+'sfu_prediction.png',dpi=100)
 print('done')
 
 
-# In[ ]:
+# ### plotly interactive plots
+
+# In[6]:
 
 
+nrows=2
+fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True,row_heights=[0.4, 0.4],shared_yaxes=False)
 
+######### upper plot
+fig.add_trace(go.Scatter(x=noaa_obs_times, y=SFU_obs, name='observed monthly SFU',line_color='royalblue'), row=1, col=1)
+fig.add_trace(go.Scatter(x=times_25_daily, y=SFU_mc_prediction_1, name='SFU prediction (McIntosh+ 2023)',line_color='tomato'), row=1, col=1)
+fig.add_trace(go.Scatter(x=noaa_obs_times, y=clette_model(SSN_obs), name='Clette SFU from SSN model',line_color='royalblue', line_dash='dot'), row=1, col=1)
+fig.update_yaxes(title_text="solar flux units (SFU)", row=1, col=1,range=[0,300])
+#fig.update_layout(yaxis=dict(range=[0,200]),row=2,col=1)
+
+#time range
+fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=365.24*30),datetime.datetime.utcnow()+datetime.timedelta(days=365.24*7)]) )
+
+######### lower plot
+fig.add_trace(go.Scatter(x=noaa_obs_times, y=SSN_obs, name='SSN observed',line_color='royalblue'), row=2, col=1)
+fig.add_trace(go.Scatter(x=times_25_daily, y=SSN_mc_prediction, name='SSN prediction (McIntosh+ 2023)',line_color='tomato'), row=2, col=1)
+fig.update_yaxes(title_text="sunspot number (SSN)", row=2, col=1,range=[0,300])
+
+layout = go.Layout(
+    legend=dict(
+        orientation="h",  # Horizontal orientation
+        x=0.5,  # Center horizontally
+        y=-0.3,  # Below the plot
+        xanchor='center',
+        yanchor='top'
+    )
+)
+
+fig.update_layout(title='Solar flux unit forecast', font=dict(size=20))
+
+#fig.add_annotation(x=0.91, y=1.05, text="East", xref="paper", yref="paper", showarrow=False, font=dict(color='green')  )
+
+fig.write_html(outputdir+'sfu_prediction.html')
+print('saved as ',outputdir+'sfu_prediction.html')
 
 
 # In[ ]:
