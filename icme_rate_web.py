@@ -40,7 +40,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[33]:
+# In[34]:
 
 
 # -----CHECK LIST
@@ -2182,14 +2182,14 @@ print(outputdirectory+'/cycle25_prediction_short.pdf')
 
 # ### German plot 
 
-# In[27]:
+# In[35]:
 
 
 sns.set_context('talk')
 #sns.set_style('darkgrid')
 sns.set_style('ticks')
 
-fig=plt.figure(30,figsize=(12,7),dpi=100)
+fig=plt.figure(40,figsize=(12,7),dpi=100)
 
 #print('get sunspot number from SIDC')    
 #get 13month smoothed sunspot number from SIDC
@@ -2290,7 +2290,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short_german.pdf')
 print('saved', outputdirectory+'/cycle25_prediction_short_german.png')
 
 
-# In[24]:
+# In[36]:
 
 
 #with shortest interval
@@ -2420,7 +2420,7 @@ fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelt
 
 fig.add_annotation(x=1.2, y=-0.07, text="Austrian Space Weather Office, GeoSphere Austria", xref="paper", yref="paper", showarrow=False, font=dict(color='black')  )
 
-fig.show()
+#fig.show()
 
 fig.write_html(outputdirectory+'/cycle25_prediction.html')
 print('saved as ',outputdirectory+'/cycle25_prediction.html')
