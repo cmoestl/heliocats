@@ -2383,37 +2383,60 @@ plt.tight_layout()
 plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 
-# ## Plotly versions for website
+# ## Plotly html version for website
 
-# In[ ]:
-
-
+# In[33]:
 
 
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
+#Plotly imports
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+import plotly.io as pio
+from plotly.offline import iplot, init_notebook_mode
+import plotly.express as px
+pio.renderers.default = 'browser'
 
 
+nrows=1
+fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True,row_heights=[0.9],shared_yaxes=False)
+
+ssn_time_num=mdates.num2date(ssn_time)
+#shift for half a month
+ssn_m_time_num=mdates.num2date(ssn_m.time+14)
+
+######### upper plot
+fig.add_trace(go.Scatter(x=ssn_time_num, y=ssn.spot, name='Observed sunspot number (SIDC, daily)', line=dict(width=2, color='green'), opacity=0.65), row=1, col=1)
+fig.add_trace(go.Scatter(x=ssn_m_time_num, y=ssn_m.spot, name='Observed sunspot number (monthly mean)',line=dict(width=4, color='black'), opacity=1.0), row=1, col=1)
+fig.add_trace(go.Scatter(x=times_25_daily, y=spots_predict_25m_daily, name='Mean solar cycle since 1750',line=dict(width=4, color='darkgreen'), opacity=1.0), row=1, col=1)
+fig.add_trace(go.Scatter(x=times_25_daily, y=spots_predict_25_daily_mc3, name='McIntosh, Leamon, Egeland 2023 cycle forecast',line=dict(width=4, color='red'), opacity=1.0), row=1, col=1)
+fig.add_trace(go.Scatter(x=times_25_daily_shift, y=spots_predict_25pp_daily, name='Prediction NOAA/NASA/ISES shifted -6 months',line=dict(width=3, color='blue'), opacity=1.0), row=1, col=1)
+
+
+
+fig.update_yaxes(title_text="sunspot number (SSN)", row=1, col=1,range=[0,450])
+fig.update_layout(title='Solar cycle forecast', font=dict(size=25))
+#time range
+fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=365.24*30),datetime.datetime.utcnow()+datetime.timedelta(days=365.24*7)]) )
+
+fig.add_annotation(x=1.44, y=-0.07, text="Austrian Space Weather Office, GeoSphere Austria", xref="paper", yref="paper", showarrow=False, font=dict(color='black')  )
+
+#fig.show()
+
+fig.write_html(outputdirectory+'/cycle25_prediction.html')
+print('saved as ',outputdirectory+'/cycle25_prediction.html')
 
 
 # # 4 make PSP and Solar Orbiter position
 # 
 # ### with astrospice - need to change to spiceypy
 
-# In[25]:
+# In[34]:
 
 
 kernels_path
 
 
-# In[26]:
+# In[ ]:
 
 
 ## for the moment PSP with astrospice, need to place kernel file
@@ -2440,7 +2463,7 @@ psp_lon=coords_psp.lon
 coords_psp
 
 
-# In[27]:
+# In[ ]:
 
 
 ## Solar Orbiter with spiceypy
@@ -2506,7 +2529,7 @@ solo_lat=coords_solo.lat
 solo_lon=coords_solo.lon
 
 
-# In[28]:
+# In[ ]:
 
 
 #get the speed in hourly resolution
@@ -2538,7 +2561,7 @@ solo_lon=coords_solo.lon
 
 # ### Make trajectory plots 
 
-# In[29]:
+# In[ ]:
 
 
 #%matplotlib inline
@@ -2621,7 +2644,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[30]:
+# In[ ]:
 
 
 #same thing for Solar Orbiter
@@ -2704,7 +2727,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
-# In[31]:
+# In[ ]:
 
 
 t1all = time.time()
@@ -2713,372 +2736,6 @@ print(' ')
 print('---------------------------------- ')
 print('icme_rate_web.py takes ', np.round((t1all-t0all)/60,2), 'minutes')
     
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
 
 # In[ ]:
