@@ -26,7 +26,7 @@
 # - PSP end date for data downloads needs to be set manually otherwise processing stops on the server - due to a timeout when no output for a while? or entering a loop? PSP data ends 2023 Oct 15, end date set to 2023 Dec 31, need to fix hd.download_pspmag_1min
 # check data availability at: https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min
 
-# In[20]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
