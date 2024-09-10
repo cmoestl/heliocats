@@ -40,7 +40,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[53]:
+# In[54]:
 
 
 # -----CHECK LIST
@@ -2385,7 +2385,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # ## Plotly html version for website
 
-# In[51]:
+# In[70]:
 
 
 #Plotly imports
@@ -2416,6 +2416,12 @@ fig.add_trace(go.Scatter(x=times_25_daily, y=spots_predict_25_daily_mc3, name='M
 fig.add_trace(go.Scatter(x=times_25_daily_shift, y=spots_predict_25pp_daily, name='Prediction NOAA/NASA/ISES shifted -6 months',line=dict(width=3, color='blue'), opacity=1.0), row=1, col=1)
 
 
+#error range for McIntosh
+fig.add_trace(go.Scatter(x=times_25_daily, y=spots_predict_25_daily_lower68_mc3,name='lower range for McIntosh prediction',line=dict(width=0, color='red'), opacity=0.0,showlegend=False), row=1, col=1)
+fig.add_trace(go.Scatter(x=times_25_daily, y=spots_predict_25_daily_upper68_mc3,name='upper range for McIntosh prediction',line=dict(width=0, color='red'),fill='tonexty',showlegend=False,fillcolor='rgba(255, 0, 0, 0.15)',opacity=0.0), row=1, col=1)
+
+
+
 
 fig.update_yaxes(title_text="sunspot number (SSN)", row=1, col=1,range=[0,450])
 fig.update_layout(title='Solar cycle forecast', font=dict(size=18))
@@ -2424,11 +2430,37 @@ fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelt
 
 fig.add_annotation(x=1.2, y=-0.07, text="Austrian Space Weather Office, GeoSphere Austria", xref="paper", yref="paper", showarrow=False, font=dict(color='black')  )
 
+#for debugging, make sure to comment when deploying
 #fig.show()
 
 fig.write_html(outputdirectory+'/cycle25_prediction.html')
 print('saved as ',outputdirectory+'/cycle25_prediction.html')
 
+
+# In[57]:
+
+
+# Add the first trace (the lower line)
+fig.add_trace(go.Scatter(
+    x=x, y=y1,
+    mode='lines',
+    name='Line 1',
+    line=dict(color='blue'),
+    fill=None  # No fill for this trace
+))
+
+# Add the second trace (the upper line with fill between lines)
+fig.add_trace(go.Scatter(
+    x=x, y=y2,
+    mode='lines',
+    name='Line 2',
+    line=dict(color='green'),
+    fill='tonexty',  # This fills the area between this trace and the previous trace
+    fillcolor='rgba(0, 200, 100, 0.3)'  # Customize the fill color with transparency
+))
+
+# Show the figure
+fig.show()
 
 
 # # 4 make PSP and Solar Orbiter position
