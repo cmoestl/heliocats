@@ -2255,7 +2255,7 @@ def create_psp_pkl(start_time, end_time,psp_file,psp_path):
     magplas_rdf = magplas_rdf.drop(columns=['time'])
     magplas_rdf['time'] = magplas_rdf.index
 
-    #get solo positions for corresponding timestamps
+    #get psp positions for corresponding timestamps
     print('get positions')
     psp_pos = get_psp_positions(magplas_rdf['time'])
     psp_pos.set_index(pd.to_datetime(psp_pos['time']), inplace=True)
