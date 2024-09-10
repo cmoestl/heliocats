@@ -40,7 +40,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[52]:
+# In[53]:
 
 
 # -----CHECK LIST
@@ -2406,7 +2406,7 @@ ssn_m_time_num=mdates.num2date(ssn_m.time+14)
 
 ######### upper plot
 fig.add_trace(go.Scatter(x=ssn_time_num, y=ssn.spot, name='Observed sunspot number (SIDC, daily)', line=dict(width=2, color='green'), opacity=0.65), row=1, col=1)
-fig.add_trace(go.Scatter(x=mdates.num2date(ssn_p.time), y=ssn_p.spot, name='Observed sunspot number (SIDC, daily, estimated',line=dict(width=2, color='coral'), opacity=0.9, mode='lines'), row=1, col=1)
+fig.add_trace(go.Scatter(x=mdates.num2date(ssn_p.time), y=ssn_p.spot, name='Observed sunspot number (SIDC, daily, estimated)',line=dict(width=2, color='coral'), opacity=0.9, mode='lines'), row=1, col=1)
 
 fig.add_trace(go.Scatter(x=ssn_m_time_num, y=ssn_m.spot, name='Observed sunspot number (monthly mean)',line=dict(width=4, color='black'), opacity=1.0), row=1, col=1)
 
