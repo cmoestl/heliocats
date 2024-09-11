@@ -40,7 +40,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[71]:
+# In[1]:
 
 
 # -----CHECK LIST
@@ -2182,7 +2182,7 @@ print(outputdirectory+'/cycle25_prediction_short.pdf')
 
 # ### German plot 
 
-# In[35]:
+# In[23]:
 
 
 sns.set_context('talk')
@@ -2290,7 +2290,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short_german.pdf')
 print('saved', outputdirectory+'/cycle25_prediction_short_german.png')
 
 
-# In[36]:
+# In[24]:
 
 
 #with shortest interval
@@ -2385,7 +2385,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # ## Plotly html version for website
 
-# In[70]:
+# In[47]:
 
 
 #Plotly imports
@@ -2404,16 +2404,14 @@ ssn_time_num=mdates.num2date(ssn_time)
 #shift for half a month
 ssn_m_time_num=mdates.num2date(ssn_m.time+14)
 
-######### upper plot
+
+fig.add_trace(go.Scatter(x=times_25_daily_shift, y=spots_predict_25pp_daily, name='Prediction NOAA/NASA/ISES shifted -6 months',line=dict(width=3, color='blue'), opacity=1.0), row=1, col=1)
+fig.add_trace(go.Scatter(x=times_25_daily, y=spots_predict_25_daily_mc3, name='McIntosh, Leamon, Egeland 2023 cycle forecast',line=dict(width=4, color='red'), opacity=1.0), row=1, col=1)
+fig.add_trace(go.Scatter(x=times_25_daily, y=spots_predict_25m_daily, name='Mean solar cycle since 1750',line=dict(width=4, color='darkgreen'), opacity=1.0), row=1, col=1)
+
 fig.add_trace(go.Scatter(x=ssn_time_num, y=ssn.spot, name='Observed sunspot number (SIDC, daily)', line=dict(width=2, color='green'), opacity=0.65), row=1, col=1)
 fig.add_trace(go.Scatter(x=mdates.num2date(ssn_p.time), y=ssn_p.spot, name='Observed sunspot number (SIDC, daily, estimated)',line=dict(width=2, color='coral'), opacity=0.9, mode='lines'), row=1, col=1)
-
 fig.add_trace(go.Scatter(x=ssn_m_time_num, y=ssn_m.spot, name='Observed sunspot number (monthly mean)',line=dict(width=4, color='black'), opacity=1.0), row=1, col=1)
-
-
-fig.add_trace(go.Scatter(x=times_25_daily, y=spots_predict_25m_daily, name='Mean solar cycle since 1750',line=dict(width=4, color='darkgreen'), opacity=1.0), row=1, col=1)
-fig.add_trace(go.Scatter(x=times_25_daily, y=spots_predict_25_daily_mc3, name='McIntosh, Leamon, Egeland 2023 cycle forecast',line=dict(width=4, color='red'), opacity=1.0), row=1, col=1)
-fig.add_trace(go.Scatter(x=times_25_daily_shift, y=spots_predict_25pp_daily, name='Prediction NOAA/NASA/ISES shifted -6 months',line=dict(width=3, color='blue'), opacity=1.0), row=1, col=1)
 
 
 #error range for McIntosh
@@ -2422,58 +2420,41 @@ fig.add_trace(go.Scatter(x=times_25_daily, y=spots_predict_25_daily_upper68_mc3,
 
 
 
+# Update layout to position the legend inside the plot
+fig.update_layout(
+    legend=dict(
+        x=1.0,  # Horizontal position of the legend (between 0 and 1)
+        y=1.0,  # Vertical position of the legend (between 0 and 1)
+        xanchor='right',  # Anchor point for the x position
+        yanchor='top',     # Anchor point for the y position
+    )
+)
 
 fig.update_yaxes(title_text="sunspot number (SSN)", row=1, col=1,range=[0,450])
 fig.update_layout(title='Solar cycle forecast', font=dict(size=18))
 #time range
-fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=365.24*30),datetime.datetime.utcnow()+datetime.timedelta(days=365.24*7)]) )
+fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelta(days=365.24*28),datetime.datetime.utcnow()+datetime.timedelta(days=365.24*7)]) )
 
-fig.add_annotation(x=1.2, y=-0.07, text="Austrian Space Weather Office, GeoSphere Austria", xref="paper", yref="paper", showarrow=False, font=dict(color='black')  )
+fig.add_annotation(x=1.0, y=1.05, text="Austrian Space Weather Office, GeoSphere Austria", xref="paper", yref="paper", showarrow=False, font=dict(color='black'),xanchor='right' )
 
 #for debugging, make sure to comment when deploying
-#fig.show()
+fig.show()
 
 fig.write_html(outputdirectory+'/cycle25_prediction.html')
 print('saved as ',outputdirectory+'/cycle25_prediction.html')
-
-
-# In[57]:
-
-
-# Add the first trace (the lower line)
-fig.add_trace(go.Scatter(
-    x=x, y=y1,
-    mode='lines',
-    name='Line 1',
-    line=dict(color='blue'),
-    fill=None  # No fill for this trace
-))
-
-# Add the second trace (the upper line with fill between lines)
-fig.add_trace(go.Scatter(
-    x=x, y=y2,
-    mode='lines',
-    name='Line 2',
-    line=dict(color='green'),
-    fill='tonexty',  # This fills the area between this trace and the previous trace
-    fillcolor='rgba(0, 200, 100, 0.3)'  # Customize the fill color with transparency
-))
-
-# Show the figure
-fig.show()
 
 
 # # 4 make PSP and Solar Orbiter position
 # 
 # ### with astrospice - need to change to spiceypy
 
-# In[34]:
+# In[29]:
 
 
 kernels_path
 
 
-# In[35]:
+# In[30]:
 
 
 ## for the moment PSP with astrospice, need to place kernel file
@@ -2500,7 +2481,7 @@ psp_lon=coords_psp.lon
 coords_psp
 
 
-# In[36]:
+# In[31]:
 
 
 ## Solar Orbiter with spiceypy
@@ -2566,7 +2547,7 @@ solo_lat=coords_solo.lat
 solo_lon=coords_solo.lon
 
 
-# In[37]:
+# In[32]:
 
 
 #get the speed in hourly resolution
@@ -2598,7 +2579,7 @@ solo_lon=coords_solo.lon
 
 # ### Make trajectory plots 
 
-# In[38]:
+# In[33]:
 
 
 #%matplotlib inline
@@ -2681,7 +2662,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[39]:
+# In[34]:
 
 
 #same thing for Solar Orbiter
@@ -2764,7 +2745,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
-# In[40]:
+# In[ ]:
 
 
 t1all = time.time()
