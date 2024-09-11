@@ -40,8 +40,10 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[1]:
+# In[49]:
 
+
+debug_mode=0
 
 # -----CHECK LIST
 
@@ -2385,7 +2387,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # ## Plotly html version for website
 
-# In[47]:
+# In[50]:
 
 
 #Plotly imports
@@ -2437,8 +2439,8 @@ fig.update_layout(xaxis=dict(range=[datetime.datetime.utcnow()-datetime.timedelt
 
 fig.add_annotation(x=1.0, y=1.05, text="Austrian Space Weather Office, GeoSphere Austria", xref="paper", yref="paper", showarrow=False, font=dict(color='black'),xanchor='right' )
 
-#for debugging, make sure to comment when deploying
-fig.show()
+if debug_mode > 0: 
+    fig.show()
 
 fig.write_html(outputdirectory+'/cycle25_prediction.html')
 print('saved as ',outputdirectory+'/cycle25_prediction.html')
