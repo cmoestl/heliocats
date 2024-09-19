@@ -185,7 +185,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind 
 
-# In[ ]:
+# In[5]:
 
 
 if debug_mode > 0: 
@@ -292,7 +292,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[ ]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -349,7 +349,7 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[ ]:
+# In[7]:
 
 
 if debug_mode > 0:     
@@ -362,7 +362,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[ ]:
+# In[8]:
 
 
 t1all = time.time()
@@ -373,6 +373,12 @@ print(' ')
 print('------------------')
 print('Runtime for full high frequency data update:', np.round((t1all-t0all)/60,2), 'minutes')
 print('--------------------------------------------------------------------------------------')
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:

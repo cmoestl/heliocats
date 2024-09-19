@@ -9,7 +9,7 @@
 # 
 # 
 
-# In[21]:
+# In[1]:
 
 
 import pickle
@@ -36,12 +36,20 @@ import plotly.io as pio
 from plotly.offline import iplot, init_notebook_mode
 import plotly.express as px
 
-#import 
+
+#import geosphere colors
+
+import colors as c
+
+
+#import heliocats files
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
 
 from heliocats import plot as hp
 importlib.reload(hp) #reload again while debugging
+
+###
 
 outputdir='results/icme_rate/'
 
@@ -712,9 +720,145 @@ print('saved as', outputdir+'newell_coupling_latest.html')
 
 
 
-# ### save data for last few months as txt
+# ## Quick overview plot for top of dashboard
+# 
+# with geosphere colors
+# 
 
 # In[12]:
+
+
+#make cutouts for better plotting
+
+#L1 RTSW 
+
+cutoff_time=datetime.datetime.utcnow()-datetime.timedelta(days=0.75)
+
+w_cut=w[np.where(w.time > cutoff_time)[0]]
+# Dst
+n_cut=n[np.where(n.time > cutoff_time)[0]]
+# Nc
+#4 hour res
+n_ncw_cut=n_ncw[np.where(norig.time > cutoff_time)[0]]
+n_ncw_cut_time=norig.time[np.where(norig.time > cutoff_time)[0]]
+
+#high res
+w_nc_cut=w_nc[np.where(w.time > cutoff_time)[0]]
+w_nc_cut_time=w.time[np.where(w.time > cutoff_time)[0]]
+
+
+# In[13]:
+
+
+sns.set_context('talk')
+sns.set_style('whitegrid')
+
+fig,ax=plt.subplots(1,figsize=(19,5),dpi=120,edgecolor='#052E37')
+
+    
+#grid with  RGB (244/244/244) and 1px
+    
+    
+#plt.title('Custom Font for Title', fontdict={'family': 'serif', 'size': 16, 'weight': 'bold'})
+#plt.xlabel('X-axis', fontdict={'family': 'sans-serif', 'size': 12, 'weight': 'light'})
+#plt.ylabel('Y-axis', fontdict={'family': 'monospace', 'size': 12, 'weight': 'normal'})
+    
+    
+
+        
+
+##########
+ax1=plt.subplot(131)
+ax1.plot(w_cut.time,w_cut.bt,linestyle='-',color=c.geo_green,lw=2)
+ax1.plot(w_cut.time,w_cut.bx,linestyle='-',color=c.geo_red,lw=2)
+ax1.plot(w_cut.time,w_cut.by,linestyle='-',color=c.geo_grassgreen,lw=2)
+ax1.plot(w_cut.time,w_cut.bz,linestyle='-',color=c.geo_lavender,lw=2)
+ 
+plt.ylabel('B [nT]')
+
+ax1.xaxis_date()
+myformat = mdates.DateFormatter('%b %d %H')
+ax1.xaxis.set_major_formatter(myformat)
+plt.xticks(rotation=30)
+
+
+#####################################
+ax2=plt.subplot(132)
+
+ax2.plot(n_cut.time,n_cut.dst,linestyle='-',color=c.geo_green3,lw=4)
+ax2.plot(n_cut.time,n_cut.dst,color=c.geo_green, marker='o',linestyle='none',markersize=10)
+
+plt.ylabel('Dst [nT]')
+ax2.xaxis_date()
+myformat = mdates.DateFormatter('%b %d %H')
+ax2.xaxis.set_major_formatter(myformat)
+plt.xticks(rotation=30)
+
+
+
+##################################
+ax3=plt.subplot(133)
+
+ax3.plot(w_nc_cut_time,w_nc_cut,color=c.geo_lime2,linestyle='-',lw=1)
+ax3.plot(n_ncw_cut_time,n_ncw_cut,color=c.geo_green3,lw=4)
+ax3.plot(n_ncw_cut_time,n_ncw_cut,color=c.geo_green,marker='o',markersize=10,linestyle='none')
+
+plt.ylabel('Newell coupling')
+
+ax3.xaxis_date()
+myformat = mdates.DateFormatter('%b %d %H')
+ax3.xaxis.set_major_formatter(myformat)
+plt.xticks(rotation=30)
+
+
+
+#LOGO
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.85,0.88,0.1,0.1], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
+
+plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
+plt.figtext(0.07,0.92,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
+
+#plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+
+
+ax1.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=0.5),datetime.datetime.utcnow())
+ax2.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=0.5),datetime.datetime.utcnow())
+ax3.set_xlim(datetime.datetime.utcnow()-datetime.timedelta(days=0.5),datetime.datetime.utcnow())
+        
+
+plt.suptitle('Current space weather at Earth')
+plt.tight_layout()
+
+
+plt.savefig(outputdir+'geomagnetic_quick.png')
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# ### save data for last few months as txt
+
+# In[14]:
 
 
 ## to do: indicate if data comes from OMNI or NOAA
@@ -747,7 +891,10 @@ print(' ')
 print('latest data point',data.time[-1])
 
 
-# In[13]:
+
+
+
+# In[15]:
 
 
 print(' ')
@@ -778,7 +925,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[14]:
+# In[16]:
 
 
 #https://plotly.com/python/
@@ -799,7 +946,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[15]:
+# In[17]:
 
 
 if data_lookup > 0:
@@ -811,7 +958,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[16]:
+# In[18]:
 
 
 if data_lookup > 0:
@@ -837,7 +984,7 @@ if data_lookup > 0:
 
 # ### Histograms
 
-# In[17]:
+# In[19]:
 
 
 #years23=np.arange(1996,2009)
@@ -873,7 +1020,7 @@ o24=o[ind24]
 o25=o[ind25]
 
 
-# In[18]:
+# In[20]:
 
 
 #compare rising phases
@@ -928,7 +1075,7 @@ plt.tight_layout()
 #print('saved as ',plotfile)
 
 
-# In[19]:
+# In[21]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -957,7 +1104,7 @@ ax1.set_xlim(0, 20)
 plt.legend()
 
 
-# In[20]:
+# In[22]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -978,6 +1125,18 @@ sns.histplot(o25.vt, bins=bins, kde=True, color='black', stat='percent',label='c
 
 ax1.set_xlim(200, 800)
 plt.legend()
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
