@@ -2,8 +2,20 @@
 # coding: utf-8
 
 # ### GeoSphere website plots
+# 
+# 
+# 
+# 
+# geomagnetic storm statistics
+# 
+# solar storm statistics
+# 
+# aurora in Austria
+# 
+# science examples
+# 
 
-# In[1]:
+# In[ ]:
 
 
 import pickle
@@ -73,8 +85,12 @@ def add_logo(location):
     newax.imshow(logo)
     newax.axis('off')
 
+    
+    
+    
 
-# In[2]:
+
+# In[9]:
 
 
 sns.set_context('talk')
@@ -84,7 +100,7 @@ fig, ax1=plt.subplots(1,figsize=(20,13),dpi=100)
 
 ax1.plot(np.arange(10),np.arange(10),markersize=5,color=c.geo_green,lw=5)
 ax1.plot(np.arange(10)*2,np.arange(10),markersize=5,color=c.geo_lime,lw=5)
-ax1.plot(np.arange(10)*2,np.arange(10),markersize=5,color=c.geo_lime,lw=5)
+ax1.plot(np.arange(10)*5,np.arange(10),markersize=5,color=c.geo_ocher,lw=5)
 
 
 add_logo([0.9,0.9,0.1,0.1])
@@ -94,11 +110,19 @@ add_logo([0.9,0.9,0.1,0.1])
 plt.savefig(outputdir+'test.png')
 
 
-# In[ ]:
-
-
-
-
+# Tabellenüberschrift
+# Source Sans Pro Bold, 30 Px, Farbe: #052E37, RGB (5/46/55)
+# 2 Achsenbeschriftung
+# Source Sans Pro Bold, 16 Px, Farbe: #052E37, RGB (5/46/55)
+# 3 Copyrightvermerk
+# Source Sans Pro Bold, 16 Px, Farbe: #9AACAF, RGB (154/172/175)
+# wenn möglich rechts unten (kein Logo!)
+# 4 Rahmen
+# Breite: 1 Px, Farbe: #9AACAF, RGB (154/172/175)
+# Wenn Grafiken im Content eingesetzt werden und sie auf weiß auslaufen, sollte man einen entsprechenden Rahmen zur opti- schen Begrenzung anlegen. Wenn sie in einem Slider zum Ein- satz kommen, kann dieser Rahmen auch weggelassen werden, da der Slider bereits selbst durch einen Rahmen begrenzt ist.
+# 5 Achsen
+# Breite: 1 Px, Farbe: #052E37, RGB (5/46/55)
+# 
 
 # In[ ]:
 
