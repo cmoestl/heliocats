@@ -9,7 +9,7 @@
 # 
 # 
 
-# In[4]:
+# In[18]:
 
 
 import pickle
@@ -754,7 +754,7 @@ w_nc_cut=w_nc[np.where(w.time > cutoff_time)[0]]
 w_nc_cut_time=w.time[np.where(w.time > cutoff_time)[0]]
 
 
-# In[16]:
+# In[21]:
 
 
 sns.set_context('talk')
@@ -897,8 +897,8 @@ print("CEST time:", cest_time)
 
 plt.figtext(0.06,0.92,'last update: '+str(utc_time)[0:16]+ ' UTC    '+str(cest_time)[10:16]+' CEST', ha='left', fontsize=11, fontname='Source Sans Pro')
 
-plt.figtext(0.5,0.01,'Austrian Space Weather Office    helioforecast.space ', color=c.geo_copyright, ha='center',fontsize=11, fontweight='bold',fontname='Source Sans Pro')
-plt.figtext(0.98,0.01,'© GeoSphere Austria ', ha='right',fontsize=11,color=c.geo_copyright,fontweight='bold', fontname='Source Sans Pro')
+plt.figtext(0.5,0.02,'Austrian Space Weather Office    helioforecast.space  data: NOAA / NASA', color=c.geo_copyright, ha='center',fontsize=11, fontweight='bold',fontname='Source Sans Pro')
+plt.figtext(0.98,0.02,'© GeoSphere Austria ', ha='right',fontsize=11,color=c.geo_copyright,fontweight='bold', fontname='Source Sans Pro')
 
 #plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
 
@@ -915,9 +915,9 @@ ax1.grid(alpha=1.0,color=c.geo_raster,lw=2)
 ax2.grid(alpha=1.0,color=c.geo_raster,lw=2)
 ax3.grid(alpha=1.0,color=c.geo_raster,lw=2)
 
-plt.figtext(0.07,0.01,'― Bx', ha='left', fontsize=15, fontweight='bold',fontname='Source Sans Pro',color=c.geo_red)
-plt.figtext(0.10,0.01,'― By', ha='left', fontsize=15, fontweight='bold',fontname='Source Sans Pro',color=c.geo_grassgreen)
-plt.figtext(0.13,0.01,'― Bz', ha='left', fontsize=15, fontweight='bold',fontname='Source Sans Pro',color=c.geo_lilac)
+plt.figtext(0.07,0.03,'― Bx', ha='left', fontsize=15, fontweight='bold',fontname='Source Sans Pro',color=c.geo_red)
+plt.figtext(0.12,0.03,'― By', ha='left', fontsize=15, fontweight='bold',fontname='Source Sans Pro',color=c.geo_grassgreen)
+plt.figtext(0.17,0.03,'― Bz', ha='left', fontsize=15, fontweight='bold',fontname='Source Sans Pro',color=c.geo_lilac)
 
 
 
