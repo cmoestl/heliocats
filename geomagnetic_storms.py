@@ -9,7 +9,7 @@
 # 
 # 
 
-# In[1]:
+# In[4]:
 
 
 import pickle
@@ -78,7 +78,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[2]:
+# In[5]:
 
 
 ##get omni dst data
@@ -130,7 +130,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[3]:
+# In[6]:
 
 
 years=np.arange(1995,2040) 
@@ -186,7 +186,7 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
-# In[4]:
+# In[7]:
 
 
 years=np.arange(1955,2040,5) 
@@ -253,7 +253,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 print('saved as', outputdir+'geomagnetic_storm_space_age.png')
 
 
-# In[5]:
+# In[8]:
 
 
 years=np.arange(1995,2040) 
@@ -327,7 +327,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[6]:
+# In[9]:
 
 
 nrows=1
@@ -361,7 +361,7 @@ fig.write_html(outputdir+'geomagnetic_storm_latest.html')
 print('saved',outputdir+'geomagnetic_storm_latest.html')
 
 
-# In[7]:
+# In[10]:
 
 
 ###same in german
@@ -437,7 +437,7 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 
 # ## Dst plot with thresholds
 
-# In[8]:
+# In[11]:
 
 
 #get current dst last 35 days
@@ -510,7 +510,7 @@ print('saved',outputdir+'geomagnetic_storm_latest_zoom.png')
 
 # ### plotly
 
-# In[9]:
+# In[12]:
 
 
 nrows=1
@@ -546,7 +546,7 @@ print('saved',outputdir+'geomagnetic_storm_latest_zoom.html')
 
 # ## Newell Coupling
 
-# In[10]:
+# In[13]:
 
 
 ###add plot and add to txt file without propagation 
@@ -679,7 +679,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 # ### plotly
 
-# In[11]:
+# In[14]:
 
 
 #plot the last 30 days
@@ -728,7 +728,7 @@ print('saved as', outputdir+'newell_coupling_latest.html')
 # with geosphere colors
 # 
 
-# In[31]:
+# In[15]:
 
 
 #make cutouts for better plotting
@@ -737,7 +737,7 @@ print('saved as', outputdir+'newell_coupling_latest.html')
 
 quickplotrange=0.75
 
-utc_time = datetime.datetime.utcnow()+datetime.timedelta(hours=15)
+utc_time = datetime.datetime.utcnow()#+datetime.timedelta(hours=15)
 
 cutoff_time=utc_time-datetime.timedelta(days=quickplotrange)
 
@@ -754,7 +754,7 @@ w_nc_cut=w_nc[np.where(w.time > cutoff_time)[0]]
 w_nc_cut_time=w.time[np.where(w.time > cutoff_time)[0]]
 
 
-# In[32]:
+# In[16]:
 
 
 sns.set_context('talk')
@@ -982,7 +982,7 @@ plt.savefig(outputdir+'geomagnetic_quick.png')
 
 # ### save data for last few months as txt
 
-# In[14]:
+# In[17]:
 
 
 ## to do: indicate if data comes from OMNI or NOAA
