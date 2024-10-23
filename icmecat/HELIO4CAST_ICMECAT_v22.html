@@ -1,4 +1,4 @@
-<p>ICME&nbsp;CATALOGUE&nbsp;v2.2&nbsp;<br><br>This&nbsp;is&nbsp;the&nbsp;HELIO4CAST&nbsp;interplanetary&nbsp;coronal&nbsp;mass&nbsp;ejection&nbsp;(ICME)&nbsp;catalog,&nbsp;based&nbsp;on&nbsp;in&nbsp;situ&nbsp;magnetic&nbsp;field&nbsp;and&nbsp;bulk&nbsp;plasma&nbsp;observations&nbsp;in&nbsp;the&nbsp;heliosphere.&nbsp;<br><br>This&nbsp;is&nbsp;version&nbsp;2.2,&nbsp;released&nbsp;2024-February-27,&nbsp;updated&nbsp;2024-April-11,&nbsp;doi:&nbsp;10.6084/m9.figshare.6356420&nbsp;<br><br>Rules:&nbsp;If&nbsp;results&nbsp;are&nbsp;produced&nbsp;with&nbsp;this&nbsp;catalog&nbsp;for&nbsp;peer-reviewed&nbsp;scientific&nbsp;publications,&nbsp;please&nbsp;contact&nbsp;chris.moestl@outlook.com&nbsp;for&nbsp;possible&nbsp;co-authorship.&nbsp;<br>References&nbsp;for&nbsp;this&nbsp;catalog&nbsp;are&nbsp;Moestl&nbsp;et&nbsp;al.&nbsp;2017&nbsp;(https://doi.org/10.1002/2017SW001614)&nbsp;and&nbsp;Moestl&nbsp;et&nbsp;al.&nbsp;2020&nbsp;(https://doi.org/10.3847/1538-4357/abb9a1).&nbsp;&nbsp;<br><br>The&nbsp;catalog&nbsp;is&nbsp;available&nbsp;as&nbsp;a&nbsp;python&nbsp;pandas&nbsp;dataframe&nbsp;(pickle),&nbsp;python&nbsp;numpy&nbsp;structured&nbsp;array&nbsp;(pickle),&nbsp;json,&nbsp;csv,&nbsp;xlsx,&nbsp;txt,&nbsp;hdf5,&nbsp;at&nbsp;<br>https://helioforecast.space/icmecat&nbsp;<br><br>Number&nbsp;of&nbsp;events&nbsp;in&nbsp;ICMECAT:&nbsp;1700&nbsp;<br>ICME&nbsp;observatories:&nbsp;Solar&nbsp;Orbiter,&nbsp;Parker&nbsp;Solar&nbsp;Probe&nbsp;(PSP),&nbsp;BepiColombo,&nbsp;Wind,&nbsp;STEREO-A,&nbsp;Juno,&nbsp;MAVEN,&nbsp;STEREO-B,&nbsp;Venus&nbsp;Express&nbsp;(VEX),&nbsp;MESSENGER,&nbsp;Ulysses.&nbsp;&nbsp;&nbsp;<br>Time&nbsp;range:&nbsp;1990-12&nbsp;to&nbsp;2024-03&nbsp;<br>&nbsp;<br>Authors:&nbsp;Christian&nbsp;Moestl,&nbsp;Eva&nbsp;Weiler,&nbsp;Emma&nbsp;E.&nbsp;Davies,&nbsp;Austrian&nbsp;Space&nbsp;Weather&nbsp;Office,&nbsp;GeoSphere&nbsp;Austria,&nbsp;Graz,&nbsp;Austria.&nbsp;<br>Contributors:&nbsp;Rachel&nbsp;L.&nbsp;Bailey,&nbsp;Martin&nbsp;A.&nbsp;Reiss,&nbsp;Andreas&nbsp;J.&nbsp;Weiss,&nbsp;Tarik&nbsp;Mohammad&nbsp;Salman,&nbsp;Peter&nbsp;Boakes,&nbsp;Alexey&nbsp;Isavnin,&nbsp;Emilia&nbsp;Kilpua,&nbsp;David&nbsp;Stansby,&nbsp;Reka&nbsp;Winslow,&nbsp;Brian&nbsp;Anderson,&nbsp;Lydia&nbsp;Philpott,&nbsp;<br>Vratislav&nbsp;Krupar,&nbsp;Jonathan&nbsp;Eastwood,&nbsp;Simon&nbsp;Good,&nbsp;Lan&nbsp;Jian,&nbsp;Teresa&nbsp;Nieves-Chinchilla,&nbsp;Cyril&nbsp;Simon&nbsp;Wedlund,&nbsp;Jingnan&nbsp;Guo,&nbsp;<br>Johan&nbsp;von&nbsp;Forstner,&nbsp;Mateja&nbsp;Dumbovic,&nbsp;Benoit&nbsp;Lavraud.&nbsp;&nbsp;<br><br>This&nbsp;catalog&nbsp;has&nbsp;been&nbsp;made&nbsp;by&nbsp;getting&nbsp;the&nbsp;3&nbsp;times&nbsp;of&nbsp;each&nbsp;ICME&nbsp;(shock&nbsp;or&nbsp;disturbance&nbsp;begin,&nbsp;magnetic&nbsp;obstacle&nbsp;start&nbsp;and&nbsp;end)&nbsp;<br>from&nbsp;the&nbsp;individual&nbsp;catalogs&nbsp;below,&nbsp;and&nbsp;then&nbsp;calculating&nbsp;all&nbsp;parameters&nbsp;again&nbsp;consistently&nbsp;from&nbsp;the&nbsp;data&nbsp;by&nbsp;us.&nbsp;<br>The&nbsp;selection&nbsp;criteria&nbsp;are&nbsp;relatively&nbsp;simple:&nbsp;the&nbsp;event&nbsp;needs&nbsp;to&nbsp;have&nbsp;a&nbsp;clearly&nbsp;organized&nbsp;large-scale&nbsp;magnetic&nbsp;structure,<br>&nbsp;which&nbsp;manifests&nbsp;itself&nbsp;through&nbsp;(1)&nbsp;an&nbsp;elevated&nbsp;total&nbsp;magnetic&nbsp;field&nbsp;and&nbsp;(2)&nbsp;a&nbsp;rotation&nbsp;in&nbsp;the&nbsp;field&nbsp;observed&nbsp;through&nbsp;the&nbsp;field&nbsp;components.&nbsp;<br><br>The&nbsp;in&nbsp;situ&nbsp;data&nbsp;that&nbsp;were&nbsp;used&nbsp;for&nbsp;the&nbsp;catalog,&nbsp;with&nbsp;a&nbsp;size&nbsp;of&nbsp;around&nbsp;10&nbsp;GB&nbsp;in&nbsp;total,&nbsp;including&nbsp;extra&nbsp;data&nbsp;files&nbsp;with&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;<br>in&nbsp;RTN&nbsp;coordinates&nbsp;that&nbsp;are&nbsp;not&nbsp;used&nbsp;for&nbsp;producing&nbsp;the&nbsp;catalog,&nbsp;can&nbsp;be&nbsp;downloaded&nbsp;in&nbsp;python&nbsp;pickle&nbsp;format&nbsp;as&nbsp;recarrays&nbsp;from&nbsp;https://doi.org/10.6084/m9.figshare.11973693&nbsp;<br><br>The&nbsp;python&nbsp;source&nbsp;code&nbsp;for&nbsp;producing&nbsp;this&nbsp;catalog&nbsp;is&nbsp;available&nbsp;at&nbsp;https://github.com/cmoestl/heliocats&nbsp;icmecat.ipynb<br><br>Each&nbsp;event&nbsp;has&nbsp;unique&nbsp;identifier&nbsp;-&nbsp;the&nbsp;icmecat_id&nbsp;-&nbsp;which&nbsp;has&nbsp;a&nbsp;tag&nbsp;in&nbsp;it&nbsp;that&nbsp;indicates&nbsp;from&nbsp;which&nbsp;catalog&nbsp;the&nbsp;ICME&nbsp;times&nbsp;were&nbsp;taken,&nbsp;<br>or&nbsp;if&nbsp;they&nbsp;were&nbsp;included&nbsp;in&nbsp;the&nbsp;catalog&nbsp;by&nbsp;ourselves,&nbsp;as&nbsp;identified&nbsp;by&nbsp;Christian&nbsp;Möstl&nbsp;or&nbsp;Eva&nbsp;Weiler.&nbsp;&nbsp;<br><br>Solar&nbsp;Orbiter:&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL&nbsp;<br>Parker&nbsp;Solar&nbsp;Probe:&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL&nbsp;<br>BepiColombo:&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL&nbsp;<br>Wind:&nbsp;Nieves-Chinchilla&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;NASA,&nbsp;MOESTL,&nbsp;WEILER&nbsp;<br>STEREO-A:&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;JIAN,&nbsp;MOESTL,&nbsp;WEILER&nbsp;<br>STEREO-B:&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;JIAN&nbsp;<br>Juno:&nbsp;Davies&nbsp;et&nbsp;al.&nbsp;(2022),&nbsp;tags:&nbsp;DAVIES&nbsp;<br>VEX:&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;SGOOD&nbsp;or&nbsp;MOESTL&nbsp;<br>MESSENGER:&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;Winslow&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;SGOOD,&nbsp;WINSLOW,&nbsp;MOESTL&nbsp;<br>MAVEN:&nbsp;Made&nbsp;by&nbsp;us&nbsp;according&nbsp;to&nbsp;the&nbsp;method&nbsp;in&nbsp;the&nbsp;comments,&nbsp;tag:&nbsp;MOESTL&nbsp;<br>Ulysses:&nbsp;Richardson&nbsp;et&nbsp;al.&nbsp;2014,&nbsp;tag:&nbsp;RICHARDSON&nbsp;<br><br>References:&nbsp;<br>Nieves-Chinchilla,&nbsp;T.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;&nbsp;https://doi.org/10.1007/s11207-018-1247-z&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php&nbsp;<br>Jian,&nbsp;L.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;https://doi.org/10.3847/1538-4357/aab189&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/&nbsp;<br>Good,&nbsp;S.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;https://doi.org/10.1007/s11207-015-0828-3&nbsp;<br>Winslow,&nbsp;R.&nbsp;et&nbsp;al.&nbsp;(2015),&nbsp;https://doi.org/10.1002/2015JA021200&nbsp;<br>Davies,&nbsp;E.&nbsp;E.&nbsp;et&nbsp;al.&nbsp;(2021),&nbsp;https://doi.org/10.3847/1538-4357/ac2ccb&nbsp;<br>Davies,&nbsp;E.&nbsp;E.,&nbsp;et&nbsp;al.,&nbsp;(2022)&nbsp;https://iopscience.iop.org/article/10.3847/1538-4357/ac731a&nbsp;&nbsp;&nbsp;<br>Richardson,&nbsp;I.&nbsp;G.&nbsp;(2014),&nbsp;https://doi.org/10.1007/s11207-014-0540-8&nbsp;<br><br><br>Comments:&nbsp;<br><br>-&nbsp;Spacecraft&nbsp;positions&nbsp;are&nbsp;given&nbsp;in&nbsp;Heliocentric&nbsp;Earth&nbsp;Equatorial&nbsp;Coordinates&nbsp;(HEEQ)&nbsp;coordinates.&nbsp;<br><br>-&nbsp;The&nbsp;coordinate&nbsp;system&nbsp;for&nbsp;all&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;is&nbsp;RTN,&nbsp;except&nbsp;for&nbsp;MESSENGER&nbsp;(SCEQ),&nbsp;VEX&nbsp;(SCEQ),&nbsp;and&nbsp;MAVEN&nbsp;(MSO).&nbsp;&nbsp;<br>There&nbsp;are&nbsp;some&nbsp;legacy&nbsp;data&nbsp;files&nbsp;for&nbsp;the&nbsp;older&nbsp;spacecraft&nbsp;available&nbsp;in&nbsp;SCEQ.&nbsp;The&nbsp;difference&nbsp;to&nbsp;results&nbsp;for&nbsp;RTN&nbsp;in&nbsp;all&nbsp;parameters&nbsp;is&nbsp;usually&nbsp;very&nbsp;small.&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Definition&nbsp;of&nbsp;SpaceCraft&nbsp;Equatorial&nbsp;Coordinates&nbsp;(SCEQ):&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z&nbsp;is&nbsp;the&nbsp;solar&nbsp;rotation&nbsp;axis.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y&nbsp;is&nbsp;the&nbsp;cross&nbsp;product&nbsp;of&nbsp;Z&nbsp;and&nbsp;R,&nbsp;with&nbsp;R&nbsp;being&nbsp;the&nbsp;vector&nbsp;that&nbsp;points&nbsp;from&nbsp;the&nbsp;Sun&nbsp;to&nbsp;the&nbsp;spacecraft.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;completes&nbsp;the&nbsp;right&nbsp;handed&nbsp;triad&nbsp;(and&nbsp;points&nbsp;away&nbsp;from&nbsp;the&nbsp;Sun).&nbsp;<br>This&nbsp;system&nbsp;is&nbsp;thus&nbsp;like&nbsp;HEEQ&nbsp;but&nbsp;centered&nbsp;on&nbsp;the&nbsp;respective&nbsp;in&nbsp;situ&nbsp;spacecraft,&nbsp;so&nbsp;the&nbsp;SCEQ&nbsp;X&nbsp;and&nbsp;Y&nbsp;<br>base&nbsp;vectors&nbsp;are&nbsp;rotated&nbsp;by&nbsp;the&nbsp;HEEQ&nbsp;longitude&nbsp;of&nbsp;the&nbsp;in&nbsp;situ&nbsp;spacecraft&nbsp;from&nbsp;HEEQ&nbsp;X&nbsp;and&nbsp;Y.<br>The&nbsp;Y&nbsp;vector&nbsp;is&nbsp;similar&nbsp;to&nbsp;the&nbsp;T&nbsp;vector&nbsp;in&nbsp;an&nbsp;RTN&nbsp;system&nbsp;for&nbsp;each&nbsp;spacecraft,&nbsp;but&nbsp;the&nbsp;X&nbsp;and&nbsp;Z&nbsp;vectors&nbsp;<br>are&nbsp;rotated&nbsp;around&nbsp;Y&nbsp;compared&nbsp;to&nbsp;an&nbsp;RTN&nbsp;system.&nbsp;The&nbsp;differences&nbsp;between&nbsp;RTN&nbsp;and&nbsp;SCEQ&nbsp;for&nbsp;spacecraft&nbsp;within&nbsp;<br>a&nbsp;few&nbsp;degrees&nbsp;of&nbsp;the&nbsp;solar&nbsp;equatorial&nbsp;plane&nbsp;are&nbsp;very&nbsp;small&nbsp;(within&nbsp;a&nbsp;few&nbsp;0.1&nbsp;nT&nbsp;usually).&nbsp;<br><br>-&nbsp;Venus&nbsp;Express,&nbsp;Juno,&nbsp;MESSENGER,&nbsp;and&nbsp;BepiColombo&nbsp;do&nbsp;not&nbsp;have&nbsp;plasma&nbsp;parameters&nbsp;available.<br><br>-&nbsp;If&nbsp;there&nbsp;is&nbsp;no&nbsp;sheath&nbsp;or&nbsp;density&nbsp;pileup&nbsp;region,&nbsp;so&nbsp;the&nbsp;ICME&nbsp;starts&nbsp;immediately&nbsp;with&nbsp;a&nbsp;magnetic&nbsp;obstacle,&nbsp;the&nbsp;icme_start_time&nbsp;is&nbsp;similar&nbsp;to&nbsp;mo_start_time.<br><br>-&nbsp;At&nbsp;MESSENGER&nbsp;and&nbsp;VEX,&nbsp;for&nbsp;events&nbsp;cataloged&nbsp;by&nbsp;Simon&nbsp;Good,&nbsp;icme_start_time&nbsp;has&nbsp;been&nbsp;added&nbsp;by&nbsp;V.&nbsp;Krupar&nbsp;(Imperial&nbsp;College)&nbsp;and&nbsp;C.&nbsp;Moestl&nbsp;(IWF&nbsp;Graz).&nbsp;<br><br>-&nbsp;For&nbsp;the&nbsp;calculation&nbsp;of&nbsp;the&nbsp;parameters&nbsp;at&nbsp;MESSENGER&nbsp;during&nbsp;the&nbsp;orbit&nbsp;around&nbsp;Mercury,&nbsp;all&nbsp;data&nbsp;points&nbsp;inside&nbsp;the&nbsp;bowshock&nbsp;of&nbsp;Mercury&nbsp;have&nbsp;been&nbsp;removed,&nbsp;<br>according&nbsp;to&nbsp;a&nbsp;list&nbsp;thankfully&nbsp;provided&nbsp;to&nbsp;us&nbsp;by&nbsp;by&nbsp;R.&nbsp;Winslow,&nbsp;UNH,&nbsp;B.&nbsp;Anderson,&nbsp;APL,&nbsp;and&nbsp;Lydia&nbsp;Philpott,&nbsp;UBC.&nbsp;<br><br>-&nbsp;Calculation&nbsp;of&nbsp;the&nbsp;magnetic&nbsp;obstacle&nbsp;parameters&nbsp;at&nbsp;VEX&nbsp;is&nbsp;done&nbsp;after&nbsp;approximate&nbsp;removal&nbsp;of&nbsp;the&nbsp;induced&nbsp;magnetosphere,&nbsp;with&nbsp;a&nbsp;modified&nbsp;equation&nbsp;as&nbsp;in&nbsp;<br>Zhang&nbsp;et&nbsp;al.&nbsp;2008&nbsp;(doi:&nbsp;10.1016/j.pss.2007.09.012),&nbsp;with&nbsp;a&nbsp;constant&nbsp;of&nbsp;3.5&nbsp;instead&nbsp;of&nbsp;2.14/2.364,&nbsp;<br>in&nbsp;order&nbsp;to&nbsp;account&nbsp;for&nbsp;a&nbsp;larger&nbsp;bowshock&nbsp;distance&nbsp;during&nbsp;solar&nbsp;maximum&nbsp;than&nbsp;studied&nbsp;in&nbsp;the&nbsp;Zhang&nbsp;et&nbsp;al.&nbsp;(2008)&nbsp;paper.&nbsp;<br><br>-&nbsp;For&nbsp;MAVEN,&nbsp;all&nbsp;data&nbsp;inside&nbsp;the&nbsp;bow&nbsp;shock&nbsp;were&nbsp;removed&nbsp;with&nbsp;the&nbsp;model&nbsp;from&nbsp;Gruesbeck&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:10.1029/2018JA025366)&nbsp;by&nbsp;C.&nbsp;Simon&nbsp;Wedlund&nbsp;(IWF&nbsp;Graz,&nbsp;Austria).&nbsp;<br>From&nbsp;the&nbsp;remaining&nbsp;data,&nbsp;the&nbsp;median&nbsp;for&nbsp;each&nbsp;orbit&nbsp;is&nbsp;taken&nbsp;as&nbsp;1&nbsp;data&nbsp;point,&nbsp;resulting&nbsp;in&nbsp;a&nbsp;solar&nbsp;wind&nbsp;<br>dataset&nbsp;at&nbsp;Mars&nbsp;with&nbsp;4.5&nbsp;hour&nbsp;time&nbsp;resolution.&nbsp;This&nbsp;is&nbsp;a&nbsp;far&nbsp;lower&nbsp;resolution&nbsp;than&nbsp;available&nbsp;at&nbsp;1&nbsp;AU,&nbsp;so&nbsp;the&nbsp;identification&nbsp;<br>of&nbsp;ICMEs&nbsp;in&nbsp;the&nbsp;MAVEN&nbsp;data&nbsp;is&nbsp;not&nbsp;as&nbsp;straightforward&nbsp;as&nbsp;for&nbsp;data&nbsp;sets&nbsp;with&nbsp;higher&nbsp;time&nbsp;resolution.<br><br>-&nbsp;The&nbsp;identification&nbsp;of&nbsp;ICMEs&nbsp;for&nbsp;MAVEN&nbsp;was&nbsp;done&nbsp;as&nbsp;follows:&nbsp;(1)&nbsp;We&nbsp;looked&nbsp;for&nbsp;typical&nbsp;profiles&nbsp;for&nbsp;ICMEs&nbsp;in&nbsp;magnetic&nbsp;field&nbsp;(B)&nbsp;and&nbsp;speed&nbsp;(V).<br>(2)&nbsp;B&nbsp;needs&nbsp;to&nbsp;be&nbsp;elevated&nbsp;in&nbsp;ICMEs&nbsp;accompanied&nbsp;by&nbsp;a&nbsp;flat&nbsp;or&nbsp;declining&nbsp;profile&nbsp;in&nbsp;V.&nbsp;An&nbsp;elevation&nbsp;in&nbsp;B&nbsp;accompanied&nbsp;by&nbsp;a&nbsp;later&nbsp;gradual&nbsp;rise&nbsp;<br>in&nbsp;V&nbsp;is&nbsp;a&nbsp;strong&nbsp;indicator&nbsp;for&nbsp;a&nbsp;high&nbsp;speed&nbsp;stream&nbsp;(HSS).&nbsp;(3)&nbsp;The&nbsp;discrimination&nbsp;between&nbsp;HSS&nbsp;and&nbsp;ICMEs&nbsp;was&nbsp;further&nbsp;strengthened&nbsp;with&nbsp;<br>the&nbsp;help&nbsp;of&nbsp;a&nbsp;stream&nbsp;interaction&nbsp;region&nbsp;list&nbsp;for&nbsp;MAVEN&nbsp;by&nbsp;Huang&nbsp;et&nbsp;al.&nbsp;(2019,&nbsp;doi:&nbsp;10.3847/1538-4357/ab25e9).&nbsp;<br>(4)&nbsp;We&nbsp;additionally&nbsp;plotted&nbsp;the&nbsp;predicted&nbsp;CME&nbsp;arrivals&nbsp;with&nbsp;STEREO/HI&nbsp;(ARRCATv2.0),&nbsp;the&nbsp;dose&nbsp;rate&nbsp;measured&nbsp;on&nbsp;the&nbsp;Mars&nbsp;surface&nbsp;<br>by&nbsp;MSL/RAD&nbsp;(e.g.&nbsp;Guo&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:&nbsp;10.1051/0004-6361/201732087))&nbsp;and&nbsp;the&nbsp;speed&nbsp;of&nbsp;the&nbsp;WSA/HUX&nbsp;model&nbsp;for&nbsp;the&nbsp;<br>background&nbsp;solar&nbsp;wind&nbsp;(Reiss&nbsp;et&nbsp;al.&nbsp;2019,&nbsp;doi:&nbsp;10.3847/1538-4365/aaf8b3).&nbsp;<br>General&nbsp;guidance&nbsp;on&nbsp;space&nbsp;weather&nbsp;observed&nbsp;by&nbsp;MAVEN&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;Lee&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:10.1002/2016JA023495).<br><br><br><br></p><p>Parameters:<br>00: icmecat_id: The unique identifier for the observed ICME. unit: string. <br>01: sc insitu: The name of the in situ observing spacecraft. unit: string. <br>02: icme_start_time: Shock arrival or density enhancement time, can be similar to mo_start_time. unit: UTC. <br>03: mo_start_time: Start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. <br>04: mo_end_time: End time of the magnetic obstacle. unit: UTC. <br>05: mo_sc_heliodistance: Heliocentric distance of the spacecraft at mo_start_time. unit: AU.<br>06: mo_sc_long_heeq: Heliospheric longitude of the spacecraft at mo_start_time, range [-180,180]. unit: degree (HEEQ).<br>07: mo_sc_lat_heeq: Heliospheric latitude of the spacecraft at mo_start_time, range [-90,90]. unit: degree (HEEQ).<br>08: icme_duration: Duration of the interval between icme_start_time and mo_endtime. unit: hours.<br>09: icme_bmax: Maximum total magnetic field in the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>10: icme_bmean: Mean total magnetic field during the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>11: icme_bstd: Standard deviation of the total magnetic field from icme_start_time to mo_end_time. unit: nT.<br>12: icme_speed_mean: Mean proton speed from icme_start_time to mo_end_time. unit: km/s.<br>13: icme_speed_std: Standard deviation of proton speed from icme_start_time to mo_end_time. unit: km/s.<br>14: mo_duration: Duration of the interval between mo_start_time and mo_endtime. unit: hours.<br>15: mo_bmax: Maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.<br>16: mo_bmean: Mean total magnetic field in the magnetic obstacle. unit: nT.<br>17: mo_bstd: Standard deviation of the total magnetic field in the magnetic obstacle. unit: nT.<br>18: mo_bzmean: Mean magnetic field Bz component in the magnetic obstacle. unit: nT.<br>19: mo_bzmin: Minimum magnetic field Bz component in the magnetic obstacle. unit: nT.<br>20: mo_bzstd: Standard deviation of the magnetic field Bz component in the magnetic obstacle. unit: nT.<br>21: mo_bymean: Mean magnetic field By component in the magnetic obstacle. unit: nT.<br>22: mo_bystd: Standard deviation of the magnetic field By component in the magnetic obstacle. unit: nT.<br>23: mo_speed_mean: Mean proton speed from mo_start_time to mo_end_time. unit: km/s.<br>24: mo_speed_std: Standard deviation of proton speed from mo_start_time to mo_end_time. unit: km/s.<br>25: mo_expansion_speed: Difference between proton speed at mo_start_time to proton speed at mo_end_time. unit: km/s.<br>26: mo_pdyn_mean: Mean proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>27: mo_pdyn_std: Standard deviation of proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>28: mo_density_mean: Mean proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>29: mo_density_std: Standard deviation of proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>30: mo_temperature_mean: Mean proton temperature from mo_start_time to mo_start_time. unit: K.<br>31: mo_temperature_std: Standard deviation of proton temperature from mo_start_time to mo_end_time. unit: K.<br>32: sheath_speed_mean: Mean proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>33: sheath_speed_std: Standard deviation of proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>34: sheath_density_mean: Mean proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>35: sheath_density_std: Standard deviation of proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>36: sheath_pdyn_mean: Mean proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br>37: sheath_pdyn_std: Standard deviation of proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br><br><br></p><table border="1" class="dataframe">
+<p>ICME&nbsp;CATALOGUE&nbsp;v2.2&nbsp;<br><br>This&nbsp;is&nbsp;the&nbsp;HELIO4CAST&nbsp;interplanetary&nbsp;coronal&nbsp;mass&nbsp;ejection&nbsp;(ICME)&nbsp;catalog,&nbsp;based&nbsp;on&nbsp;in&nbsp;situ&nbsp;magnetic&nbsp;field&nbsp;and&nbsp;bulk&nbsp;plasma&nbsp;observations&nbsp;in&nbsp;the&nbsp;heliosphere.&nbsp;<br><br>This&nbsp;is&nbsp;version&nbsp;2.2,&nbsp;released&nbsp;2024-February-27,&nbsp;updated&nbsp;2024-May-TBD,&nbsp;doi:&nbsp;10.6084/m9.figshare.6356420&nbsp;<br><br>Rules:&nbsp;If&nbsp;results&nbsp;are&nbsp;produced&nbsp;with&nbsp;this&nbsp;catalog&nbsp;for&nbsp;peer-reviewed&nbsp;scientific&nbsp;publications,&nbsp;please&nbsp;contact&nbsp;chris.moestl@outlook.com&nbsp;for&nbsp;possible&nbsp;co-authorship.&nbsp;<br>References&nbsp;for&nbsp;this&nbsp;catalog&nbsp;are&nbsp;Moestl&nbsp;et&nbsp;al.&nbsp;2017&nbsp;(https://doi.org/10.1002/2017SW001614)&nbsp;and&nbsp;Moestl&nbsp;et&nbsp;al.&nbsp;2020&nbsp;(https://doi.org/10.3847/1538-4357/abb9a1).&nbsp;&nbsp;<br><br>The&nbsp;catalog&nbsp;is&nbsp;available&nbsp;as&nbsp;a&nbsp;python&nbsp;pandas&nbsp;dataframe&nbsp;(pickle),&nbsp;python&nbsp;numpy&nbsp;structured&nbsp;array&nbsp;(pickle),&nbsp;json,&nbsp;csv,&nbsp;xlsx,&nbsp;txt,&nbsp;hdf5,&nbsp;at&nbsp;<br>https://helioforecast.space/icmecat&nbsp;<br><br>Number&nbsp;of&nbsp;events&nbsp;in&nbsp;ICMECAT:&nbsp;1700&nbsp;<br>ICME&nbsp;observatories:&nbsp;Solar&nbsp;Orbiter,&nbsp;Parker&nbsp;Solar&nbsp;Probe&nbsp;(PSP),&nbsp;BepiColombo,&nbsp;Wind,&nbsp;STEREO-A,&nbsp;Juno,&nbsp;MAVEN,&nbsp;STEREO-B,&nbsp;Venus&nbsp;Express&nbsp;(VEX),&nbsp;MESSENGER,&nbsp;Ulysses.&nbsp;&nbsp;&nbsp;<br>Time&nbsp;range:&nbsp;1990-12&nbsp;to&nbsp;2024-03&nbsp;<br>&nbsp;<br>Authors:&nbsp;Christian&nbsp;Moestl,&nbsp;Eva&nbsp;Weiler,&nbsp;Emma&nbsp;E.&nbsp;Davies,&nbsp;Austrian&nbsp;Space&nbsp;Weather&nbsp;Office,&nbsp;GeoSphere&nbsp;Austria,&nbsp;Graz,&nbsp;Austria.&nbsp;<br>Contributors:&nbsp;Rachel&nbsp;L.&nbsp;Bailey,&nbsp;Martin&nbsp;A.&nbsp;Reiss,&nbsp;Andreas&nbsp;J.&nbsp;Weiss,&nbsp;Tarik&nbsp;Mohammad&nbsp;Salman,&nbsp;Peter&nbsp;Boakes,&nbsp;Alexey&nbsp;Isavnin,&nbsp;Emilia&nbsp;Kilpua,&nbsp;David&nbsp;Stansby,&nbsp;Reka&nbsp;Winslow,&nbsp;Brian&nbsp;Anderson,&nbsp;Lydia&nbsp;Philpott,&nbsp;<br>Vratislav&nbsp;Krupar,&nbsp;Jonathan&nbsp;Eastwood,&nbsp;Simon&nbsp;Good,&nbsp;Lan&nbsp;Jian,&nbsp;Teresa&nbsp;Nieves-Chinchilla,&nbsp;Cyril&nbsp;Simon&nbsp;Wedlund,&nbsp;Jingnan&nbsp;Guo,&nbsp;<br>Johan&nbsp;von&nbsp;Forstner,&nbsp;Mateja&nbsp;Dumbovic,&nbsp;Benoit&nbsp;Lavraud.&nbsp;&nbsp;<br><br>This&nbsp;catalog&nbsp;has&nbsp;been&nbsp;made&nbsp;by&nbsp;getting&nbsp;the&nbsp;3&nbsp;times&nbsp;of&nbsp;each&nbsp;ICME&nbsp;(shock&nbsp;or&nbsp;disturbance&nbsp;begin,&nbsp;magnetic&nbsp;obstacle&nbsp;start&nbsp;and&nbsp;end)&nbsp;<br>from&nbsp;the&nbsp;individual&nbsp;catalogs&nbsp;below,&nbsp;and&nbsp;then&nbsp;calculating&nbsp;all&nbsp;parameters&nbsp;again&nbsp;consistently&nbsp;from&nbsp;the&nbsp;data&nbsp;by&nbsp;us.&nbsp;<br>The&nbsp;selection&nbsp;criteria&nbsp;are&nbsp;relatively&nbsp;simple:&nbsp;the&nbsp;event&nbsp;needs&nbsp;to&nbsp;have&nbsp;a&nbsp;clearly&nbsp;organized&nbsp;large-scale&nbsp;magnetic&nbsp;structure,<br>&nbsp;which&nbsp;manifests&nbsp;itself&nbsp;through&nbsp;(1)&nbsp;an&nbsp;elevated&nbsp;total&nbsp;magnetic&nbsp;field&nbsp;and&nbsp;(2)&nbsp;a&nbsp;rotation&nbsp;in&nbsp;the&nbsp;field&nbsp;observed&nbsp;through&nbsp;the&nbsp;field&nbsp;components.&nbsp;<br><br>The&nbsp;in&nbsp;situ&nbsp;data&nbsp;that&nbsp;were&nbsp;used&nbsp;for&nbsp;the&nbsp;catalog,&nbsp;with&nbsp;a&nbsp;size&nbsp;of&nbsp;around&nbsp;10&nbsp;GB&nbsp;in&nbsp;total,&nbsp;including&nbsp;extra&nbsp;data&nbsp;files&nbsp;with&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;<br>in&nbsp;RTN&nbsp;coordinates&nbsp;that&nbsp;are&nbsp;not&nbsp;used&nbsp;for&nbsp;producing&nbsp;the&nbsp;catalog,&nbsp;can&nbsp;be&nbsp;downloaded&nbsp;in&nbsp;python&nbsp;pickle&nbsp;format&nbsp;as&nbsp;recarrays&nbsp;from&nbsp;https://doi.org/10.6084/m9.figshare.11973693&nbsp;<br><br>The&nbsp;python&nbsp;source&nbsp;code&nbsp;for&nbsp;producing&nbsp;this&nbsp;catalog&nbsp;is&nbsp;available&nbsp;at&nbsp;https://github.com/cmoestl/heliocats&nbsp;icmecat.ipynb<br><br>Each&nbsp;event&nbsp;has&nbsp;unique&nbsp;identifier&nbsp;-&nbsp;the&nbsp;icmecat_id&nbsp;-&nbsp;which&nbsp;has&nbsp;a&nbsp;tag&nbsp;in&nbsp;it&nbsp;that&nbsp;indicates&nbsp;from&nbsp;which&nbsp;catalog&nbsp;the&nbsp;ICME&nbsp;times&nbsp;were&nbsp;taken,&nbsp;<br>or&nbsp;if&nbsp;they&nbsp;were&nbsp;included&nbsp;in&nbsp;the&nbsp;catalog&nbsp;by&nbsp;ourselves,&nbsp;as&nbsp;identified&nbsp;by&nbsp;Christian&nbsp;Möstl&nbsp;or&nbsp;Eva&nbsp;Weiler.&nbsp;&nbsp;<br><br>Solar&nbsp;Orbiter:&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL&nbsp;<br>Parker&nbsp;Solar&nbsp;Probe:&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL&nbsp;<br>BepiColombo:&nbsp;Added&nbsp;by&nbsp;us,&nbsp;tag:&nbsp;MOESTL&nbsp;<br>Wind:&nbsp;Nieves-Chinchilla&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;NASA,&nbsp;MOESTL,&nbsp;WEILER&nbsp;<br>STEREO-A:&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;JIAN,&nbsp;MOESTL,&nbsp;WEILER&nbsp;<br>STEREO-B:&nbsp;Jian&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;JIAN&nbsp;<br>Juno:&nbsp;Davies&nbsp;et&nbsp;al.&nbsp;(2022),&nbsp;tags:&nbsp;DAVIES&nbsp;<br>VEX:&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tag:&nbsp;SGOOD&nbsp;or&nbsp;MOESTL&nbsp;<br>MESSENGER:&nbsp;Good&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;Winslow&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;tags:&nbsp;SGOOD,&nbsp;WINSLOW,&nbsp;MOESTL&nbsp;<br>MAVEN:&nbsp;Made&nbsp;by&nbsp;us&nbsp;according&nbsp;to&nbsp;the&nbsp;method&nbsp;in&nbsp;the&nbsp;comments,&nbsp;tag:&nbsp;MOESTL&nbsp;<br>Ulysses:&nbsp;Richardson&nbsp;et&nbsp;al.&nbsp;2014,&nbsp;tag:&nbsp;RICHARDSON&nbsp;<br><br>References:&nbsp;<br>Nieves-Chinchilla,&nbsp;T.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;&nbsp;https://doi.org/10.1007/s11207-018-1247-z&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://wind.nasa.gov/ICME_catalog/ICME_catalog_viewer.php&nbsp;<br>Jian,&nbsp;L.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;https://doi.org/10.3847/1538-4357/aab189&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://stereo-ssc.nascom.nasa.gov/data/ins_data/impact/level3/&nbsp;<br>Good,&nbsp;S.&nbsp;et&nbsp;al.&nbsp;(2018),&nbsp;https://doi.org/10.1007/s11207-015-0828-3&nbsp;<br>Winslow,&nbsp;R.&nbsp;et&nbsp;al.&nbsp;(2015),&nbsp;https://doi.org/10.1002/2015JA021200&nbsp;<br>Davies,&nbsp;E.&nbsp;E.&nbsp;et&nbsp;al.&nbsp;(2021),&nbsp;https://doi.org/10.3847/1538-4357/ac2ccb&nbsp;<br>Davies,&nbsp;E.&nbsp;E.,&nbsp;et&nbsp;al.,&nbsp;(2022)&nbsp;https://iopscience.iop.org/article/10.3847/1538-4357/ac731a&nbsp;&nbsp;&nbsp;<br>Richardson,&nbsp;I.&nbsp;G.&nbsp;(2014),&nbsp;https://doi.org/10.1007/s11207-014-0540-8&nbsp;<br><br><br>Comments:&nbsp;<br><br>-&nbsp;Spacecraft&nbsp;positions&nbsp;are&nbsp;given&nbsp;in&nbsp;Heliocentric&nbsp;Earth&nbsp;Equatorial&nbsp;Coordinates&nbsp;(HEEQ)&nbsp;coordinates.&nbsp;<br><br>-&nbsp;The&nbsp;coordinate&nbsp;system&nbsp;for&nbsp;all&nbsp;magnetic&nbsp;field&nbsp;components&nbsp;is&nbsp;RTN,&nbsp;except&nbsp;for&nbsp;MESSENGER&nbsp;(SCEQ),&nbsp;VEX&nbsp;(SCEQ),&nbsp;and&nbsp;MAVEN&nbsp;(MSO).&nbsp;&nbsp;<br>There&nbsp;are&nbsp;some&nbsp;legacy&nbsp;data&nbsp;files&nbsp;for&nbsp;the&nbsp;older&nbsp;spacecraft&nbsp;available&nbsp;in&nbsp;SCEQ.&nbsp;The&nbsp;difference&nbsp;to&nbsp;results&nbsp;for&nbsp;RTN&nbsp;in&nbsp;all&nbsp;parameters&nbsp;is&nbsp;usually&nbsp;very&nbsp;small.&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Definition&nbsp;of&nbsp;SpaceCraft&nbsp;Equatorial&nbsp;Coordinates&nbsp;(SCEQ):&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z&nbsp;is&nbsp;the&nbsp;solar&nbsp;rotation&nbsp;axis.&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Y&nbsp;is&nbsp;the&nbsp;cross&nbsp;product&nbsp;of&nbsp;Z&nbsp;and&nbsp;R,&nbsp;with&nbsp;R&nbsp;being&nbsp;the&nbsp;vector&nbsp;that&nbsp;points&nbsp;from&nbsp;the&nbsp;Sun&nbsp;to&nbsp;the&nbsp;spacecraft.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;completes&nbsp;the&nbsp;right&nbsp;handed&nbsp;triad&nbsp;(and&nbsp;points&nbsp;away&nbsp;from&nbsp;the&nbsp;Sun).&nbsp;<br>This&nbsp;system&nbsp;is&nbsp;thus&nbsp;like&nbsp;HEEQ&nbsp;but&nbsp;centered&nbsp;on&nbsp;the&nbsp;respective&nbsp;in&nbsp;situ&nbsp;spacecraft,&nbsp;so&nbsp;the&nbsp;SCEQ&nbsp;X&nbsp;and&nbsp;Y&nbsp;<br>base&nbsp;vectors&nbsp;are&nbsp;rotated&nbsp;by&nbsp;the&nbsp;HEEQ&nbsp;longitude&nbsp;of&nbsp;the&nbsp;in&nbsp;situ&nbsp;spacecraft&nbsp;from&nbsp;HEEQ&nbsp;X&nbsp;and&nbsp;Y.<br>The&nbsp;Y&nbsp;vector&nbsp;is&nbsp;similar&nbsp;to&nbsp;the&nbsp;T&nbsp;vector&nbsp;in&nbsp;an&nbsp;RTN&nbsp;system&nbsp;for&nbsp;each&nbsp;spacecraft,&nbsp;but&nbsp;the&nbsp;X&nbsp;and&nbsp;Z&nbsp;vectors&nbsp;<br>are&nbsp;rotated&nbsp;around&nbsp;Y&nbsp;compared&nbsp;to&nbsp;an&nbsp;RTN&nbsp;system.&nbsp;The&nbsp;differences&nbsp;between&nbsp;RTN&nbsp;and&nbsp;SCEQ&nbsp;for&nbsp;spacecraft&nbsp;within&nbsp;<br>a&nbsp;few&nbsp;degrees&nbsp;of&nbsp;the&nbsp;solar&nbsp;equatorial&nbsp;plane&nbsp;are&nbsp;very&nbsp;small&nbsp;(within&nbsp;a&nbsp;few&nbsp;0.1&nbsp;nT&nbsp;usually).&nbsp;<br><br>-&nbsp;Venus&nbsp;Express,&nbsp;Juno,&nbsp;MESSENGER,&nbsp;and&nbsp;BepiColombo&nbsp;do&nbsp;not&nbsp;have&nbsp;plasma&nbsp;parameters&nbsp;available.<br><br>-&nbsp;If&nbsp;there&nbsp;is&nbsp;no&nbsp;sheath&nbsp;or&nbsp;density&nbsp;pileup&nbsp;region,&nbsp;so&nbsp;the&nbsp;ICME&nbsp;starts&nbsp;immediately&nbsp;with&nbsp;a&nbsp;magnetic&nbsp;obstacle,&nbsp;the&nbsp;icme_start_time&nbsp;is&nbsp;similar&nbsp;to&nbsp;mo_start_time.<br><br>-&nbsp;At&nbsp;MESSENGER&nbsp;and&nbsp;VEX,&nbsp;for&nbsp;events&nbsp;cataloged&nbsp;by&nbsp;Simon&nbsp;Good,&nbsp;icme_start_time&nbsp;has&nbsp;been&nbsp;added&nbsp;by&nbsp;V.&nbsp;Krupar&nbsp;(Imperial&nbsp;College)&nbsp;and&nbsp;C.&nbsp;Moestl&nbsp;(IWF&nbsp;Graz).&nbsp;<br><br>-&nbsp;For&nbsp;the&nbsp;calculation&nbsp;of&nbsp;the&nbsp;parameters&nbsp;at&nbsp;MESSENGER&nbsp;during&nbsp;the&nbsp;orbit&nbsp;around&nbsp;Mercury,&nbsp;all&nbsp;data&nbsp;points&nbsp;inside&nbsp;the&nbsp;bowshock&nbsp;of&nbsp;Mercury&nbsp;have&nbsp;been&nbsp;removed,&nbsp;<br>according&nbsp;to&nbsp;a&nbsp;list&nbsp;thankfully&nbsp;provided&nbsp;to&nbsp;us&nbsp;by&nbsp;by&nbsp;R.&nbsp;Winslow,&nbsp;UNH,&nbsp;B.&nbsp;Anderson,&nbsp;APL,&nbsp;and&nbsp;Lydia&nbsp;Philpott,&nbsp;UBC.&nbsp;<br><br>-&nbsp;Calculation&nbsp;of&nbsp;the&nbsp;magnetic&nbsp;obstacle&nbsp;parameters&nbsp;at&nbsp;VEX&nbsp;is&nbsp;done&nbsp;after&nbsp;approximate&nbsp;removal&nbsp;of&nbsp;the&nbsp;induced&nbsp;magnetosphere,&nbsp;with&nbsp;a&nbsp;modified&nbsp;equation&nbsp;as&nbsp;in&nbsp;<br>Zhang&nbsp;et&nbsp;al.&nbsp;2008&nbsp;(doi:&nbsp;10.1016/j.pss.2007.09.012),&nbsp;with&nbsp;a&nbsp;constant&nbsp;of&nbsp;3.5&nbsp;instead&nbsp;of&nbsp;2.14/2.364,&nbsp;<br>in&nbsp;order&nbsp;to&nbsp;account&nbsp;for&nbsp;a&nbsp;larger&nbsp;bowshock&nbsp;distance&nbsp;during&nbsp;solar&nbsp;maximum&nbsp;than&nbsp;studied&nbsp;in&nbsp;the&nbsp;Zhang&nbsp;et&nbsp;al.&nbsp;(2008)&nbsp;paper.&nbsp;<br><br>-&nbsp;For&nbsp;MAVEN,&nbsp;all&nbsp;data&nbsp;inside&nbsp;the&nbsp;bow&nbsp;shock&nbsp;were&nbsp;removed&nbsp;with&nbsp;the&nbsp;model&nbsp;from&nbsp;Gruesbeck&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:10.1029/2018JA025366)&nbsp;by&nbsp;C.&nbsp;Simon&nbsp;Wedlund&nbsp;(IWF&nbsp;Graz,&nbsp;Austria).&nbsp;<br>From&nbsp;the&nbsp;remaining&nbsp;data,&nbsp;the&nbsp;median&nbsp;for&nbsp;each&nbsp;orbit&nbsp;is&nbsp;taken&nbsp;as&nbsp;1&nbsp;data&nbsp;point,&nbsp;resulting&nbsp;in&nbsp;a&nbsp;solar&nbsp;wind&nbsp;<br>dataset&nbsp;at&nbsp;Mars&nbsp;with&nbsp;4.5&nbsp;hour&nbsp;time&nbsp;resolution.&nbsp;This&nbsp;is&nbsp;a&nbsp;far&nbsp;lower&nbsp;resolution&nbsp;than&nbsp;available&nbsp;at&nbsp;1&nbsp;AU,&nbsp;so&nbsp;the&nbsp;identification&nbsp;<br>of&nbsp;ICMEs&nbsp;in&nbsp;the&nbsp;MAVEN&nbsp;data&nbsp;is&nbsp;not&nbsp;as&nbsp;straightforward&nbsp;as&nbsp;for&nbsp;data&nbsp;sets&nbsp;with&nbsp;higher&nbsp;time&nbsp;resolution.<br><br>-&nbsp;The&nbsp;identification&nbsp;of&nbsp;ICMEs&nbsp;for&nbsp;MAVEN&nbsp;was&nbsp;done&nbsp;as&nbsp;follows:&nbsp;(1)&nbsp;We&nbsp;looked&nbsp;for&nbsp;typical&nbsp;profiles&nbsp;for&nbsp;ICMEs&nbsp;in&nbsp;magnetic&nbsp;field&nbsp;(B)&nbsp;and&nbsp;speed&nbsp;(V).<br>(2)&nbsp;B&nbsp;needs&nbsp;to&nbsp;be&nbsp;elevated&nbsp;in&nbsp;ICMEs&nbsp;accompanied&nbsp;by&nbsp;a&nbsp;flat&nbsp;or&nbsp;declining&nbsp;profile&nbsp;in&nbsp;V.&nbsp;An&nbsp;elevation&nbsp;in&nbsp;B&nbsp;accompanied&nbsp;by&nbsp;a&nbsp;later&nbsp;gradual&nbsp;rise&nbsp;<br>in&nbsp;V&nbsp;is&nbsp;a&nbsp;strong&nbsp;indicator&nbsp;for&nbsp;a&nbsp;high&nbsp;speed&nbsp;stream&nbsp;(HSS).&nbsp;(3)&nbsp;The&nbsp;discrimination&nbsp;between&nbsp;HSS&nbsp;and&nbsp;ICMEs&nbsp;was&nbsp;further&nbsp;strengthened&nbsp;with&nbsp;<br>the&nbsp;help&nbsp;of&nbsp;a&nbsp;stream&nbsp;interaction&nbsp;region&nbsp;list&nbsp;for&nbsp;MAVEN&nbsp;by&nbsp;Huang&nbsp;et&nbsp;al.&nbsp;(2019,&nbsp;doi:&nbsp;10.3847/1538-4357/ab25e9).&nbsp;<br>(4)&nbsp;We&nbsp;additionally&nbsp;plotted&nbsp;the&nbsp;predicted&nbsp;CME&nbsp;arrivals&nbsp;with&nbsp;STEREO/HI&nbsp;(ARRCATv2.0),&nbsp;the&nbsp;dose&nbsp;rate&nbsp;measured&nbsp;on&nbsp;the&nbsp;Mars&nbsp;surface&nbsp;<br>by&nbsp;MSL/RAD&nbsp;(e.g.&nbsp;Guo&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:&nbsp;10.1051/0004-6361/201732087))&nbsp;and&nbsp;the&nbsp;speed&nbsp;of&nbsp;the&nbsp;WSA/HUX&nbsp;model&nbsp;for&nbsp;the&nbsp;<br>background&nbsp;solar&nbsp;wind&nbsp;(Reiss&nbsp;et&nbsp;al.&nbsp;2019,&nbsp;doi:&nbsp;10.3847/1538-4365/aaf8b3).&nbsp;<br>General&nbsp;guidance&nbsp;on&nbsp;space&nbsp;weather&nbsp;observed&nbsp;by&nbsp;MAVEN&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;Lee&nbsp;et&nbsp;al.&nbsp;(2018,&nbsp;doi:10.1002/2016JA023495).<br><br><br><br></p><p>Parameters:<br>00: icmecat_id: The unique identifier for the observed ICME. unit: string. <br>01: sc insitu: The name of the in situ observing spacecraft. unit: string. <br>02: icme_start_time: Shock arrival or density enhancement time, can be similar to mo_start_time. unit: UTC. <br>03: mo_start_time: Start time of the magnetic obstacle (MO), including flux ropes, flux-rope-like, and ejecta signatures. unit: UTC. <br>04: mo_end_time: End time of the magnetic obstacle. unit: UTC. <br>05: mo_sc_heliodistance: Heliocentric distance of the spacecraft at mo_start_time. unit: AU.<br>06: mo_sc_long_heeq: Heliospheric longitude of the spacecraft at mo_start_time, range [-180,180]. unit: degree (HEEQ).<br>07: mo_sc_lat_heeq: Heliospheric latitude of the spacecraft at mo_start_time, range [-90,90]. unit: degree (HEEQ).<br>08: icme_duration: Duration of the interval between icme_start_time and mo_endtime. unit: hours.<br>09: icme_bmax: Maximum total magnetic field in the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>10: icme_bmean: Mean total magnetic field during the full icme interval (icme_start_time to mo_end_time). unit: nT.<br>11: icme_bstd: Standard deviation of the total magnetic field from icme_start_time to mo_end_time. unit: nT.<br>12: icme_speed_mean: Mean proton speed from icme_start_time to mo_end_time. unit: km/s.<br>13: icme_speed_std: Standard deviation of proton speed from icme_start_time to mo_end_time. unit: km/s.<br>14: mo_duration: Duration of the interval between mo_start_time and mo_endtime. unit: hours.<br>15: mo_bmax: Maximum total magnetic field in the magnetic obstacle interval (mo_start_time to mo_end_time). unit: nT.<br>16: mo_bmean: Mean total magnetic field in the magnetic obstacle. unit: nT.<br>17: mo_bstd: Standard deviation of the total magnetic field in the magnetic obstacle. unit: nT.<br>18: mo_bzmean: Mean magnetic field Bz component in the magnetic obstacle. unit: nT.<br>19: mo_bzmin: Minimum magnetic field Bz component in the magnetic obstacle. unit: nT.<br>20: mo_bzstd: Standard deviation of the magnetic field Bz component in the magnetic obstacle. unit: nT.<br>21: mo_bymean: Mean magnetic field By component in the magnetic obstacle. unit: nT.<br>22: mo_bystd: Standard deviation of the magnetic field By component in the magnetic obstacle. unit: nT.<br>23: mo_speed_mean: Mean proton speed from mo_start_time to mo_end_time. unit: km/s.<br>24: mo_speed_std: Standard deviation of proton speed from mo_start_time to mo_end_time. unit: km/s.<br>25: mo_expansion_speed: Difference between proton speed at mo_start_time to proton speed at mo_end_time. unit: km/s.<br>26: mo_pdyn_mean: Mean proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>27: mo_pdyn_std: Standard deviation of proton dynamic pressure from mo_start_time to mo_start_time. unit: nPa.<br>28: mo_density_mean: Mean proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>29: mo_density_std: Standard deviation of proton density from mo_start_time to mo_start_time. unit: cm^-3.<br>30: mo_temperature_mean: Mean proton temperature from mo_start_time to mo_start_time. unit: K.<br>31: mo_temperature_std: Standard deviation of proton temperature from mo_start_time to mo_end_time. unit: K.<br>32: sheath_speed_mean: Mean proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>33: sheath_speed_std: Standard deviation of proton speed from icme_start_time to mo_start_time, NaN if these times are similar. unit: km/s.<br>34: sheath_density_mean: Mean proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>35: sheath_density_std: Standard deviation of proton density from icme_start_time to mo_start_time, NaN if these times are similar. unit: cm^-3.<br>36: sheath_pdyn_mean: Mean proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br>37: sheath_pdyn_std: Standard deviation of proton dynamic pressure, from icme_start_time to mo_start_time, NaN if these times are similar. unit: nPa.<br><br><br></p><table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th></th>
@@ -50,39 +50,39 @@
       <td>2024-03-24T14:23Z</td>
       <td>2024-03-24T19:38Z</td>
       <td>2024-03-26T06:31Z</td>
-      <td>0.9616</td>
-      <td>9.26</td>
-      <td>-6.45</td>
+      <td>0.9583</td>
+      <td>11.08</td>
+      <td>-3.87</td>
       <td>40.13</td>
-      <td>33.3</td>
-      <td>18.7</td>
-      <td>6.5</td>
-      <td>477.2</td>
-      <td>122.3</td>
+      <td>11.6</td>
+      <td>6.0</td>
+      <td>1.9</td>
+      <td>431.0</td>
+      <td>68.6</td>
       <td>34.88</td>
-      <td>29.6</td>
-      <td>19.0</td>
-      <td>6.7</td>
-      <td>1.7</td>
-      <td>-19.4</td>
-      <td>6.2</td>
-      <td>-11.1</td>
-      <td>4.8</td>
-      <td>477.2</td>
-      <td>122.3</td>
+      <td>9.4</td>
+      <td>5.4</td>
+      <td>1.3</td>
+      <td>1.1</td>
+      <td>-7.2</td>
+      <td>2.4</td>
+      <td>2.8</td>
+      <td>1.8</td>
+      <td>424.6</td>
+      <td>67.3</td>
       <td>NaN</td>
-      <td>0.5</td>
-      <td>0.1</td>
-      <td>1.4</td>
-      <td>0.5</td>
+      <td>0.3</td>
+      <td>0.4</td>
+      <td>1.2</td>
+      <td>1.8</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>470.8</td>
+      <td>63.2</td>
+      <td>0.7</td>
+      <td>0.2</td>
+      <td>0.3</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>1</th>
@@ -173,31 +173,31 @@
       <td>2024-03-03T17:28Z</td>
       <td>2024-03-03T17:28Z</td>
       <td>2024-03-03T23:04Z</td>
-      <td>0.9641</td>
-      <td>8.32</td>
-      <td>-7.30</td>
+      <td>0.9608</td>
+      <td>9.70</td>
+      <td>-5.93</td>
       <td>5.60</td>
-      <td>18.0</td>
-      <td>14.4</td>
-      <td>2.1</td>
-      <td>368.8</td>
-      <td>19.3</td>
+      <td>9.5</td>
+      <td>8.4</td>
+      <td>1.0</td>
+      <td>418.4</td>
+      <td>222.7</td>
       <td>5.60</td>
-      <td>18.0</td>
-      <td>14.4</td>
-      <td>2.1</td>
-      <td>-2.4</td>
-      <td>-13.9</td>
-      <td>6.4</td>
-      <td>-4.2</td>
-      <td>10.6</td>
-      <td>368.8</td>
-      <td>19.3</td>
-      <td>NaN</td>
-      <td>1.1</td>
-      <td>0.3</td>
-      <td>4.7</td>
+      <td>9.5</td>
+      <td>8.4</td>
+      <td>1.0</td>
+      <td>-2.0</td>
+      <td>-5.5</td>
       <td>1.7</td>
+      <td>2.4</td>
+      <td>5.6</td>
+      <td>418.4</td>
+      <td>222.7</td>
+      <td>NaN</td>
+      <td>0.4</td>
+      <td>0.1</td>
+      <td>1.6</td>
+      <td>0.5</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>NaN</td>
@@ -214,39 +214,39 @@
       <td>2024-03-03T06:00Z</td>
       <td>2024-03-03T08:53Z</td>
       <td>2024-03-03T13:12Z</td>
-      <td>0.9641</td>
-      <td>8.31</td>
-      <td>-7.30</td>
+      <td>0.9608</td>
+      <td>9.68</td>
+      <td>-5.96</td>
       <td>7.20</td>
-      <td>18.5</td>
-      <td>13.1</td>
-      <td>3.4</td>
-      <td>346.6</td>
-      <td>13.1</td>
+      <td>8.5</td>
+      <td>6.8</td>
+      <td>0.6</td>
+      <td>379.8</td>
+      <td>49.3</td>
       <td>4.32</td>
-      <td>18.5</td>
-      <td>15.3</td>
-      <td>2.4</td>
-      <td>-9.4</td>
-      <td>-15.9</td>
-      <td>3.8</td>
-      <td>3.9</td>
-      <td>4.4</td>
-      <td>351.0</td>
-      <td>15.9</td>
-      <td>-8.3</td>
-      <td>1.3</td>
-      <td>0.4</td>
-      <td>6.6</td>
-      <td>2.1</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>342.2</td>
-      <td>7.3</td>
       <td>7.8</td>
-      <td>1.0</td>
-      <td>1.5</td>
-      <td>0.2</td>
+      <td>6.4</td>
+      <td>0.3</td>
+      <td>-0.8</td>
+      <td>-3.4</td>
+      <td>1.1</td>
+      <td>-1.7</td>
+      <td>1.7</td>
+      <td>373.0</td>
+      <td>53.2</td>
+      <td>NaN</td>
+      <td>0.4</td>
+      <td>0.1</td>
+      <td>1.6</td>
+      <td>0.5</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>400.3</td>
+      <td>25.8</td>
+      <td>1.4</td>
+      <td>0.1</td>
+      <td>0.4</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>5</th>
@@ -296,39 +296,39 @@
       <td>2024-02-25T13:27Z</td>
       <td>2024-02-25T17:08Z</td>
       <td>2024-02-26T05:22Z</td>
-      <td>0.9648</td>
-      <td>8.07</td>
-      <td>-7.34</td>
+      <td>0.9616</td>
+      <td>9.31</td>
+      <td>-6.44</td>
       <td>15.92</td>
-      <td>15.2</td>
-      <td>11.9</td>
-      <td>1.8</td>
-      <td>384.1</td>
-      <td>27.1</td>
-      <td>12.23</td>
-      <td>15.2</td>
-      <td>12.2</td>
-      <td>1.7</td>
-      <td>8.0</td>
-      <td>3.6</td>
+      <td>28.2</td>
+      <td>25.1</td>
       <td>2.0</td>
-      <td>7.6</td>
-      <td>3.7</td>
-      <td>379.8</td>
-      <td>24.3</td>
       <td>NaN</td>
-      <td>1.3</td>
-      <td>0.6</td>
-      <td>5.7</td>
-      <td>3.0</td>
+      <td>NaN</td>
+      <td>12.23</td>
+      <td>28.2</td>
+      <td>24.6</td>
+      <td>2.1</td>
+      <td>3.3</td>
+      <td>-12.2</td>
+      <td>6.2</td>
+      <td>-12.8</td>
+      <td>2.9</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>409.9</td>
-      <td>28.8</td>
-      <td>3.6</td>
-      <td>1.2</td>
-      <td>1.0</td>
-      <td>0.3</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
     <tr>
       <th>7</th>
@@ -419,39 +419,39 @@
       <td>2024-02-11T00:59Z</td>
       <td>2024-02-11T02:39Z</td>
       <td>2024-02-11T09:30Z</td>
-      <td>0.9661</td>
-      <td>7.65</td>
-      <td>-7.06</td>
+      <td>0.9633</td>
+      <td>8.62</td>
+      <td>-7.14</td>
       <td>8.52</td>
-      <td>11.8</td>
-      <td>9.3</td>
-      <td>1.4</td>
-      <td>466.4</td>
-      <td>61.0</td>
+      <td>5.4</td>
+      <td>5.0</td>
+      <td>0.3</td>
+      <td>471.3</td>
+      <td>44.9</td>
       <td>6.85</td>
-      <td>11.7</td>
-      <td>9.6</td>
+      <td>5.4</td>
+      <td>5.1</td>
+      <td>0.2</td>
+      <td>-0.3</td>
+      <td>-1.4</td>
+      <td>0.4</td>
       <td>1.0</td>
-      <td>-2.4</td>
-      <td>-9.1</td>
-      <td>3.0</td>
-      <td>5.6</td>
-      <td>2.8</td>
-      <td>426.8</td>
-      <td>18.9</td>
+      <td>0.3</td>
+      <td>474.6</td>
+      <td>45.8</td>
       <td>NaN</td>
-      <td>0.5</td>
+      <td>0.4</td>
       <td>0.1</td>
-      <td>1.7</td>
+      <td>1.0</td>
       <td>0.3</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>513.8</td>
-      <td>60.2</td>
-      <td>2.7</td>
-      <td>0.8</td>
-      <td>1.2</td>
+      <td>453.0</td>
+      <td>34.5</td>
+      <td>1.1</td>
       <td>0.2</td>
+      <td>0.4</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>10</th>
@@ -624,39 +624,39 @@
       <td>2024-01-16T13:04Z</td>
       <td>2024-01-16T14:24Z</td>
       <td>2024-01-17T00:23Z</td>
-      <td>0.9676</td>
-      <td>7.17</td>
-      <td>-5.43</td>
+      <td>0.9659</td>
+      <td>7.76</td>
+      <td>-7.16</td>
       <td>11.32</td>
-      <td>11.3</td>
-      <td>7.3</td>
-      <td>1.5</td>
-      <td>312.7</td>
-      <td>10.9</td>
-      <td>9.98</td>
-      <td>10.3</td>
-      <td>7.1</td>
-      <td>1.4</td>
-      <td>0.5</td>
-      <td>-6.2</td>
-      <td>2.3</td>
-      <td>5.5</td>
-      <td>1.6</td>
-      <td>313.3</td>
-      <td>11.7</td>
-      <td>NaN</td>
-      <td>1.1</td>
-      <td>0.2</td>
-      <td>6.4</td>
+      <td>7.8</td>
+      <td>5.7</td>
       <td>1.3</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>310.1</td>
+      <td>420.2</td>
+      <td>27.1</td>
+      <td>9.98</td>
+      <td>7.8</td>
       <td>5.9</td>
-      <td>11.4</td>
-      <td>2.9</td>
-      <td>1.8</td>
+      <td>1.3</td>
+      <td>-2.5</td>
+      <td>-5.8</td>
+      <td>2.3</td>
+      <td>-3.4</td>
+      <td>3.2</td>
+      <td>421.0</td>
+      <td>27.1</td>
+      <td>NaN</td>
+      <td>0.9</td>
+      <td>0.2</td>
+      <td>3.1</td>
+      <td>0.8</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>391.8</td>
+      <td>5.8</td>
+      <td>2.7</td>
       <td>0.4</td>
+      <td>0.7</td>
+      <td>0.1</td>
     </tr>
     <tr>
       <th>15</th>
@@ -747,31 +747,31 @@
       <td>2023-12-16T06:04Z</td>
       <td>2023-12-16T06:04Z</td>
       <td>2023-12-16T23:03Z</td>
-      <td>0.9676</td>
-      <td>6.71</td>
-      <td>-1.94</td>
+      <td>0.9677</td>
+      <td>7.12</td>
+      <td>-5.15</td>
       <td>16.98</td>
-      <td>14.1</td>
-      <td>11.1</td>
-      <td>1.5</td>
-      <td>530.9</td>
-      <td>93.9</td>
-      <td>16.98</td>
-      <td>14.1</td>
-      <td>11.1</td>
-      <td>1.5</td>
-      <td>-4.9</td>
-      <td>-9.7</td>
-      <td>3.2</td>
-      <td>-3.1</td>
-      <td>4.9</td>
-      <td>530.9</td>
-      <td>93.9</td>
-      <td>NaN</td>
-      <td>0.9</td>
-      <td>0.2</td>
-      <td>2.0</td>
+      <td>5.9</td>
+      <td>4.6</td>
       <td>0.5</td>
+      <td>402.6</td>
+      <td>35.7</td>
+      <td>16.98</td>
+      <td>5.9</td>
+      <td>4.6</td>
+      <td>0.5</td>
+      <td>-0.8</td>
+      <td>-4.2</td>
+      <td>1.3</td>
+      <td>-3.5</td>
+      <td>1.3</td>
+      <td>402.6</td>
+      <td>35.7</td>
+      <td>NaN</td>
+      <td>0.5</td>
+      <td>0.1</td>
+      <td>1.7</td>
+      <td>0.4</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>NaN</td>
@@ -788,39 +788,39 @@
       <td>2023-12-15T12:19Z</td>
       <td>2023-12-15T22:21Z</td>
       <td>2023-12-16T05:52Z</td>
-      <td>0.9676</td>
-      <td>6.70</td>
-      <td>-1.90</td>
+      <td>0.9677</td>
+      <td>7.12</td>
+      <td>-5.12</td>
       <td>17.55</td>
-      <td>15.9</td>
-      <td>10.9</td>
-      <td>2.5</td>
-      <td>377.9</td>
-      <td>46.1</td>
+      <td>6.2</td>
+      <td>4.4</td>
+      <td>0.6</td>
+      <td>425.8</td>
+      <td>48.3</td>
       <td>7.52</td>
-      <td>15.1</td>
-      <td>11.4</td>
-      <td>2.5</td>
-      <td>4.1</td>
+      <td>6.2</td>
+      <td>5.0</td>
+      <td>0.6</td>
+      <td>0.4</td>
       <td>-3.6</td>
-      <td>4.0</td>
-      <td>-6.9</td>
-      <td>3.6</td>
-      <td>448.1</td>
-      <td>45.0</td>
+      <td>1.8</td>
+      <td>-3.8</td>
+      <td>1.4</td>
+      <td>423.7</td>
+      <td>44.7</td>
       <td>NaN</td>
-      <td>0.8</td>
-      <td>0.2</td>
-      <td>2.5</td>
-      <td>0.9</td>
+      <td>0.6</td>
+      <td>0.1</td>
+      <td>1.9</td>
+      <td>0.6</td>
       <td>0.0</td>
       <td>0.0</td>
-      <td>358.5</td>
-      <td>20.4</td>
-      <td>9.8</td>
-      <td>3.6</td>
-      <td>2.1</td>
+      <td>429.3</td>
+      <td>53.4</td>
+      <td>1.7</td>
       <td>0.7</td>
+      <td>0.5</td>
+      <td>0.1</td>
     </tr>
     <tr>
       <th>19</th>
@@ -1075,39 +1075,39 @@
       <td>2023-12-01T08:24Z</td>
       <td>2023-12-02T00:08Z</td>
       <td>2023-12-03T02:06Z</td>
-      <td>0.9670</td>
-      <td>6.46</td>
-      <td>-0.08</td>
+      <td>0.9679</td>
+      <td>6.88</td>
+      <td>-3.64</td>
       <td>41.70</td>
-      <td>28.6</td>
-      <td>14.6</td>
-      <td>3.9</td>
-      <td>517.0</td>
-      <td>88.5</td>
+      <td>9.5</td>
+      <td>6.0</td>
+      <td>1.2</td>
+      <td>363.5</td>
+      <td>21.1</td>
       <td>25.97</td>
-      <td>15.8</td>
-      <td>12.6</td>
-      <td>2.2</td>
-      <td>2.7</td>
-      <td>-11.5</td>
+      <td>6.6</td>
       <td>5.5</td>
-      <td>9.3</td>
-      <td>4.1</td>
-      <td>490.1</td>
-      <td>69.8</td>
-      <td>NaN</td>
-      <td>0.9</td>
-      <td>0.3</td>
+      <td>0.5</td>
       <td>2.2</td>
-      <td>0.7</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>590.7</td>
-      <td>92.4</td>
+      <td>-5.4</td>
       <td>2.3</td>
-      <td>1.0</td>
-      <td>1.4</td>
-      <td>0.8</td>
+      <td>0.3</td>
+      <td>2.6</td>
+      <td>368.7</td>
+      <td>21.9</td>
+      <td>10.5</td>
+      <td>1.7</td>
+      <td>0.4</td>
+      <td>7.3</td>
+      <td>2.0</td>
+      <td>47474.1</td>
+      <td>9447.1</td>
+      <td>354.9</td>
+      <td>16.5</td>
+      <td>9.2</td>
+      <td>2.6</td>
+      <td>2.0</td>
+      <td>0.7</td>
     </tr>
     <tr>
       <th>26</th>
@@ -1239,33 +1239,33 @@
       <td>2023-11-20T15:23Z</td>
       <td>2023-11-20T15:23Z</td>
       <td>2023-11-21T15:20Z</td>
-      <td>0.9662</td>
-      <td>6.21</td>
-      <td>1.41</td>
+      <td>0.9677</td>
+      <td>6.69</td>
+      <td>-2.02</td>
       <td>23.95</td>
-      <td>13.7</td>
-      <td>9.7</td>
-      <td>1.8</td>
-      <td>359.2</td>
-      <td>18.5</td>
+      <td>21.7</td>
+      <td>8.9</td>
+      <td>4.0</td>
+      <td>482.5</td>
+      <td>20.0</td>
       <td>23.95</td>
-      <td>13.7</td>
-      <td>9.7</td>
-      <td>1.8</td>
-      <td>3.9</td>
-      <td>-6.3</td>
-      <td>4.1</td>
-      <td>-3.9</td>
-      <td>5.1</td>
-      <td>359.2</td>
-      <td>18.5</td>
-      <td>NaN</td>
-      <td>1.1</td>
-      <td>0.2</td>
-      <td>4.9</td>
-      <td>1.2</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>21.7</td>
+      <td>8.9</td>
+      <td>4.0</td>
+      <td>0.6</td>
+      <td>-16.1</td>
+      <td>5.5</td>
+      <td>-4.8</td>
+      <td>4.6</td>
+      <td>482.5</td>
+      <td>20.0</td>
+      <td>-21.0</td>
+      <td>4.3</td>
+      <td>2.0</td>
+      <td>11.0</td>
+      <td>5.0</td>
+      <td>80741.5</td>
+      <td>55653.0</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1321,39 +1321,39 @@
       <td>2023-11-13T13:42Z</td>
       <td>2023-11-13T19:33Z</td>
       <td>2023-11-14T08:27Z</td>
-      <td>0.9657</td>
-      <td>6.03</td>
-      <td>2.29</td>
+      <td>0.9674</td>
+      <td>6.56</td>
+      <td>-1.03</td>
       <td>18.75</td>
-      <td>16.2</td>
-      <td>13.4</td>
-      <td>1.8</td>
-      <td>409.7</td>
-      <td>29.2</td>
+      <td>4.2</td>
+      <td>3.4</td>
+      <td>0.3</td>
+      <td>388.7</td>
+      <td>19.7</td>
       <td>12.90</td>
-      <td>16.2</td>
-      <td>13.8</td>
+      <td>4.2</td>
+      <td>3.4</td>
+      <td>0.3</td>
+      <td>-0.5</td>
+      <td>-3.2</td>
+      <td>1.3</td>
+      <td>0.6</td>
       <td>1.6</td>
-      <td>0.2</td>
-      <td>-7.3</td>
-      <td>5.9</td>
-      <td>2.0</td>
-      <td>1.8</td>
-      <td>402.7</td>
-      <td>26.0</td>
-      <td>NaN</td>
+      <td>378.8</td>
+      <td>10.1</td>
+      <td>7.5</td>
+      <td>0.8</td>
+      <td>0.1</td>
+      <td>3.5</td>
+      <td>0.5</td>
+      <td>47804.4</td>
+      <td>8162.3</td>
+      <td>410.4</td>
+      <td>18.2</td>
+      <td>3.4</td>
+      <td>0.5</td>
       <td>1.0</td>
       <td>0.2</td>
-      <td>3.7</td>
-      <td>0.9</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>436.7</td>
-      <td>24.7</td>
-      <td>5.4</td>
-      <td>1.3</td>
-      <td>1.7</td>
-      <td>0.4</td>
     </tr>
     <tr>
       <th>32</th>
@@ -1485,39 +1485,39 @@
       <td>2023-11-05T12:29Z</td>
       <td>2023-11-05T13:25Z</td>
       <td>2023-11-05T17:56Z</td>
-      <td>0.9650</td>
-      <td>5.78</td>
-      <td>3.30</td>
+      <td>0.9669</td>
+      <td>6.38</td>
+      <td>0.25</td>
       <td>5.45</td>
-      <td>34.2</td>
-      <td>26.4</td>
-      <td>3.2</td>
-      <td>860.9</td>
-      <td>115.3</td>
-      <td>4.52</td>
-      <td>34.2</td>
-      <td>26.6</td>
-      <td>3.2</td>
-      <td>-9.4</td>
-      <td>-29.6</td>
-      <td>16.1</td>
-      <td>-5.9</td>
-      <td>15.5</td>
-      <td>919.0</td>
-      <td>87.5</td>
-      <td>NaN</td>
-      <td>9.0</td>
-      <td>2.5</td>
-      <td>6.3</td>
-      <td>1.2</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>749.0</td>
-      <td>71.7</td>
-      <td>4.1</td>
-      <td>0.7</td>
-      <td>3.7</td>
+      <td>5.2</td>
+      <td>4.6</td>
       <td>0.4</td>
+      <td>398.3</td>
+      <td>8.0</td>
+      <td>4.52</td>
+      <td>5.2</td>
+      <td>4.6</td>
+      <td>0.5</td>
+      <td>-2.8</td>
+      <td>-4.9</td>
+      <td>1.2</td>
+      <td>-1.9</td>
+      <td>1.7</td>
+      <td>398.3</td>
+      <td>8.5</td>
+      <td>8.0</td>
+      <td>1.0</td>
+      <td>0.1</td>
+      <td>3.7</td>
+      <td>0.3</td>
+      <td>53479.0</td>
+      <td>8683.2</td>
+      <td>398.2</td>
+      <td>5.0</td>
+      <td>3.9</td>
+      <td>0.3</td>
+      <td>1.0</td>
+      <td>0.1</td>
     </tr>
     <tr>
       <th>36</th>
@@ -1608,39 +1608,39 @@
       <td>2023-11-05T03:40Z</td>
       <td>2023-11-05T04:42Z</td>
       <td>2023-11-05T12:28Z</td>
-      <td>0.9649</td>
-      <td>5.76</td>
-      <td>3.34</td>
+      <td>0.9668</td>
+      <td>6.37</td>
+      <td>0.30</td>
       <td>8.80</td>
-      <td>23.3</td>
-      <td>18.2</td>
-      <td>3.1</td>
-      <td>413.9</td>
-      <td>26.7</td>
+      <td>5.2</td>
+      <td>4.4</td>
+      <td>0.4</td>
+      <td>414.8</td>
+      <td>11.4</td>
       <td>7.77</td>
-      <td>23.3</td>
-      <td>19.0</td>
-      <td>2.0</td>
-      <td>-13.4</td>
-      <td>-20.6</td>
-      <td>3.7</td>
-      <td>9.8</td>
-      <td>6.3</td>
-      <td>419.3</td>
-      <td>23.0</td>
-      <td>NaN</td>
-      <td>1.8</td>
-      <td>0.3</td>
-      <td>6.2</td>
+      <td>5.2</td>
+      <td>4.4</td>
+      <td>0.4</td>
+      <td>0.2</td>
+      <td>-3.3</td>
+      <td>1.5</td>
+      <td>-1.7</td>
+      <td>2.9</td>
+      <td>413.7</td>
+      <td>11.5</td>
+      <td>17.5</td>
+      <td>1.1</td>
+      <td>0.2</td>
+      <td>3.8</td>
+      <td>0.6</td>
+      <td>58105.2</td>
+      <td>11856.2</td>
+      <td>423.3</td>
+      <td>5.6</td>
+      <td>3.9</td>
+      <td>0.2</td>
       <td>1.2</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>370.5</td>
-      <td>8.1</td>
-      <td>10.1</td>
-      <td>1.4</td>
-      <td>2.3</td>
-      <td>0.3</td>
     </tr>
     <tr>
       <th>39</th>
@@ -1772,39 +1772,39 @@
       <td>2023-11-04T00:20Z</td>
       <td>2023-11-04T04:00Z</td>
       <td>2023-11-04T12:06Z</td>
-      <td>0.9648</td>
-      <td>5.73</td>
-      <td>3.46</td>
+      <td>0.9668</td>
+      <td>6.35</td>
+      <td>0.44</td>
       <td>11.77</td>
-      <td>14.3</td>
-      <td>9.9</td>
-      <td>2.6</td>
-      <td>362.3</td>
-      <td>13.9</td>
-      <td>8.10</td>
-      <td>14.3</td>
-      <td>11.0</td>
-      <td>2.3</td>
-      <td>-6.7</td>
-      <td>-11.4</td>
-      <td>2.8</td>
-      <td>-0.3</td>
-      <td>3.9</td>
-      <td>356.9</td>
-      <td>10.4</td>
-      <td>9.3</td>
-      <td>1.6</td>
+      <td>5.3</td>
+      <td>4.3</td>
       <td>0.5</td>
-      <td>7.6</td>
-      <td>2.5</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>374.0</td>
-      <td>13.1</td>
-      <td>4.6</td>
-      <td>0.8</td>
-      <td>1.1</td>
+      <td>437.5</td>
+      <td>14.0</td>
+      <td>8.10</td>
+      <td>5.3</td>
+      <td>4.3</td>
+      <td>0.5</td>
       <td>0.2</td>
+      <td>-4.0</td>
+      <td>2.3</td>
+      <td>-2.7</td>
+      <td>1.1</td>
+      <td>432.2</td>
+      <td>12.6</td>
+      <td>26.0</td>
+      <td>1.2</td>
+      <td>0.3</td>
+      <td>3.9</td>
+      <td>0.7</td>
+      <td>78087.4</td>
+      <td>12165.9</td>
+      <td>449.4</td>
+      <td>8.8</td>
+      <td>4.5</td>
+      <td>0.3</td>
+      <td>1.5</td>
+      <td>0.1</td>
     </tr>
     <tr>
       <th>43</th>
@@ -1936,33 +1936,33 @@
       <td>2023-10-18T13:23Z</td>
       <td>2023-10-18T13:23Z</td>
       <td>2023-10-19T01:40Z</td>
-      <td>0.9632</td>
-      <td>5.04</td>
-      <td>5.23</td>
+      <td>0.9654</td>
+      <td>5.88</td>
+      <td>2.82</td>
       <td>12.28</td>
-      <td>15.1</td>
-      <td>10.2</td>
-      <td>1.8</td>
-      <td>327.4</td>
-      <td>12.1</td>
+      <td>5.0</td>
+      <td>3.9</td>
+      <td>0.6</td>
+      <td>679.4</td>
+      <td>32.0</td>
       <td>12.28</td>
-      <td>15.1</td>
-      <td>10.2</td>
+      <td>5.0</td>
+      <td>3.9</td>
+      <td>0.6</td>
+      <td>0.6</td>
+      <td>-4.1</td>
+      <td>1.9</td>
+      <td>0.5</td>
       <td>1.8</td>
-      <td>-2.4</td>
-      <td>-14.9</td>
-      <td>5.9</td>
-      <td>-6.5</td>
-      <td>3.4</td>
-      <td>327.4</td>
-      <td>12.1</td>
-      <td>NaN</td>
-      <td>1.1</td>
+      <td>679.4</td>
+      <td>32.0</td>
+      <td>-15.0</td>
+      <td>1.5</td>
+      <td>0.2</td>
+      <td>2.0</td>
       <td>0.3</td>
-      <td>6.1</td>
-      <td>2.1</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>172774.4</td>
+      <td>27632.5</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -2305,39 +2305,39 @@
       <td>2023-09-24T17:39Z</td>
       <td>2023-09-25T03:30Z</td>
       <td>2023-09-26T06:26Z</td>
-      <td>0.9607</td>
-      <td>3.68</td>
-      <td>6.90</td>
+      <td>0.9627</td>
+      <td>4.78</td>
+      <td>5.65</td>
       <td>36.78</td>
-      <td>33.0</td>
-      <td>21.1</td>
-      <td>5.8</td>
-      <td>497.0</td>
-      <td>76.2</td>
+      <td>23.1</td>
+      <td>6.2</td>
+      <td>5.3</td>
+      <td>486.8</td>
+      <td>49.8</td>
       <td>26.93</td>
-      <td>33.0</td>
-      <td>20.5</td>
-      <td>6.1</td>
-      <td>11.3</td>
-      <td>-13.2</td>
-      <td>11.5</td>
-      <td>-9.0</td>
-      <td>9.9</td>
-      <td>454.3</td>
-      <td>36.2</td>
-      <td>NaN</td>
-      <td>0.9</td>
-      <td>0.5</td>
-      <td>2.7</td>
-      <td>1.2</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>535.0</td>
-      <td>82.0</td>
-      <td>4.1</td>
+      <td>6.2</td>
+      <td>3.6</td>
+      <td>0.8</td>
+      <td>0.1</td>
+      <td>-3.5</td>
+      <td>1.5</td>
+      <td>2.0</td>
+      <td>1.5</td>
+      <td>502.3</td>
+      <td>34.4</td>
+      <td>52.0</td>
       <td>1.6</td>
-      <td>1.9</td>
-      <td>0.7</td>
+      <td>0.3</td>
+      <td>3.8</td>
+      <td>0.6</td>
+      <td>87892.8</td>
+      <td>26177.6</td>
+      <td>444.5</td>
+      <td>60.0</td>
+      <td>6.6</td>
+      <td>3.5</td>
+      <td>2.0</td>
+      <td>0.8</td>
     </tr>
     <tr>
       <th>56</th>
@@ -2592,33 +2592,33 @@
       <td>2023-09-19T00:52Z</td>
       <td>2023-09-19T00:52Z</td>
       <td>2023-09-19T16:32Z</td>
-      <td>0.9602</td>
-      <td>3.25</td>
-      <td>7.14</td>
+      <td>0.9620</td>
+      <td>4.39</td>
+      <td>6.21</td>
       <td>15.67</td>
-      <td>14.5</td>
-      <td>9.7</td>
-      <td>1.8</td>
-      <td>512.1</td>
-      <td>45.9</td>
+      <td>5.0</td>
+      <td>3.7</td>
+      <td>1.0</td>
+      <td>348.8</td>
+      <td>13.6</td>
       <td>15.67</td>
-      <td>14.5</td>
-      <td>9.7</td>
-      <td>1.8</td>
-      <td>-3.8</td>
-      <td>-9.5</td>
-      <td>3.3</td>
-      <td>-7.7</td>
+      <td>5.0</td>
+      <td>3.7</td>
+      <td>1.0</td>
+      <td>1.7</td>
+      <td>-3.1</td>
       <td>2.0</td>
-      <td>512.1</td>
-      <td>45.9</td>
-      <td>NaN</td>
-      <td>1.4</td>
-      <td>0.2</td>
-      <td>3.3</td>
-      <td>0.6</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>-0.9</td>
+      <td>1.1</td>
+      <td>348.8</td>
+      <td>13.6</td>
+      <td>23.5</td>
+      <td>1.6</td>
+      <td>1.0</td>
+      <td>7.5</td>
+      <td>3.9</td>
+      <td>26998.9</td>
+      <td>7386.6</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -2674,39 +2674,39 @@
       <td>2023-09-18T09:04Z</td>
       <td>2023-09-18T10:57Z</td>
       <td>2023-09-18T15:00Z</td>
-      <td>0.9601</td>
-      <td>3.21</td>
-      <td>7.15</td>
+      <td>0.9619</td>
+      <td>4.35</td>
+      <td>6.26</td>
       <td>5.93</td>
-      <td>24.9</td>
-      <td>21.4</td>
-      <td>1.9</td>
-      <td>596.0</td>
-      <td>24.2</td>
-      <td>4.05</td>
-      <td>23.8</td>
-      <td>20.7</td>
-      <td>1.6</td>
-      <td>-11.9</td>
-      <td>-20.4</td>
-      <td>5.5</td>
-      <td>14.6</td>
+      <td>6.9</td>
       <td>4.8</td>
-      <td>620.2</td>
-      <td>0.0</td>
-      <td>NaN</td>
       <td>1.1</td>
-      <td>0.0</td>
-      <td>1.7</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>571.7</td>
-      <td>0.0</td>
-      <td>2.5</td>
-      <td>0.0</td>
-      <td>1.4</td>
-      <td>0.0</td>
+      <td>446.6</td>
+      <td>10.3</td>
+      <td>4.05</td>
+      <td>6.9</td>
+      <td>4.8</td>
+      <td>0.9</td>
+      <td>1.6</td>
+      <td>-3.6</td>
+      <td>2.0</td>
+      <td>-2.9</td>
+      <td>2.1</td>
+      <td>441.1</td>
+      <td>4.1</td>
+      <td>10.0</td>
+      <td>4.3</td>
+      <td>0.9</td>
+      <td>13.2</td>
+      <td>2.7</td>
+      <td>72933.3</td>
+      <td>12607.2</td>
+      <td>458.6</td>
+      <td>9.5</td>
+      <td>10.6</td>
+      <td>0.9</td>
+      <td>3.7</td>
+      <td>0.3</td>
     </tr>
     <tr>
       <th>65</th>
@@ -2838,39 +2838,39 @@
       <td>2023-09-12T07:05Z</td>
       <td>2023-09-12T09:55Z</td>
       <td>2023-09-12T19:27Z</td>
-      <td>0.9595</td>
-      <td>2.75</td>
-      <td>7.29</td>
+      <td>0.9612</td>
+      <td>3.93</td>
+      <td>6.69</td>
       <td>12.37</td>
-      <td>23.9</td>
-      <td>14.6</td>
-      <td>2.7</td>
-      <td>382.1</td>
-      <td>31.0</td>
-      <td>9.53</td>
-      <td>19.1</td>
-      <td>14.1</td>
-      <td>1.8</td>
-      <td>-4.1</td>
-      <td>-13.2</td>
-      <td>2.8</td>
-      <td>-12.5</td>
-      <td>1.7</td>
-      <td>370.0</td>
-      <td>20.4</td>
-      <td>NaN</td>
-      <td>1.1</td>
+      <td>7.7</td>
+      <td>6.6</td>
       <td>0.4</td>
-      <td>5.0</td>
-      <td>2.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>415.6</td>
-      <td>30.5</td>
-      <td>13.0</td>
-      <td>3.6</td>
-      <td>3.9</td>
-      <td>1.3</td>
+      <td>386.4</td>
+      <td>12.4</td>
+      <td>9.53</td>
+      <td>7.7</td>
+      <td>6.5</td>
+      <td>0.5</td>
+      <td>-2.1</td>
+      <td>-6.0</td>
+      <td>3.5</td>
+      <td>-3.0</td>
+      <td>2.2</td>
+      <td>388.7</td>
+      <td>12.0</td>
+      <td>-19.0</td>
+      <td>0.9</td>
+      <td>0.3</td>
+      <td>3.7</td>
+      <td>1.1</td>
+      <td>37594.4</td>
+      <td>11157.6</td>
+      <td>378.7</td>
+      <td>10.3</td>
+      <td>3.1</td>
+      <td>0.5</td>
+      <td>0.7</td>
+      <td>0.1</td>
     </tr>
     <tr>
       <th>69</th>
@@ -3535,39 +3535,39 @@
       <td>2023-08-04T22:55Z</td>
       <td>2023-08-05T01:54Z</td>
       <td>2023-08-05T05:14Z</td>
-      <td>0.9574</td>
-      <td>-0.70</td>
-      <td>6.11</td>
+      <td>0.9576</td>
+      <td>0.03</td>
+      <td>6.62</td>
       <td>6.32</td>
-      <td>23.8</td>
-      <td>16.1</td>
-      <td>3.0</td>
-      <td>398.4</td>
-      <td>29.6</td>
+      <td>6.3</td>
+      <td>5.8</td>
+      <td>0.3</td>
+      <td>389.5</td>
+      <td>10.6</td>
       <td>3.33</td>
-      <td>20.0</td>
-      <td>14.9</td>
-      <td>2.7</td>
-      <td>-10.7</td>
-      <td>-17.0</td>
-      <td>3.6</td>
-      <td>-7.0</td>
-      <td>5.4</td>
-      <td>399.7</td>
-      <td>24.4</td>
-      <td>-20.4</td>
-      <td>1.6</td>
-      <td>0.3</td>
       <td>6.2</td>
-      <td>1.5</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>394.2</td>
-      <td>42.3</td>
-      <td>5.4</td>
-      <td>1.4</td>
-      <td>1.4</td>
+      <td>5.7</td>
       <td>0.3</td>
+      <td>-1.3</td>
+      <td>-4.0</td>
+      <td>1.6</td>
+      <td>3.4</td>
+      <td>1.8</td>
+      <td>386.9</td>
+      <td>6.4</td>
+      <td>-9.0</td>
+      <td>0.8</td>
+      <td>0.2</td>
+      <td>3.0</td>
+      <td>0.6</td>
+      <td>56629.0</td>
+      <td>9780.2</td>
+      <td>392.3</td>
+      <td>13.3</td>
+      <td>2.7</td>
+      <td>0.3</td>
+      <td>0.7</td>
+      <td>0.1</td>
     </tr>
     <tr>
       <th>86</th>
@@ -3617,39 +3617,39 @@
       <td>2023-08-01T09:23Z</td>
       <td>2023-08-01T22:14Z</td>
       <td>2023-08-02T08:40Z</td>
-      <td>0.9573</td>
-      <td>-1.01</td>
-      <td>5.86</td>
+      <td>0.9575</td>
+      <td>-0.30</td>
+      <td>6.41</td>
       <td>23.28</td>
-      <td>14.9</td>
-      <td>11.5</td>
-      <td>2.0</td>
-      <td>370.0</td>
-      <td>32.2</td>
-      <td>10.43</td>
-      <td>14.9</td>
-      <td>12.6</td>
-      <td>2.0</td>
-      <td>-8.4</td>
-      <td>-12.6</td>
-      <td>3.0</td>
-      <td>3.8</td>
-      <td>6.2</td>
-      <td>367.5</td>
-      <td>18.6</td>
-      <td>NaN</td>
+      <td>8.0</td>
+      <td>6.3</td>
       <td>1.1</td>
-      <td>0.5</td>
-      <td>5.2</td>
-      <td>2.4</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>373.7</td>
-      <td>45.1</td>
-      <td>5.5</td>
+      <td>390.3</td>
+      <td>16.6</td>
+      <td>10.43</td>
+      <td>7.9</td>
+      <td>6.4</td>
+      <td>0.8</td>
+      <td>-2.1</td>
+      <td>-5.9</td>
       <td>1.5</td>
-      <td>1.3</td>
-      <td>0.3</td>
+      <td>-2.8</td>
+      <td>2.3</td>
+      <td>386.0</td>
+      <td>11.8</td>
+      <td>22.0</td>
+      <td>3.0</td>
+      <td>0.9</td>
+      <td>12.0</td>
+      <td>3.2</td>
+      <td>41636.6</td>
+      <td>14123.5</td>
+      <td>393.9</td>
+      <td>18.9</td>
+      <td>8.5</td>
+      <td>3.0</td>
+      <td>2.2</td>
+      <td>0.8</td>
     </tr>
     <tr>
       <th>88</th>
@@ -4068,39 +4068,39 @@
       <td>2023-07-16T22:34Z</td>
       <td>2023-07-17T00:32Z</td>
       <td>2023-07-17T09:11Z</td>
-      <td>0.9574</td>
-      <td>-2.60</td>
-      <td>4.33</td>
+      <td>0.9573</td>
+      <td>-2.18</td>
+      <td>4.80</td>
       <td>10.62</td>
-      <td>12.3</td>
-      <td>7.6</td>
-      <td>1.7</td>
-      <td>448.4</td>
-      <td>0.0</td>
+      <td>14.4</td>
+      <td>8.1</td>
+      <td>2.9</td>
+      <td>380.2</td>
+      <td>27.5</td>
       <td>8.65</td>
-      <td>8.9</td>
-      <td>7.1</td>
-      <td>1.3</td>
-      <td>-1.5</td>
-      <td>-7.8</td>
-      <td>3.4</td>
-      <td>2.0</td>
+      <td>14.4</td>
+      <td>8.6</td>
+      <td>3.0</td>
+      <td>-0.2</td>
+      <td>-13.4</td>
+      <td>5.9</td>
+      <td>4.2</td>
+      <td>4.5</td>
+      <td>384.7</td>
+      <td>28.6</td>
+      <td>-24.0</td>
+      <td>2.4</td>
+      <td>0.6</td>
+      <td>9.6</td>
       <td>2.1</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>448.4</td>
-      <td>0.0</td>
-      <td>1.4</td>
-      <td>0.0</td>
-      <td>0.5</td>
-      <td>0.0</td>
+      <td>95227.7</td>
+      <td>36043.3</td>
+      <td>360.4</td>
+      <td>3.3</td>
+      <td>9.0</td>
+      <td>0.8</td>
+      <td>2.0</td>
+      <td>0.2</td>
     </tr>
     <tr>
       <th>99</th>
@@ -4109,33 +4109,33 @@
       <td>2023-07-16T12:50Z</td>
       <td>2023-07-16T12:50Z</td>
       <td>2023-07-16T18:54Z</td>
-      <td>0.9574</td>
-      <td>-2.65</td>
-      <td>4.28</td>
+      <td>0.9573</td>
+      <td>-2.23</td>
+      <td>4.74</td>
       <td>6.07</td>
-      <td>20.9</td>
-      <td>17.8</td>
-      <td>1.8</td>
-      <td>452.6</td>
-      <td>36.5</td>
+      <td>11.3</td>
+      <td>7.8</td>
+      <td>1.9</td>
+      <td>371.8</td>
+      <td>12.2</td>
       <td>6.07</td>
-      <td>20.9</td>
-      <td>17.8</td>
-      <td>1.8</td>
-      <td>-0.9</td>
-      <td>-16.8</td>
-      <td>9.8</td>
-      <td>9.5</td>
-      <td>3.9</td>
-      <td>452.6</td>
-      <td>36.5</td>
-      <td>NaN</td>
-      <td>1.0</td>
-      <td>0.2</td>
-      <td>2.9</td>
-      <td>0.8</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>11.3</td>
+      <td>7.8</td>
+      <td>1.9</td>
+      <td>-1.2</td>
+      <td>-6.2</td>
+      <td>3.8</td>
+      <td>4.1</td>
+      <td>2.3</td>
+      <td>371.8</td>
+      <td>12.2</td>
+      <td>0.5</td>
+      <td>2.7</td>
+      <td>0.6</td>
+      <td>11.7</td>
+      <td>2.0</td>
+      <td>106473.1</td>
+      <td>34851.6</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -4192,38 +4192,38 @@
       <td>2023-07-14T14:22Z</td>
       <td>2023-07-16T12:48Z</td>
       <td>0.9574</td>
-      <td>-2.84</td>
-      <td>4.06</td>
+      <td>-2.44</td>
+      <td>4.53</td>
       <td>50.02</td>
-      <td>18.5</td>
-      <td>9.8</td>
-      <td>2.6</td>
-      <td>403.8</td>
-      <td>84.7</td>
+      <td>16.0</td>
+      <td>5.7</td>
+      <td>1.9</td>
+      <td>381.8</td>
+      <td>30.6</td>
       <td>46.43</td>
-      <td>18.5</td>
-      <td>9.5</td>
-      <td>2.4</td>
-      <td>-2.1</td>
-      <td>-10.4</td>
-      <td>2.7</td>
-      <td>6.5</td>
-      <td>2.9</td>
-      <td>379.7</td>
-      <td>73.4</td>
-      <td>NaN</td>
-      <td>0.5</td>
-      <td>0.2</td>
-      <td>2.4</td>
-      <td>0.8</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>481.2</td>
-      <td>71.2</td>
-      <td>3.5</td>
+      <td>16.0</td>
+      <td>5.7</td>
+      <td>1.9</td>
+      <td>-0.4</td>
+      <td>-8.8</td>
+      <td>2.6</td>
       <td>1.4</td>
+      <td>2.9</td>
+      <td>376.2</td>
+      <td>23.3</td>
+      <td>26.0</td>
       <td>1.3</td>
+      <td>0.8</td>
+      <td>5.8</td>
+      <td>3.5</td>
+      <td>58887.3</td>
+      <td>28668.2</td>
+      <td>454.5</td>
+      <td>17.9</td>
+      <td>1.4</td>
       <td>0.4</td>
+      <td>0.5</td>
+      <td>0.1</td>
     </tr>
     <tr>
       <th>102</th>
@@ -4314,39 +4314,39 @@
       <td>2023-07-07T02:49Z</td>
       <td>2023-07-07T03:39Z</td>
       <td>2023-07-07T12:26Z</td>
-      <td>0.9577</td>
-      <td>-3.58</td>
-      <td>3.19</td>
+      <td>0.9576</td>
+      <td>-3.38</td>
+      <td>3.47</td>
       <td>9.62</td>
-      <td>8.1</td>
-      <td>6.3</td>
-      <td>1.1</td>
-      <td>475.2</td>
-      <td>50.1</td>
+      <td>5.8</td>
+      <td>5.1</td>
+      <td>0.4</td>
+      <td>358.2</td>
+      <td>10.4</td>
       <td>8.78</td>
-      <td>8.1</td>
-      <td>6.2</td>
-      <td>1.1</td>
-      <td>-4.2</td>
-      <td>-7.6</td>
-      <td>1.5</td>
-      <td>-2.6</td>
-      <td>3.0</td>
-      <td>475.2</td>
-      <td>50.1</td>
-      <td>NaN</td>
+      <td>5.8</td>
+      <td>5.1</td>
+      <td>0.4</td>
+      <td>-0.7</td>
+      <td>-4.7</td>
+      <td>2.3</td>
+      <td>-3.7</td>
       <td>1.4</td>
+      <td>358.5</td>
+      <td>10.8</td>
+      <td>4.5</td>
+      <td>1.2</td>
       <td>0.1</td>
-      <td>3.8</td>
-      <td>0.8</td>
+      <td>5.5</td>
+      <td>0.4</td>
+      <td>44997.2</td>
+      <td>6462.0</td>
+      <td>354.5</td>
+      <td>2.6</td>
+      <td>5.4</td>
+      <td>0.1</td>
+      <td>1.1</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
     </tr>
     <tr>
       <th>105</th>
@@ -4766,38 +4766,38 @@
       <td>2023-06-04T16:32Z</td>
       <td>2023-06-05T07:43Z</td>
       <td>0.9597</td>
-      <td>-6.72</td>
-      <td>-1.07</td>
+      <td>-6.73</td>
+      <td>-1.06</td>
       <td>17.65</td>
-      <td>12.5</td>
-      <td>8.9</td>
+      <td>10.7</td>
+      <td>8.4</td>
       <td>1.0</td>
-      <td>383.7</td>
-      <td>30.3</td>
+      <td>379.9</td>
+      <td>11.3</td>
       <td>15.18</td>
-      <td>9.5</td>
-      <td>8.6</td>
-      <td>0.5</td>
-      <td>-0.7</td>
+      <td>9.6</td>
+      <td>8.3</td>
+      <td>1.0</td>
+      <td>-0.2</td>
+      <td>-6.0</td>
+      <td>1.9</td>
       <td>-6.7</td>
-      <td>1.8</td>
-      <td>-7.0</td>
-      <td>1.2</td>
-      <td>385.6</td>
-      <td>30.4</td>
-      <td>NaN</td>
-      <td>0.8</td>
-      <td>0.2</td>
-      <td>3.4</td>
-      <td>0.8</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>361.4</td>
-      <td>17.3</td>
-      <td>4.2</td>
-      <td>1.5</td>
-      <td>0.9</td>
+      <td>1.6</td>
+      <td>378.7</td>
+      <td>11.0</td>
+      <td>2.0</td>
+      <td>1.7</td>
       <td>0.4</td>
+      <td>7.1</td>
+      <td>1.5</td>
+      <td>71119.9</td>
+      <td>19998.9</td>
+      <td>387.7</td>
+      <td>9.9</td>
+      <td>8.7</td>
+      <td>0.8</td>
+      <td>2.2</td>
+      <td>0.3</td>
     </tr>
     <tr>
       <th>116</th>
@@ -21698,7 +21698,7 @@
       <td>2015-04-09T09:09Z</td>
       <td>2015-04-09T23:02Z</td>
       <td>2015-04-11T09:36Z</td>
-      <td>0.9905</td>
+      <td>0.9906</td>
       <td>0.06</td>
       <td>-5.97</td>
       <td>48.45</td>
@@ -25019,7 +25019,7 @@
       <td>2014-02-19T03:09Z</td>
       <td>2014-02-19T03:09Z</td>
       <td>2014-02-20T02:38Z</td>
-      <td>0.9795</td>
+      <td>0.9796</td>
       <td>-0.24</td>
       <td>-6.99</td>
       <td>23.48</td>
@@ -49865,7 +49865,7 @@
       <td>2006-11-18T07:11Z</td>
       <td>2006-11-18T07:11Z</td>
       <td>2006-11-20T04:47Z</td>
-      <td>0.9791</td>
+      <td>0.9790</td>
       <td>-0.24</td>
       <td>2.53</td>
       <td>45.60</td>
@@ -52121,7 +52121,7 @@
       <td>2004-09-14T17:59Z</td>
       <td>2004-09-15T14:23Z</td>
       <td>0.9964</td>
-      <td>0.25</td>
+      <td>0.24</td>
       <td>7.19</td>
       <td>42.68</td>
       <td>30.0</td>
@@ -65938,7 +65938,7 @@
       <td>1997-05-16T06:01Z</td>
       <td>1997-05-16T13:26Z</td>
       <td>1.0032</td>
-      <td>-0.01</td>
+      <td>-0.02</td>
       <td>-2.47</td>
       <td>7.42</td>
       <td>9.6</td>

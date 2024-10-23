@@ -6,16 +6,10 @@
 # 
 # 
 # 
-# geomagnetic storm statistics
-# 
-# solar storm statistics
-# 
-# aurora in Austria
-# 
 # science examples
 # 
 
-# In[ ]:
+# In[4]:
 
 
 import pickle
@@ -90,7 +84,7 @@ def add_logo(location):
     
 
 
-# In[9]:
+# In[5]:
 
 
 sns.set_context('talk')
@@ -110,6 +104,133 @@ add_logo([0.9,0.9,0.1,0.1])
 plt.savefig(outputdir+'test.png')
 
 
+# In[5]:
+
+
+ic=ic_pandas
+
+ic_mo_start_time_num=parse_time(ic.mo_start_time).plot_date
+
+#get indices for each target
+imes=np.where(ic.sc_insitu=='MESSENGER')[0]
+ivex=np.where(ic.sc_insitu=='VEX')[0]
+iwin=np.where(ic.sc_insitu=='Wind')[0]
+imav=np.where(ic.sc_insitu=='MAVEN')[0]
+ijun=np.where(ic.sc_insitu=='Juno')[0]
+
+ista=np.where(ic.sc_insitu=='STEREO-A')[0]
+istb=np.where(ic.sc_insitu=='STEREO-B')[0]
+ipsp=np.where(ic.sc_insitu=='PSP')[0]
+isol=np.where(ic.sc_insitu=='SolarOrbiter')[0]
+ibep=np.where(ic.sc_insitu=='BepiColombo')[0]
+iuly=np.where(ic.sc_insitu=='ULYSSES')[0]
+
+
+sns.set_context("talk")     
+sns.set_style('darkgrid')
+
+###############################################################################
+fig=plt.figure(3,figsize=(18,7),dpi=200)
+
+#########################################################################
+ax1=plt.subplot(121)
+plt.title('ICMECAT event times and distance')
+
+#markersize
+ms=5
+#alpha
+al=0.7
+
+ax1.plot_date(ic_mo_start_time_num[iuly],ic.mo_sc_heliodistance[iuly],'o',c='chocolate', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[imes],ic.mo_sc_heliodistance[imes],'o',c='coral', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ivex],ic.mo_sc_heliodistance[ivex],'o',c='orange', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[istb],ic.mo_sc_heliodistance[istb],'o',c='royalblue', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[iwin],ic.mo_sc_heliodistance[iwin],'o',c='mediumseagreen', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[imav],ic.mo_sc_heliodistance[imav],'o',c='orangered', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ista],ic.mo_sc_heliodistance[ista],'o',c='red', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ijun],ic.mo_sc_heliodistance[ijun],'o',c='black',markerfacecolor='yellow', alpha=1,ms=ms)
+
+ax1.plot_date(ic_mo_start_time_num[ipsp],ic.mo_sc_heliodistance[ipsp],'o',c='black', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[isol],ic.mo_sc_heliodistance[isol],'o',c='black',markerfacecolor='white', alpha=1.0,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ibep],ic.mo_sc_heliodistance[ibep],'o',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms)
+
+
+
+ax1.set_ylabel('Heliocentric distance $r$ [au]')
+ax1.set_ylim([0,5.7])
+ax1.set_yticks(np.arange(0,6,0.5))
+#ax1.tick_params(axis="y", labelsize=12)
+
+
+ax1.set_xlabel('Year')
+years = mdates.YearLocator(5)   # every year
+ax1.xaxis.set_major_locator(years)
+myformat = mdates.DateFormatter('%Y')
+ax1.xaxis.set_major_formatter(myformat)
+
+#ax1.tick_params(axis="x", labelsize=12)
+
+#ax1.set_xlim([datetime.datetime(2007,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=50)])
+
+ax1.set_xlim([datetime.datetime(1990,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=50)])
+
+
+
+##############################################################################
+ax3=plt.subplot(122)
+plt.title('ICMECAT mean MO magnetic field')
+ax3.set_xlabel('Heliocentric distance $r$ [au]')
+ax3.set_ylabel('$B$ [nT]')
+
+
+ax3.plot(ic.mo_sc_heliodistance[imes],ic.mo_bmean[imes],'o',c='coral', alpha=al,ms=ms,label='MESSENGER')
+ax3.plot(ic.mo_sc_heliodistance[ivex],ic.mo_bmean[ivex],'o',c='orange', alpha=al,ms=ms,label='Venus Express')
+ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c='chocolate', alpha=al,ms=ms, label='Ulysses')
+ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'o',c='orangered', alpha=al,ms=ms, label='MAVEN')
+ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c='royalblue', alpha=al,ms=ms, label='STEREO-B')
+ax3.plot(ic.mo_sc_heliodistance[ijun],ic.mo_bmean[ijun],'o', c='black',markerfacecolor='yellow', alpha=al,ms=ms, label='Juno')
+
+ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c='red', alpha=al,ms=ms, label='STEREO-A')
+ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c='mediumseagreen', alpha=al,ms=ms,label='Wind')
+ax3.plot(ic.mo_sc_heliodistance[ibep],ic.mo_bmean[ibep],'o',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms,label='BepiColombo')
+ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c='black', alpha=al,ms=ms, label='Parker Solar Probe',zorder=3)
+ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c='black', markerfacecolor='white',alpha=al,ms=ms, label='Solar Orbiter',zorder=3)
+
+
+ax3.set_xticks(np.arange(0,6,0.5))
+#ax3.tick_params(axis="x", labelsize=12)
+ax3.set_xlim([0,5.6])
+
+ax3.set_yscale('log')
+#ax3.set_ylim([0,np.max(ic.mo_bmean)+50])
+#ax3.set_yticks(np.arange(0,1000,10))
+#ax3.set_ylim([0,1000])
+#ax3.tick_params(axis="y", labelsize=12)
+
+
+ax3.legend(loc=1,fontsize=12)#, rows=2)
+
+
+#ax3.annotate('Quiet Sun',xy=(0.0065,3*1e6),xycoords='data',fontsize=annotfs,ha='left')
+#ax3.axvline(1.5,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(1.0,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(0.72,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(0.3,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(5.3,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#np.max(p_jupiter.r)
+#4,95 – 5,458 AE
+
+
+#Logo
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.89,0.92,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
+plt.tight_layout()
+plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
+
+
 # Tabellenüberschrift
 # Source Sans Pro Bold, 30 Px, Farbe: #052E37, RGB (5/46/55)
 # 2 Achsenbeschriftung
@@ -124,7 +245,7 @@ plt.savefig(outputdir+'test.png')
 # Breite: 1 Px, Farbe: #052E37, RGB (5/46/55)
 # 
 
-# In[ ]:
+# In[3]:
 
 
 sns.set_context('talk')
@@ -347,6 +468,12 @@ ax32.tick_params(axis='x', width=1)
 
 
 plt.savefig(outputdir+'geomagnetic_quick.png')
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
