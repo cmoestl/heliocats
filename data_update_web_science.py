@@ -32,7 +32,7 @@
 # #### Data:
 # 
 # - STEREO-A science data: https://spdf.gsfc.nasa.gov/pub/data/stereo/ahead/l2/impact/magplasma/1min/
-# - PSP check data availability at: https://soho.nascom.nasa.gov/solarsoft/psp/gen/data/spice/orbit/
+# - PSP check data availability at: https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min
 # - Wind plasma: https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/ 
 # - Wind MAG: https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/
 # 
@@ -41,7 +41,7 @@
 # 
 # 
 
-# In[17]:
+# In[22]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -121,7 +121,7 @@ if sys.platform =='darwin':
 print('debug_mode is set to: ',debug_mode)
 
 
-print('switches: OMNI',get_omni,' PSP',get_psp,'  SolO',get_solo,' Wind',get_wind,'  STEREO-A',get_stereoa,'  Bepi',get_bepi)
+print('switches: OMNI',get_omni,' Wind',get_wind,'  PSP',get_psp,'  SolO',get_solo,' Bepi',get_bepi,' STEREO-A',get_stereoa )
 
 ####################################################################################################################
 
@@ -382,12 +382,15 @@ if get_psp > 0:
     #hd.download_pspmag_1min(start_time,end_time,psp_path)
     #hd.download_pspplas(start_time,end_time,psp_path)
 
-    #hd.download_pspmag_1min(datetime(2023,12,1),datetime(2024,4,30),psp_path)
-    #hd.download_pspplas(datetime(2023,12,1),datetime(2024,4,30),psp_path)
-
     
+    #for debugging
     #hd.download_pspmag_1min(datetime(2024,1,1),datetime(2024,4,30),psp_path)
     #hd.download_pspplas(datetime(2024,11,1),datetime(2024,4,30),psp_path)
+
+    
+    #for loading data of the last few available months
+    hd.download_pspmag_1min(datetime(2023,12,1),datetime(2024,4,30),psp_path)
+    hd.download_pspplas(datetime(2023,12,1),datetime(2024,4,30),psp_path)
 
     print('process PSP to pickle')
     hd.create_psp_pkl(start_time,end_time,psp_file,psp_path,kernels_path)
