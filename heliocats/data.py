@@ -39,7 +39,7 @@ from bs4 import BeautifulSoup
 
 
 #MIT LICENSE
-#Copyright 2020-2024, Christian Moestl, Rachel L. Bailey, Emma E. Davies, Eva Weiler
+#Copyright 2020-2025, Christian Moestl, Rachel L. Bailey, Emma E. Davies, Eva Weiler
 #Permission is hereby granted, free of charge, to any person obtaining a copy of this 
 #software and associated documentation files (the "Software"), to deal in the Software
 #without restriction, including without limitation the rights to use, copy, modify, 
@@ -1166,7 +1166,7 @@ def save_omni_data(path,file):
     'For units and documentation see: https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2.text, the '+\
     'heliospheric position of Earth was added and is given in x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with https://github.com/cmoestl/heliocats heliocats.data.save_omni_data .'+\
-    'By C. Moestl (twitter @chrisoutofspace), A. J. Weiss. File creation date: '+\
+    'By C. Möstl, A. J. Weiss. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
     
     
@@ -1247,24 +1247,26 @@ class BepiPredict(RemoteKernelsBase):
 
 
 
-def get_positions_bepi2(start_time,end_time,tdelta):
+#no astrospice    
     
-    dt = TimeDelta(tdelta*u.day)
-    frame = HeliographicStonyhurst()
+#def get_positions_bepi(start_time,end_time,tdelta):
     
-    kernels_bepi = astrospice.registry.get_kernels('mpo', 'predict')
-    print(kernels_bepi)
-    bepi_kernel = kernels_bepi[0]
-    print(bepi_kernel)
-    coverage_bepi = bepi_kernel.coverage('Bepicolombo mpo')
+#    dt = TimeDelta(tdelta*u.day)
+#    frame = HeliographicStonyhurst()
     
-    times_bepi = Time(np.arange(Time(start_time), Time(end_time), dt))
-    print(times_bepi[0],times_bepi[-1])
-    coords_bepi = astrospice.generate_coords('Bepicolombo mpo', times_bepi)
-    coords_bepi = coords_bepi.transform_to(frame)
+#    kernels_bepi = astrospice.registry.get_kernels('mpo', 'predict')
+#    print(kernels_bepi)
+#    bepi_kernel = kernels_bepi[0]
+#    print(bepi_kernel)
+#    coverage_bepi = bepi_kernel.coverage('Bepicolombo mpo')
+    
+#    times_bepi = Time(np.arange(Time(start_time), Time(end_time), dt))
+#    print(times_bepi[0],times_bepi[-1])
+#    coords_bepi = astrospice.generate_coords('Bepicolombo mpo', times_bepi)
+#    coords_bepi = coords_bepi.transform_to(frame)
 
 
-    return coords_bepi, times_bepi
+#    return coords_bepi, times_bepi
 
 
 
@@ -1423,7 +1425,7 @@ def create_bepi_pickle(start_date,end_date,finalfile,bepi_path, sensor):
     'Missing data has been set to "np.nan". Total number of data points: '+str(bepi.size)+'. '+\
     'Units are btxyz [nT, E2K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with heliocats/create_bepi_pickle  '+\
-    'By C. Moestl, Eva Weiler, Emma Davies. File creation date: '+\
+    'By Christian Möstl, Eva Weiler, Emma Davies. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
     
     pickle.dump([bepi,header], open(finalfile, "wb"))
@@ -1443,7 +1445,7 @@ def bepi_rtn_header(bepi, sensor):
     'Missing data has been set to "np.nan". Total number of data points: '+str(bepi.size)+'. '+\
     'Units are btxyz [nT, RTN], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with heliocats/create_bepi_pickle  '+\
-    'By C. Moestl, Eva Weiler, Emma Davies. File creation date: '+\
+    'By Christian Möstl, Eva Weiler, Emma Davies. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
     
     return header
@@ -1963,7 +1965,7 @@ def save_wind_data_ascii(start_date,end_date,path,finalfile,coord):
     'Missing data has been set to "np.nan". Total number of data points: '+str(win.size)+'. '+\
     'Units are btxyz [nT, '+coord+'], vtxyz [km s^-1,'+coord+'], np[cm^-3], tp [K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with heliocats/save_wind_data_ascii.  '+\
-    'By C. Moestl (twitter @chrisoutofspace), Emma Davies, Eva Weiler. File creation date: '+\
+    'By Christian Möstl, Emma Davies, Eva Weiler. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
 
     pickle.dump([win,header], open(finalfile, "wb"))
@@ -1986,7 +1988,7 @@ def wind_heeq_header(data):
     'Missing data has been set to "np.nan". Total number of data points: '+str(data.size)+'. '+\
     'Units are btxyz [nT, HEEQ], vtxyz [km s^-1, HEEQ], np[cm^-3], tp [K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with heliocats/save_wind_data_ascii.  '+\
-    'By C. Moestl (twitter @chrisoutofspace), Emma Davies, Eva Weiler. File creation date: '+\
+    'By Christian Möstl, Emma Davies, Eva Weiler. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
     
     return header_heeq
@@ -2004,7 +2006,7 @@ def wind_rtn_header(data):
     'Missing data has been set to "np.nan". Total number of data points: '+str(data.size)+'. '+\
     'Units are btxyz [nT, RTN], vtxyz [km s^-1, RTN], np[cm^-3], tp [K], heliospheric position x/y/z [km] r/lon/lat [AU, degree, HEEQ]. '+\
     'Made with heliocats/save_wind_data_ascii.  '+\
-    'By C. Moestl (twitter @chrisoutofspace), Emma Davies, Eva Weiler. File creation date: '+\
+    'By Christian Möstl, Emma Davies, Eva Weiler. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
     
     return header_rtn
@@ -2194,8 +2196,7 @@ PSP POSITION FUNCTIONS: coord maths, call position for each timestamp using astr
 
 
 
-
-def get_psp_positions(time_series):
+def get_psp_positions_old(time_series):
     kernels_psp = astrospice.registry.get_kernels('psp', 'predict')
     frame = HeliographicStonyhurst()
     coords_psp = astrospice.generate_coords('Solar probe plus', time_series)
@@ -2209,6 +2210,78 @@ def get_psp_positions(time_series):
     return df_positions
 
 
+
+#################### new functions without astrospice ************* 
+########### only spiceypy
+
+
+
+def psp_furnish(kernel_path):
+
+    psp_kernel_path = kernel_path+'psp/'
+    generic_path = kernel_path+'generic/'
+    
+    #psp_kernels = os.listdir(psp_kernel_path)
+    #for kernel in psp_kernels:
+    #    spiceypy.furnsh(os.path.join(psp_kernel_path, kernel))
+
+    psp_kernel = 'spp_nom_20180812_20300101_v042_PostV7.bsp'
+    spiceypy.furnsh(os.path.join(psp_kernel_path, psp_kernel))
+    
+    generic_kernels = os.listdir(generic_path)
+    for kernel in generic_kernels:
+        spiceypy.furnsh(os.path.join(generic_path, kernel))
+        
+
+def get_psp_pos(t,kernel_path):    
+    #if spiceypy.ktotal('ALL') < 1:
+    #    psp_furnish(kernel_path)        
+
+    pos = spiceypy.spkpos("PARKER SOLAR PROBE", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
+    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    position = t, pos[0], pos[1], pos[2], r, lat, lon
+    return position
+
+
+def get_psp_positions(time_series,kernel_path):
+    positions = []
+   
+    for t in time_series:
+        position = get_psp_pos(t,kernel_path)
+        positions.append(position)
+    df_positions = pd.DataFrame(positions, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
+    return df_positions
+
+
+
+##################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 """
 FINAL FUNCTION TO CREATE PICKLE FILE: uses all above functions to create pickle file of 
 data from input timestamp to now. 
@@ -2218,7 +2291,7 @@ df = pd.DataFrame.from_records(obj)
 """
 
 
-def create_psp_pkl(start_time, end_time,psp_file,psp_path):
+def create_psp_pkl(start_time, end_time,psp_file,psp_path,kernels_path):
 
     #load in mag data to DataFrame and resample, create empty mag and resampled DataFrame if no data
     # if empty, drop time column ready for concat
@@ -2253,7 +2326,9 @@ def create_psp_pkl(start_time, end_time,psp_file,psp_path):
 
     #get psp positions for corresponding timestamps
     print('get positions')
-    psp_pos = get_psp_positions(magplas_rdf['time'])
+   
+    psp_furnish(kernels_path)
+    psp_pos = get_psp_positions(magplas_rdf['time'],kernels_path)   
     psp_pos.set_index(pd.to_datetime(psp_pos['time']), inplace=True)
     psp_pos = psp_pos.drop(columns=['time'])
 
@@ -2299,11 +2374,31 @@ def create_psp_pkl(start_time, end_time,psp_file,psp_path):
     'The data are available in a numpy recarray, fields can be accessed by psp.time, psp.bx, psp.vt etc. '+\
     'Total number of data points: '+str(psp.size)+'. '+\
     'Units are btxyz [nT, RTN], vtxyz  [km s^-1, RTN], np[cm^-3], tp [K], heliospheric position x/y/z [km] or r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with heliocats/data_update_web_science.ipynb, by E. Davies (twitter @spacedavies) and Christian Möstl (@chrisoutofspace). File creation date: '+\
+    'Made with heliocats/data_update_web_science.ipynb, by Emma Davies and Christian Möstl. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
 
     pickle.dump([psp,header], open(psp_file, "wb"))
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 
 
@@ -2471,7 +2566,7 @@ def solo_furnish(kernels_path):
     solo_path = kernels_path+'solo/'
     generic_path = kernels_path+'generic/'
     #put the latest file here manually
-    solo_kernels = astrospice.SPKKernel(solo_path+'solo_ANC_soc-orbit_20200210-20301120_L014_V1_00275_V01.bsp')
+    solo_kernels = astrospice.SPKKernel(solo_path+'solo_ANC_soc-orbit_20200210-20301120_L020_V1_00408_V01.bsp')
     generic_kernels = os.listdir(generic_path)
     print(solo_kernels)
     print(generic_kernels)
@@ -2601,9 +2696,8 @@ def create_solo_pkl(start_timestamp,end_timestamp,solo_file,solo_path,kernels_pa
     'The data are available in a numpy recarray, fields can be accessed by solo.time, solo.bx, solo.vt etc. '+\
     'Total number of data points: '+str(solo.size)+'. '+\
     'Units are btxyz [nT, RTN], vtxyz [km s^-1, RTN], np[cm^-3], tp [K], heliospheric position x/y/z [km], r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with heliocats/data_update_web_science.ipynb, by E. Davies (twitter @spacedavies) and Christian Möstl (@chrisoutofspace). File creation date: '+\
+    'Made with heliocats/data_update_web_science.ipynb, by Emma Davies and Christian Möstl. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
-    
     
     
     #dump to pickle file 
@@ -2835,7 +2929,7 @@ def create_stereoa_pkl(start_timestamp,end_timestamp,stereoa_file,stereoa_path,k
     'The data are available in a numpy recarray, fields can be accessed by stereoa.time, stereoa.bx, stereoa.vt etc. '+\
     'Total number of data points: '+str(stereoa.size)+'. '+\
     'Units are btxyz [nT, RTN], vtxy  [km s^-1, RTN], np[cm^-3], tp [K], heliospheric position x/y/z [km], r/lon/lat [AU, degree, HEEQ]. '+\
-    'Made with heliocats/data_update_web_science.ipynb by E. Davies (twitter @spacedavies) and C. Möstl (@chrisoutofspace). File creation date: '+\
+    'Made with heliocats/data_update_web_science.ipynb by Emma Davies and Christian Möstl. File creation date: '+\
     datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
 
     pickle.dump([stereoa,header], open(stereoa_file, "wb"))

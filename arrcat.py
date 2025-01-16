@@ -5,6 +5,8 @@
 # 
 # Makes the HELIO4CAST ARRIVAL catalog for solar storms (CMEs) observed with the STEREO heliospheric imager instruments.
 # 
+# uses environment envs/helio4
+# 
 # Authors: Christian Möstl, Eva Weiler, Austrian Space Weather Office, GeoSphere Austria <br />
 # Loads the HIGeoCat catalog produced by D. Barnes, J. A. Davies, R. A. Harrison, RAL Space, UK.
 # 
@@ -24,6 +26,8 @@
 # 
 # **Issues:**
 # 
+# - change PSP position to spice kernel
+# 
 # - need to add plots for each event
 # - may add Ulysses again with the position in the ulysses data file 
 # - same for messenger
@@ -31,7 +35,7 @@
 # - with next arrcat update, check if Solar Orbiter positions are consistent with general positions file
 # 
 
-# In[3]:
+# In[1]:
 
 
 last_update='2024-February-27'
@@ -116,7 +120,7 @@ warnings.filterwarnings("ignore")
 
 # ## 1 Make arrival catalog 
 
-# In[4]:
+# In[2]:
 
 
 t0=time.time()
@@ -181,7 +185,7 @@ ac
 
 # #### save header
 
-# In[5]:
+# In[ ]:
 
 
 first_date=ac['target_arrival_time'][len(ac)-1]
@@ -190,7 +194,7 @@ print(last_date[0:7])
 print(first_date[0:7])
 
 
-# In[6]:
+# In[ ]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -277,7 +281,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[7]:
+# In[ ]:
 
 
 ########## python formats
@@ -431,7 +435,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[8]:
+# In[ ]:
 
 
 #load arrcat as pandas dataframe
@@ -451,27 +455,27 @@ ac5 = f['arrcat']
 ac5['sse_launch_time']
 
 
-# In[9]:
+# In[ ]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[10]:
+# In[ ]:
 
 
 ac
 
 
-# In[11]:
+# In[ ]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
 
 
-# In[12]:
+# In[ ]:
 
 
 ac_struct
@@ -479,7 +483,7 @@ ac_struct
 
 # ### plot directions and targets
 
-# In[13]:
+# In[ ]:
 
 
 sns.set_context('talk')
@@ -557,7 +561,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[14]:
+# In[ ]:
 
 
 fig=plt.figure(2, figsize=(16,7), dpi=70)
@@ -602,7 +606,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[15]:
+# In[ ]:
 
 
 hiai=np.where(higeocat['SC']=='A')[0]
@@ -651,7 +655,7 @@ hist_hib_monthly[93:]=-1
 ########### TBD add an estimate for the rest of the year
 
 
-# In[16]:
+# In[ ]:
 
 
 sns.set_context("talk")     
@@ -706,7 +710,7 @@ print('saved as ',plotfile)
 
 
 
-# In[17]:
+# In[ ]:
 
 
 print(' ')
@@ -724,7 +728,7 @@ print(np.sort(arrcat_web.sse_launch_time)[-1])
 
 
 
-# In[18]:
+# In[ ]:
 
 
 t1all = time.time()

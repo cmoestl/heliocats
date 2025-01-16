@@ -61,8 +61,8 @@ if sys.platform == 'linux':
 if sys.platform =='darwin':  
     print('system is mac')
     #for testing
-    get_ipython().run_line_magic('matplotlib', 'inline')
-    #matplotlib.use('Agg') 
+    #%matplotlib inline     
+    matplotlib.use('Agg') 
 
 
 
@@ -292,7 +292,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[ ]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -349,7 +349,7 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[ ]:
+# In[7]:
 
 
 if debug_mode > 0:     
@@ -362,7 +362,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[ ]:
+# In[8]:
 
 
 t1all = time.time()

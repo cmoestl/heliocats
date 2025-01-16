@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.2, 2024 February 27, updated 2024 May ****
+# latest release: version 2.2, 2024 February 27, updated 2024  ****
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -244,7 +244,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[12]:
+# In[3]:
 
 
 load_data=1
@@ -458,7 +458,7 @@ print('loading data takes', np.round((t1-t0)/60,2), 'minutes')
 
 # ## (3) make ICMECAT 
 
-# In[6]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -532,7 +532,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[7]:
+# In[5]:
 
 
 ###### 3c make all plots if wanted
@@ -804,7 +804,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[8]:
+# In[6]:
 
 
 ######## sort ICMECAT by date
@@ -970,7 +970,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[9]:
+# In[7]:
 
 
 ########## python formats
@@ -1146,7 +1146,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[5]:
+# In[8]:
 
 
 #load icmecat as pandas dataframe
@@ -1158,27 +1158,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v22_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[6]:
+# In[9]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[7]:
+# In[10]:
 
 
 ic_pandas
 
 
-# In[8]:
+# In[11]:
 
 
 #
 ic_nprec
 
 
-# In[9]:
+# In[12]:
 
 
 ic_nprec.icmecat_id
@@ -1186,7 +1186,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[10]:
+# In[13]:
 
 
 ic=ic_pandas
@@ -1313,7 +1313,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[11]:
+# In[14]:
 
 
 #markersize
@@ -1379,7 +1379,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ### plotly radial distance and mean MO field
 
-# In[12]:
+# In[15]:
 
 
 ################# 
@@ -1452,7 +1452,7 @@ fig.write_html(f'icmecat/icmecat_distance.html')
 
 # ### plotly event position in 3D
 
-# In[13]:
+# In[16]:
 
 
 # Create polar plot
@@ -1615,7 +1615,7 @@ pio.write_image(fig, 'icmecat/icmecat_position_3D.png',scale=2, width=1500, heig
 
 # ### plotly radial distance and longitude
 
-# In[14]:
+# In[17]:
 
 
 # Sample data
@@ -1687,7 +1687,7 @@ fig.write_html(f'icmecat/icmecat_longitudes.html')
 
 # ### 3D plotly for PSP, SolO, Bepi
 
-# In[78]:
+# In[18]:
 
 
 #convert times to datetime
@@ -1729,7 +1729,7 @@ pspz=np.interp(psp_daily_num, pos[0].time.astype(float), pos[0].z)
     
 
 
-# In[111]:
+# In[19]:
 
 
 # Create polar plot

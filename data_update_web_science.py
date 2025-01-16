@@ -10,23 +10,38 @@
 # uses environment 'envs/env_helio4.yml'
 # 
 # 
-# 
 # Issues:
 # 
-# - need to copy these updated kernel files manually to the kernel paths:
+# - Bepi trajectory - change method to using own kernel file
+# 
+# 
+# #### Orbits:
+# 
+# need to copy these updated kernel files manually to the kernel paths:
 # - SolO Kernels are available at:  https://spiftp.esac.esa.int/data/SPICE/SOLAR-ORBITER/kernels/spk/
+# change filename in hd.solo_furnish
 # - STEREO-A kernels are available at: 
 # https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/depm/ahead/
+# - PSP Kernels https://soho.nascom.nasa.gov/solarsoft/psp/gen/data/spice/orbit/
+# use file like "spp_nom_20180812_20300101_v042_PostV7.bsp"
+# 
+# - BepiColombo https://spiftp.esac.esa.int/data/SPICE/BEPICOLOMBO/kernels/spk/ to do, uses astrospice still
 # 
 # 
-# Data:
+# 
+# #### Data:
 # 
 # - STEREO-A science data: https://spdf.gsfc.nasa.gov/pub/data/stereo/ahead/l2/impact/magplasma/1min/
+# - PSP check data availability at: https://soho.nascom.nasa.gov/solarsoft/psp/gen/data/spice/orbit/
+# - Wind plasma: https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/ 
+# - Wind MAG: https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/
 # 
-# - PSP end date for data downloads needs to be set manually otherwise processing stops on the server - due to a timeout when no output for a while? or entering a loop? PSP data ends 2023 Oct 15, end date set to 2023 Dec 31, need to fix hd.download_pspmag_1min
-# check data availability at: https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min
+# - OMNI: https://spdf.gsfc.nasa.gov/pub/data/omni/low_res_omni/ 
+# 
+# 
+# 
 
-# In[5]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -37,7 +52,7 @@
 debug_mode=0
 
 get_omni=1
-get_wind=1 
+get_wind=1
 get_psp=1
 get_solo=1
 get_bepi=1
@@ -206,6 +221,9 @@ if get_omni:
     hd.save_omni_data(data_path,fileomni)
 else:
     print('OMNI data NOT downloaded and pickled, turn on switch')
+    
+    
+print('make OMNI plot')    
 [o,ho]=pickle.load(open(data_path+fileomni, "rb" ) )  
 start=datetime.utcnow() - timedelta(days=365)
 end=datetime.utcnow() 
@@ -231,15 +249,16 @@ wind_file_rtn=data_path+'wind_1995_now_rtn.p'
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
-    start_time= datetime(2024,1,1)
+    
+    #NOTE: for debugging start and end time needs to be in 2 separate years!! only for Wind
+    start_time= datetime(2023,12,1)
     end_time  = datetime(2024,1,10)
     wind_file=data_path+'wind_gse_test.p'
     wind_file_heeq=data_path+'wind_heeq_test.p'
     wind_file_rtn=data_path+'wind_rtn_test.p'
 
- 
 
-#download data for current year only    
+# download data for current and previous year
 if get_wind > 0:
  
     
@@ -249,9 +268,8 @@ if get_wind > 0:
     t0 = time.time() 
     
     #get all years
-    #hd.wind_download_ascii(1995, wind_path) 
-    
-    #when all is downloaded just start with current year to now
+    #hd.wind_download_ascii(1995, wind_path)     
+    #when all is downloaded just start with the current or previous year to now
     hd.wind_download_ascii(2024, wind_path) 
     
     print('download Wind data done ')
@@ -347,8 +365,8 @@ if debug_mode > 0:
     importlib.reload(hd) 
     importlib.reload(hp) 
 
-    start_time= datetime(2023,10,1)
-    end_time  = datetime(2023,12,31)
+    start_time= datetime(2024,3,20)
+    end_time  = datetime(2024,4,10)
     psp_file=data_path+'psp_rtn_test.p'
 
     
@@ -360,13 +378,19 @@ if get_psp > 0:
     print('download PSP data until today ')
     print(psp_path)
     
+    #for loading all data
+    #hd.download_pspmag_1min(start_time,end_time,psp_path)
+    #hd.download_pspplas(start_time,end_time,psp_path)
+
+    #hd.download_pspmag_1min(datetime(2023,12,1),datetime(2024,4,30),psp_path)
+    #hd.download_pspplas(datetime(2023,12,1),datetime(2024,4,30),psp_path)
+
     
-    #don't check all years for faster runtime, make end time shorter so its not a timeout on the server?
-    hd.download_pspmag_1min(datetime(2023,10,1),datetime(2023,12,31),psp_path)
-    hd.download_pspplas(datetime(2023,10,1),datetime(2023,12,31),psp_path)
+    #hd.download_pspmag_1min(datetime(2024,1,1),datetime(2024,4,30),psp_path)
+    #hd.download_pspplas(datetime(2024,11,1),datetime(2024,4,30),psp_path)
 
     print('process PSP to pickle')
-    hd.create_psp_pkl(start_time,end_time,psp_file,psp_path)
+    hd.create_psp_pkl(start_time,end_time,psp_file,psp_path,kernels_path)
     #print(psph)
 
     t1=time.time()
@@ -422,8 +446,8 @@ solo_file=data_path+'solo_2020_now_rtn.p'
 if debug_mode > 0: 
     importlib.reload(hd) 
     importlib.reload(hp) 
-    start_time= datetime(2024,1,1)
-    end_time  = datetime(2024,2,28)
+    start_time= datetime(2024,7,1)
+    end_time  = datetime(2024,8,1)
     solo_file=data_path+'solo_rtn_test.p'
 
 
@@ -494,8 +518,8 @@ if debug_mode > 0:
     importlib.reload(hp) 
 
     #testing
-    start_time= datetime(2022,3,20)
-    end_time= datetime(2022,5,10)
+    start_time= datetime(2023,3,25)
+    end_time= datetime(2023,4,10)
     #end_time  = datetime(2025,1,31)    
     bepi_file_ob=data_path+'bepi_ob_e2k_test.p'
     bepi_file_ob_rtn=data_path+'bepi_ob_rtn_test.p'
@@ -604,7 +628,7 @@ if get_bepi > 0:
 
 # ### STEREO-A science data
 
-# In[13]:
+# In[15]:
 
 
 print(' ')
@@ -653,7 +677,7 @@ else:
 
 
 
-# In[14]:
+# In[16]:
 
 
 if get_stereoa > 0:  
@@ -680,7 +704,7 @@ if get_stereoa > 0:
 
 # #### write header file for science daily updates
 
-# In[15]:
+# In[14]:
 
 
 text = open(data_path+'new_data_headers.txt', 'w')
