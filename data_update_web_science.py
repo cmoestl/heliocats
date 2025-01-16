@@ -25,7 +25,7 @@
 # - PSP Kernels https://soho.nascom.nasa.gov/solarsoft/psp/gen/data/spice/orbit/
 # use file like "spp_nom_20180812_20300101_v042_PostV7.bsp"
 # 
-# - BepiColombo https://spiftp.esac.esa.int/data/SPICE/BEPICOLOMBO/kernels/spk/ to do, uses astrospice still
+# - BepiColombo https://spiftp.esac.esa.int/data/SPICE/BEPICOLOMBO/kernels/spk/ to do, uses astrospice still, check for new trajectory
 # 
 # 
 # 
@@ -41,7 +41,7 @@
 # 
 # 
 
-# In[22]:
+# In[25]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -51,8 +51,8 @@
 #switches
 debug_mode=0
 
-get_omni=0
-get_wind=0
+get_omni=1
+get_wind=1
 get_psp=1
 get_solo=1
 get_bepi=1
