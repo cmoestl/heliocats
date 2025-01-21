@@ -984,6 +984,7 @@ def get_cat_parameters(sc, sci, ic, name):
 
     for i in np.arange(len(sci))-1:
 
+        # ########## use for debugging to find event with wrong times
         #print(sci[i])
         #print(ic.mo_start_time[sci[i]] )   
         #print(ic.mo_end_time[sci[i]] )  

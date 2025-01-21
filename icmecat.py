@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.2, 2024 February 27, updated 2024  ****
+# latest release: version 2.2, 2024 February 27, updated 2025 February TBD
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -14,8 +14,6 @@
 # **Contributors**: 
 # Andreas J. Weiss, Rachel L. Bailey, Martin A. Reiss, Tarik Mohammad Salman, Peter Boakes, Alexey Isavnin, Emilia Kilpua, David Stansby, Reka Winslow, Brian Anderson, Lydia Philpott, Vratislav Krupar, Jonathan Eastwood, Benoit Lavraud, Simon Good, Lan Jian, Teresa Nieves-Chinchilla, Cyril Simon Wedlund, Jingnan Guo, Johan von Forstner, Mateja Dumbovic. 
 # 
-# https://twitter.com/chrisoutofspace <br /> 
-# https://twitter.com/ASWOGeoSphere <br /> 
 # 
 # 
 # This notebook is part of the heliocats package https://github.com/cmoestl/heliocats
@@ -27,7 +25,7 @@
 # 
 # **With each update:** 
 # - use the notebook data_update_web_science.ipynb in this package to create pickle files for new science data. The current data can be found on figshare.
-# - the solar orbiter and stereo-a kernel should be manually updated with every icmecat update, and the position files should be redone (currently by Eva Weiler)
+# - the solar orbiter, parker solar probe and stereo-a kernel should be manually updated with every icmecat update, and the position files should be redone (currently by Eva Weiler)
 # - use measure.ipynb to manually derive the 3 times for each ICME event
 # - manually edit the file icmecat/HELCATS_ICMECAT_v22_master.xlsx to add 3 times for each event, the event id and spacecraft name
 # - set the transition date from STEREO-A science data to beacon data manually
@@ -46,7 +44,7 @@
 # In[1]:
 
 
-last_update='2024-May-TBD'
+last_update='2025-Feb-TBD'
 
 debug_mode=1
 
@@ -59,11 +57,11 @@ create_indices=0
 used=8 
 
 #which plots to make
-solo_plots=0
+solo_plots=1
 bepi_plots=0
-psp_plots=0
-wind_plots=0
-sta_plots=0
+psp_plots=1
+wind_plots=1
+sta_plots=1
 
 uly_plots=0
 juno_plots=0  
@@ -353,8 +351,8 @@ if load_data > 0:
     filesta2='stereoa_beacon_rtn_last_400days_now.p'
     
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
-    #cutoff with end of science data
-    sta2=sta2[np.where(sta2.time >= parse_time('2024-Jan-01 00:00').datetime)[0]]
+    #cutoff with end of science data set here to April 30 deliberately bc of data gaps for May
+    sta2=sta2[np.where(sta2.time >= parse_time('2024-Apr-30 00:00').datetime)[0]]
 
     #make array
     sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
@@ -458,7 +456,7 @@ print('loading data takes', np.round((t1-t0)/60,2), 'minutes')
 
 # ## (3) make ICMECAT 
 
-# In[4]:
+# In[20]:
 
 
 if debug_mode > 0: 
@@ -496,10 +494,10 @@ if create_indices > 0:
     #hc.create_icme_indices(win,wini,ic,'Wind')
     #hc.create_icme_indices(psp,pspi,ic,'PSP')
     #hc.create_icme_indices(sta,stai,ic,'STEREO-A')
+    
     #hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
     
     #hc.create_icme_indices(uly,ulyi,ic,'ULYSSES')
-    
     #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
     #hc.create_icme_indices(vex,vexi,ic,'VEX')
     #hc.create_icme_indices(juno,juni,ic,'Juno')
