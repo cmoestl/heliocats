@@ -48,14 +48,14 @@
 # for updating data every day on the servers
 
 #switches
-debug_mode=0
+debug_mode=1
 
-get_omni=1
-get_wind=1
-get_psp=1
-get_solo=1
-get_bepi=1
-get_stereoa=1
+get_omni=0
+get_wind=0
+get_psp=0
+get_solo=0
+get_bepi=0
+get_stereoa=0
 
 import numpy as np
 import pandas as pd
@@ -636,7 +636,7 @@ if get_bepi > 0:
 
 # ### STEREO-A science data
 
-# In[15]:
+# In[12]:
 
 
 print(' ')
@@ -685,7 +685,7 @@ else:
 
 
 
-# In[16]:
+# In[13]:
 
 
 if get_stereoa > 0:  
