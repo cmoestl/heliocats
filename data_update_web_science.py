@@ -11,21 +11,20 @@
 # 
 # 
 # Issues:
-# 
-# - Bepi trajectory - change method to using own kernel file
+# - where to find the generic kernels if updates are needed?
 # 
 # 
 # #### Orbits:
 # 
-# need to copy these updated kernel files manually to the kernel paths:
+# need to copy these updated kernel files manually to the kernel paths, and change filenames in code (!)
 # - SolO Kernels are available at:  https://spiftp.esac.esa.int/data/SPICE/SOLAR-ORBITER/kernels/spk/
-# change filename in hd.solo_furnish
+# then change filename in hd.solo_furnish
 # - STEREO-A kernels are available at: 
 # https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/depm/ahead/
 # - PSP Kernels https://soho.nascom.nasa.gov/solarsoft/psp/gen/data/spice/orbit/
-# use file like "spp_nom_20180812_20300101_v042_PostV7.bsp"
+# use file like "spp_nom_20180812_20300101_v042_PostV7.bsp" and change filename in psp furnish
 # 
-# - BepiColombo https://spiftp.esac.esa.int/data/SPICE/BEPICOLOMBO/kernels/spk/ to do, uses astrospice still, check for new trajectory
+# - BepiColombo https://naif.jpl.nasa.gov/pub/naif/BEPICOLOMBO/kernels/spk/, use latest file and change filename in hd.bepi furnish
 # 
 # 
 # 
@@ -41,7 +40,7 @@
 # 
 # 
 
-# In[25]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -522,7 +521,7 @@ if debug_mode > 0:
 
     #testing
     start_time= datetime(2023,3,25)
-    end_time= datetime(2023,4,10)
+    end_time= datetime(2023,3,28)
     #end_time  = datetime(2025,1,31)    
     bepi_file_ob=data_path+'bepi_ob_e2k_test.p'
     bepi_file_ob_rtn=data_path+'bepi_ob_rtn_test.p'
@@ -543,11 +542,14 @@ if get_bepi > 0:
     
     print(' ')
 
-    print('process Bepi  to pickle')
+    print('process Bepi to pickle')
     
     #outbound
-    hd.create_bepi_pickle(start_time,end_time,bepi_file_ob,bepi_path, 'outbound')
+    hd.create_bepi_pickle(start_time,end_time,bepi_file_ob,bepi_path, 'outbound',kernels_path)
     [data,hbepi_ob]=pickle.load(open(bepi_file_ob, "rb"))
+    
+    
+    
     data_hee=hd.convert_E2K_to_HEE(data,kernels_path)
     data_heeq=hd.convert_HEE_to_HEEQ(data_hee)
     data_rtn=hd.convert_HEEQ_to_RTN_mag(data_heeq)       
@@ -557,7 +559,7 @@ if get_bepi > 0:
     
     
     #inbound
-    hd.create_bepi_pickle(start_time,end_time,bepi_file_ib,bepi_path, 'inbound')    
+    hd.create_bepi_pickle(start_time,end_time,bepi_file_ib,bepi_path, 'inbound',kernels_path)    
     [data,hbepi_ib]=pickle.load(open(bepi_file_ib, "rb"))
     
     #convert inbound data to RTN
@@ -574,6 +576,9 @@ if get_bepi > 0:
     print('----------------------------------- ')
 else:
     print('Bepi data NOT downloaded and pickled, turn on switch')  
+    
+    
+   
 
 
 # In[11]:

@@ -635,7 +635,7 @@ def convert_RTN_to_GSE_sta_l1(sc_in):
             
         elif (x>=0 and y<=0):
             if (x_theta>=0 and y_theta>=0): theta_node = theta_node + np.pi/2
-            elif (x_theta<=0 and y_theta<=0): theta_node = np.pi+(theta_node-np.pi/2) 
+            elif (x_theta<=0 and y_theta<=0): theta_node = theta_node-np.pi/2
             elif (x_theta>=0 and y_theta<=0): theta_node = theta_node + np.pi
             elif (x_theta<=0 and y_theta>=0): theta_node = theta_node
 
@@ -643,7 +643,7 @@ def convert_RTN_to_GSE_sta_l1(sc_in):
             if (x_theta>=0 and y_theta>=0): theta_node = theta_node - np.pi/2
             elif (x_theta<=0 and y_theta<=0): theta_node = theta_node + np.pi/2
             elif (x_theta>=0 and y_theta<=0): theta_node = theta_node
-            elif (x_theta<=0 and y_theta>=0): theta_node = theta_node -np.pi          
+            elif (x_theta<=0 and y_theta>=0): theta_node = theta_node -np.pi
         
         
         S2_theta=np.matrix([[np.cos(-theta_node), np.sin(-theta_node),  0], [-np.sin(-theta_node) , np.cos(-theta_node) , 0], [0,  0,  1]])
@@ -1247,27 +1247,6 @@ class BepiPredict(RemoteKernelsBase):
 
 
 
-#no astrospice    
-    
-#def get_positions_bepi(start_time,end_time,tdelta):
-    
-#    dt = TimeDelta(tdelta*u.day)
-#    frame = HeliographicStonyhurst()
-    
-#    kernels_bepi = astrospice.registry.get_kernels('mpo', 'predict')
-#    print(kernels_bepi)
-#    bepi_kernel = kernels_bepi[0]
-#    print(bepi_kernel)
-#    coverage_bepi = bepi_kernel.coverage('Bepicolombo mpo')
-    
-#    times_bepi = Time(np.arange(Time(start_time), Time(end_time), dt))
-#    print(times_bepi[0],times_bepi[-1])
-#    coords_bepi = astrospice.generate_coords('Bepicolombo mpo', times_bepi)
-#    coords_bepi = coords_bepi.transform_to(frame)
-
-
-#    return coords_bepi, times_bepi
-
 
 
 def get_positions_bepi(times1):
@@ -1290,7 +1269,49 @@ def get_positions_bepi(times1):
 
 
 
-def create_bepi_pickle(start_date,end_date,finalfile,bepi_path, sensor):
+           
+##Bepi POSITION FUNCTIONS with spiceypy, preferred method
+#https://naif.jpl.nasa.gov/pub/naif/BEPICOLOMBO/kernels/spk/
+def bepi_furnish(kernels_path):
+    """Main"""
+    bepi_path = kernels_path+'bepi/'
+    generic_path = kernels_path+'generic/'
+    #put the latest file here manually
+    bepi_kernels = astrospice.SPKKernel(bepi_path+'bc_mpo_fcp_00199_20181020_20270407_v02.bsp')
+    generic_kernels = os.listdir(generic_path)
+    print(bepi_kernels)
+    print(generic_kernels)
+    #for kernel in solo_kernels:
+    #    spiceypy.furnsh(os.path.join(solo_path, kernel))
+    #spiceypy.furnsh(solo_kernels)
+    for kernel in generic_kernels:
+        spiceypy.furnsh(os.path.join(generic_path, kernel))
+
+
+def get_bepi_pos(t,kernels_path):
+    if spiceypy.ktotal('ALL') < 1:
+        bepi_furnish(kernels_path)
+    pos = spiceypy.spkpos("BEPICOLOMBO MPO", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
+    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    position = t, pos[0], pos[1], pos[2], r, lat, lon
+    return position
+
+
+def get_bepi_positions(time_series,kernels_path):
+    positions = []
+    for t in time_series:
+        position = get_bepi_pos(t,kernels_path)
+        positions.append(position)
+    df_positions = pd.DataFrame(positions, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
+    return df_positions
+
+
+    
+
+
+
+
+def create_bepi_pickle(start_date,end_date,finalfile,bepi_path, sensor, kernels_path):
     
     
     t_start = start_date
@@ -1394,19 +1415,30 @@ def create_bepi_pickle(start_date,end_date,finalfile,bepi_path, sensor):
     bepi.bz = np.interp(time1_mat, bepi_raw.time, bepi_raw.bz)
     bepi.bt=np.sqrt(bepi.bx**2+bepi.by**2+bepi.bz**2)                                                      
         
-
     
     #get positions
     print('positions start')
-    #coords_bepi,times_bepi=get_positions_bepi(t_start,t_end,10)
-    coords_bepi,times_bepi=get_positions_bepi(time1)
+    
+    #with astrospice
+    ###### coords_bepi,times_bepi=get_positions_bepi(t_start,t_end,10)
+    #use this
+    #coords_bepi,times_bepi=get_positions_bepi(time1)
+    
+    #with spiceypy  
+    bepi_furnish(kernels_path)    
+    coords_bepi = get_bepi_positions(time1,kernels_path)
     print('positions end')
+    
+    print(u.au)
             
-    bepi.r=coords_bepi.radius.to(u.au)
-    bepi.lon=coords_bepi.lon.value
-    bepi.lat=coords_bepi.lat.value
-    bepi.x,bepi.y,bepi.z,r_au=sphere2cart_emma(coords_bepi.radius,  bepi.lat, bepi.lon)
+    bepi.r=coords_bepi.r
+    bepi.lon=coords_bepi.lon
+    bepi.lat=coords_bepi.lat
+    bepi.x=coords_bepi.x #/(au.value*1e-3) to AU
+    bepi.y=coords_bepi.y #/(au.value*1e-3)
+    bepi.z=coords_bepi.z #/(au.value*1e-3)
 
+    #bepi.x,bepi.y,bepi.z,r_au=sphere2cart_emma(coords_bepi.r,  bepi.lat, bepi.lon)
     
     bepi.np=np.nan    
     bepi.vt=np.nan
@@ -1414,6 +1446,7 @@ def create_bepi_pickle(start_date,end_date,finalfile,bepi_path, sensor):
     bepi.vy=np.nan
     bepi.vz=np.nan
     bepi.tp=np.nan
+    
     
         
         
@@ -2566,7 +2599,7 @@ def solo_furnish(kernels_path):
     solo_path = kernels_path+'solo/'
     generic_path = kernels_path+'generic/'
     #put the latest file here manually
-    solo_kernels = astrospice.SPKKernel(solo_path+'solo_ANC_soc-orbit_20200210-20301120_L020_V1_00408_V01.bsp')
+    solo_kernels = astrospice.SPKKernel(solo_path+'solo_ANC_soc-orbit-stp_20200210-20301120_353_V1_00424_V01.bsp')
     generic_kernels = os.listdir(generic_path)
     print(solo_kernels)
     print(generic_kernels)
