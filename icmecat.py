@@ -37,14 +37,15 @@
 # 
 # **ISSUES**
 # 
+# - add new position file so that MESSENGER does not need to be added anymore
 # - STEREO A beacon data contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[1]:
+# In[2]:
 
 
-last_update='2025-March-TBD'
+last_update='2025-April-TBD'
 
 debug_mode=1
 
@@ -163,7 +164,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[2]:
+# In[3]:
 
 
 # the positions file is generated with positions.ipynb (Eva's version!), and the position from messenger is taken from an older file
@@ -240,9 +241,12 @@ pos=pickle.load( open( 'results/positions/positions_HEEQ_10min_new2.p', "rb" ) )
 print('positions file loaded')
 
 
+###### to do: start with 1 new file in rad with 10 min resolution including MESSENGER
+
+
 # ## (1) load data 
 
-# In[3]:
+# In[4]:
 
 
 load_data=1
