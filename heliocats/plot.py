@@ -3523,12 +3523,11 @@ def plot_positions(time_date1, path,frame, **kwargs):
             
     if juice_timeind > 0:
         ax.scatter(juice.lon[juice_timeind], juice.r[juice_timeind]*np.cos(juice.lat[juice_timeind]), s=symsize_spacecraft, c=juice_color, marker='s', alpha=1,lw=0,zorder=3)
-        juice_text='JUICE:  '+str(f'{juice.r[juice_timeind]:6.2f}')+str(f'{np.rad2deg(juice.lon[juice_timeind]):8.1f}')+str(f'{np.rad2deg(juice.lat[juice_timeind]):8.1f}')
+        juice_text='JUICE: '+str(f'{juice.r[juice_timeind]:6.2f}')+str(f'{np.rad2deg(juice.lon[juice_timeind]):8.1f}')+str(f'{np.rad2deg(juice.lat[juice_timeind]):8.1f}')
         f7=plt.figtext(0.01,0.66,juice_text, fontsize=fsize, ha='left',color=juice_color)
         if plot_orbit: 
-            fadestart=juice_timeind-fadeind
-            if  fadestart < 0: fadestart=0            
-            ax.plot(juice.lon[fadestart:juice_timeind+fadeind], juice.r[fadestart:juice_timeind+fadeind]*np.cos(juice.lat[fadestart:juice_timeind+fadeind]), c=juice_color, alpha=0.6,lw=1,zorder=3)
+            ax.plot(juice.lon[juice_timeind:juice_timeind+fadeind], juice.r[juice_timeind:juice_timeind+fadeind]*np.cos(juice.lat[juice_timeind:juice_timeind+fadeind]), c=juice_color, alpha=0.6,lw=1,zorder=3)
+            ax.plot(juice.lon[juice_timeind-fadeind:juice_timeind], juice.r[juice_timeind-fadeind:juice_timeind]*np.cos(juice.lat[juice_timeind-fadeind:juice_timeind]), c=juice_color, linestyle='--',alpha=0.5,lw=1,zorder=3)
 
              
             
