@@ -18,7 +18,7 @@
 # 
 # 
 
-# In[12]:
+# In[21]:
 
 
 #switches
@@ -81,7 +81,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[22]:
 
 
 if sys.platform == 'linux': 
@@ -135,7 +135,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions, Xray and SDO plots
 
-# In[3]:
+# In[ ]:
 
 
 if debug_mode > 0: 
@@ -153,7 +153,7 @@ hp.plot_noaa_xray(data_path+xraypickle,data_path+xraypickle2,plot_path)
 
 
 
-# In[4]:
+# In[ ]:
 
 
 if debug_mode > 0: 
@@ -165,9 +165,9 @@ t0 = time.time()
 print(' ')
 print('------ POSITIONS ')
 
-# spacecraft positions image, uses positions file  /results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p'
+# spacecraft positions image, uses positions file results/positions/positions_2020_all_HEEQ_10min_rad_cm.p
+# made with positions.ipynb, path is always within heliocats package
 hp.plot_positions(datetime.datetime.utcnow(),position_path, 'HEEQ',now=True)
-
 
 #make positions for specific events as pdf
 #hp.plot_positions(datetime.datetime(2022,9,5,18),position_path, 'HEEQ',pdf=True)
@@ -185,7 +185,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind 
 
-# In[5]:
+# In[ ]:
 
 
 if debug_mode > 0: 
@@ -292,7 +292,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[6]:
+# In[18]:
 
 
 if debug_mode > 0: 
@@ -349,7 +349,7 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[7]:
+# In[19]:
 
 
 if debug_mode > 0:     
@@ -362,7 +362,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[8]:
+# In[20]:
 
 
 t1all = time.time()

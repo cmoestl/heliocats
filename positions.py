@@ -1,17 +1,65 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ### Spacecraft position tests
+# ### Spacecraft positions for movies, now plots
 # 
 # This notebook demonstrates ways of getting positions with spiceypy, e.g. for position movies since 2020 or for current position plots
 # 
-# use spiceypy for positions at Bepi, PSP, Solo, STEREO-A, MESSENGER and the inner 4 planets
+# use spiceypy for positions at Bepi, PSP, Solo, STEREO-A, JUICE and the inner 4 planets
 # 
 # https://spiceypy.readthedocs.io/en/stable/
 # 
+# product:
+# 
+# - file with positions in rad, 10 min resolution, since 2020, with matplotlib datenumbers
+# "results/positions/positions_2020_all_HEEQ_10min_rad_cm.p"
+# 
+# - file with positions in rad, 1 hour resolution, since 2020, with matplotlib datenumbers
+# "results/positions/positions_2020_all_HEEQ_1h_rad_cm.p"
+# 
+# 
+# - 10 min version used for "now" plot (data_update_web_hf.ipynb)
+# - 1h version used for position movies for context with other missions (position_movies.ipynb)
+# 
+# 
+# #### Orbits:
+# 
+# need to copy these updated kernel files manually to the kernel paths, and change filenames in code (!)
+# - SolO Kernels are available at:  https://spiftp.esac.esa.int/data/SPICE/SOLAR-ORBITER/kernels/spk/
+# then change filename in solo_furnish
+# 
+# - PSP https://soho.nascom.nasa.gov/solarsoft/psp/gen/data/spice/orbit/
+# use file like "spp_nom_20180812_20300101_v042_PostV7.bsp" and change filename in psp_furnish
+# 
+# - BepiColombo https://naif.jpl.nasa.gov/pub/naif/BEPICOLOMBO/kernels/spk/, use latest file and change filename in bepi_furnish
+# 
+# - JUICE  https://spiftp.esac.esa.int/data/SPICE/JUICE/kernels/ files like: juice_orbc_000080_230414_310721_v01.bsp
+# 
+# - generic kernels https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/
+# 
+# - STEREO-A
+# 
+# all: https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/
+# 
+# 
+# for science data: https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/depm/ahead/
+# 
+# predicted: https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/epm/ahead/
+# 
 # 
 
-# In[1]:
+# In[18]:
+
+
+#dt=24 #hours, for 1 day
+
+
+#dt=1/6 #hours for 10 min
+#filename='results/positions/positions_2020_all_HEEQ_10min_rad_cm.p'
+
+dt=1 #hours, for 1 hour
+filename='results/positions/positions_2020_all_HEEQ_1h_rad_cm.p'
+
 
 
 import numpy as np
@@ -95,10 +143,15 @@ if sys.platform =='darwin':
     get_ipython().run_line_magic('matplotlib', 'inline')
     #matplotlib.use('Agg') 
     
-def cart2sphere_emma(x,y,z):
+def cart2sphere_emma_rad(x,y,z):
+    
     r = np.sqrt(x**2+ y**2 + z**2) /1.495978707E8         
     theta = np.arctan2(z,np.sqrt(x**2+ y**2)) * 360 / 2 / np.pi
-    phi = np.arctan2(y,x) * 360 / 2 / np.pi                   
+    phi = np.arctan2(y,x) * 360 / 2 / np.pi    
+    
+    theta=np.deg2rad(theta)
+    phi=np.deg2rad(phi)
+    
     return (r, theta, phi)
 
 
@@ -107,9 +160,13 @@ def cart2sphere_emma(x,y,z):
 os.system('jupyter nbconvert --to script positions.ipynb')   
 
 
+#measure runtime
+t0=time.time()
+
+
 # #### define times
 
-# In[2]:
+# In[19]:
 
 
 # Start date
@@ -129,7 +186,6 @@ times = []
 times_mes=[]
 times_juice=[]
 
-dt=12 #hours
 
 
 # Generate datetimes with increments of dt hours until the end date
@@ -148,18 +204,13 @@ while current_date <= end_date_all:
     
 
 
-# Print the generated datetimes
-#for dt in datetimes:
-print(times_bepi[-1])
-print(times[-1])
-
 
 ####JUICE
 
 # Start date
-start_date_juice = datetime.datetime(2020, 4, 1)
+start_date_juice = datetime.datetime(2023, 4, 15)
 
-end_date_juice = datetime.datetime(2030, 1, 1)
+end_date_juice = datetime.datetime(2031, 7, 21)
 
     
 # Generate datetimes with increments of dt hours until the end date
@@ -168,11 +219,16 @@ while current_date <= end_date_all:
     times_juice.append(current_date)
     current_date += datetime.timedelta(hours=dt)
 
+# Print the generated datetimes
+#for dt in datetimes:
+print(times_bepi[-1])
+print(times[-1])
+print(times_juice[-1])
 
 
 # ### BepiColombo
 
-# In[3]:
+# In[20]:
 
 
 #from hd.data          
@@ -205,7 +261,7 @@ def get_bepi_pos(t,kernels_path):
     if spiceypy.ktotal('ALL') < 1:
         bepi_furnish(kernels_path)
     pos = spiceypy.spkpos("BEPICOLOMBO MPO", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
-    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
     return position
 
@@ -223,12 +279,14 @@ def get_bepi_positions(time_series,kernels_path):
 bepi_furnish(kernels_path)    
 print(kernels_path)
 bepi=get_bepi_positions(times_bepi,kernels_path)
-plt.plot(bepi.time,bepi.r)
+bepi.time=mdates.date2num(bepi.time)
+plt.plot_date(bepi.time,bepi.r,'-')
+
 
 
 # ## Parker Solar Probe
 
-# In[4]:
+# In[21]:
 
 
 def psp_furnish(kernel_path):
@@ -253,7 +311,7 @@ def get_psp_pos(t,kernel_path):
     #    psp_furnish(kernel_path)        
 
     pos = spiceypy.spkpos("PARKER SOLAR PROBE", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
-    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
     return position
 
@@ -272,13 +330,14 @@ def get_psp_positions(time_series,kernel_path):
 psp_furnish(kernels_path)    
 print(kernels_path)
 psp=get_psp_positions(times,kernels_path)
-plt.plot(psp.time,psp.r)
+psp.time=mdates.date2num(psp.time)
+plt.plot_date(psp.time,psp.r,'-')
 
 
 # ##  Solar Orbiter
 # 
 
-# In[5]:
+# In[22]:
 
 
 def solo_furnish(kernels_path):
@@ -305,7 +364,7 @@ def get_solo_pos(t,kernels_path):
     if spiceypy.ktotal('ALL') < 1:
         solo_furnish(kernels_path)
     pos = spiceypy.spkpos("SOLAR ORBITER", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
-    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
     return position
 
@@ -321,13 +380,15 @@ def get_solo_positions(time_series,kernels_path):
 solo_furnish(kernels_path)    
 print(kernels_path)
 solo=get_solo_positions(times,kernels_path)
-plt.plot(solo.time,solo.r)
+
+solo.time=mdates.date2num(solo.time)
+plt.plot_date(solo.time,solo.r,'-')
            
 
 
 # ## STEREO-A
 
-# In[6]:
+# In[23]:
 
 
 def stereoa_furnish(kernel_path):
@@ -354,7 +415,7 @@ def get_stereoa_pos(t,kernel_path):
     if spiceypy.ktotal('ALL') < 1:
         stereoa_furnish(kernel_path)
     pos = spiceypy.spkpos("STEREO AHEAD", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
-    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
     return position
 
@@ -371,18 +432,15 @@ def get_stereoa_positions(time_series,kernel_path):
 stereoa_furnish(kernels_path)    
 print(kernels_path)
 sta=get_stereoa_positions(times,kernels_path)
-plt.plot(sta.time,sta.r)
+sta.time=mdates.date2num(sta.time)
+plt.plot_date(sta.time,sta.r,'-')
 
 
 
 # ## JUICE
 # 
-# https://spiftp.esac.esa.int/data/SPICE/JUICE/kernels/
-# 
-# files like:
-# juice_orbc_000080_230414_310721_v01.bsp
 
-# In[23]:
+# In[24]:
 
 
 def juice_furnish(kernel_path):
@@ -400,7 +458,7 @@ def get_juice_pos(t,kernel_path):
     if spiceypy.ktotal('ALL') < 1:
         juice_furnish(kernel_path)
     pos = spiceypy.spkpos("JUICE", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
-    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
     return position
 
@@ -408,7 +466,7 @@ def get_juice_pos(t,kernel_path):
 def get_juice_positions(time_series,kernel_path):
     positions = []
     for t in time_series:
-        position = get_stereoa_pos(t,kernel_path)
+        position = get_juice_pos(t,kernel_path)
         positions.append(position)
     df_positions = pd.DataFrame(positions, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
     return df_positions
@@ -416,13 +474,14 @@ def get_juice_positions(time_series,kernel_path):
 
 juice_furnish(kernels_path)    
 print(kernels_path)
-juice=get_juice_positions(times,kernels_path)
-plt.plot(juice.time,juice.r)
+juice=get_juice_positions(times_juice,kernels_path)
+juice.time=mdates.date2num(juice.time)
+plt.plot_date(juice.time,juice.r,'-')
 
 
 # ## Planets
 
-# In[7]:
+# In[25]:
 
 
 def generic_furnish(kernels_path):
@@ -438,7 +497,7 @@ def get_planet_pos(t,kernels_path, planet):
     if spiceypy.ktotal('ALL') < 1:
         generic_furnish(kernels_path)
     pos = spiceypy.spkpos(planet, spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
-    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
     return position
 
@@ -463,19 +522,29 @@ saturn=get_planet_positions(times,kernels_path, 'SATURN_BARYCENTER')
 uranus=get_planet_positions(times,kernels_path, 'URANUS_BARYCENTER')
 neptune=get_planet_positions(times,kernels_path, 'NEPTUNE_BARYCENTER')
 
+#to matplotlib datenumber
+mercury.time=mdates.date2num(mercury.time)
+venus.time=mdates.date2num(venus.time)
+earth.time=mdates.date2num(earth.time)
+mars.time=mdates.date2num(mars.time)
+jupiter.time=mdates.date2num(jupiter.time)
+saturn.time=mdates.date2num(saturn.time)
+uranus.time=mdates.date2num(uranus.time)
+neptune.time=mdates.date2num(neptune.time)
 
-plt.plot(mercury.time,mercury.r)
-plt.plot(venus.time,venus.r)
-plt.plot(earth.time,earth.r)
-plt.plot(mars.time,mars.r)
-plt.plot(jupiter.time,jupiter.r)
-plt.plot(saturn.time,saturn.r)
-plt.plot(uranus.time,uranus.r)
-plt.plot(neptune.time,neptune.r)
+
+plt.plot_date(mercury.time,mercury.r,'-')
+plt.plot_date(venus.time,venus.r,'-')
+plt.plot_date(earth.time,earth.r,'-')
+plt.plot_date(mars.time,mars.r,'-')
+plt.plot_date(jupiter.time,jupiter.r,'-')
+plt.plot_date(saturn.time,saturn.r,'-')
+plt.plot_date(uranus.time,uranus.r,'-')
+plt.plot_date(neptune.time,neptune.r,'-')
 
 
 
-# In[8]:
+# In[ ]:
 
 
 #%matplotlib
@@ -484,7 +553,7 @@ plt.plot(mercury.time,mercury.r)
 plt.plot(bepi.time,bepi.r)
 
 
-# In[9]:
+# In[ ]:
 
 
 ##make a plotly plot
@@ -492,18 +561,18 @@ plt.plot(bepi.time,bepi.r)
 #init_notebook_mode(connected = True)
 #init_notebook_mode(connected = False)
 
-fig=plt.figure(figsize=(8,10), dpi=150)
+#fig=plt.figure(figsize=(8,10), dpi=150)
     
-nrows=1
-fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True)
+#nrows=1
+#fig = make_subplots(rows=nrows, cols=1, shared_xaxes=True)
 
-fig.add_trace(go.Scatter(x=mercury.time, y=mercury.r, name='Mercury', line_color='orange' ) )
+#fig.add_trace(go.Scatter(x=mdates.num2date(mercury.time), y=mercury.r, name='Mercury', line_color='orange' ) )
 
-fig.add_trace(go.Scatter(x=bepi.time, y=bepi.r, name='Bepi',line_color='purple') )
+#fig.add_trace(go.Scatter(x=mdates.num2date(bepi.time), y=bepi.r, name='Bepi',line_color='purple') )
 
 
-fig.write_html(f'positions_plotly.html')
-fig.show()
+#fig.write_html(f'positions_plotly.html')
+#fig.show()
 
 
 
@@ -512,37 +581,32 @@ fig.show()
 # 
 # # overview plots
 
-# In[10]:
+# In[ ]:
 
 
-plt.plot(mercury.time,mercury.r)
-plt.plot(venus.time,venus.r)
-plt.plot(earth.time,earth.r)
-plt.plot(mars.time,mars.r)
-plt.plot(sta.time,sta.r)
-plt.plot(bepi.time,bepi.r)
-plt.plot(psp.time,psp.r)
-plt.plot(solo.time,solo.r)
+plt.plot_date(mercury.time,mercury.r,'-')
+plt.plot_date(venus.time,venus.r,'-')
+plt.plot_date(earth.time,earth.r,'-')
+plt.plot_date(mars.time,mars.r,'-')
+plt.plot_date(sta.time,sta.r,'-')
+plt.plot_date(bepi.time,bepi.r,'-')
+plt.plot_date(psp.time,psp.r,'-')
+plt.plot_date(solo.time,solo.r,'-')
+plt.plot_date(juice.time,juice.r,'-')
 
-
-
-# In[11]:
-
-
-plt.plot(mercury.time,mercury.lat)
-plt.plot(venus.time,venus.lat)
-plt.plot(earth.time,earth.lat)
-plt.plot(mars.time,mars.lat)
-plt.plot(sta.time,sta.lat)
-plt.plot(bepi.time,bepi.lat)
-plt.plot(psp.time,psp.lat)
-plt.plot(solo.time,solo.lat)
 
 
 # In[ ]:
 
 
-
+plt.plot_date(mercury.time,mercury.lat,'-')
+plt.plot_date(venus.time,venus.lat,'-')
+plt.plot_date(earth.time,earth.lat,'-')
+plt.plot_date(mars.time,mars.lat,'-')
+plt.plot_date(sta.time,sta.lat,'-')
+plt.plot_date(bepi.time,bepi.lat,'-')
+plt.plot_date(psp.time,psp.lat,'-')
+plt.plot_date(solo.time,solo.lat,'-')
 
 
 # ## write file with all positions from 2020 onwards
@@ -551,16 +615,16 @@ plt.plot(solo.time,solo.lat)
 # 
 # 
 
-# In[16]:
+# In[ ]:
 
 
-## add juice !!
-t0=time.time()
-pos = np.array([psp, bepi, solo, sta, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune])
-pickle.dump(pos, open('results/positions/positions_2020_all_HEEQ_10min_rad_cm.p', 'wb'))
+##maybe need to convert times to matplotlib date numbers?
+
+pos = np.array([psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune])
+pickle.dump(pos, open(filename, 'wb'))
 
 t1 = time.time()
-print('making positions takes', np.round(t1-t0,2), 'seconds')
+print('making positions takes', np.round((t1-t0)/60,2), 'minutes')
 print('merged positions file made')   
     
 
@@ -572,15 +636,59 @@ print('merged positions file made')
 
 
 
-# In[18]:
+# In[14]:
 
 
-pos=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_10min_rad_cm.p', "rb" ) )    
+[psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open(filename, "rb" ) )    
 print('merged positions loaded')
 
 plt.plot(bepi.time,bepi.r)
 plt.plot(solo.time,solo.r)
 plt.plot(earth.time,earth.r)
+plt.plot(juice.time,juice.r)
+
+
+
+# In[15]:
+
+
+earth.time
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
@@ -671,7 +779,7 @@ def get_mes_pos(t,kernels_path):
     if spiceypy.ktotal('ALL') < 1:
         mes_furnish(kernels_path)
     pos = spiceypy.spkpos("MESSENGER", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
-    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
     return position
 

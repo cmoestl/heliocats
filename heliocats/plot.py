@@ -3356,31 +3356,23 @@ def plot_insitu_measure_maven(sc, start, end, sc_label, path, rad, arrcat,wsa,ms
 
 def plot_positions(time_date1, path,frame, **kwargs):
     '''
-    sc = data
-    this takes the numeric positions fiel
     '''
+    
     sns.set_style('darkgrid')
     #sns.set_style('whitegrid')
-
     sns.set_context('paper')    
     
     time1=mdates.date2num(time_date1)
 
-    #made with positions.ipynb
-    [psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p', "rb" ) )
+    #old version
+    #[psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_10min_rad.p', "rb" ) )
+
+    #new version
+    #made with positions.ipynb 10 min, in rad, matplotlib datenumber
+    [psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_10min_rad_cm.p', "rb" ) )    
     res_in_days=1/(24*6) #10 min resolution of positions file
     
-    
-    #!! change to positions_psp_solo_sta_bepi_wind_juno_juice_ulysses_planets_HEEQ_10min_rad.p
-    
-    
-    #[psp, solo, sta, stb, bepi, l1, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_psp_solo_sta_bepi_wind_planets_HEEQ_1hour_rad.p', "rb" ) )
-    #res_in_days=1/(24) #1hour resolution of positions file
-    
-    
-    
-    
-
+ 
     #sidereal solar rotation rate
     if frame=='HCI': sun_rot=24.47
     #synodic
@@ -3411,12 +3403,16 @@ def plot_positions(time_date1, path,frame, **kwargs):
 
     dct=time1-solo.time
     solo_timeind=np.argmin(abs(dct))
+    
+    dct=time1-juice.time
+    juice_timeind=np.argmin(abs(dct))
+
 
     dct=time1-earth.time
     earth_timeind=np.argmin(abs(dct))
     
-    dct=time1-l1.time
-    l1_timeind=np.argmin(abs(dct))
+    #dct=time1-l1.time
+    #l1_timeind=np.argmin(abs(dct))
     
     dct=time1-venus.time
     venus_timeind=np.argmin(abs(dct))
@@ -3434,8 +3430,11 @@ def plot_positions(time_date1, path,frame, **kwargs):
     dct=time1-sta.time
     sta_timeind=np.argmin(abs(dct))
     
-    dct=time1-stb.time
-    stb_timeind=np.argmin(abs(dct))
+    
+    
+    
+    #dct=time1-stb.time
+    #stb_timeind=np.argmin(abs(dct))
 
 
     
@@ -3446,6 +3445,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
     psp_color='black'
     bepi_color='blue'
     solo_color='green'
+    juice_color='gold'
 
     ax.scatter(venus.lon[venus_timeind], venus.r[venus_timeind]*np.cos(venus.lat[venus_timeind]), s=symsize_planet, c='orange', alpha=1,lw=0,zorder=3)
     ax.scatter(mercury.lon[mercury_timeind], mercury.r[mercury_timeind]*np.cos(mercury.lat[mercury_timeind]), s=symsize_planet, c='dimgrey', alpha=1,lw=0,zorder=3)
@@ -3518,6 +3518,25 @@ def plot_positions(time_date1, path,frame, **kwargs):
             ax.plot(solo.lon[solo_timeind:solo_timeind+fadeind], solo.r[solo_timeind:solo_timeind+fadeind]*np.cos(solo.lat[solo_timeind:solo_timeind+fadeind]), c=solo_color, alpha=0.6,lw=1,zorder=3)
             ax.plot(solo.lon[solo_timeind-fadeind:solo_timeind], solo.r[solo_timeind-fadeind:solo_timeind]*np.cos(solo.lat[solo_timeind-fadeind:solo_timeind]), c=solo_color, linestyle='--',alpha=0.5,lw=1,zorder=3)
 
+            
+           
+            
+    if juice_timeind > 0:
+        ax.scatter(juice.lon[juice_timeind], juice.r[juice_timeind]*np.cos(juice.lat[juice_timeind]), s=symsize_spacecraft, c=juice_color, marker='s', alpha=1,lw=0,zorder=3)
+        juice_text='JUICE:  '+str(f'{juice.r[juice_timeind]:6.2f}')+str(f'{np.rad2deg(juice.lon[juice_timeind]):8.1f}')+str(f'{np.rad2deg(juice.lat[juice_timeind]):8.1f}')
+        f7=plt.figtext(0.01,0.66,juice_text, fontsize=fsize, ha='left',color=juice_color)
+        if plot_orbit: 
+            fadestart=juice_timeind-fadeind
+            if  fadestart < 0: fadestart=0            
+            ax.plot(juice.lon[fadestart:juice_timeind+fadeind], juice.r[fadestart:juice_timeind+fadeind]*np.cos(juice.lat[fadestart:juice_timeind+fadeind]), c=juice_color, alpha=0.6,lw=1,zorder=3)
+
+             
+            
+            
+            
+            
+            
+            
             
 
     if plot_orbit: 
@@ -3617,7 +3636,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
     solo_cut=solo[solo_timeind-6*24*30:solo_timeind+6*24*30]
     sta_cut=sta[sta_timeind-6*24*30:sta_timeind+6*24*30]
     bepi_cut=bepi[bepi_timeind-6*24*30:bepi_timeind+6*24*30]
-    l1_cut=l1[l1_timeind-6*24*30:l1_timeind+6*24*30]
+    #l1_cut=l1[l1_timeind-6*24*30:l1_timeind+6*24*30]
     earth_cut=psp[earth_timeind-6*24*30:earth_timeind+6*24*30]
     mercury_cut=mercury[mercury_timeind-6*24*30:mercury_timeind+6*24*30]
     venus_cut=venus[venus_timeind-6*24*30:venus_timeind+6*24*30]
@@ -3626,13 +3645,16 @@ def plot_positions(time_date1, path,frame, **kwargs):
     
     
     
-    pickle.dump([psp_cut,solo_cut,sta_cut,bepi_cut,l1_cut, earth_cut, mercury_cut, venus_cut, mars_cut, jupiter_cut], open( path+'positions_now.p', "wb" ) ) 
+    #with l1
+    #pickle.dump([psp_cut,solo_cut,sta_cut,bepi_cut,l1_cut, earth_cut, mercury_cut, venus_cut, mars_cut, jupiter_cut], open( path+'positions_now.p', "wb" ) ) 
+    pickle.dump([psp_cut,solo_cut,sta_cut,bepi_cut, earth_cut, mercury_cut, venus_cut, mars_cut, jupiter_cut], open( path+'positions_now.p', "wb" ) ) 
+
     print('saved as ',path+'positions_now.p')
     
     
     #print(np.concatenate((psp_cut, solo_cut, sta_cut, bepi_cut, l1_cut), axis=0))
 
-    #make adjustments for txt file
+    #make adjustments for txt file output
     output_format='%Y-%m-%dT%H:%MZ'
     psp_cut.time=[mdates.num2date(ts).strftime(output_format) for ts in psp_cut.time]
     psp_cut.lon=np.rad2deg(psp_cut.lon)
@@ -3650,14 +3672,17 @@ def plot_positions(time_date1, path,frame, **kwargs):
     sta_cut.lon=np.rad2deg(sta_cut.lon)
     sta_cut.lat=np.rad2deg(sta_cut.lat)
 
-    l1_cut.time=[mdates.num2date(ts).strftime(output_format) for ts in l1_cut.time]
-    l1_cut.lon=np.rad2deg(l1_cut.lon)
-    l1_cut.lat=np.rad2deg(l1_cut.lat)
+    #l1_cut.time=[mdates.num2date(ts).strftime(output_format) for ts in l1_cut.time]
+    #l1_cut.lon=np.rad2deg(l1_cut.lon)
+    #l1_cut.lat=np.rad2deg(l1_cut.lat)
 
     
+    #with L1
+    #np.savetxt(path+'positions_now.txt', np.concatenate((psp_cut,solo_cut,bepi_cut,sta_cut,l1_cut), axis=0), delimiter=' ', fmt='%s %s %f %f %f %f %f %f', header='spacecraft time     R [AU] lon [deg] lat [deg]   x [AU]   y [AU]  z [AU]  HEEQ coordinates / ASWO, GeoSphere Austria created '+str(datetime.datetime.utcnow())[0:16])
 
-    np.savetxt(path+'positions_now.txt', np.concatenate((psp_cut,solo_cut,bepi_cut,sta_cut,l1_cut), axis=0), delimiter=' ', fmt='%s %s %f %f %f %f %f %f', header='spacecraft time     R [AU] lon [deg] lat [deg]   x [AU]   y [AU]  z [AU]  HEEQ coordinates / ASWO, GeoSphere Austria created '+str(datetime.datetime.utcnow())[0:16])
     
+    np.savetxt(path+'positions_now.txt', np.concatenate((psp_cut,solo_cut,bepi_cut,sta_cut), axis=0), delimiter=' ', fmt='%s %s %f %f %f %f %f', header='spacecraft time     R [AU] lon [deg] lat [deg]   x [AU]   y [AU]  z [AU]  HEEQ coordinates / ASWO, GeoSphere Austria created '+str(datetime.datetime.utcnow())[0:16])
+
 #    np.savetxt(path+'current_positions.txt', np.concatenate((psp_cut, solo_cut, sta_cut, bepi_cut, l1_cut), axis=0), delimiter=' ', fmt='%s %f %f %f %f %f %f %f ')
     print('saved as ',path+'positions_now.txt')
 

@@ -14,12 +14,26 @@
 #  twitter @chrisoutofspace, https://github.com/cmoestl
 #  
 #  
-#  last update: April 2024
+#  last update: March 2025
 #  
 #  needs the helio4 environment (see README.md)
 #  
+# 
+# Figshare repository:
+# 
+# https://figshare.com/articles/media/Animations_of_interplanetary_spacecraft_positions_Solar_Orbiter_Parker_Solar_Probe_2018-2030_PUNCH_2025-2029/25301260
+#  
+# We present here animations of the trajectories of Solar Orbiter, Parker Solar Probe, BepiColombo, STEREO-A and JUICE, with the 4 inner planets, for 2020/1-12/2029, in 6 hour time resolution.
+# 
+# There are additional 4 movies with 6 hour time resolution for 2025/4 - 12/2029, covering a shorter timerange as context for the PUNCH mission launched in March 2025. One includes the Mars orbit, and the other shows only the inner heliosphere.
+# 
+# All movies are available with 1080p (default) and 4k resolution (indicated with 4k in the file name).
+# 
+# Last update of trajectories: March 2025
+# 
+#  
 
-# In[21]:
+# In[81]:
 
 
 import os
@@ -29,31 +43,31 @@ from datetime import datetime, timedelta
 
 ############################ directories
 
-#animdirectory   = 'results/positions/movies_2024'
-#outputdirectory = 'results/positions/movies_2024/frames'
+animdirectory   = 'results/positions/movies_2025'
+outputdirectory = 'results/positions/movies_2025/frames'
 #outputdirectory = 'results/positions/movies_2024/frames_zoom'
 
 #for the movie
-animdirectory   = 'icmecat'
+#animdirectory   = 'icmecat'
 #outputdirectory = 'results/positions/movies_2024/frames'
 #for the frames
-outputdirectory = 'icmecat/anim_frames'
+#outputdirectory = 'icmecat/anim_frames'
 
 
 if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
 if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
 
-#movie_filename='positions_punch_2025_2029'
-#movie_filename='positions_punch_2025_2029_zoom'
-#movie_filename='positions_2018_2030'
-movie_filename='icmecat_visual'
+#movie_filename='positions_punch_2025_2030'
+#movie_filename='positions_punch_2025_2030_zoom'
+movie_filename='positions_2020_2030'
+#movie_filename=''
 
 
 ####################### Time resolution
 
 #res_in_hours=24
 #res_in_hours=6
-res_in_hours=4
+res_in_hours=24*7
 
 
 print('time resolution in hours',res_in_hours)
@@ -61,12 +75,12 @@ print('time resolution in hours',res_in_hours)
 ############### make time range
 
 ##PUNCH 4.5 years
-t_start = datetime(2025,4,1)
-t_end   = datetime(2029,12,31)
+#t_start = datetime(2025,4,1)
+#t_end   = datetime(2029,12,31)
 
 ## Solar Orbiter 10 years
-#t_start = datetime(2020,2,11)
-#t_end   = datetime(2030,11,19)
+t_start = datetime(2020,2,11)
+t_end   = datetime(2030,11,19)
 
 ## from psp launch onwards
 #t_start = datetime(2018,10,1)
@@ -77,15 +91,14 @@ t_end   = datetime(2029,12,31)
 #t_start = datetime(2023,3,10)
 #t_end   = datetime(2023,5,10)
 
-t_start = datetime(2020,4,1)
-t_end   = datetime(2024,4,1)
+#t_start = datetime(2020,4,1)
+#t_end   = datetime(2024,4,1)
 
 
 ########## plots
 
 #rmax=1.72
 rmax=1.1
-
 
 dpisave=100 #for 1080p
 #dpisave=200 #for 4K
@@ -94,6 +107,9 @@ dpisave=100 #for 1080p
 
 #used=100
 used=8
+
+
+# In[82]:
 
 
 ###########################################################
@@ -153,11 +169,18 @@ print(data_path)
 os.system('jupyter nbconvert --to script position_movies.ipynb')    
 
 
-# In[16]:
+# In[83]:
 
 
+#old files
+#[psp, solo, sta, stb, bepi, l1, juno, juice, uly, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load(open(data_path+'/positions_psp_solo_sta_bepi_wind_juno_juice_ulysses_planets_HEEQ_1hour_rad.p', "rb" ) )
+
+
+##use 10 min version, these are pandas dataframes
 print('load positions')
-[psp, solo, sta, stb, bepi, l1, juno, juice, uly, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load(open(data_path+'/positions_psp_solo_sta_bepi_wind_juno_juice_ulysses_planets_HEEQ_1hour_rad.p', "rb" ) )
+[psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p', "rb" ) )    
+print('merged positions loaded')
+
 
 print('load icmecat')
 #load icmecat as numpy array 
@@ -168,7 +191,13 @@ ic=ic.to_records()
 print('done')
 
 
-# In[17]:
+# In[84]:
+
+
+psp.time.values[-1]
+
+
+# In[93]:
 
 
 def make_frame(k):
@@ -195,7 +224,7 @@ def make_frame(k):
         bepi_color='skyblue'
         solo_color='springgreen'
         sta_color='salmon'
-        juice_color='greenyellow'
+        juice_color='gold'
 
 
     frame_time_str=str(mdates.num2date(frame_time_num+k*res_in_hours/24))
@@ -227,6 +256,10 @@ def make_frame(k):
 
     dct=frame_time_num+k*res_in_hours/24-juice.time
     juice_timeind=np.argmin(abs(dct))
+    
+    
+    print(psp_timeind)
+    
     
     
 
@@ -312,11 +345,9 @@ def make_frame(k):
                 fadedist=1-time_dist/time_diff_icme
                 ax.scatter(sta.lon[sta_timeind], sta.r[sta_timeind]*np.cos(sta.lat[sta_timeind]), s=symsize_icme, c=sta_color, marker='o', alpha=fadedist,lw=0,zorder=3)
 
-                
-    
 
     #position and text for PSP only before the kernel ends
-    if np.logical_and(psp_timeind > 0,(frame_time_num+k*res_in_hours/24) < psp.time[-1] ):
+    if np.logical_and(psp_timeind > 0,(frame_time_num+k*res_in_hours/24) < psp.time.values[-1] ):
                       
         #plot trajectory
         ax.scatter(psp.lon[psp_timeind], psp.r[psp_timeind]*np.cos(psp.lat[psp_timeind]), s=symsize_spacecraft, c=psp_color, marker='s', alpha=1,lw=0,zorder=3)
@@ -338,7 +369,7 @@ def make_frame(k):
             
             
 
-    if np.logical_and(bepi_timeind > 0,(frame_time_num+k*res_in_hours/24) < bepi.time[-1] ):
+    if np.logical_and(bepi_timeind > 0,(frame_time_num+k*res_in_hours/24) < bepi.time.values[-1] ):
         
         ax.scatter(bepi.lon[bepi_timeind], bepi.r[bepi_timeind]*np.cos(bepi.lat[bepi_timeind]), s=symsize_spacecraft, c=bepi_color, marker='s', alpha=1,lw=0,zorder=3)
         bepi_text='Bepi:   '+str(f'{bepi.r[bepi_timeind]:6.2f}')+str(f'{np.rad2deg(bepi.lon[bepi_timeind]):8.1f}')+str(f'{np.rad2deg(bepi.lat[bepi_timeind]):8.1f}')
@@ -360,7 +391,7 @@ def make_frame(k):
             
             
     #after Bepi kernel is done, mercury position
-    if (frame_time_num+k*res_in_hours/24) > bepi.time[-1]:
+    if (frame_time_num+k*res_in_hours/24) > bepi.time.values[-1]:
         
         ax.scatter(mercury.lon[earth_timeind], mercury.r[earth_timeind]*np.cos(mercury.lat[earth_timeind]), s=symsize_spacecraft, c=bepi_color, marker='s', alpha=1,lw=0,zorder=3)
         bepi_text='Bepi:   '+str(f'{mercury.r[earth_timeind]:6.2f}')+str(f'{np.rad2deg(mercury.lon[earth_timeind]):8.1f}')+str(f'{np.rad2deg(mercury.lat[earth_timeind]):8.1f}')
@@ -480,7 +511,7 @@ def make_frame(k):
     plt.close('all')
 
 
-# In[18]:
+# In[94]:
 
 
 plt.close('all')
@@ -575,9 +606,6 @@ theta=np.arange(0,np.deg2rad(180),0.01)
 
 # ### single processing
 
-# In[11]:
-
-
 #print()
 #print('make animation')
 #print()
@@ -585,8 +613,8 @@ theta=np.arange(0,np.deg2rad(180),0.01)
 #k_all=1
 
 #for debugging
-#k_all=1000
-#make_frame(1)
+k_all=1000
+make_frame(1)
 #for i in np.arange(1,10,1):
 #    make_frame(i)
     
@@ -594,12 +622,10 @@ theta=np.arange(0,np.deg2rad(180),0.01)
 #    -r 25 '+str(animdirectory)+'/positions_punch.mp4 -y -loglevel quiet')    
 
 
-# In[19]:
+# In[95]:
 
 
 # ### Multiprocessing
-
-# In[ ]:
 
 
 print()
@@ -631,6 +657,12 @@ print('plots done, frames saved in ',outputdirectory)
 os.system(ffmpeg_path+'ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k \
     -r 30 '+str(animdirectory)+'/'+movie_filename+'.mp4 -y -loglevel quiet')    
 print('movie done, saved in ',animdirectory)
+
+
+
+# In[ ]:
+
+
 
 
 
