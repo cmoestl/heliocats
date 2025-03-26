@@ -864,10 +864,16 @@ def convert_E2K_to_HEE(sc_in,kernels_path):
     
     ###### use spice kernels and spiceypy    
 
-    spice_files = [kernels_path+'generic/naif0012.tls', 
-                   kernels_path+'generic/de430.bsp',
-                   kernels_path+'generic/pck00010.tpc']    
-    spiceypy.furnsh(spice_files)
+    #spice_files = [kernels_path+'generic/naif0012.tls', 
+    #               kernels_path+'generic/de430.bsp',
+    #               kernels_path+'generic/pck00010.tpc']    
+    #spiceypy.furnsh(spice_files)
+    
+    
+    generic_path = kernels_path+'generic/'  
+    generic_kernels = os.listdir(generic_path)
+    for kernel in generic_kernels:
+        spiceypy.furnsh(os.path.join(generic_path, kernel))
     
     time_spice = [spiceypy.str2et(t.strftime('%Y-%m-%d %H:%M')) for t in sc_in.time]
 
@@ -1189,101 +1195,27 @@ def save_omni_data(path,file):
 ############# BepiColombo
 
 
-#from Eva
-
-
-__all__ = ['BepiPredict']
-
-
-class BepiPredict(RemoteKernelsBase):
-    body = 'mpo'
-    type = 'predict'
-
-    def get_remote_kernels(self):
-        """
-        Returns
-        -------
-        list[RemoteKernel]
-        """
-        page = urlopen('https://naif.jpl.nasa.gov/pub/naif/BEPICOLOMBO/kernels/spk/')
-        soup = BeautifulSoup(page, 'html.parser')
-
-        kernel_urls = []
-        for link in soup.find_all('a'):
-            href = link.get('href')
-            if href is not None and href.startswith('bc'):
-                fname = href.split('/')[-1]
-                matches = self.matches(fname)
-                if matches:
-                    kernel_urls.append(
-                        RemoteKernel(f'https://naif.jpl.nasa.gov/pub/naif/BEPICOLOMBO/kernels/spk/{href}', *matches[1:]))
-
-        return kernel_urls
-
-    @staticmethod
-    def matches(fname):
-        """
-        Check if the given filename matches the pattern of this kernel.
-
-        Returns
-        -------
-        matches : bool
-        start_time : astropy.time.Time
-        end_time : astropy.time.Time
-        version : int
-        """
-        # Example filename: bc_mpo_fcp_00154_20181020_20251102_v01.bsp 
-        fname = fname.split('_')
-        if (len(fname) != 7 or
-                fname[0] != 'bc' or
-                fname[1] != 'mpo' or
-                fname[2] != 'fcp'):
-            return False
-
-        start_time = Time.strptime(fname[4], '%Y%m%d')
-        end_time = Time.strptime(fname[5], '%Y%m%d')
-        version = int(fname[6][1:3])
-        return True, start_time, end_time, version
-
-
-
-
-
-def get_positions_bepi(times1):
-    
-    frame = HeliographicStonyhurst()
-    
-    kernels_bepi = astrospice.registry.get_kernels('mpo', 'predict')
-    print(kernels_bepi)
-    bepi_kernel = kernels_bepi[0]
-    print(bepi_kernel)
-    coverage_bepi = bepi_kernel.coverage('Bepicolombo mpo')
-    
-    #times_bepi = Time(np.arange(Time(times1[0]), Time(times1[-1]), dt))
-    print(times1[0],times1[-1])
-    coords_bepi = astrospice.generate_coords('Bepicolombo mpo',times1)
-    coords_bepi = coords_bepi.transform_to(frame)
-
-
-    return coords_bepi, times1
-
-
-
-           
 ##Bepi POSITION FUNCTIONS with spiceypy, preferred method
 #https://naif.jpl.nasa.gov/pub/naif/BEPICOLOMBO/kernels/spk/
 def bepi_furnish(kernels_path):
     """Main"""
     bepi_path = kernels_path+'bepi/'
-    generic_path = kernels_path+'generic/'
+  
     #put the latest file here manually
-    bepi_kernels = astrospice.SPKKernel(bepi_path+'bc_mpo_fcp_00199_20181020_20270407_v02.bsp')
-    generic_kernels = os.listdir(generic_path)
-    print(bepi_kernels)
-    print(generic_kernels)
+    bepi_kernel = 'bc_mpo_fcp_00199_20181020_20270407_v02.bsp'
+    spiceypy.furnsh(os.path.join(bepi_path, bepi_kernel))
+    print(bepi_kernel)
+
     #for kernel in solo_kernels:
     #    spiceypy.furnsh(os.path.join(solo_path, kernel))
     #spiceypy.furnsh(solo_kernels)
+
+    
+    #bepi_kernels = astrospice.SPKKernel(bepi_path+'bc_mpo_fcp_00199_20181020_20270407_v02.bsp')    
+    
+    generic_path = kernels_path+'generic/'  
+    generic_kernels = os.listdir(generic_path)
+    print(generic_kernels)
     for kernel in generic_kernels:
         spiceypy.furnsh(os.path.join(generic_path, kernel))
 
@@ -1293,6 +1225,7 @@ def get_bepi_pos(t,kernels_path):
         bepi_furnish(kernels_path)
     pos = spiceypy.spkpos("BEPICOLOMBO MPO", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
     r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    
     position = t, pos[0], pos[1], pos[2], r, lat, lon
     return position
 
@@ -1304,7 +1237,6 @@ def get_bepi_positions(time_series,kernels_path):
         positions.append(position)
     df_positions = pd.DataFrame(positions, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
     return df_positions
-
 
     
 

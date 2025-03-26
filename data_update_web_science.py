@@ -49,7 +49,7 @@
 # 
 # 
 
-# In[19]:
+# In[1]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -144,7 +144,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[14]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -355,7 +355,7 @@ if get_wind > 0:
 # ### Parker Solar Probe
 # 
 
-# In[10]:
+# In[6]:
 
 
 print(' ')
@@ -421,7 +421,7 @@ else:
   
 
 
-# In[11]:
+# In[8]:
 
 
 if get_psp > 0:   
@@ -436,12 +436,12 @@ if get_psp > 0:
 
     ########## add overview plots
     hp.data_overview_plot(data,plot_path+'psp/'+filepsp[:-2])
-print(data_path+filepsp)
+
 
 
 # ### Solar Orbiter
 
-# In[21]:
+# In[9]:
 
 
 print(' ')
@@ -488,7 +488,7 @@ else:
     print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[22]:
+# In[10]:
 
 
 if get_solo > 0:  
@@ -509,7 +509,7 @@ if get_solo > 0:
 
 # ### BepiColombo
 
-# In[23]:
+# In[17]:
 
 
 print(' ')
@@ -530,8 +530,8 @@ if debug_mode > 0:
     importlib.reload(hp) 
 
     #testing
-    start_time= datetime(2023,3,25)
-    end_time= datetime(2023,3,28)
+    start_time= datetime(2023,2,25)
+    end_time= datetime(2023,2,28)
     #end_time  = datetime(2025,1,31)    
     bepi_file_ob=data_path+'bepi_ob_e2k_test.p'
     bepi_file_ob_rtn=data_path+'bepi_ob_rtn_test.p'
@@ -591,7 +591,7 @@ else:
    
 
 
-# In[24]:
+# In[18]:
 
 
 if get_bepi > 0:  
