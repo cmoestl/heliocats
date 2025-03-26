@@ -49,7 +49,7 @@
 # 
 # 
 
-# In[17]:
+# In[19]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -60,12 +60,12 @@
 debug_mode=0
 #always turn off debug mode when deploying!
 
-get_omni=0
-get_wind=0
+get_omni=1
+get_wind=1
 get_psp=1
 get_solo=1
 get_bepi=1
-get_stereoa=0
+get_stereoa=1
 
 import numpy as np
 import pandas as pd

@@ -36,11 +36,13 @@
 # 
 # **ISSUES**
 # 
+# - add new Events bepi, solo, psp until end of 2024
+# 
 # - STEREO-A beacon data contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[2]:
+# In[3]:
 
 
 last_update='2025-April-TBD'
@@ -56,7 +58,7 @@ used=8
 # used=100 #for server
 
 #which plots to make
-solo_plots=0
+solo_plots=1
 bepi_plots=0
 psp_plots=0
 wind_plots=0
@@ -164,11 +166,10 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # In[4]:
 
 
-###### start with 1 new file in rad with 10 min resolution, with matplotlib datenumbers
+# this file is used for the position plots in hp.plot_icmecat_positions_mag_plasma
+# in rad with 10 min resolution and matplotlib datenumbers
 pos=pickle.load( open( 'results/positions/positions_all_HEEQ_10min_rad_ed.p', "rb" ) )
 print('positions file loaded')
-#this file is used for the position plots in hp.plot_icmecat_positions_mag_plasma)
-
 
 
 # ## (1) load data 
@@ -1658,7 +1659,7 @@ pspz=np.interp(psp_daily_num, pos[0].time.astype(float), pos[0].z)
     
 
 
-# In[21]:
+# In[ ]:
 
 
 # Create polar plot
@@ -1884,7 +1885,7 @@ pio.write_image(fig, 'icmecat/icmecat_orbit_3D_solo.png',scale=1, width=1500, he
 
 # ## Parameter distribution plots near 1 AU
 
-# In[22]:
+# In[ ]:
 
 
 #make distribution plots
@@ -1950,7 +1951,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[23]:
+# In[ ]:
 
 
 t1all = time.time()
@@ -2005,7 +2006,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 
 
 
-# In[55]:
+# In[22]:
 
 
 #check this for pushing the files to figshare

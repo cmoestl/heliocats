@@ -1857,27 +1857,24 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     fsize=17 
     symsize_planet=140
     symsize_spacecraft=100
-
     
-    #order in pos array
+    #get from pos array
    
-    psp=pos[0]
-    solo=pos[1]
-    sta=pos[2]
-    stb=pos[3]
-    bepi=pos[4]
-    
-    l1=pos[10] ## ***change to pos[5] for Wind when done and shift all others
-    
-    juno=pos[5]
-    juice=pos[6]
-    uly=pos[7]
-    mes=pos[8]
-    vex=pos[9]
-    earth=pos[10]
-    mercury=pos[11]
-    venus=pos[12]
-    mars=pos[13]
+    psp=pos['psp']
+    solo=pos['solo']
+    sta=pos['sta']
+    stb=pos['stb']
+    bepi=pos['bepi']
+    l1=pos['wind']     
+    juno=pos['juno']
+    juice=pos['juice']
+    uly=pos['uly']
+    mes=pos['mes']
+    vex=pos['vex']
+    earth=pos['earth']
+    mercury=pos['mercury']
+    venus=pos['venus']
+    mars=pos['mars']
     
     #find index for psp
     dct=time1-psp.time
