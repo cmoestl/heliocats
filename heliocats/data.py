@@ -688,8 +688,8 @@ def convert_HEEQ_to_RTN(sc_in):
 
         #make unit vectors of RTN in basis of HEEQ
         rtn_r=[sc.x[i],sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i],sc.y[i],sc.z[i]])
-        rtn_t=np.cross(heeq_z,rtn_r)
-        rtn_n=np.cross(rtn_r,rtn_t)
+        rtn_t=np.cross(heeq_z,rtn_r)/np.linalg.norm(np.cross(heeq_z,rtn_r))
+        rtn_n=np.cross(rtn_r,rtn_t)/np.linalg.norm(np.cross(rtn_r,rtn_t))
 
         sc.bx[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_r)+sc_in.by[i]*np.dot(heeq_y,rtn_r)+sc_in.bz[i]*np.dot(heeq_z,rtn_r)
         sc.by[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_t)+sc_in.by[i]*np.dot(heeq_y,rtn_t)+sc_in.bz[i]*np.dot(heeq_z,rtn_t)
@@ -707,7 +707,7 @@ def convert_HEEQ_to_RTN(sc_in):
 
 def convert_HEEQ_to_RTN_mag(sc_in):
     '''
-    for all spacecraft
+    for all spacecraft 
     '''
 
     print('conversion HEEQ to RTN start for B only')                                
@@ -726,8 +726,8 @@ def convert_HEEQ_to_RTN_mag(sc_in):
 
         #make unit vectors of RTN in basis of HEEQ
         rtn_r=[sc.x[i],sc.y[i],sc.z[i]]/np.linalg.norm([sc.x[i],sc.y[i],sc.z[i]])
-        rtn_t=np.cross(heeq_z,rtn_r)
-        rtn_n=np.cross(rtn_r,rtn_t)
+        rtn_t=np.cross(heeq_z,rtn_r)/np.linalg.norm(np.cross(heeq_z,rtn_r)) 
+        rtn_n=np.cross(rtn_r,rtn_t)/np.linalg.norm(np.cross(rtn_r,rtn_t)) 
 
         sc.bx[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_r)+sc_in.by[i]*np.dot(heeq_y,rtn_r)+sc_in.bz[i]*np.dot(heeq_z,rtn_r)
         sc.by[i]=sc_in.bx[i]*np.dot(heeq_x,rtn_t)+sc_in.by[i]*np.dot(heeq_y,rtn_t)+sc_in.bz[i]*np.dot(heeq_z,rtn_t)

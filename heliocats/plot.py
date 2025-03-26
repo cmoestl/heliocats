@@ -1861,18 +1861,19 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     
     #order in pos array
    
-
-
     psp=pos[0]
     solo=pos[1]
     sta=pos[2]
     stb=pos[3]
     bepi=pos[4]
-    l1=pos[5]
-    juno=pos[6]
-    juice=pos[7]
-    uly=pos[8]
-    mes=pos[9]
+    
+    l1=pos[10] ## ***change to pos[5] for Wind when done and shift all others
+    
+    juno=pos[5]
+    juice=pos[6]
+    uly=pos[7]
+    mes=pos[8]
+    vex=pos[9]
     earth=pos[10]
     mercury=pos[11]
     venus=pos[12]

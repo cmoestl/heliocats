@@ -11,7 +11,8 @@
 # 
 # 
 # Issues:
-# - where to find the generic kernels if updates are needed?
+# 
+# - only for Bepi: convert HEEQ to RTN - check difference after normalizing vectors
 # 
 # 
 # #### Orbits:
@@ -20,13 +21,21 @@
 # - SolO Kernels are available at:  https://spiftp.esac.esa.int/data/SPICE/SOLAR-ORBITER/kernels/spk/
 # then change filename in hd.solo_furnish
 # - STEREO-A kernels are available at: 
-# https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/depm/ahead/
+# 
+# 
+# all: https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/
+# 
+# 
+# for science data: https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/depm/ahead/
+# 
+# predicted: https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/epm/ahead/
+# 
 # - PSP Kernels https://soho.nascom.nasa.gov/solarsoft/psp/gen/data/spice/orbit/
 # use file like "spp_nom_20180812_20300101_v042_PostV7.bsp" and change filename in psp furnish
 # 
 # - BepiColombo https://naif.jpl.nasa.gov/pub/naif/BEPICOLOMBO/kernels/spk/, use latest file and change filename in hd.bepi furnish
 # 
-# 
+# - generic kernels https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/
 # 
 # #### Data:
 # 
@@ -40,7 +49,7 @@
 # 
 # 
 
-# In[1]:
+# In[12]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -48,14 +57,15 @@
 # for updating data every day on the servers
 
 #switches
-debug_mode=1
+debug_mode=0
+#always turn off debug mode when deploying!
 
-get_omni=0
-get_wind=0
-get_psp=0
-get_solo=0
-get_bepi=0
-get_stereoa=0
+get_omni=1
+get_wind=1
+get_psp=1
+get_solo=1
+get_bepi=1
+get_stereoa=1
 
 import numpy as np
 import pandas as pd
@@ -345,7 +355,7 @@ if get_wind > 0:
 # ### Parker Solar Probe
 # 
 
-# In[6]:
+# In[10]:
 
 
 print(' ')
@@ -364,8 +374,8 @@ if debug_mode > 0:
     importlib.reload(hd) 
     importlib.reload(hp) 
 
-    start_time= datetime(2024,3,20)
-    end_time  = datetime(2024,4,10)
+    start_time= datetime(2024,4,1)
+    end_time  = datetime(2024,9,1)
     psp_file=data_path+'psp_rtn_test.p'
 
     
@@ -388,8 +398,8 @@ if get_psp > 0:
 
     
     #for loading data of the last few available months
-    hd.download_pspmag_1min(datetime(2023,12,1),datetime(2024,4,30),psp_path)
-    hd.download_pspplas(datetime(2023,12,1),datetime(2024,4,30),psp_path)
+    #hd.download_pspmag_1min(datetime(2024,4,1),datetime(2024,10,14),psp_path)
+    #hd.download_pspplas(datetime(2024,4,1),datetime(2024,10,14),psp_path)
 
     print('process PSP to pickle')
     hd.create_psp_pkl(start_time,end_time,psp_file,psp_path,kernels_path)
@@ -411,7 +421,7 @@ else:
   
 
 
-# In[7]:
+# In[11]:
 
 
 if get_psp > 0:   
@@ -426,12 +436,12 @@ if get_psp > 0:
 
     ########## add overview plots
     hp.data_overview_plot(data,plot_path+'psp/'+filepsp[:-2])
-
+print(data_path+filepsp)
 
 
 # ### Solar Orbiter
 
-# In[8]:
+# In[21]:
 
 
 print(' ')
@@ -478,7 +488,7 @@ else:
     print('Solo data NOT downloaded and pickled, turn on switch')  
 
 
-# In[9]:
+# In[22]:
 
 
 if get_solo > 0:  
@@ -499,7 +509,7 @@ if get_solo > 0:
 
 # ### BepiColombo
 
-# In[10]:
+# In[23]:
 
 
 print(' ')
@@ -581,7 +591,7 @@ else:
    
 
 
-# In[11]:
+# In[24]:
 
 
 if get_bepi > 0:  
@@ -636,7 +646,7 @@ if get_bepi > 0:
 
 # ### STEREO-A science data
 
-# In[12]:
+# In[25]:
 
 
 print(' ')
@@ -685,7 +695,7 @@ else:
 
 
 
-# In[13]:
+# In[26]:
 
 
 if get_stereoa > 0:  
