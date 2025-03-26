@@ -49,7 +49,7 @@
 # 
 # 
 
-# In[12]:
+# In[15]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -60,12 +60,12 @@
 debug_mode=0
 #always turn off debug mode when deploying!
 
-get_omni=1
-get_wind=1
+get_omni=0
+get_wind=0
 get_psp=1
 get_solo=1
 get_bepi=1
-get_stereoa=1
+get_stereoa=0
 
 import numpy as np
 import pandas as pd
@@ -144,7 +144,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[14]:
 
 
 if sys.platform == 'linux': 
@@ -279,7 +279,7 @@ if get_wind > 0:
     #get all years
     #hd.wind_download_ascii(1995, wind_path)     
     #when all is downloaded just start with the current or previous year to now
-    hd.wind_download_ascii(2024, wind_path) 
+    hd.wind_download_ascii(2025, wind_path) 
     
     print('download Wind data done ')
     
@@ -398,8 +398,8 @@ if get_psp > 0:
 
     
     #for loading data of the last few available months
-    #hd.download_pspmag_1min(datetime(2024,4,1),datetime(2024,10,14),psp_path)
-    #hd.download_pspplas(datetime(2024,4,1),datetime(2024,10,14),psp_path)
+    hd.download_pspmag_1min(datetime(2024,4,1),datetime(2024,10,14),psp_path)
+    hd.download_pspplas(datetime(2024,4,1),datetime(2024,10,14),psp_path)
 
     print('process PSP to pickle')
     hd.create_psp_pkl(start_time,end_time,psp_file,psp_path,kernels_path)
