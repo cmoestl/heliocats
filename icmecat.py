@@ -42,16 +42,16 @@
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[3]:
+# In[1]:
 
 
-last_update='2025-April-TBD'
+last_update='2025-April-10'
 
 #debug mode reloads the files with the functions
 debug_mode=0
 
 #redo indices file
-create_indices=0
+create_indices=1
 
 #define number of processes for plotting
 used=8 
@@ -60,7 +60,7 @@ used=8
 #which plots to make
 solo_plots=1
 bepi_plots=0
-psp_plots=0
+psp_plots=1
 wind_plots=0
 sta_plots=0
 
@@ -163,7 +163,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[4]:
+# In[2]:
 
 
 # this file is used for the position plots in hp.plot_icmecat_positions_mag_plasma
@@ -174,7 +174,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[5]:
+# In[3]:
 
 
 load_data=1
@@ -284,6 +284,9 @@ if load_data > 0:
     
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
     #cutoff with end of science data set here to April 30 deliberately bc of data gaps for May
+    
+    ### use beacon data for May events? science goes to July 31 2024
+    
     sta2=sta2[np.where(sta2.time >= parse_time('2024-Apr-30 00:00').datetime)[0]]
 
     #make array
@@ -388,7 +391,7 @@ print('loading data takes', np.round((t1-t0)/60,2), 'minutes')
 
 # ## (3) make ICMECAT 
 
-# In[6]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -462,7 +465,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[7]:
+# In[5]:
 
 
 ###### 3c make all plots if wanted
@@ -734,7 +737,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[8]:
+# In[6]:
 
 
 ######## sort ICMECAT by date
@@ -900,7 +903,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[9]:
+# In[7]:
 
 
 ########## python formats
@@ -1076,7 +1079,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[10]:
+# In[8]:
 
 
 #load icmecat as pandas dataframe
@@ -1088,27 +1091,27 @@ file='icmecat/HELIO4CAST_ICMECAT_v23_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
 
-# In[11]:
+# In[9]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[12]:
+# In[10]:
 
 
 ic_pandas
 
 
-# In[13]:
+# In[11]:
 
 
 #
 ic_nprec
 
 
-# In[14]:
+# In[12]:
 
 
 ic_nprec.icmecat_id
@@ -1116,7 +1119,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[15]:
+# In[13]:
 
 
 ic=ic_pandas
@@ -1243,7 +1246,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[16]:
+# In[14]:
 
 
 #markersize
@@ -1309,7 +1312,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ### plotly radial distance and mean MO field
 
-# In[17]:
+# In[15]:
 
 
 ################# 
@@ -1382,7 +1385,7 @@ fig.write_html(f'icmecat/icmecat_distance.html')
 
 # ### plotly event position in 3D
 
-# In[18]:
+# In[16]:
 
 
 # Create polar plot
@@ -1545,7 +1548,7 @@ pio.write_image(fig, 'icmecat/icmecat_position_3D.png',scale=2, width=1500, heig
 
 # ### plotly radial distance and longitude
 
-# In[19]:
+# In[17]:
 
 
 # Sample data
@@ -1622,13 +1625,13 @@ fig.write_html(f'icmecat/icmecat_longitudes.html')
 
 #convert times to datetime
 
-psptime_raw=mdates.num2date(pos[0].time)
+psptime_raw=mdates.num2date(pos['psp'].time)
 psptime=np.zeros(len(psptime_raw),dtype='object')
 
 for i in np.arange(len(psptime_raw)):
     psptime[i]=datetime.datetime(psptime_raw[i].year,psptime_raw[i].month,psptime_raw[i].day,psptime_raw[i].hour,psptime_raw[i].minute)
 
-solotime_raw=mdates.num2date(pos[1].time)
+solotime_raw=mdates.num2date(pos['solo'].time)
 solotime=np.zeros(len(solotime_raw),dtype='object')
 
 for i in np.arange(len(solotime_raw)):
@@ -1653,9 +1656,9 @@ end_time = psptime[-1]
 psp_daily = pd.date_range(start=start_time, end=end_time, freq='H').date  ##****** need to add this with .time for hourly data
 psp_daily_num = mdates.date2num(psp_daily)
 
-pspx=np.interp(psp_daily_num, pos[0].time.astype(float), pos[0].x)
-pspy=np.interp(psp_daily_num, pos[0].time.astype(float), pos[0].y)
-pspz=np.interp(psp_daily_num, pos[0].time.astype(float), pos[0].z)
+pspx=np.interp(psp_daily_num, pos['psp'].time.astype(float), pos[0].x)
+pspy=np.interp(psp_daily_num, pos['psp'].time.astype(float), pos[0].y)
+pspz=np.interp(psp_daily_num, pos['psp'].time.astype(float), pos[0].z)
     
 
 
