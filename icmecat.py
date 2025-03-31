@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.3, 2024 February 27, updated 2025 April TBD
+# latest release: version 2.3, 2024 February 27, updated 2025 April 10
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -36,13 +36,11 @@
 # 
 # **ISSUES**
 # 
-# - add new Events bepi, solo, psp until end of 2024
-# 
 # - STEREO-A beacon data contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[1]:
+# In[89]:
 
 
 last_update='2025-April-10'
@@ -50,20 +48,19 @@ last_update='2025-April-10'
 #debug mode reloads the files with the functions
 debug_mode=0
 
-#redo indices file
-create_indices=1
+#redo indices file for selected spacecraft (see cell)
+create_indices=0
 
 #define number of processes for plotting
 used=8 
 # used=100 #for server
 
 #which plots to make
-solo_plots=1
+solo_plots=0
 bepi_plots=0
-psp_plots=1
+psp_plots=0
 wind_plots=0
 sta_plots=0
-
 
 uly_plots=0
 juno_plots=0  
@@ -1079,7 +1076,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[8]:
+# In[25]:
 
 
 #load icmecat as pandas dataframe
@@ -1090,28 +1087,34 @@ file='icmecat/HELIO4CAST_ICMECAT_v23_pandas.p'
 file='icmecat/HELIO4CAST_ICMECAT_v23_numpy.p'
 [ic_nprec,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 
+#for visuals, load different positions file going longer into the future
+# done with positions.ipynb
+# in rad with 10 min resolution and matplotlib datenumbers
+pos2=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p', "rb" ) )
+print('positions file loaded')
 
-# In[9]:
+
+# In[26]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[10]:
+# In[27]:
 
 
 ic_pandas
 
 
-# In[11]:
+# In[28]:
 
 
 #
 ic_nprec
 
 
-# In[12]:
+# In[29]:
 
 
 ic_nprec.icmecat_id
@@ -1119,7 +1122,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[13]:
+# In[64]:
 
 
 ic=ic_pandas
@@ -1246,7 +1249,148 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[14]:
+# In[65]:
+
+
+ic=ic_pandas
+
+ic_mo_start_time_num=parse_time(ic.mo_start_time).plot_date
+
+#get indices for each target
+imes=np.where(ic.sc_insitu=='MESSENGER')[0]
+ivex=np.where(ic.sc_insitu=='VEX')[0]
+iwin=np.where(ic.sc_insitu=='Wind')[0]
+imav=np.where(ic.sc_insitu=='MAVEN')[0]
+ijun=np.where(ic.sc_insitu=='Juno')[0]
+
+ista=np.where(ic.sc_insitu=='STEREO-A')[0]
+istb=np.where(ic.sc_insitu=='STEREO-B')[0]
+ipsp=np.where(ic.sc_insitu=='PSP')[0]
+isol=np.where(ic.sc_insitu=='SolarOrbiter')[0]
+ibep=np.where(ic.sc_insitu=='BepiColombo')[0]
+iuly=np.where(ic.sc_insitu=='ULYSSES')[0]
+
+
+sns.set_context("talk")     
+sns.set_style('darkgrid')
+
+###############################################################################
+fig=plt.figure(3,figsize=(18,7),dpi=200)
+
+#########################################################################
+ax1=plt.subplot(121)
+plt.title('ICMECAT event times and distance')
+
+#markersize
+ms=5
+#alpha
+al=0.7
+
+
+ax1.plot_date(ic_mo_start_time_num[iuly],ic.mo_sc_heliodistance[iuly],'o',c='chocolate', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[imes],ic.mo_sc_heliodistance[imes],'o',c='coral', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ivex],ic.mo_sc_heliodistance[ivex],'o',c='orange', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[istb],ic.mo_sc_heliodistance[istb],'o',c='royalblue', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[iwin],ic.mo_sc_heliodistance[iwin],'o',c='mediumseagreen', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[imav],ic.mo_sc_heliodistance[imav],'o',c='orangered', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ista],ic.mo_sc_heliodistance[ista],'o',c='red', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ijun],ic.mo_sc_heliodistance[ijun],'o',c='black',markerfacecolor='yellow', alpha=1,ms=ms)
+
+ax1.plot_date(ic_mo_start_time_num[ipsp],ic.mo_sc_heliodistance[ipsp],'o',c='black', alpha=al,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[isol],ic.mo_sc_heliodistance[isol],'o',c='black',markerfacecolor='white', alpha=1.0,ms=ms)
+ax1.plot_date(ic_mo_start_time_num[ibep],ic.mo_sc_heliodistance[ibep],'o',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms)
+
+
+
+ax1.plot_date(pos2[0].time,pos2[0].r,'k-',alpha=0.5)
+
+
+ax1.set_ylabel('Heliocentric distance $r$ [au]')
+ax1.set_yticks(np.arange(0,6,0.1))
+ax1.set_ylim([0,1.1])
+#ax1.tick_params(axis="y", labelsize=12)
+
+
+ax1.set_xlabel('Year')
+years = mdates.YearLocator(1)   # every year
+ax1.xaxis.set_major_locator(years)
+myformat = mdates.DateFormatter('%Y')
+ax1.xaxis.set_major_formatter(myformat)
+
+#ax1.tick_params(axis="x", labelsize=12)
+
+#ax1.set_xlim([datetime.datetime(2007,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=50)])
+
+ax1.set_xlim([datetime.datetime(2018,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=365*5)])
+
+
+
+##############################################################################
+ax3=plt.subplot(122)
+plt.title('ICMECAT event times and latitude')
+ax3.set_xlabel('Year')
+ax3.set_ylabel('latitude HEEQ [degrees]')
+
+
+
+ax3.plot_date(ic_mo_start_time_num[iuly],ic.mo_sc_lat_heeq[iuly],'o',c='chocolate', alpha=al,ms=ms)
+ax3.plot_date(ic_mo_start_time_num[imes],ic.mo_sc_lat_heeq[imes],'o',c='coral', alpha=al,ms=ms)
+ax3.plot_date(ic_mo_start_time_num[ivex],ic.mo_sc_lat_heeq[ivex],'o',c='orange', alpha=al,ms=ms)
+ax3.plot_date(ic_mo_start_time_num[istb],ic.mo_sc_lat_heeq[istb],'o',c='royalblue', alpha=al,ms=ms)
+ax3.plot_date(ic_mo_start_time_num[iwin],ic.mo_sc_lat_heeq[iwin],'o',c='mediumseagreen', alpha=al,ms=ms)
+ax3.plot_date(ic_mo_start_time_num[imav],ic.mo_sc_lat_heeq[imav],'o',c='orangered', alpha=al,ms=ms)
+ax3.plot_date(ic_mo_start_time_num[ista],ic.mo_sc_lat_heeq[ista],'o',c='red', alpha=al,ms=ms)
+ax3.plot_date(ic_mo_start_time_num[ijun],ic.mo_sc_lat_heeq[ijun],'o',c='black',markerfacecolor='yellow', alpha=1,ms=ms)
+
+ax3.plot_date(ic_mo_start_time_num[ipsp],ic.mo_sc_lat_heeq[ipsp],'o',c='black', alpha=al,ms=ms)
+ax3.plot_date(ic_mo_start_time_num[isol],ic.mo_sc_lat_heeq[isol],'o',c='black',markerfacecolor='white', alpha=1.0,ms=ms)
+ax3.plot_date(ic_mo_start_time_num[ibep],ic.mo_sc_lat_heeq[ibep],'o',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms)
+
+
+ax3.plot_date(pos2[2].time,np.rad2deg(pos2[2].lat),'g-', alpha=0.5)
+
+ax3.set_xlim([datetime.datetime(2018,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=365*5)])
+#ax3.set_xticks(np.arange(0,6,0.5))
+#ax3.tick_params(axis="x", labelsize=12)
+#ax3.set_xlim([0,5.6])
+
+#ax3.set_yscale('log')
+#ax3.set_ylim([0,np.max(ic.mo_bmean)+50])
+ax3.set_yticks(np.arange(-90,90,10))
+ax3.set_ylim([-40,40])
+#ax3.tick_params(axis="y", labelsize=12)
+
+
+ax3.set_xlabel('Year')
+years = mdates.YearLocator(1)   # every year
+ax3.xaxis.set_major_locator(years)
+myformat = mdates.DateFormatter('%Y')
+ax3.xaxis.set_major_formatter(myformat)
+
+ax3.legend(loc=1,fontsize=12)#, rows=2)
+
+
+#ax3.annotate('Quiet Sun',xy=(0.0065,3*1e6),xycoords='data',fontsize=annotfs,ha='left')
+#ax3.axvline(1.5,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(1.0,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(0.72,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(0.3,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#ax3.axvline(5.3,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
+#np.max(p_jupiter.r)
+#4,95 – 5,458 AE
+
+
+#Logo
+logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+newax = fig.add_axes([0.89,0.92,0.08,0.08], anchor='NE', zorder=1)
+newax.imshow(logo)
+newax.axis('off')
+
+plt.tight_layout()
+plt.savefig('icmecat/icmecat_times_latitude_solo.png', dpi=150,bbox_inches='tight')
+
+
+# In[66]:
 
 
 #markersize
@@ -1312,7 +1456,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ### plotly radial distance and mean MO field
 
-# In[15]:
+# In[67]:
 
 
 ################# 
@@ -1385,7 +1529,7 @@ fig.write_html(f'icmecat/icmecat_distance.html')
 
 # ### plotly event position in 3D
 
-# In[16]:
+# In[68]:
 
 
 # Create polar plot
@@ -1548,7 +1692,7 @@ pio.write_image(fig, 'icmecat/icmecat_position_3D.png',scale=2, width=1500, heig
 
 # ### plotly radial distance and longitude
 
-# In[17]:
+# In[69]:
 
 
 # Sample data
@@ -1620,18 +1764,18 @@ fig.write_html(f'icmecat/icmecat_longitudes.html')
 
 # ### 3D plotly for PSP, SolO, Bepi
 
-# In[20]:
+# In[70]:
 
 
 #convert times to datetime
 
-psptime_raw=mdates.num2date(pos['psp'].time)
+psptime_raw=mdates.num2date(pos2[0].time)
 psptime=np.zeros(len(psptime_raw),dtype='object')
 
 for i in np.arange(len(psptime_raw)):
     psptime[i]=datetime.datetime(psptime_raw[i].year,psptime_raw[i].month,psptime_raw[i].day,psptime_raw[i].hour,psptime_raw[i].minute)
 
-solotime_raw=mdates.num2date(pos['solo'].time)
+solotime_raw=mdates.num2date(pos2[2].time)
 solotime=np.zeros(len(solotime_raw),dtype='object')
 
 for i in np.arange(len(solotime_raw)):
@@ -1645,9 +1789,9 @@ end_time = solotime[-1]
 solo_daily = pd.date_range(start=start_time, end=end_time, freq='D').date 
 solo_daily_num = mdates.date2num(solo_daily)
 
-solox=np.interp(solo_daily_num, pos[1].time.astype(float), pos[1].x)
-soloy=np.interp(solo_daily_num, pos[1].time.astype(float), pos[1].y)
-soloz=np.interp(solo_daily_num, pos[1].time.astype(float), pos[1].z)
+solox=np.interp(solo_daily_num, pos2[2].time.astype(float), pos2[2].x)/const.au.value*1e3
+soloy=np.interp(solo_daily_num, pos2[2].time.astype(float), pos2[2].y)/const.au.value*1e3
+soloz=np.interp(solo_daily_num, pos2[2].time.astype(float), pos2[2].z)/const.au.value*1e3
 
 
 #PSP  
@@ -1656,13 +1800,13 @@ end_time = psptime[-1]
 psp_daily = pd.date_range(start=start_time, end=end_time, freq='H').date  ##****** need to add this with .time for hourly data
 psp_daily_num = mdates.date2num(psp_daily)
 
-pspx=np.interp(psp_daily_num, pos['psp'].time.astype(float), pos[0].x)
-pspy=np.interp(psp_daily_num, pos['psp'].time.astype(float), pos[0].y)
-pspz=np.interp(psp_daily_num, pos['psp'].time.astype(float), pos[0].z)
+pspx=np.interp(psp_daily_num, pos2[0].time.astype(float), pos2[0].x)/const.au.value*1e3
+pspy=np.interp(psp_daily_num, pos2[0].time.astype(float), pos2[0].y)/const.au.value*1e3
+pspz=np.interp(psp_daily_num, pos2[0].time.astype(float), pos2[0].z)/const.au.value*1e3
     
 
 
-# In[ ]:
+# In[71]:
 
 
 # Create polar plot
@@ -1888,7 +2032,7 @@ pio.write_image(fig, 'icmecat/icmecat_orbit_3D_solo.png',scale=1, width=1500, he
 
 # ## Parameter distribution plots near 1 AU
 
-# In[ ]:
+# In[72]:
 
 
 #make distribution plots
@@ -1948,13 +2092,13 @@ newax = fig.add_axes([0.90,0.90,0.08,0.08], anchor='NE', zorder=2)
 newax.imshow(logo)
 newax.axis('off')
 
-plt.suptitle('ICMECAT parameters at 1 AU')
+plt.suptitle('ICMECAT parameters at 0.95-1.05 AU (Wind, STEREO-A/B)')
 
 plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[ ]:
+# In[73]:
 
 
 t1all = time.time()
@@ -1979,77 +2123,22 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 
 
 
-# In[ ]:
+# ## Consistency checks
+
+# 
+# #### check number of plots
+
+# In[87]:
 
 
+files = os.listdir('icmecat/plots_icmecat')
+files.sort()
+fnames=[os.path.join(data_path, f) for f in files]
+#for item in files:
+#    print(item)
+print(len(fnames)-1)
 
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[22]:
-
-
-#check this for pushing the files to figshare
-#https://colab.research.google.com/drive/13CAM8mL1u7ZsqNhfZLv7bNb1rdhMI64d?usp=sharing
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
+print(len(ic))
 
 
 # In[ ]:
