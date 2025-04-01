@@ -24,7 +24,7 @@ Authors: Christian Moestl (1), Eva weiler (1), D. Barnes (2), R. A. Harrison (2)
 Rules: If results are produced with this catalog for peer-reviewed scientific publications,
 please contact chris.moestl@outlook.com for co-authorships.
 
-We acknowledge the use of the astrospice and spiceypy python packages.
+We acknowledge the use of the spiceypy python package.
 
 Parameters 
 

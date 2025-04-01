@@ -70,7 +70,6 @@ def load_higeocat_vot(file):
 
 
 
-
    
 def cart2sphere_emma_rad(x,y,z):
     
@@ -82,9 +81,6 @@ def cart2sphere_emma_rad(x,y,z):
     phi=np.deg2rad(phi)
     
     return (r, theta, phi)
-
-
-
 
 
 
@@ -210,8 +206,7 @@ def get_position(time1,name):
               
     if name=='JUNO': 
         if parse_time(time1).plot_date < parse_time(datetime.datetime(2011,8, 12)).plot_date:
-            insitu_exist=False                   
-                
+            insitu_exist=False          
                 
     if name=='Ulysses': 
         #cut off ulysses when no decent in situ data is available anymore
@@ -273,7 +268,6 @@ def get_position(time1,name):
         if name=='Earth_L1': insitu_r=insitu_r-0.01
 
         insitu_time=time1
-
 
         
     else:

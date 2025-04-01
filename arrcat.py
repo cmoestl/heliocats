@@ -12,7 +12,7 @@
 # 
 # This code is part of https://github.com/cmoestl/heliocats
 # 
-# **current version is ARRCAT 2.0, released 2020 May 13, updated 2025 April TBD**
+# **current version is ARRCAT 2.0, released 2020 May 13, updated 2025 April 2**
 # 
 # Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
 # The environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
@@ -28,16 +28,17 @@
 # 
 # - add plots for each event
 # 
-# - add html plots
+# - add more html plots
 # 
 # 
 # 
 
-# In[3]:
+# In[1]:
 
 
 last_update='2025-April-2'
 debug_mode=0
+download_higeocat=0
 
 
 import numpy as np
@@ -64,10 +65,19 @@ import h5py
 import pickle
 
 #from heliocats import plot as hp
-#from heliocats import data as hd
+from heliocats import data as hd
 from heliocats import cats as hc
 #from heliocats import stats as hs
 
+
+
+
+import plotly.graph_objects as go
+from plotly.offline import iplot, init_notebook_mode
+from plotly.subplots import make_subplots
+import plotly.io as pio
+import plotly.express as px
+pio.renderers.default = 'browser'
 
 print(' ')
 print('------ PATHS ')
@@ -118,7 +128,7 @@ warnings.filterwarnings("ignore")
 
 # ## 1 Make arrival catalog 
 
-# In[ ]:
+# In[2]:
 
 
 t0=time.time()
@@ -131,9 +141,11 @@ if debug_mode > 0:
 #LOAD HELCATS HIGeoCAT
 url_higeocat='https://www.helcats-fp7.eu/catalogues/data/HCME_WP3_V06.vot'
 
-try: urllib.request.urlretrieve(url_higeocat,'data/HCME_WP3_V06.vot')
-except urllib.error.URLError as e:
-    print('higeocat not loaded')
+if download_higeocat > 0:
+    print('try to download higeocat')
+    try: urllib.request.urlretrieve(url_higeocat,'data/HCME_WP3_V06.vot')
+    except urllib.error.URLError as e:
+        print('higeocat not downloaded')
 
 higeocat=hc.load_higeocat_vot('data/HCME_WP3_V06.vot')
 higeocat_time=parse_time(higeocat['Date']).datetime    
@@ -151,27 +163,26 @@ column_list=['id', 'sc','target_name','sse_launch_time','target_arrival_time','t
 ac = pd.DataFrame([], columns = column_list)
 
 
+# In[3]:
+
 
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'PSP',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'SolarOrbiter',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'BepiColombo',column_list,kernels_path) 
-
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-A',column_list,kernels_path)
-
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'JUICE',column_list,kernels_path)
 
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Mercury',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Venus',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Earth_L1',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Mars',column_list,kernels_path)
 
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-A',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-B',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Ulysses',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'MESSENGER',column_list,kernels_path)
 
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'VEX',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'JUNO',column_list,kernels_path)
-
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'JUICE',column_list,kernels_path)
 
 
 
@@ -190,7 +201,7 @@ ac
 
 # #### save header
 
-# In[ ]:
+# In[4]:
 
 
 first_date=ac['target_arrival_time'][len(ac)-1]
@@ -199,7 +210,7 @@ print(last_date[0:7])
 print(first_date[0:7])
 
 
-# In[ ]:
+# In[5]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -221,7 +232,7 @@ Authors: Christian Moestl (1), Eva weiler (1), D. Barnes (2), R. A. Harrison (2)
 (1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria, (2) RAL Space, UK.\n\n\
 Rules: If results are produced with this catalog for peer-reviewed scientific publications,\n\
 please contact chris.moestl@outlook.com for co-authorships.\n\n\
-We acknowledge the use of the astrospice and spiceypy python packages.\n\n\
+We acknowledge the use of the spiceypy python package.\n\n\
 Parameters \n\n\
     0: id: From HIGeoCAT, the unique identifier for the observed CME.\n\
     1: sc: From HIGeoCAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)\n\
@@ -286,7 +297,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[ ]:
+# In[6]:
 
 
 ########## python formats
@@ -441,7 +452,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[ ]:
+# In[7]:
 
 
 #load arrcat as pandas dataframe
@@ -462,20 +473,20 @@ file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
 #f.close()
 
 
-# In[ ]:
+# In[8]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[ ]:
+# In[9]:
 
 
 ac
 
 
-# In[ ]:
+# In[10]:
 
 
 ac_rec.id
@@ -485,16 +496,18 @@ ac_struct
 
 # ### plot directions and targets
 
-# In[ ]:
+# In[13]:
 
 
 sns.set_context('talk')
 sns.set_style('darkgrid')
 
 fig=plt.figure(1, figsize=(20,10), dpi=70) 
-ax = plt.subplot(121,projection='polar') 
+ax = plt.subplot(122,projection='polar') 
 
-plt.title('ARRCAT CME arrivals at targets [HEEQ longitude]')
+fsize=15
+
+plt.suptitle('ARRCAT CME arrivals at spacecraft and planets [HEEQ longitude]')
 
 #get indices for each target
 merci=np.where(ac.target_name=='Mercury')[0]
@@ -504,19 +517,23 @@ marsi=np.where(ac.target_name=='Mars')[0]
 
 stai=np.where(ac.target_name=='STEREO-A')[0]
 stbi=np.where(ac.target_name=='STEREO-B')[0]
+
 pspi=np.where(ac.target_name=='PSP')[0]
 soloi=np.where(ac.target_name=='SolarOrbiter')[0]
 bepii=np.where(ac.target_name=='BepiColombo')[0]
+
 ulyi=np.where(ac.target_name=='Ulysses')[0]
 juii=np.where(ac.target_name=='JUICE')[0]
+juni=np.where(ac.target_name=='JUNO')[0]
 mesi=np.where(ac.target_name=='MESSENGER')[0]
+vexi=np.where(ac.target_name=='VEX')[0]
 
 
 
 #markersize
-ms=15
+ms=8
 #alpha
-al=0.6
+al=0.8
 
 ax.scatter(np.radians(ac.target_heeq_lon[merci]),ac.target_distance[merci],s=ms,c='dimgrey', alpha=al)
 ax.scatter(np.radians(ac.target_heeq_lon[venusi]),ac.target_distance[venusi],s=ms,c='orange', alpha=al)
@@ -529,27 +546,52 @@ ax.scatter(np.radians(ac.target_heeq_lon[stbi]),ac.target_distance[stbi],s=ms,c=
 ax.scatter(np.radians(ac.target_heeq_lon[pspi]),ac.target_distance[pspi],s=ms,c='black', alpha=al)
 ax.scatter(np.radians(ac.target_heeq_lon[soloi]),ac.target_distance[soloi],s=ms,c='green', alpha=al)
 ax.scatter(np.radians(ac.target_heeq_lon[bepii]),ac.target_distance[bepii],s=ms,c='violet', alpha=al)
+
 ax.scatter(np.radians(ac.target_heeq_lon[ulyi]),ac.target_distance[ulyi],s=ms,c='brown', alpha=al)
-ax.scatter(np.radians(ac.target_heeq_lon[juii]),ac.target_distance[juii],s=ms,c='yellowgreen', alpha=al)
+ax.scatter(np.radians(ac.target_heeq_lon[juii]),ac.target_distance[juii],s=ms,c='yellow', alpha=al)
 ax.scatter(np.radians(ac.target_heeq_lon[mesi]),ac.target_distance[mesi],s=ms,c='grey', alpha=al)
+ax.scatter(np.radians(ac.target_heeq_lon[juni]),ac.target_distance[juni],s=ms,c='yellowgreen', alpha=al)
 
-plt.ylim([0,np.max(ac.target_distance)+0.2])
+ax.set_ylim([0,np.max(ac.target_distance)+0.2])
 
-#ax.set_theta_zero_location("W")
+plt.rgrids((1,2, 3,4,5),('1','2','3','4','5 AU'),angle=180, fontsize=fsize-4,alpha=0.8, ha='center',zorder=5)
+plt.thetagrids(range(0,360,45),(u'0\u00b0',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'±180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='center',fontsize=fsize, zorder=5, alpha=1.0)
+
+ax.set_theta_zero_location("E")
 ax.set_rlabel_position(180)
 
 
-ax = plt.subplot(122,projection='polar')
-plt.title('HIGeoCAT SSE speed [km/s]')
-hiai=np.where(ac.sc=='A')[0]
-hibi=np.where(ac.sc=='B')[0]
 
-ax.scatter(np.radians(ac.sse_heeq_lon[hiai].astype(float)),ac.sse_speed[hiai],s=ms,c='red', alpha=al)
-ax.scatter(np.radians(ac.sse_heeq_lon[hibi].astype(float)),ac.sse_speed[hibi],s=ms,c='blue', alpha=al)
+ax1 = plt.subplot(121,projection='polar')
 
-ax.set_rlabel_position(160)
-#plt.ylim([0,np.max(ac.sse_speed)+100])
-plt.ylim([0,2000])
+ms=15
+ax1.scatter(np.radians(ac.target_heeq_lon[merci]),ac.target_distance[merci],s=ms,c='dimgrey', alpha=al,label='Mercury')
+ax1.scatter(np.radians(ac.target_heeq_lon[venusi]),ac.target_distance[venusi],s=ms,c='orange', alpha=al,label='Venus')
+ax1.scatter(np.radians(ac.target_heeq_lon[earthi]),ac.target_distance[earthi],s=ms,c='mediumseagreen', alpha=al,label='Earth')
+ax1.scatter(np.radians(ac.target_heeq_lon[marsi]),ac.target_distance[marsi],s=ms,c='orangered', alpha=al,label='Mars')
+
+ax1.scatter(np.radians(ac.target_heeq_lon[stai]),ac.target_distance[stai],s=ms,c='red', alpha=al,label='STEREO-A')
+ax1.scatter(np.radians(ac.target_heeq_lon[stbi]),ac.target_distance[stbi],s=ms,c='blue', alpha=al,label='STEREO-B')
+
+ax1.scatter(np.radians(ac.target_heeq_lon[pspi]),ac.target_distance[pspi],s=ms,c='black', alpha=al,label='Parker Solar Probe')
+ax1.scatter(np.radians(ac.target_heeq_lon[soloi]),ac.target_distance[soloi],s=ms,c='green', alpha=al,label='Solar Orbiter')
+ax1.scatter(np.radians(ac.target_heeq_lon[bepii]),ac.target_distance[bepii],s=ms,c='violet', alpha=al,label='BepiColombo')
+
+ax1.scatter(np.radians(ac.target_heeq_lon[ulyi]),ac.target_distance[ulyi],s=ms,c='brown', alpha=al,label='ULYSSES')
+ax1.scatter(np.radians(ac.target_heeq_lon[juii]),ac.target_distance[juii],s=ms,c='yellow', alpha=al,label='JUICE')
+ax1.scatter(np.radians(ac.target_heeq_lon[mesi]),ac.target_distance[mesi],s=ms,c='grey', alpha=al,label='MESSENGER')
+ax1.scatter(np.radians(ac.target_heeq_lon[juni]),ac.target_distance[juni],s=ms,c='yellowgreen', alpha=al,label='JUNO')
+
+
+plt.rgrids((0.1,0.2,0.3,0.4,0.6,0.8,1.0,1.2, 1.4,1.6,1.8,2.0),('','0.2','','0.4','0.6','0.8','1.0 AU','1.2','1.4 au','','',''),angle=180, fontsize=fsize,alpha=0.8, ha='center',zorder=5)
+plt.thetagrids(range(0,360,45),(u'0\u00b0',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'±180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='center',fontsize=fsize, zorder=5, alpha=1.0)
+
+ax1.set_ylim([0,1.15])
+ax1.set_theta_zero_location("E")
+ax1.set_rlabel_position(180)
+
+plt.legend(loc=[1.1,0.5],fontsize=12)
+
 
 plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
@@ -565,6 +607,199 @@ plt.tight_layout()
 plotfile='arrcat/plots_arrcat/arrcat_targets.png'
 plt.savefig(plotfile,dpi=100)
 print('saved as ',plotfile)
+
+
+# ### Plotly 3D plot
+
+# In[ ]:
+
+
+# Create polar plot
+fig = go.Figure()
+msize=5
+#in AU, make sure conversion is correct so latitude is 0 to 90 
+[x,y,z]=hd.sphere2cart(ac.target_distance.values, -np.deg2rad(ac.target_heeq_lat.values-90), np.deg2rad(ac.target_heeq_lon.values))
+
+fig.add_trace(go.Scatter3d(x=x[pspi], y=y[pspi], z=z[pspi], name='PSP',mode='markers',marker=dict(color='black', size=msize),
+        hovertemplate='Parker Solar Probe<br>ID: %{text}',text=ac.id[pspi] ))
+    
+fig.add_trace(go.Scatter3d(x=x[soloi], y=y[soloi], z=z[soloi], name='Solar Orbiter',mode='markers',marker=dict(color='white', size=msize,  
+    line=dict(color='black', width=1)),
+        hovertemplate='Solar Orbiter<br>ID: %{text}', text=ac.id[soloi] ))
+
+fig.add_trace(go.Scatter3d(x=x[earthi], y=y[earthi], z=z[earthi], name='Wind',mode='markers',marker=dict(color='mediumseagreen', size=msize),
+        hovertemplate='Wind<br>ID: %{text}', text=ac.id[earthi] ))
+ 
+fig.add_trace(go.Scatter3d(x=x[stai], y=y[stai], z=z[stai], name='STEREO-A',mode='markers',marker=dict(color='red', size=msize),
+        hovertemplate='STEREO-A<br>ID: %{text}', text=ac.id[stai] ))
+
+fig.add_trace(go.Scatter3d(x=x[juni], y=y[juni], z=z[juni], name='Juno',mode='markers',marker=dict(color='yellowgreen', size=msize,  
+    line=dict(color='black', width=1)),
+        hovertemplate='Juno<br>ID: %{text}', text=ac.id[juni] ))
+
+fig.add_trace(go.Scatter3d(x=x[juii], y=y[juii], z=z[juii], name='JUICE',mode='markers',marker=dict(color='yellow', size=msize,  
+    line=dict(color='black', width=1)),
+        hovertemplate='JUICE<br>ID: %{text}', text=ac.id[juii] ))
+
+fig.add_trace(go.Scatter3d(x=x[bepii], y=y[bepii], z=z[bepii], name='BepiColombo',mode='markers',marker=dict(color='lightgrey', size=msize,  
+    line=dict(color='darkblue', width=1)),
+        hovertemplate='BepiColombo<br>ID: %{text}', text=ac.id[bepii] ))
+
+
+fig.add_trace(go.Scatter3d(x=x[stbi], y=y[stbi], z=z[stbi], name='STEREO-B',mode='markers',marker=dict(color='royalblue', size=msize),
+        hovertemplate='STEREO-B<br>ID: %{text}', text=ac.id[stbi] ))
+
+fig.add_trace(go.Scatter3d(x=x[ulyi], y=y[ulyi], z=z[ulyi], name='Ulysses',mode='markers',marker=dict(color='brown', size=msize),
+        hovertemplate='Ulysses<br>ID: %{text}', text=ac.id[ulyi] ))
+
+fig.add_trace(go.Scatter3d(x=x[mesi], y=y[mesi], z=z[mesi], name='MESSENGER',mode='markers',marker=dict(color='coral', size=msize),
+        hovertemplate='MESSENGER<br>ID: %{text}', text=ac.id[mesi] ))
+
+fig.add_trace(go.Scatter3d(x=x[vexi], y=y[vexi], z=z[vexi], name='Venus Express',mode='markers',marker=dict(color='orange', size=msize),
+        hovertemplate='Venus Express<br>ID: %{text}', text=ac.id[vexi] ))
+
+   
+#add orbit    
+#fig.add_trace(go.Scatter3d(x=pos[0].x, y=pos[0].y, z=pos[0].z, name='PSP',mode='lines',line=dict(color='black')))
+#fig.add_trace(go.Scatter3d(x=pos[1].x, y=pos[1].y, z=pos[1].z, name='Solar Orbiter',mode='lines',line=dict(color='green')))
+#fig.add_trace(go.Scatter3d(x=pos[2].x, y=pos[2].y, z=pos[2].z, name='STEREO-A',mode='lines',line=dict(color='red')))
+
+
+
+############# add Sun
+# Create data for a sphere
+theta = np.linspace(0, np.pi, 100)
+phi = np.linspace(0, 2*np.pi, 100)
+theta, phi = np.meshgrid(theta, phi)
+r = (700*1e3)/(149.5*1e6)*10  # 10 solar radii
+
+# Convert spherical coordinates to Cartesian coordinates
+[x,y,z]=hd.sphere2cart(r, theta,phi)
+# Create 3D surface plot
+
+fig.add_trace(go.Surface(x=x, y=y,z=z, colorscale='hot', showscale=False, name='10 R_Sun'))
+
+################### add circle at 1 AU
+
+num_points = 100
+# Create theta values (angles) for the circle
+theta_values = np.linspace(0, 2*np.pi, num_points)
+r = 1  # radius of the circle
+x_values = r * np.cos(theta_values)
+y_values = r * np.sin(theta_values)
+
+
+
+fig.add_trace(go.Scatter3d(
+    x=x_values*5,
+    y=y_values*5,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='5 AU',
+    line=dict(color='black', width=1)
+))
+
+fig.add_trace(go.Scatter3d(
+    x=x_values*3,
+    y=y_values*3,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='3 AU',
+    line=dict(color='black', width=1)
+))
+
+
+fig.add_trace(go.Scatter3d(
+    x=x_values,
+    y=y_values,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='1 AU',
+    line=dict(color='black', width=1)
+))
+
+fig.add_trace(go.Scatter3d(
+    x=x_values*0.7,
+    y=y_values*0.7,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='0.7 AU',
+    line=dict(color='black', width=1)
+))
+
+
+fig.add_trace(go.Scatter3d(
+    x=x_values*0.5,
+    y=y_values*0.5,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='0.5 AU',
+    line=dict(color='black', width=1)
+))
+
+fig.add_trace(go.Scatter3d(
+    x=x_values*0.3,
+    y=y_values*0.3,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='0.3 AU',
+    line=dict(color='black', width=1)
+))
+
+fig.add_trace(go.Scatter3d(
+    x=x_values*0.1,
+    y=y_values*0.1,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='0.1 AU',
+    line=dict(color='black', width=1)
+))
+
+
+#add Sun-Earth line for HEEQ latitude 0
+fig.add_trace(go.Scatter3d(
+    x=np.linspace(0,1,num_points),
+    y=np.zeros(num_points),
+    z=np.zeros(num_points), 
+    mode='lines', name='Sun-Earth line',
+    line=dict(color='red', width=1)
+))
+
+
+
+zoom=0.3
+
+fig.update_layout(
+    title='ARRCAT CME arrival positions in 3D / HEEQ coordinates',
+    scene=dict( aspectmode='data',
+        xaxis=dict(title='X '),
+        yaxis=dict(title='Y'),
+        zaxis=dict(title='Z'),
+        camera=dict(
+            eye=dict(x=0, y=-zoom, z=zoom),  # Set the position of the camera
+            center=dict(x=0, y=0, z=0),      # Set the point the camera is looking at
+            up=dict(x=0, y=0, z=0.1),          # Set the up vector of the camera
+           
+    ))
+)
+
+fig.write_html(f'arrcat/plots_arrcat/arrcat_position_3D.html')
+#fig.show()
+
+
+# In[ ]:
+
+
+sns.set_context('talk')
+sns.set_style('darkgrid')
+
+fig=plt.figure(1, figsize=(20,10), dpi=70) 
+#ax = plt.subplot(121,projection='polar') 
+
+ax = plt.subplot(121,projection='polar')
+plt.title('HIGeoCAT SSE speed [km/s]')
+hiai=np.where(ac.sc=='A')[0]
+hibi=np.where(ac.sc=='B')[0]
+
+ax.scatter(np.radians(ac.sse_heeq_lon[hiai].astype(float)),ac.sse_speed[hiai],s=ms,c='red', alpha=al)
+ax.scatter(np.radians(ac.sse_heeq_lon[hibi].astype(float)),ac.sse_speed[hibi],s=ms,c='blue', alpha=al)
+
+ax.set_rlabel_position(160)
+#plt.ylim([0,np.max(ac.sse_speed)+100])
+plt.ylim([0,2000])
 
 
 # ### plot error distributions
