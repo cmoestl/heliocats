@@ -228,7 +228,7 @@ print(int(np.max(SFU_mc_prediction_1)))
 print(int(np.max(SFU_mc_prediction_2)))
 
 
-# In[13]:
+# In[8]:
 
 
 years=np.arange(2005,2040) 
@@ -291,7 +291,7 @@ fsize=14
 plt.figtext(0.05,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
 plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
 
-plt.annotate('plot produced a: '+str(datetime.datetime.utcnow())[0:12],xy=(0.99,1.01),xycoords='axes fraction',fontsize=12,ha='right')
+plt.annotate('plot produced on: '+str(datetime.datetime.utcnow())[0:10],xy=(1.0,1.01),xycoords='axes fraction',fontsize=12,ha='right')
 
 
 logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
