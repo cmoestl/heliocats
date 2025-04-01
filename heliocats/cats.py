@@ -23,7 +23,11 @@ import sys
 import importlib
 import cdflib
 
+
+import spiceypy
+
 import sunpy
+
 from sunpy.coordinates import frames, get_horizons_coord, HeliographicStonyhurst
 from sunpy.time import parse_time
 
@@ -34,7 +38,7 @@ from astropy.io.votable import parse_single_table
 
 import astroquery
 
-import astrospice
+#import astrospice
 
 from heliocats import data as hd
 importlib.reload(hd) #reload again while debugging
@@ -67,10 +71,86 @@ def load_higeocat_vot(file):
 
 
 
+   
+def cart2sphere_emma_rad(x,y,z):
+    
+    r = np.sqrt(x**2+ y**2 + z**2) /1.495978707E8         
+    theta = np.arctan2(z,np.sqrt(x**2+ y**2)) * 360 / 2 / np.pi
+    phi = np.arctan2(y,x) * 360 / 2 / np.pi    
+    
+    theta=np.deg2rad(theta)
+    phi=np.deg2rad(phi)
+    
+    return (r, theta, phi)
+
+
+
+
+
+
+
+
+
+############# for spiceypy positions
+
+
+
+#STEREO-A and STEREO-B
+def furnish_stereo(kernel_path,aorb):
+
+    #need to load both directories
+    stereo_kernel_path = kernel_path+'stereo'+aorb+'_predicted/'
+
+    stereoa_kernels = os.listdir(stereo_kernel_path)
+    for kernel in stereoa_kernels:
+        spiceypy.furnsh(os.path.join(stereo_kernel_path, kernel))
+    
+    stereo_kernel_path = kernel_path+'stereo'+aorb+'/'
+
+    stereoa_kernels = os.listdir(stereo_kernel_path)
+    for kernel in stereoa_kernels:
+        spiceypy.furnsh(os.path.join(stereo_kernel_path, kernel))
+    
+    
+    
+    generic_path = kernel_path+'generic/'
+    generic_kernels = os.listdir(generic_path)
+    for kernel in generic_kernels:
+        spiceypy.furnsh(os.path.join(generic_path, kernel))
+
+
+
+def furnish(kernel_path,kernel_file):
+
+    spiceypy.furnsh(os.path.join(kernel_path, kernel_file))
+    print(kernel_path, kernel_file)
+
+    generic_path = kernel_path+'generic/'
+    generic_kernels = os.listdir(generic_path)
+    for kernel in generic_kernels:
+        spiceypy.furnsh(os.path.join(generic_path, kernel))
+        
+
+def get_pos(t,name):    
+
+    pos = spiceypy.spkpos(name, spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
+    position = t, pos[0], pos[1], pos[2], r, lat, lon
+    return position
+
+
+def get_sc_pos(time, name):
+    
+    position = get_pos(time, name)
+    return position
+
+
+
+
+
 
 def get_position(time1,name):
-    
-    
+        
     #this works if the respective kernels are loaded beforehand
     
     insitu_exist=True
@@ -87,70 +167,90 @@ def get_position(time1,name):
         
     if name=='BepiColombo': 
         if parse_time(time1).plot_date < parse_time(datetime.datetime(2018, 10, 24)).plot_date:
-            insitu_exist=False
-                    
-    if name=='STEREO-B': 
-        if parse_time(time1).plot_date > parse_time(datetime.datetime(2014, 9, 27)).plot_date:
-            insitu_exist=False  
+            insitu_exist=False               
             
     if name=='STEREO-A': 
         if parse_time(time1).plot_date < parse_time(datetime.datetime(2007, 1, 1)).plot_date:
             insitu_exist=False  
-
-    #if name=='Messenger': 
-    #    if parse_time(time1).plot_date > parse_time(datetime.datetime(2015, 4, 30)).plot_date:
-    #        insitu_exist=False                          
+                 
+    if name=='STEREO-B': 
+        if parse_time(time1).plot_date > parse_time(datetime.datetime(2014, 9, 27)).plot_date:
+            insitu_exist=False  
+            
+    if name=='MESSENGER': 
+        if parse_time(time1).plot_date > parse_time(datetime.datetime(2015, 4, 30)).plot_date:
+            insitu_exist=False                          
                                
-    #if name=='Ulysses': 
+    if name=='JUICE': 
+        if parse_time(time1).plot_date < parse_time(datetime.datetime(2023, 4, 14)).plot_date:
+            insitu_exist=False                  
+                
+    if name=='VEX': 
+        if parse_time(time1).plot_date > parse_time(datetime.datetime(2014, 12, 16)).plot_date:
+            insitu_exist=False                   
+              
+    if name=='JUNO': 
+        if parse_time(time1).plot_date < parse_time(datetime.datetime(2011,8, 12)).plot_date:
+            insitu_exist=False                   
+                
+                
+    if name=='Ulysses': 
         #cut off ulysses when no decent in situ data is available anymore
-    #    if parse_time(time1).plot_date > parse_time(datetime.datetime(2008, 5, 1)).plot_date:
-    #        insitu_exist=False              
+        if parse_time(time1).plot_date > parse_time(datetime.datetime(2008, 5, 1)).plot_date:
+            insitu_exist=False              
 
     if insitu_exist == True:
 
 
-        if name=='PSP':
-            coords = astrospice.generate_coords('Solar probe plus', time1)
+        if name=='PSP':            
+            #time, spice code
+            coords=get_sc_pos(time1,"PARKER SOLAR PROBE")
             
         if name=='SolarOrbiter':
-            coords = astrospice.generate_coords('Solar orbiter', time1)
+            coords=get_sc_pos(time1,"SOLAR ORBITER")
 
         if name=='BepiColombo':
-            coords = astrospice.generate_coords('Bepicolombo mpo', time1)
+            coords=get_sc_pos(time1,"BEPICOLOMBO MPO")            
 
         if name=='STEREO-A':
-            coords = astrospice.generate_coords('Stereo ahead', time1)
+            coords=get_sc_pos(time1,"STEREO AHEAD")
             
         if name=='STEREO-B':
-            coords = astrospice.generate_coords('Stereo behind', time1)
+            coords=get_sc_pos(time1,"STEREO BEHIND")
             
         if name=='Mercury':
-            coords = astrospice.generate_coords(1, time1)
+            coords=get_sc_pos(time1,'MERCURY_BARYCENTER')
             
         if name=='Venus':
-            coords = astrospice.generate_coords(2, time1)
-            
-        if name=='Earth':
-            coords = astrospice.generate_coords(3, time1)
+            coords=get_sc_pos(time1,'VENUS_BARYCENTER')
 
         if name=='Mars':
-            coords = astrospice.generate_coords(4, time1)
+            coords=get_sc_pos(time1,'MARS_BARYCENTER')
 
         if name=='Earth_L1':
-            coords = astrospice.generate_coords(3, time1)
+            coords=get_sc_pos(time1,'EARTH_BARYCENTER')
             
-        #if name=='Ulysses':
-        #    coords = astrospice.generate_coords(-55, time1)
-                        
-            
-            
-            
-        frame = HeliographicStonyhurst()
-        coords = coords.transform_to(frame)
-        insitu_r = coords.radius.to(u.au).value[0]
-        insitu_lon = coords.lon.value[0] #degrees
-        insitu_lat = coords.lat.value[0]
+        if name=='JUICE':
+            coords=get_sc_pos(time1,'JUICE')
 
+        if name=='MESSENGER':
+            coords=get_sc_pos(time1,'MESSENGER')
+
+        if name=='Ulysses':
+            coords=get_sc_pos(time1,'ULYSSES')
+            
+        if name=='JUNO':
+            coords=get_sc_pos(time1,'JUNO')
+
+        if name=='VEX':
+            coords=get_sc_pos(time1,'VENUS EXPRESS')
+
+        
+        insitu_r = coords[4]
+        insitu_lat =np.rad2deg(coords[5])
+        insitu_lon =np.rad2deg(coords[6])
+
+        #correct roughly for L1 position
         if name=='Earth_L1': insitu_r=insitu_r-0.01
 
         insitu_time=time1
@@ -187,6 +287,14 @@ def calculate_arrival(vsse,delta,lamda,rdist,t0_num):
 
 
 
+
+
+
+
+
+
+
+
 def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, target_name, column_list,kernels_path):
     
     #get parameters from HIGEOCAT for arrival catalog
@@ -206,25 +314,50 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, target_name, column_list
     higeocat_pacenter=abs((higeocat_pan+higeocat_pas)/2)
     
     if target_name=='PSP':
-        kernels_psp = astrospice.registry.get_kernels('psp', 'predict')
+        kernels_file='psp/spp_nom_20180812_20300101_v042_PostV7.bsp'
+        print(kernels_file)
+        furnish(kernels_path,kernels_file)    
   
     if target_name=='SolarOrbiter':
-        solo_path= kernels_path+'solo/'
-        kernels_solo = astrospice.SPKKernel(solo_path+'solo_ANC_soc-orbit_20200210-20301120_L014_V1_00275_V01.bsp')
-        #kernels_solo = astrospice.registry.get_kernels('solar orbiter', 'predict')
+        kernels_file='solo/solo_ANC_soc-orbit-stp_20200210-20301120_353_V1_00424_V01.bsp'
+        print(kernels_file)
+        furnish(kernels_path,kernels_file)            
+                
+    if target_name=='BepiColombo':        
+        kernels_file='bepi/bc_mpo_fcp_00199_20181020_20270407_v02.bsp'
+        print(kernels_file)
+        furnish(kernels_path,kernels_file)    
         
     if target_name=='STEREO-A':
-        kernels_stereo_recon = astrospice.registry.get_kernels('stereo-a', 'recon')
-        kernels_stereo_pred = astrospice.registry.get_kernels('stereo-a', 'predict')        
+        furnish_stereo(kernels_path,'a')           
         
     if target_name=='STEREO-B':
-        kernels_stereo_recon = astrospice.registry.get_kernels('stereo-b', 'recon')
-
-    if target_name=='BepiColombo':        
-        kernels_bepi = astrospice.registry.get_kernels('mpo', 'predict')
+        furnish_stereo(kernels_path,'b')        
         
-    #if target_name=='Ulysses':        
-    #    kernels_uly = astrospice.registry.get_kernels('Ulysses','recon')
+    if target_name=='MESSENGER':
+        kernels_file='messenger/msgr_040803_150430_150430_od431sc_2.bsp'
+        print(kernels_file)
+        furnish(kernels_path,kernels_file)    
+
+    if target_name=='Ulysses':
+        kernels_file='ulysses/ulysses_1990_2009_2050.bsp'
+        print(kernels_file)
+        furnish(kernels_path,kernels_file)    
+        
+    if target_name=='JUICE':
+        kernels_file='JUICE/juice_orbc_000080_230414_310721_v01.bsp'
+        print(kernels_file)
+        furnish(kernels_path,kernels_file)     
+        
+    if target_name=='VEX':
+        kernels_file='vex/ORVM_T19___________00001.BSP'
+        print(kernels_file)
+        furnish(kernels_path,kernels_file)            
+        
+    if target_name=='JUNO':
+        kernels_file='juno/juno_rec_orbit.bsp'
+        print(kernels_file)
+        furnish(kernels_path,kernels_file)    
 
         
     #half width for SSEF30
@@ -232,7 +365,6 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, target_name, column_list
 
     #ARRCAT with iteration
     arrcat_insitu_list = []
-
 
     ############
     #go through all HIGEOCAT CME events and check for hit at insitu, with 4 iterations in total

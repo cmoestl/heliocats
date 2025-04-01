@@ -48,7 +48,7 @@
 # 
 # 
 
-# In[18]:
+# In[1]:
 
 
 #dt=24 #hours, for 1 day
@@ -166,7 +166,7 @@ t0=time.time()
 
 # #### define times
 
-# In[19]:
+# In[2]:
 
 
 # Start date
@@ -228,7 +228,7 @@ print(times_juice[-1])
 
 # ### BepiColombo
 
-# In[20]:
+# In[3]:
 
 
 #from hd.data          
@@ -286,7 +286,7 @@ plt.plot_date(bepi.time,bepi.r,'-')
 
 # ## Parker Solar Probe
 
-# In[21]:
+# In[4]:
 
 
 def psp_furnish(kernel_path):
@@ -337,7 +337,7 @@ plt.plot_date(psp.time,psp.r,'-')
 # ##  Solar Orbiter
 # 
 
-# In[22]:
+# In[5]:
 
 
 def solo_furnish(kernels_path):
@@ -388,7 +388,7 @@ plt.plot_date(solo.time,solo.r,'-')
 
 # ## STEREO-A
 
-# In[23]:
+# In[6]:
 
 
 def stereoa_furnish(kernel_path):
@@ -440,7 +440,7 @@ plt.plot_date(sta.time,sta.r,'-')
 # ## JUICE
 # 
 
-# In[24]:
+# In[7]:
 
 
 def juice_furnish(kernel_path):
@@ -481,7 +481,7 @@ plt.plot_date(juice.time,juice.r,'-')
 
 # ## Planets
 
-# In[25]:
+# In[8]:
 
 
 def generic_furnish(kernels_path):
@@ -544,7 +544,7 @@ plt.plot_date(neptune.time,neptune.r,'-')
 
 
 
-# In[ ]:
+# In[9]:
 
 
 #%matplotlib
@@ -553,7 +553,7 @@ plt.plot(mercury.time,mercury.r)
 plt.plot(bepi.time,bepi.r)
 
 
-# In[ ]:
+# In[10]:
 
 
 ##make a plotly plot
@@ -581,7 +581,7 @@ plt.plot(bepi.time,bepi.r)
 # 
 # # overview plots
 
-# In[ ]:
+# In[11]:
 
 
 plt.plot_date(mercury.time,mercury.r,'-')
@@ -596,7 +596,7 @@ plt.plot_date(juice.time,juice.r,'-')
 
 
 
-# In[ ]:
+# In[12]:
 
 
 plt.plot_date(mercury.time,mercury.lat,'-')
@@ -615,7 +615,7 @@ plt.plot_date(solo.time,solo.lat,'-')
 # 
 # 
 
-# In[ ]:
+# In[13]:
 
 
 ##maybe need to convert times to matplotlib date numbers?

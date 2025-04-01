@@ -12,7 +12,7 @@
 # 
 # This code is part of https://github.com/cmoestl/heliocats
 # 
-# **current version is ARRCAT 2.0, released 2020 May 13, updated 2024 February 27**
+# **current version is ARRCAT 2.0, released 2020 May 13, updated 2025 April TBD**
 # 
 # Install a conda environment to run this code, see readme at https://github.com/cmoestl/heliocats <br />
 # The environment defined in "env_helio4.yml" is used, the file can be found in the folder "/envs".
@@ -26,20 +26,17 @@
 # 
 # **Issues:**
 # 
-# - change PSP position to spice kernel without astrospice
+# - add plots for each event
+# - make JUNO position work
 # 
-# - need to add plots for each event
-# - may add Ulysses again with the position in the ulysses data file 
-# - same for messenger
-# - the kernel for Solar Orbiter needs to be manually updated, see cats.py astrospice.SPKKernel in make_arrival_catalog ...
-# - with next arrcat update, check if Solar Orbiter positions are consistent with general positions file
+# 
 # 
 
-# In[1]:
+# In[5]:
 
 
-last_update='2024-February-27'
-debug_mode=0
+last_update='2025-April-TBD'
+debug_mode=1
 
 
 import numpy as np
@@ -120,7 +117,7 @@ warnings.filterwarnings("ignore")
 
 # ## 1 Make arrival catalog 
 
-# In[2]:
+# In[31]:
 
 
 t0=time.time()
@@ -152,22 +149,29 @@ column_list=['id', 'sc','target_name','sse_launch_time','target_arrival_time','t
 #pandas dataframe for current version with iteration in calculating arrival time
 ac = pd.DataFrame([], columns = column_list)
 
+
+
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'PSP',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'SolarOrbiter',column_list,kernels_path)
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'BepiColombo',column_list,kernels_path)  
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'BepiColombo',column_list,kernels_path) 
+
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-A',column_list,kernels_path)
 
-ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-B',column_list,kernels_path)
-#need to get Ulysses position
-#ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Ulysses',column_list)
-#add messenger similarly
-#ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Messenger',column_list)
-
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'JUICE',column_list,kernels_path)
 
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Mercury',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Venus',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Earth_L1',column_list,kernels_path)
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Mars',column_list,kernels_path)
+
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'STEREO-B',column_list,kernels_path)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Ulysses',column_list,kernels_path)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'MESSENGER',column_list,kernels_path)
+
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'VEX',column_list,kernels_path)
+#ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'JUNO',column_list,kernels_path)
+
+
 
 
 ac = ac.sort_values(by='target_arrival_time',ascending=False)
@@ -185,7 +189,7 @@ ac
 
 # #### save header
 
-# In[ ]:
+# In[7]:
 
 
 first_date=ac['target_arrival_time'][len(ac)-1]
@@ -194,7 +198,7 @@ print(last_date[0:7])
 print(first_date[0:7])
 
 
-# In[ ]:
+# In[8]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -210,7 +214,7 @@ python numpy arrays (pickle, as recarray and structured array), \n\
 npy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at \n\
 https://helioforecast.space/arrcat \n\n\
 Number of events in ARRCAT: '+str(len(ac))+' \n\
-Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Venus, Mercury, Mars.\n\
+Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, JUICE, MESSENGER, Ulysses, Venus, Mercury, Mars.\n\
 The catalog covers the timerange '+first_date[0:7]+' to '+last_date[0:7]+' \n\n\
 Authors: Christian Moestl (1), Eva weiler (1), D. Barnes (2), R. A. Harrison (2), J. A. Davies (2).\n\
 (1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria, (2) RAL Space, UK.\n\n\
@@ -281,7 +285,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[ ]:
+# In[9]:
 
 
 ########## python formats
@@ -358,13 +362,14 @@ ach5=np.array(ac_num_rec,dtype=dtype2)
 file='arrcat/HELCATS_ARRCAT_v20.h5'
 f=h5py.File(file,mode='w')
 f["arrcat"]= ach5
+f.close()
+print('ARRCAT saved as '+file)
+
 
 #add attributes
 #************************
 #***********************
 
-print('ARRCAT saved as '+file)
-f.close()
 
 #reading h5py files http://docs.h5py.org/en/latest/quick.html
 #fr = h5py.File('icmecat/HELCATS_ICMECAT_v20.h5', 'r')
@@ -435,7 +440,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[ ]:
+# In[10]:
 
 
 #load arrcat as pandas dataframe
@@ -448,42 +453,38 @@ file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
 
 
 #load arrcat from hdf5
-file5='arrcat/HELCATS_ARRCAT_v20.h5'
-f = h5py.File(file5, 'r')
-list(f.keys())
-ac5 = f['arrcat']
-ac5['sse_launch_time']
+#file5='arrcat/HELCATS_ARRCAT_v20.h5'
+#f = h5py.File(file5, 'r')
+#list(f.keys())
+#ac5 = f['arrcat']
+#ac5['sse_launch_time']
+#f.close()
 
 
-# In[ ]:
+# In[11]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[ ]:
+# In[12]:
 
 
 ac
 
 
-# In[ ]:
+# In[13]:
 
 
 ac_rec.id
 ac_rec.target_name[5]
-
-
-# In[ ]:
-
-
 ac_struct
 
 
 # ### plot directions and targets
 
-# In[ ]:
+# In[20]:
 
 
 sns.set_context('talk')
@@ -506,6 +507,10 @@ pspi=np.where(ac.target_name=='PSP')[0]
 soloi=np.where(ac.target_name=='SolarOrbiter')[0]
 bepii=np.where(ac.target_name=='BepiColombo')[0]
 ulyi=np.where(ac.target_name=='Ulysses')[0]
+juii=np.where(ac.target_name=='JUICE')[0]
+mesi=np.where(ac.target_name=='MESSENGER')[0]
+
+
 
 #markersize
 ms=15
@@ -524,6 +529,8 @@ ax.scatter(np.radians(ac.target_heeq_lon[pspi]),ac.target_distance[pspi],s=ms,c=
 ax.scatter(np.radians(ac.target_heeq_lon[soloi]),ac.target_distance[soloi],s=ms,c='green', alpha=al)
 ax.scatter(np.radians(ac.target_heeq_lon[bepii]),ac.target_distance[bepii],s=ms,c='violet', alpha=al)
 ax.scatter(np.radians(ac.target_heeq_lon[ulyi]),ac.target_distance[ulyi],s=ms,c='brown', alpha=al)
+ax.scatter(np.radians(ac.target_heeq_lon[juii]),ac.target_distance[juii],s=ms,c='yellowgreen', alpha=al)
+ax.scatter(np.radians(ac.target_heeq_lon[mesi]),ac.target_distance[mesi],s=ms,c='grey', alpha=al)
 
 plt.ylim([0,np.max(ac.target_distance)+0.2])
 
@@ -561,7 +568,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[ ]:
+# In[21]:
 
 
 fig=plt.figure(2, figsize=(16,7), dpi=70)
@@ -606,7 +613,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[ ]:
+# In[22]:
 
 
 hiai=np.where(higeocat['SC']=='A')[0]
@@ -655,7 +662,7 @@ hist_hib_monthly[93:]=-1
 ########### TBD add an estimate for the rest of the year
 
 
-# In[ ]:
+# In[23]:
 
 
 sns.set_context("talk")     
@@ -684,7 +691,7 @@ ax1.plot(binedges_monthly[0:-1], hist_hib_monthly,color='blue',label='monthly CM
 
 
 ax1.set_yticks(np.arange(0,300,20))
-ax1.set_ylim(0,np.max(hist_hia)+15)
+ax1.set_ylim(0,np.max(hist_hia)+25)
 ax1.set_xticks(yearly_bin_edges) 
 ax1.set_xlim(yearly_bin_edges[0],yearly_bin_edges[-1])
 ax1.legend(loc=2,fontsize=12)
@@ -710,7 +717,7 @@ print('saved as ',plotfile)
 
 
 
-# In[ ]:
+# In[24]:
 
 
 print(' ')
@@ -728,7 +735,7 @@ print(np.sort(arrcat_web.sse_launch_time)[-1])
 
 
 
-# In[ ]:
+# In[25]:
 
 
 t1all = time.time()
@@ -737,6 +744,18 @@ print(' ')
 print('---------------------------------- ')
 print('arrcat.py takes ', np.round((t1all-t0all),1), 'seconds')
     
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
