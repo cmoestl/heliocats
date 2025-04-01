@@ -94,6 +94,25 @@ def cart2sphere_emma_rad(x,y,z):
 ############# for spiceypy positions
 
 
+#JUNO
+def furnish_juno(kernel_path):
+
+    #need to load both directories
+    juno_kernel_path = kernel_path+'juno'
+
+    kernels = os.listdir(juno_kernel_path)
+    for kernel in kernels:
+        spiceypy.furnsh(os.path.join(juno_kernel_path, kernel))
+
+    
+    generic_path = kernel_path+'generic/'
+    generic_kernels = os.listdir(generic_path)
+    for kernel in generic_kernels:
+        spiceypy.furnsh(os.path.join(generic_path, kernel))
+
+
+
+
 
 #STEREO-A and STEREO-B
 def furnish_stereo(kernel_path,aorb):
@@ -355,9 +374,7 @@ def make_arrival_catalog_insitu_ssef30(higeocat,arrcat, target_name, column_list
         furnish(kernels_path,kernels_file)            
         
     if target_name=='JUNO':
-        kernels_file='juno/juno_rec_orbit.bsp'
-        print(kernels_file)
-        furnish(kernels_path,kernels_file)    
+        furnish_juno(kernels_path)  
 
         
     #half width for SSEF30

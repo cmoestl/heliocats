@@ -27,16 +27,17 @@
 # **Issues:**
 # 
 # - add plots for each event
-# - make JUNO position work
+# 
+# - add html plots
 # 
 # 
 # 
 
-# In[5]:
+# In[3]:
 
 
-last_update='2025-April-TBD'
-debug_mode=1
+last_update='2025-April-2'
+debug_mode=0
 
 
 import numpy as np
@@ -117,7 +118,7 @@ warnings.filterwarnings("ignore")
 
 # ## 1 Make arrival catalog 
 
-# In[31]:
+# In[ ]:
 
 
 t0=time.time()
@@ -169,7 +170,7 @@ ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'Ulysses',column_list,ker
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'MESSENGER',column_list,kernels_path)
 
 ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'VEX',column_list,kernels_path)
-#ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'JUNO',column_list,kernels_path)
+ac=hc.make_arrival_catalog_insitu_ssef30(higeocat, ac, 'JUNO',column_list,kernels_path)
 
 
 
@@ -189,7 +190,7 @@ ac
 
 # #### save header
 
-# In[7]:
+# In[ ]:
 
 
 first_date=ac['target_arrival_time'][len(ac)-1]
@@ -198,7 +199,7 @@ print(last_date[0:7])
 print(first_date[0:7])
 
 
-# In[8]:
+# In[ ]:
 
 
 #save header and parameters as text file and prepare for html website
@@ -285,7 +286,7 @@ np.sort(ac.target_arrival_time)
 
 # #### save into different formats
 
-# In[9]:
+# In[ ]:
 
 
 ########## python formats
@@ -440,7 +441,7 @@ print('ARRCAT saved as '+file)
 
 # ## 3 load ARRCAT examples
 
-# In[10]:
+# In[ ]:
 
 
 #load arrcat as pandas dataframe
@@ -461,20 +462,20 @@ file='arrcat/HELCATS_ARRCAT_v20_numpy.p'
 #f.close()
 
 
-# In[11]:
+# In[ ]:
 
 
 ac_pandas
 ac_pandas.keys()
 
 
-# In[12]:
+# In[ ]:
 
 
 ac
 
 
-# In[13]:
+# In[ ]:
 
 
 ac_rec.id
@@ -484,7 +485,7 @@ ac_struct
 
 # ### plot directions and targets
 
-# In[20]:
+# In[ ]:
 
 
 sns.set_context('talk')
@@ -568,7 +569,7 @@ print('saved as ',plotfile)
 
 # ### plot error distributions
 
-# In[21]:
+# In[ ]:
 
 
 fig=plt.figure(2, figsize=(16,7), dpi=70)
@@ -613,7 +614,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[22]:
+# In[ ]:
 
 
 hiai=np.where(higeocat['SC']=='A')[0]
@@ -662,7 +663,7 @@ hist_hib_monthly[93:]=-1
 ########### TBD add an estimate for the rest of the year
 
 
-# In[23]:
+# In[ ]:
 
 
 sns.set_context("talk")     
@@ -717,7 +718,7 @@ print('saved as ',plotfile)
 
 
 
-# In[24]:
+# In[ ]:
 
 
 print(' ')
@@ -735,7 +736,7 @@ print(np.sort(arrcat_web.sse_launch_time)[-1])
 
 
 
-# In[25]:
+# In[ ]:
 
 
 t1all = time.time()
