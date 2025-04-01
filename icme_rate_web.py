@@ -22,6 +22,9 @@
 # - set cutoff date for STEREO-A science data when loading data consistent with ICMECAT
 # - data files are separate in data/icme_rate_data_files/
 # 
+# ISSUES:
+# - plot with fit not correct for sc25
+# 
 # ---
 # 
 # **MIT LICENSE**
@@ -45,7 +48,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[1]:
+# In[41]:
 
 
 #manually set latest solo kernel file for spiceypy
@@ -2480,7 +2483,7 @@ def cart2sphere_emma_rad(x,y,z):
 
 
 
-# In[27]:
+# In[33]:
 
 
 ## for the moment PSP with astrospice, need to place kernel file
@@ -2540,7 +2543,7 @@ psp.time=mdates.date2num(psp.time)
 plt.plot_date(psp.time,psp.r,'-')
 
 
-# In[28]:
+# In[34]:
 
 
 def solo_furnish(kernels_path):
@@ -2598,7 +2601,7 @@ solo.lat=np.rad2deg(solo.lat)
 plt.plot_date(solo.time,solo.r,'-')
 
 
-# In[29]:
+# In[35]:
 
 
 #get the speed in hourly resolution
@@ -2630,7 +2633,7 @@ plt.plot_date(solo.time,solo.r,'-')
 
 # ### Make trajectory plots 
 
-# In[30]:
+# In[39]:
 
 
 #%matplotlib inline
@@ -2673,7 +2676,7 @@ sns.set_style('whitegrid')
 ax3 = plt.subplot(212) 
 #ax3.plot_date(psp_plot_time,psp_highres_speed,'-r',zorder=3)
 ax3.plot_date(psp.time,psp.lat,'-r',zorder=3)
-plt.ylabel('PSP latitude [deg]')
+plt.ylabel('PSP latitude [deg, HEEQ]')
 #plt.xlabel('year')
 ax3.set_xlim(datetime.datetime(2018,9,1),datetime.datetime(2030,1,1))
 ax3.set_ylim(-40,40)
@@ -2707,7 +2710,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[31]:
+# In[40]:
 
 
 #same thing for Solar Orbiter
@@ -2756,7 +2759,7 @@ ax2.set_ylim(0,1.1*215.03)
 sns.set_style('whitegrid')
 ax3 = plt.subplot(212) 
 ax3.plot_date(solo.time,solo.lat,'-r',zorder=3)
-plt.ylabel('Solar Orbiter HEEQ latitude [degree]')
+plt.ylabel('Solar Orbiter latitude [degree, HEEQ]')
 #plt.xlabel('year')
 ax3.set_xlim(datetime.datetime(2020,3,1),datetime.datetime(2031,1,1))
 
@@ -2790,7 +2793,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
-# In[32]:
+# In[38]:
 
 
 t1all = time.time()
