@@ -17,11 +17,16 @@
 # uses environment 'envs/env_helio4.yml'
 # 
 # 
+# Notes:
+# - Check kernel files when updates are made
+# - set cutoff date for STEREO-A science data when loading data consistent with ICMECAT
+# - data files are separate in data/icme_rate_data_files/
+# 
 # ---
 # 
 # **MIT LICENSE**
 # 
-# Copyright 2020-2024, Christian Moestl
+# Copyright 2020-2025, Christian Moestl
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this 
 # software and associated documentation files (the "Software"), to deal in the Software
@@ -40,15 +45,17 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[49]:
+# In[1]:
 
+
+#manually set latest solo kernel file for spiceypy
+solo_kernel = 'solo_ANC_soc-orbit-stp_20200210-20301120_353_V1_00424_V01.bsp'
+psp_kernel = 'spp_nom_20180812_20300101_v042_PostV7.bsp'
 
 debug_mode=0
 
-# -----CHECK LIST
-
 ## update every year
-last_year=2024 #2024 means last date is 2023 Dec 31
+last_year=2025 #2025 means last date is 2024 Dec 31
 
 ##update the data files, which are independent in folder /data/icme_rate_data_files for the yearly update
 #needed:
@@ -57,10 +64,7 @@ last_year=2024 #2024 means last date is 2023 Dec 31
 #wind_1995_now_rtn.p
 #solo_2020_now_rtn.p
 
-#NOTE: set cutoff date for STEREO-A science data when loading data consistent with ICMECAT
 
-#manually set latest solo kernel file for spiceypy
-solo_kernel_file='solo_ANC_soc-orbit-stp_20200210-20301120_312_V1_00350_V01.bsp'
 
 #----------
 
@@ -217,7 +221,7 @@ if load_data > 0:
         #also get preliminary data for current month for plotting    
         
         #download 
-        ssn_prelim_url='http://www.sidc.be/silso/DATA/EISN/EISN_current.csv'
+        ssn_prelim_url='https://www.sidc.be/SILSO/DATA/EISN/EISN_current.csv'
         try: urllib.request.urlretrieve(ssn_prelim_url,data_path+'EISN_current.csv')
         except urllib.error.URLError as e:
             print('Failed downloading ', ssn_prelim_url,' ',e)
@@ -225,6 +229,14 @@ if load_data > 0:
             
         ssn_prelim_raw = np.loadtxt(data_path+'EISN_current.csv', delimiter=',',usecols=(0,1,2,4,5))
         ssn_p_int=ssn_prelim_raw.astype(int)
+        
+        #if the file content is 0, make a nan with the current date
+        if ssn_p_int.size == 0:
+            ssn_p = pd.DataFrame(np.nan, index=range(1), columns=['year', 'month', 'day', 'spot', 'stand'])   
+            ssn_p.year=datetime.datetime.utcnow().year
+            ssn_p.month=datetime.datetime.utcnow().month
+            ssn_p.day=datetime.datetime.utcnow().day
+
         
         #with one entry do this different:
         if ssn_p_int.size == 5:
@@ -394,11 +406,11 @@ if load_data > 0:
     [sta1,hsta1]=pickle.load(open(data_path+filesta1, "rb" ) )  
     
     #beacon data
-    filesta2='stereoa_beacon_rtn_last_300days_now.p'
+    filesta2='stereoa_beacon_rtn_last_400days_now.p'
     
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
     #cutoff with end of science data
-    sta2=sta2[np.where(sta2.time >= parse_time('2023-May-01 00:00').datetime)[0]]
+    sta2=sta2[np.where(sta2.time >= parse_time('2024-Apr-30 00:00').datetime)[0]]
 
     #make array
     sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
@@ -442,9 +454,9 @@ if load_data > 0:
     
 
     ################### PSP
-    #print('load PSP data RTN')
+    print('load PSP data RTN')
     filepsp='psp_2018_now_rtn.p'
-    #[psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
+    [psp,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) ) 
                    
 
     print('load all data done')
@@ -460,7 +472,7 @@ print('active spacecraft:')
 
 print('Solar Orbiter        ',str(solo.time[0])[0:10],str(solo.time[-1])[0:10])
 #print('Bepi Colombo         ',str(bepi.time[0])[0:10],str(bepi.time[-1])[0:10])
-#print('Parker Solar Probe   ',str(psp.time[0])[0:10],str(psp.time[-1])[0:10])
+print('Parker Solar Probe   ',str(psp.time[0])[0:10],str(psp.time[-1])[0:10])
 print('Wind                 ',str(win.time[0])[0:10],str(win.time[-1])[0:10])
 print('STEREO-A             ',str(sta.time[0])[0:10],str(sta.time[-1])[0:10])
 #print('MAVEN                ',str(mav.time[0])[0:10],str(mav.time[-1])[0:10])
@@ -487,7 +499,7 @@ print('loading all data takes', np.round(t1-t0,2), 'seconds')
 
 
 ########### load ICMECAT made with icmecat.py or ipynb
-file='icmecat/HELIO4CAST_ICMECAT_v22_pandas.p'
+file='icmecat/HELIO4CAST_ICMECAT_v23_pandas.p'
 print()
 print('loaded ', file)
 print()
@@ -817,7 +829,7 @@ print('done')
 # In[8]:
 
 
-#define dates of January 1 from 2007 to 2022
+#define dates of January 1 from 2007 
 years_jan_1_str_plus1=[str(i)+'-01-01' for i in np.arange(2007,last_year+1) ] 
 yearly_bin_edges=parse_time(years_jan_1_str_plus1).plot_date
 #bin width in days         
@@ -901,9 +913,10 @@ for i in np.arange(0,len(yearly_mid_times)):
 sns.set_context("talk")     
 sns.set_style('darkgrid')
 
-plt.figure(11,figsize=(12,6),dpi=80)
+plt.figure(11,figsize=(14,6),dpi=80)
 
-plt.ylabel('ICMEs per year, ICMECAT')
+ax1=plt.subplot(111)
+ax1.set_ylabel('ICMEs per year, ICMECAT')
 
 #plt.plot(yearly_mid_times,histmes,'-',label='MESSENGER')
 #plt.plot(yearly_mid_times,histmav,'-',label='MAVEN')
@@ -911,14 +924,15 @@ plt.ylabel('ICMEs per year, ICMECAT')
 #plt.plot(yearly_mid_times,histbepi,'-',label='BepiColombo')
 #plt.plot(yearly_mid_times,histvex,'-',label='VEX')
 
-plt.plot(yearly_mid_times,histwin,'-',label='Wind', color='mediumseagreen')
-plt.plot(yearly_mid_times,histsta,'-',label='STEREO-A', color='red',alpha=0.5)
-plt.plot(yearly_mid_times,histstb,'-',label='STEREO-B', color='blue',alpha=0.5)
-plt.plot(yearly_mid_times,histsolo,'-',label='Solar Orbiter', color='black',alpha=0.5)
+ax1.plot(yearly_mid_times,histwin,'-',label='Wind', color='mediumseagreen')
+ax1.plot(yearly_mid_times,histsta,'-',label='STEREO-A', color='red',alpha=0.5)
+ax1.plot(yearly_mid_times,histstb,'-',label='STEREO-B', color='blue',alpha=0.5)
+ax1.plot(yearly_mid_times,histsolo,'-',label='Solar Orbiter', color='black',alpha=0.5)
 
+ax1.xaxis.set_major_locator(mdates.YearLocator(1))
    
-plt.plot([icrate.year,icrate.year],[icrate.mean1-icrate.std1,icrate.mean1+icrate.std1],'-k',lw=0.5)
-plt.plot(icrate.year,icrate.mean1,'ok',markerfacecolor='white', label='mean +/- std')
+ax1.plot([icrate.year,icrate.year],[icrate.mean1-icrate.std1,icrate.mean1+icrate.std1],'-k',lw=0.5)
+ax1.plot(icrate.year,icrate.mean1,'ok',markerfacecolor='white', label='mean +/- std')
 
 
 plt.legend(loc=2,fontsize=10)
@@ -953,23 +967,22 @@ rc_icme_per_year=np.trim_zeros(rc_year)
 #print(rc_year)
 
 
-#plot check whats in this array
-
-#sns.set_style('darkgrid')
-#fig=plt.figure(12,figsize=(12,5),dpi=80)
-#ax11=sns.histplot(rc_icme_per_year,bins=24,kde=None)
-#plt.ylabel('ICMEs per year, RC list')
-
 #count all full years from 1996-2022
-bins_years=2023-1996
+bins_years=(last_year)-1996
+
+#plot check whats in this array
+sns.set_style('darkgrid')
+fig=plt.figure(12,figsize=(12,5),dpi=80)
+ax11=sns.histplot(rc_icme_per_year,bins=bins_years,kde=None)
+plt.ylabel('ICMEs per year, RC list')
+
 
 #get yearly ICME rate (use range to get correct numbers)
-rc_rate_values=np.histogram(rc_icme_per_year,bins=bins_years,range=(1996,2023))[0]
-rc_rate_time=np.histogram(rc_icme_per_year,bins=bins_years,range=(1996,2023))[1][0:-1]
+rc_rate_values=np.histogram(rc_icme_per_year,bins=bins_years,range=(1996,last_year))[0]
+rc_rate_time=np.histogram(rc_icme_per_year,bins=bins_years,range=(1996,last_year))[1][0:-1]
 
 
-
-years_jul_1_str_rc=[str(i)+'-07-01' for i in np.arange(1996,2022) ] 
+years_jul_1_str_rc=[str(i)+'-07-01' for i in np.arange(1996,last_year-1) ] 
 yearly_mid_times_rc=parse_time(years_jul_1_str_rc).datetime
 yearly_mid_times_num_rc=parse_time(years_jul_1_str_rc).plot_date
 #print(yearly_mid_times_rc)
@@ -1087,14 +1100,14 @@ print('times:')
 years23=np.arange(1996,2009)
 print(years23)
 
-last_year=years23[-1] 
+last_year23=years23[-1] 
 
-years_jan_1_str_23=[str(i)+'-01-01' for i in np.arange(1996,last_year+1) ] 
+years_jan_1_str_23=[str(i)+'-01-01' for i in np.arange(1996,last_year23+1) ] 
 yearly_start_times_23=parse_time(years_jan_1_str_23).datetime
 yearly_start_times_num_23=parse_time(years_jan_1_str_23).plot_date
 
 #same for July 1 as middle of the year
-years_jul_1_str_23=[str(i)+'-07-01' for i in np.arange(1996,last_year+1) ] 
+years_jul_1_str_23=[str(i)+'-07-01' for i in np.arange(1996,last_year23+1) ] 
 yearly_mid_times_23=parse_time(years_jul_1_str_23).datetime
 yearly_mid_times_num_23=parse_time(years_jul_1_str_23).plot_date
 
@@ -1102,7 +1115,7 @@ yearly_mid_times_num_23=parse_time(years_jul_1_str_23).plot_date
 print(yearly_mid_times_23)
 
 #same for december 31
-years_dec_31_str_23=[str(i)+'-12-31' for i in np.arange(1996,last_year+1) ] 
+years_dec_31_str_23=[str(i)+'-12-31' for i in np.arange(1996,last_year23+1) ] 
 yearly_end_times_23=parse_time(years_dec_31_str_23).datetime
 yearly_end_times_num_23=parse_time(years_dec_31_str_23).plot_date
 
@@ -1171,8 +1184,8 @@ years24=np.arange(2009,2020)
 print(years24)
 
 #same for July 1 as middle of the year
-last_year=2020
-years_jul_1_str_24=[str(i)+'-07-01' for i in np.arange(2009,last_year) ] 
+last_year24=2020
+years_jul_1_str_24=[str(i)+'-07-01' for i in np.arange(2009,last_year24) ] 
 yearly_mid_times_24=parse_time(years_jul_1_str_24).datetime
 yearly_mid_times_num_24=parse_time(years_jul_1_str_24).plot_date
 print(yearly_mid_times_24)
@@ -1227,11 +1240,10 @@ print('cycle 25\n')
 #################### times from 2020 onwards
 print('times:')
 #these years cover solar cycle 24
-years25=np.arange(2020,2022)
+years25=np.arange(2020,last_year)
 print(years25)
 
 #same for July 1 as middle of the year
-last_year=2022
 years_jul_1_str_25=[str(i)+'-07-01' for i in np.arange(2020,last_year) ] 
 yearly_mid_times_25=parse_time(years_jul_1_str_25).datetime
 yearly_mid_times_num_25=parse_time(years_jul_1_str_25).plot_date
@@ -1258,8 +1270,8 @@ print('----------')
 print('ICME rate:')
 print()
 
-#2020 is index 25
-rc_rate25=rc_rate_values[24:26]
+#2020 is index 25, get index of last year
+rc_rate25=rc_rate_values[24:last_year-2000+4]
 print(years25)
 print('icmes RC',rc_rate25)
 print()
@@ -1421,13 +1433,13 @@ print('')
 print('---------------------------------')
 
 ############# set yearly times
-last_year=2033
-yearly_start_times_25=[datetime.datetime(y,1,1) for y in np.arange(2020,last_year) ] 
+last_year_mod=2033
+yearly_start_times_25=[datetime.datetime(y,1,1) for y in np.arange(2020,last_year_mod) ] 
 yearly_start_times_num_25=mdates.date2num(yearly_start_times_25)
 
 #same for July 1 as middle of the year
 
-yearly_mid_times_25=[datetime.datetime(y,7,1) for y in np.arange(2020,last_year) ] 
+yearly_mid_times_25=[datetime.datetime(y,7,1) for y in np.arange(2020,last_year_mod) ] 
 yearly_mid_times_num_25=mdates.date2num(yearly_mid_times_25)
 
 #### for smooth plotting daily list of times
@@ -2005,7 +2017,7 @@ ax1.plot(yearly_mid_times_24,rc_rate24, color='black', marker='o',markerfacecolo
 ax1.plot(yearly_mid_times_24,ic_rate24, color='black', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC24',linestyle='')
 ax1.plot([icrate.year[2:],icrate.year[2:]],[icrate.mean1[2:]-icrate.std1[2:],icrate.mean1[2:]+icrate.std1[2:]],'-k',lw=1.1,label='')
 
-ax1.plot(yearly_mid_times_25[0:4],ic_rate25, color='blue', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC25',linestyle='')
+ax1.plot(yearly_mid_times_25[0:last_year-2025+5],ic_rate25, color='blue', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC25',linestyle='')
 ax1.errorbar(yearly_mid_times_25,icmes_predict_25_mc23,yerr=ic_rate_25_mc23_std, color='black', marker='o',markerfacecolor='lightgrey',label='Predicted ICME rate McIntosh+ 2023',linestyle='')
 ax1.set_ylabel('number of ICMEs per year',fontsize=fsize)
 legend2=ax1.legend(loc=2,fontsize=10)
@@ -2030,7 +2042,7 @@ ax3.plot(yearly_mid_times_23,rc_rate23, color='black',marker='o',markerfacecolor
 ax3.plot(yearly_mid_times_24,rc_rate24, color='black', marker='o',markerfacecolor='white',label='RC ICME rate SC24',linestyle='')
 ax3.plot(yearly_mid_times_24,ic_rate24, color='black', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC24',linestyle='')
 ax3.plot([icrate.year[2:],icrate.year[2:]],[icrate.mean1[2:]-icrate.std1[2:],icrate.mean1[2:]+icrate.std1[2:]],'-k',lw=1.1,label='')
-ax3.plot(yearly_mid_times_25[0:4],ic_rate25, color='blue', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC25',linestyle='')
+ax3.plot(yearly_mid_times_25[0:last_year-2025+5],ic_rate25, color='blue', marker='s',markerfacecolor='white',label='ICMECAT ICME rate SC25',linestyle='')
 ax3.errorbar(yearly_mid_times_25,icmes_predict_25pp,yerr=ic_rate_25_pp_std, color='black', marker='o',markerfacecolor='lightgrey',label='Predicted ICME rate PP19',linestyle='', zorder=3)
 
 ax3.set_ylabel('number of ICMEs per year',fontsize=fsize)
@@ -2387,7 +2399,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # ## Plotly html version for website
 
-# In[50]:
+# In[25]:
 
 
 #Plotly imports
@@ -2448,73 +2460,100 @@ print('saved as ',outputdirectory+'/cycle25_prediction.html')
 
 # # 4 make PSP and Solar Orbiter position
 # 
-# ### with astrospice - need to change to spiceypy
+# 
 
-# In[29]:
-
-
-kernels_path
+# In[26]:
 
 
-# In[30]:
+print(kernels_path)
+   
+def cart2sphere_emma_rad(x,y,z):
+    
+    r = np.sqrt(x**2+ y**2 + z**2) /1.495978707E8         
+    theta = np.arctan2(z,np.sqrt(x**2+ y**2)) * 360 / 2 / np.pi
+    phi = np.arctan2(y,x) * 360 / 2 / np.pi    
+    
+    theta=np.deg2rad(theta)
+    phi=np.deg2rad(phi)
+    
+    return (r, theta, phi)
+
+
+
+# In[27]:
 
 
 ## for the moment PSP with astrospice, need to place kernel file
+def psp_furnish(kernel_path):
 
-starttime =datetime.datetime(2018, 8,13)
-#endtime =datetime.datetime(2019, 1,1)
-endtime = datetime.datetime(2025, 8, 31)
-pspt_time = []
-res_in_days=1/24
-while starttime < endtime:
-    pspt_time.append(starttime)
-    starttime += timedelta(days=res_in_days)
-#pspt_time_num=parse_time(pspt_time).plot_date
+    psp_kernel_path = kernel_path+'psp/'
+    generic_path = kernel_path+'generic/'
+    
+    #psp_kernels = os.listdir(psp_kernel_path)
+    #for kernel in psp_kernels:
+    #    spiceypy.furnsh(os.path.join(psp_kernel_path, kernel))
 
-kernels_psp = astrospice.registry.get_kernels('psp', 'predict')
-frame = HeliographicStonyhurst()
-coords_psp = astrospice.generate_coords('Solar probe plus', pspt_time)
-coords_psp = coords_psp.transform_to(frame)
+    #psp_kernel = 'spp_nom_20180812_20300101_v042_PostV7.bsp'
+    spiceypy.furnsh(os.path.join(psp_kernel_path, psp_kernel))
+    
+    generic_kernels = os.listdir(generic_path)
+    for kernel in generic_kernels:
+        spiceypy.furnsh(os.path.join(generic_path, kernel))
+        
 
-psp_r=coords_psp.radius.value/(au.value*1e-3)
-psp_lat=coords_psp.lat
-psp_lon=coords_psp.lon
+def get_psp_pos(t,kernel_path):    
+    #if spiceypy.ktotal('ALL') < 1:
+    #    psp_furnish(kernel_path)        
 
-coords_psp
-
-
-# In[31]:
-
-
-## Solar Orbiter with spiceypy
-
-#frame='HEEQ'
-starttime =datetime.datetime(2020, 3,1)
-endtime = datetime.datetime(2030, 9, 1)
-solot_time = []
-res_in_days=1/24
-while starttime < endtime:
-    solot_time.append(starttime)
-    starttime += timedelta(days=res_in_days)
-solot_time_num=parse_time(solot_time).plot_date     
-starttime =datetime.datetime(2020, 3,1)
+    pos = spiceypy.spkpos("PARKER SOLAR PROBE", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
+    position = t, pos[0], pos[1], pos[2], r, lat, lon
+    return position
 
 
-def cart2sphere_emma(x,y,z):
-    r = np.sqrt(x**2+ y**2 + z**2) /1.495978707E8         
-    theta = np.arctan2(z,np.sqrt(x**2+ y**2)) * 360 / 2 / np.pi
-    phi = np.arctan2(y,x) * 360 / 2 / np.pi                   
-    return (r, theta, phi)
+def get_psp_positions(time_series,kernel_path):
+    positions = []
+   
+    for t in time_series:
+        position = get_psp_pos(t,kernel_path)
+        positions.append(position)
+    df_positions = pd.DataFrame(positions, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
+    return df_positions
+
+start_date = datetime.datetime(2018, 9, 1)
+end_date = datetime.datetime(2030, 1, 1)
+dt=1    
+times=[]    
+# Generate datetimes with increments of dt hours until the end date
+current_date = start_date
+while current_date <= end_date:
+    times.append(current_date)
+    current_date += datetime.timedelta(hours=dt)
+
+
+psp_furnish(kernels_path)    
+print(kernels_path)
+psp=get_psp_positions(times,kernels_path)
+psp.lon=np.rad2deg(psp.lon)
+psp.lat=np.rad2deg(psp.lat)
+psp.time=mdates.date2num(psp.time)
+plt.plot_date(psp.time,psp.r,'-')
+
+
+# In[28]:
 
 
 def solo_furnish(kernels_path):
     """Main"""
     solo_path = kernels_path+'solo/'
-    generic_path = kernels_path+'generic/'
     #put the latest file here manually
-    solo_kernels = astrospice.SPKKernel(solo_path+solo_kernel_file)
+  
+    #solo_kernel = 'solo_ANC_soc-orbit-stp_20200210-20301120_353_V1_00424_V01.bsp'
+    spiceypy.furnsh(os.path.join(solo_path, solo_kernel))
+    print(solo_kernel)
+    
+    generic_path = kernels_path+'generic/'
     generic_kernels = os.listdir(generic_path)
-    print(solo_kernels)
     print(generic_kernels)
     #for kernel in solo_kernels:
     #    spiceypy.furnsh(os.path.join(solo_path, kernel))
@@ -2527,7 +2566,7 @@ def get_solo_pos(t,kernels_path):
     if spiceypy.ktotal('ALL') < 1:
         solo_furnish(kernels_path)
     pos = spiceypy.spkpos("SOLAR ORBITER", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
-    r, lat, lon = cart2sphere_emma(pos[0],pos[1],pos[2])
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
     return position
 
@@ -2540,16 +2579,26 @@ def get_solo_positions(time_series,kernels_path):
     df_positions = pd.DataFrame(positions, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
     return df_positions
 
+start_date = datetime.datetime(2020, 4, 1)
+end_date = datetime.datetime(2030, 11, 1)
+dt=6    
+times=[]    
+# Generate datetimes with increments of dt hours until the end date
+current_date = start_date
+while current_date <= end_date:
+    times.append(current_date)
+    current_date += datetime.timedelta(hours=dt)
+
 solo_furnish(kernels_path)    
-#get solo positions for corresponding timestamps
-coords_solo = get_solo_positions(solot_time,kernels_path)
+print(kernels_path)
+solo=get_solo_positions(times,kernels_path)
+solo.lon=np.rad2deg(solo.lon)
+solo.lat=np.rad2deg(solo.lat)
 
-solo_r=coords_solo.r
-solo_lat=coords_solo.lat
-solo_lon=coords_solo.lon
+plt.plot_date(solo.time,solo.r,'-')
 
 
-# In[32]:
+# In[29]:
 
 
 #get the speed in hourly resolution
@@ -2581,7 +2630,7 @@ solo_lon=coords_solo.lon
 
 # ### Make trajectory plots 
 
-# In[33]:
+# In[30]:
 
 
 #%matplotlib inline
@@ -2591,14 +2640,15 @@ sns.set_style('whitegrid')
 fig=plt.figure(23,figsize=(13,10),dpi=70)
 
 ax1 = plt.subplot(211) 
-ax1.plot_date(pspt_time,psp_r,c='r',linestyle='-',markersize=0)
+ax1.plot_date(psp.time,psp.r,c='r',linestyle='-',markersize=0)
 ax1.set_ylim(0,0.95)
-ax1.set_xlim(datetime.datetime(2018,9,1),datetime.datetime(2025,9,1))
+ax1.set_xlim(datetime.datetime(2018,9,1),datetime.datetime(2030,9,1))
 ax1.yaxis.set_ticks(np.arange(0,1,0.1))
 ax1.xaxis.set_minor_locator(mdates.MonthLocator())
 ax1.tick_params(which="both", bottom=True)
 plt.ylabel('PSP distance [AU]')
 ax1.grid(which='major',linestyle='--',alpha=0.7)
+ax1.xaxis.set_major_locator(mdates.YearLocator(1))
 #ax1.set_zorder(3)
 
 plt.title('Parker Solar Probe trajectory')
@@ -2608,32 +2658,29 @@ plt.title('Parker Solar Probe trajectory')
 #for i in np.arange(0,1,0.1):
 #    ax1.plot(gridtime,[0,0]+i,linestyle='--',color='grey',alpha=0.7,lw=0.8)
 
-
     
 ax2=ax1.twinx()
-ax2.plot_date(pspt_time,215.03*psp_r,c='r',linestyle='-',markersize=0)
+ax2.plot_date(psp.time,215.03*psp.r,c='r',linestyle='-',markersize=0)
 ax2.set_ylabel('solar radii')
 ax2.set_ylim(0,0.95*215.03)
-ax2.set_xlim(datetime.datetime(2018,9,1),datetime.datetime(2025,9,1))
+ax2.set_xlim(datetime.datetime(2018,9,1),datetime.datetime(2030,1,1))
 ax2.yaxis.set_ticks(np.arange(0,220,20))
 ax2.grid(visible=None)
 
-
 plt.annotate('time: '+str(datetime.datetime.now())[0:10],xy=(0.85,0.96),xycoords='axes fraction',fontsize=11,ha='right')
-
 
 sns.set_style('whitegrid')
 ax3 = plt.subplot(212) 
 #ax3.plot_date(psp_plot_time,psp_highres_speed,'-r',zorder=3)
-ax3.plot_date(pspt_time,psp_lon,'-r',zorder=3)
-plt.ylabel('PSP longitude [deg]')
+ax3.plot_date(psp.time,psp.lat,'-r',zorder=3)
+plt.ylabel('PSP latitude [deg]')
 #plt.xlabel('year')
-ax3.set_xlim(datetime.datetime(2018,9,1),datetime.datetime(2025,9,1))
-ax3.set_ylim(-180,180)
+ax3.set_xlim(datetime.datetime(2018,9,1),datetime.datetime(2030,1,1))
+ax3.set_ylim(-40,40)
 ax3.xaxis.set_minor_locator(mdates.MonthLocator())
 ax3.tick_params(which="both", bottom=True)
+ax3.xaxis.set_major_locator(mdates.YearLocator(1))
 ax3.grid(which='major',linestyle='--',alpha=0.7)
-
 
 
 #current time as vertical 
@@ -2641,15 +2688,11 @@ current_mdates = mdates.date2num(datetime.datetime.now())
 ax1.plot([current_mdates,current_mdates],[-50,50],linestyle='-', color='black',alpha=0.5)
 ax3.plot([current_mdates,current_mdates],[-200,200],linestyle='-', color='black',alpha=0.5)
 
-
-
 #find perihelia and aphelia
-dr=np.gradient(psp_r)
+dr=np.gradient(psp.r)
 dr_minmax=np.where(np.diff(np.sign(dr)))[0]
-for i in np.arange(0,48,2):
-    ax1.text(pspt_time[dr_minmax[i]],psp_r[dr_minmax[i]]-0.038,str(int(i/2)+1),fontsize=13,zorder=0,horizontalalignment='center')
-
-
+for i in np.arange(0,84,2):
+    ax1.text(psp.time[dr_minmax[i]],psp.r[dr_minmax[i]]-0.038,str(int(i/2)+1),fontsize=13,zorder=0,horizontalalignment='center')
 
 
 ##find perihelia and aphelia
@@ -2664,7 +2707,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[34]:
+# In[31]:
 
 
 #same thing for Solar Orbiter
@@ -2677,9 +2720,9 @@ sns.set_style('whitegrid')
 fig=plt.figure(24,figsize=(13,10),dpi=70)
 
 ax1 = plt.subplot(211) 
-ax1.plot_date(solot_time,solo_r,c='r',linestyle='-',markersize=0)
+ax1.plot_date(solo.time,solo.r,c='r',linestyle='-',markersize=0)
 
-ax1.set_xlim(datetime.datetime(2020,3,1),datetime.datetime(2029,12,31))
+ax1.set_xlim(datetime.datetime(2020,3,1),datetime.datetime(2031,1,31))
 
 ax1.yaxis.set_ticks(np.arange(0,1.3,0.1))
 ax1.xaxis.set_minor_locator(mdates.MonthLocator())
@@ -2701,9 +2744,9 @@ plt.title('Solar Orbiter trajectory')
 
     
 ax2=ax1.twinx()
-ax2.plot_date(solot_time,215.03*solo_r,c='r',linestyle='',markersize=0)
+ax2.plot_date(solo.time,215.03*solo.r,c='r',linestyle='',markersize=0)
 ax2.set_ylabel('solar radii')
-ax2.set_xlim(datetime.datetime(2020,3,1),datetime.datetime(2030,6,30))
+ax2.set_xlim(datetime.datetime(2020,3,1),datetime.datetime(2031,1,1))
 ax2.yaxis.set_ticks(np.arange(0,260,20))
 ax2.grid(visible=None)
 ax2.set_ylim(0,1.1*215.03)
@@ -2712,18 +2755,18 @@ ax2.set_ylim(0,1.1*215.03)
 
 sns.set_style('whitegrid')
 ax3 = plt.subplot(212) 
-ax3.plot_date(solot_time,solo_lat,'-r',zorder=3)
+ax3.plot_date(solo.time,solo.lat,'-r',zorder=3)
 plt.ylabel('Solar Orbiter HEEQ latitude [degree]')
 #plt.xlabel('year')
-ax3.set_xlim(datetime.datetime(2020,3,1),datetime.datetime(2030,6,30))
+ax3.set_xlim(datetime.datetime(2020,3,1),datetime.datetime(2031,1,1))
 
-ax3.set_ylim(-35,35)
+ax3.set_ylim(-40,40)
 ax3.xaxis.set_minor_locator(mdates.MonthLocator())
 ax3.tick_params(which="both", bottom=True)
 ax3.grid(which='major',linestyle='--',alpha=0.7)
 
 #find perihelia and aphelia
-dr=np.gradient(solo_r)
+dr=np.gradient(solo.r)
 dr_minmax=np.where(np.diff(np.sign(dr)))[0]
 
 current_mdates = mdates.date2num(datetime.datetime.now())
@@ -2733,12 +2776,12 @@ ax3.plot([current_mdates,current_mdates],[-50,50],linestyle='-', color='black',a
 
 
 #plot numbers
-for i in np.arange(0,41,2):
-    ax1.text(solot_time[dr_minmax[i]],solo_r[dr_minmax[i]]-0.07,str(int(i/2)+1),fontsize=15,zorder=0,horizontalalignment='center')    
-    ax1.plot([solot_time[dr_minmax[i]],solot_time[dr_minmax[i]]],[-50,50],linestyle='-', color='grey',alpha=0.3)
+for i in np.arange(0,44,2):
+    ax1.text(solo.time[dr_minmax[i]],solo.r[dr_minmax[i]]-0.07,str(int(i/2)+1),fontsize=15,zorder=0,horizontalalignment='center')    
+    ax1.plot([solo.time[dr_minmax[i]],solo.time[dr_minmax[i]]],[-50,50],linestyle='-', color='grey',alpha=0.3)
 
-    ax3.text(solot_time_num[dr_minmax[i]]+40,solo_lat[dr_minmax[i]],str(int(i/2)+1),fontsize=15,horizontalalignment='center')    
-    ax3.plot([solot_time_num[dr_minmax[i]],solot_time_num[dr_minmax[i]]],[-50,50],linestyle='-', color='grey',alpha=0.4)
+    ax3.text(solo.time[dr_minmax[i]],solo.lat[dr_minmax[i]],str(int(i/2)+1),fontsize=15,horizontalalignment='center')    
+    ax3.plot([solo.time[dr_minmax[i]],solo.time[dr_minmax[i]]],[-50,50],linestyle='-', color='grey',alpha=0.4)
 
 plt.tight_layout()
 plt.figtext(0.95,0.008,'helioforecast.space/solarcycle', fontsize=12, ha='right',color='k',style='italic')     
@@ -2747,7 +2790,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
-# In[ ]:
+# In[32]:
 
 
 t1all = time.time()

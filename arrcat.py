@@ -26,7 +26,7 @@
 # 
 # **Issues:**
 # 
-# - change PSP position to spice kernel
+# - change PSP position to spice kernel without astrospice
 # 
 # - need to add plots for each event
 # - may add Ulysses again with the position in the ulysses data file 
