@@ -10,7 +10,7 @@ References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017
 The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at 
 https://helioforecast.space/icmecat 
 
-Number of events in ICMECAT: 1900 
+Number of events in ICMECAT: 1901 
 ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, Juno, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   
 Time range: 1990-12 to 2024-12 
  

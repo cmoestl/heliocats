@@ -36,11 +36,12 @@
 # 
 # **ISSUES**
 # 
+# 
 # - STEREO-A beacon data contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[90]:
+# In[1]:
 
 
 last_update='2025-April-10'
@@ -165,6 +166,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 
 # this file is used for the position plots in hp.plot_icmecat_positions_mag_plasma
 # in rad with 10 min resolution and matplotlib datenumbers
+# currently made by Emma Davies
 pos=pickle.load( open( 'results/positions/positions_all_HEEQ_10min_rad_ed.p', "rb" ) )
 print('positions file loaded')
 
@@ -1076,7 +1078,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[25]:
+# In[8]:
 
 
 #load icmecat as pandas dataframe
@@ -1094,27 +1096,27 @@ pos2=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p',
 print('positions file loaded')
 
 
-# In[26]:
+# In[9]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[27]:
+# In[10]:
 
 
 ic_pandas
 
 
-# In[28]:
+# In[11]:
 
 
 #
 ic_nprec
 
 
-# In[29]:
+# In[12]:
 
 
 ic_nprec.icmecat_id
@@ -1122,7 +1124,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[64]:
+# In[13]:
 
 
 ic=ic_pandas
@@ -1249,7 +1251,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[65]:
+# In[14]:
 
 
 ic=ic_pandas
@@ -1390,7 +1392,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_latitude_solo.png', dpi=150,bbox_inches='tight')
 
 
-# In[66]:
+# In[15]:
 
 
 #markersize
@@ -1435,7 +1437,7 @@ fsize=15
 backcolor='black'
 frame='HEEQ'
 plt.rgrids((0.1,0.2,0.3,0.4,0.6,0.8,1.0,1.2, 1.4,1.6,1.8,2.0),('','0.2','','0.4','0.6','0.8','1.0','1.2','1.4','','',''),angle=180, fontsize=fsize-4,alpha=0.8, ha='center',color=backcolor,zorder=5)
-plt.thetagrids(range(0,360,45),(u'0\u00b0',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'+/- 180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='center',fontsize=fsize,color=backcolor, zorder=5, alpha=1.0)
+plt.thetagrids(range(0,360,45),(u'0\u00b0',u'45\u00b0',u'90\u00b0',u'135\u00b0',u'±180\u00b0',u'- 135\u00b0',u'- 90\u00b0',u'- 45\u00b0'), fmt='%d',ha='center',fontsize=fsize,color=backcolor, zorder=5, alpha=1.0)
 
 ax2.set_ylim([0,1.6])
 ax2.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')
@@ -1456,7 +1458,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ### plotly radial distance and mean MO field
 
-# In[67]:
+# In[ ]:
 
 
 ################# 
@@ -1529,7 +1531,7 @@ fig.write_html(f'icmecat/icmecat_distance.html')
 
 # ### plotly event position in 3D
 
-# In[68]:
+# In[ ]:
 
 
 # Create polar plot
@@ -1692,7 +1694,7 @@ pio.write_image(fig, 'icmecat/icmecat_position_3D.png',scale=2, width=1500, heig
 
 # ### plotly radial distance and longitude
 
-# In[69]:
+# In[ ]:
 
 
 # Sample data
@@ -1764,7 +1766,7 @@ fig.write_html(f'icmecat/icmecat_longitudes.html')
 
 # ### 3D plotly for PSP, SolO, Bepi
 
-# In[70]:
+# In[ ]:
 
 
 #convert times to datetime
@@ -1806,7 +1808,7 @@ pspz=np.interp(psp_daily_num, pos2[0].time.astype(float), pos2[0].z)/const.au.va
     
 
 
-# In[71]:
+# In[ ]:
 
 
 # Create polar plot
@@ -2030,9 +2032,15 @@ fig.write_html(f'icmecat/icmecat_orbit_3D_solo.html')
 pio.write_image(fig, 'icmecat/icmecat_orbit_3D_solo.png',scale=1, width=1500, height=1200)
 
 
+# In[ ]:
+
+
+
+
+
 # ## Parameter distribution plots near 1 AU
 
-# In[72]:
+# In[ ]:
 
 
 #make distribution plots
@@ -2098,7 +2106,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[73]:
+# In[ ]:
 
 
 t1all = time.time()
@@ -2128,7 +2136,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 # 
 # #### check number of plots
 
-# In[87]:
+# In[ ]:
 
 
 files = os.listdir('icmecat/plots_icmecat')
@@ -2139,6 +2147,24 @@ fnames=[os.path.join(data_path, f) for f in files]
 print(len(fnames)-1)
 
 print(len(ic))
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:

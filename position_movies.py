@@ -6,34 +6,44 @@
 # 
 # https://github.com/cmoestl/heliocats
 #  
-#  Authors: C. Möstl, Eva Weiler, Emma Davies, Austrian Space Weather Office, GeoSphere Austria
-#  
-#  uses env helio4
-#  
-#  
-#  twitter @chrisoutofspace, https://github.com/cmoestl
-#  
-#  
-#  last update: March 2025
-#  
-#  needs the helio4 environment (see README.md)
-#  
+# Authors: C. Möstl, Eva Weiler, Emma Davies, Austrian Space Weather Office, GeoSphere Austria
+# bluesky @chrisoutofspace, https://github.com/cmoestl
 # 
-# Figshare repository:
-# 
-# https://figshare.com/articles/media/Animations_of_interplanetary_spacecraft_positions_Solar_Orbiter_Parker_Solar_Probe_2018-2030_PUNCH_2025-2029/25301260
+# last update: March 2025
 #  
-# We present here animations of the trajectories of Solar Orbiter, Parker Solar Probe, BepiColombo, STEREO-A and JUICE, with the 4 inner planets, for 2020/1-12/2029, in 6 hour time resolution.
+# needs the helio4 environment (see README.md)
 # 
-# There are additional 4 movies with 6 hour time resolution for 2025/4 - 12/2029, covering a shorter timerange as context for the PUNCH mission launched in March 2025. One includes the Mars orbit, and the other shows only the inner heliosphere.
+# spacecraft position files are made with positions.ipynb
+#  
+# ---
+# 
+# Published in figshare repository: https://doi.org/10.6084/m9.figshare.25301260
+# 
+# **Animations of spacecraft trajectories as context for Solar Orbiter (2020-2030) and PUNCH (2025-2029)**
+#  
+#   
+# Starting from the Solar Orbiter launch in April 2020, we present here animations of the trajectories of Solar Orbiter, Parker Solar Probe, BepiColombo, STEREO-A and JUICE, with the 4 inner planets, for 2020/4-12/2029, in 6 hour time resolution.
+# 
+# Further, there are 4 more movies with 6 hour time resolution for 2025/4 - 12/2029, covering a shorter timerange as context for the PUNCH mission launched in March 2025. 
+# 
+# One includes the Mars orbit, and the other shows only the inner heliosphere (named "zoom").
 # 
 # All movies are available with 1080p (default) and 4k resolution (indicated with 4k in the file name).
 # 
 # Last update of trajectories: March 2025
 # 
+# The spacecraft positions have all been generated with spiceypy from the mission kernels.
+# 
+# Austrian Space Weather Office / GeoSphere Austria, Möstl/Davies/Weiler
+# 
+# 
+# **ISSUES:**
+# 
+# - to be done: include side view on the bottom left so inclination of SolO can be seen better
+# - add lagrange points, create with positions.ipynb first
 #  
 
-# In[81]:
+# In[58]:
 
 
 import os
@@ -59,7 +69,7 @@ if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
 
 #movie_filename='positions_punch_2025_2030'
 #movie_filename='positions_punch_2025_2030_zoom'
-movie_filename='positions_2020_2030'
+movie_filename='positions_2020_2030_test_lagrange'
 #movie_filename=''
 
 
@@ -67,7 +77,7 @@ movie_filename='positions_2020_2030'
 
 #res_in_hours=24
 #res_in_hours=6
-res_in_hours=24*7
+res_in_hours=24*14
 
 
 print('time resolution in hours',res_in_hours)
@@ -79,8 +89,8 @@ print('time resolution in hours',res_in_hours)
 #t_end   = datetime(2029,12,31)
 
 ## Solar Orbiter 10 years
-t_start = datetime(2020,2,11)
-t_end   = datetime(2030,11,19)
+t_start = datetime(2020,4,1)
+t_end   = datetime(2029,12,31)
 
 ## from psp launch onwards
 #t_start = datetime(2018,10,1)
@@ -109,7 +119,7 @@ dpisave=100 #for 1080p
 used=8
 
 
-# In[82]:
+# In[59]:
 
 
 ###########################################################
@@ -142,7 +152,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 #for server
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 
 ##### check for system type
 #server
@@ -169,7 +179,7 @@ print(data_path)
 os.system('jupyter nbconvert --to script position_movies.ipynb')    
 
 
-# In[83]:
+# In[60]:
 
 
 #old files
@@ -178,26 +188,27 @@ os.system('jupyter nbconvert --to script position_movies.ipynb')
 
 ##use 10 min version, these are pandas dataframes
 print('load positions')
-[psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p', "rb" ) )    
+[psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune,l4,l5]=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p', "rb" ) )    
 print('merged positions loaded')
 
 
 print('load icmecat')
 #load icmecat as numpy array 
-file='icmecat/HELIO4CAST_ICMECAT_v22_numpy.p'
+file='icmecat/HELIO4CAST_ICMECAT_v23_numpy.p'
 [ic,ic_np,h,p]=pickle.load( open(file, 'rb'))   
 ic=ic.to_records()
 
 print('done')
 
 
-# In[84]:
+# In[61]:
 
 
 psp.time.values[-1]
+np.max(solo.lon[0])
 
 
-# In[93]:
+# In[62]:
 
 
 def make_frame(k):
@@ -225,6 +236,8 @@ def make_frame(k):
         solo_color='springgreen'
         sta_color='salmon'
         juice_color='gold'
+        l4_color='lavender'
+        l5_color='lavender'
 
 
     frame_time_str=str(mdates.num2date(frame_time_num+k*res_in_hours/24))
@@ -257,9 +270,14 @@ def make_frame(k):
     dct=frame_time_num+k*res_in_hours/24-juice.time
     juice_timeind=np.argmin(abs(dct))
     
+    dct=frame_time_num+k*res_in_hours/24-l4.time
+    l4_timeind=np.argmin(abs(dct))
+
+    dct=frame_time_num+k*res_in_hours/24-l5.time
+    l5_timeind=np.argmin(abs(dct))
+
     
     print(psp_timeind)
-    
     
     
 
@@ -273,6 +291,8 @@ def make_frame(k):
         ax.scatter(sta.lon[earth_timeind], sta.r[earth_timeind]*np.cos(sta.lat[earth_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
         ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
 
+        ax.scatter(l4.lon[l4_timeind], l4.r[l4_timeind]*np.cos(l4.lat[l4_timeind]), s=symsize_planet-2, c='yellow', alpha=1,lw=0,zorder=3,marker='p')
+        ax.scatter(l5.lon[l5_timeind], l5.r[l5_timeind]*np.cos(l5.lat[l5_timeind]), s=symsize_planet-2, c='yellowgreen', alpha=1,lw=0,zorder=3,marker='p')
 
         plt.figtext(0.95,0.75,'PSP ', color='black', ha='center',fontsize=fsize+3)
         plt.figtext(0.95,0.5,'Wind', color='mediumseagreen', ha='center',fontsize=fsize+3)
@@ -295,6 +315,10 @@ def make_frame(k):
         ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_planet, c='mediumseagreen', alpha=1,lw=0,zorder=3)
         ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
 
+        ax.scatter(l4.lon[l4_timeind], l4.r[l4_timeind]*np.cos(l4.lat[l4_timeind]), s=symsize_planet-2, c=l4_color, alpha=1,lw=0,zorder=3,marker='*')
+        ax.scatter(l5.lon[l5_timeind], l5.r[l5_timeind]*np.cos(l5.lat[l5_timeind]), s=symsize_planet-2, c=l5_color, alpha=1,lw=0,zorder=3,marker='*')
+
+        
         ax.scatter(sta.lon[sta_timeind], sta.r[sta_timeind]*np.cos(sta.lat[sta_timeind]), s=symsize_spacecraft, c=sta_color, marker='s', alpha=1,lw=0,zorder=3)
 
         plt.figtext(0.9,0.9,'Mercury', color='grey', ha='center',fontsize=fsize+5)
@@ -388,9 +412,7 @@ def make_frame(k):
             
                         
             
-            
-            
-    #after Bepi kernel is done, mercury position
+    #after Bepi kernel is done, mercury position if needed
     if (frame_time_num+k*res_in_hours/24) > bepi.time.values[-1]:
         
         ax.scatter(mercury.lon[earth_timeind], mercury.r[earth_timeind]*np.cos(mercury.lat[earth_timeind]), s=symsize_spacecraft, c=bepi_color, marker='s', alpha=1,lw=0,zorder=3)
@@ -400,11 +422,7 @@ def make_frame(k):
             fadestart=earth_timeind-fadeind
             if  fadestart < 0: fadestart=0            
             ax.plot(mercury.lon[fadestart:earth_timeind+fadeind], mercury.r[fadestart:earth_timeind+fadeind]*np.cos(mercury.lat[fadestart:earth_timeind+fadeind]), c=bepi_color, alpha=0.6,lw=1,zorder=3)
-            
-            
-
-            
-            
+      
 
     if solo_timeind > 0:
         ax.scatter(solo.lon[solo_timeind], solo.r[solo_timeind]*np.cos(solo.lat[solo_timeind]), s=symsize_spacecraft, c=solo_color, marker='s', alpha=1,lw=0,zorder=3)
@@ -424,8 +442,7 @@ def make_frame(k):
                 fadedist=1-time_dist/time_diff_icme
                 ax.scatter(solo.lon[solo_timeind], solo.r[solo_timeind]*np.cos(solo.lat[solo_timeind]), s=symsize_icme, c=solo_color, marker='o', alpha=fadedist,lw=0,zorder=3)
 
-            
-
+ 
             
     if juice_timeind > 0:
         ax.scatter(juice.lon[juice_timeind], juice.r[juice_timeind]*np.cos(juice.lat[juice_timeind]), s=symsize_spacecraft, c=juice_color, marker='s', alpha=1,lw=0,zorder=3)
@@ -435,17 +452,13 @@ def make_frame(k):
             fadestart=juice_timeind-fadeind
             if  fadestart < 0: fadestart=0            
             ax.plot(juice.lon[fadestart:juice_timeind+fadeind], juice.r[fadestart:juice_timeind+fadeind]*np.cos(juice.lat[fadestart:juice_timeind+fadeind]), c=juice_color, alpha=0.6,lw=1,zorder=3)
-
-            
+         
             
     f10=plt.figtext(0.01,0.9,earth_text, fontsize=fsize, ha='left',color='mediumseagreen')
     f9=plt.figtext(0.01,0.86,mars_text, fontsize=fsize, ha='left',color='orangered')
     f8=plt.figtext(0.01,0.82,sta_text, fontsize=fsize, ha='left',color=sta_color)
     
    
-    
-    
-    
     #parker spiral
     if plot_parker:
         for q in np.arange(0,12):
@@ -476,8 +489,7 @@ def make_frame(k):
     
     #signature
     plt.figtext(0.01,0.02,'Austrian Space Weather Office, GeoSphere Austria', fontsize=fsize, ha='left',color=backcolor) 
-    
-     
+   
     
     logo = plt.imread('logo/GSA_Basislogo_NegativAufMidnightGreen_RGB_XXS.png')
     newax = fig.add_axes([0.91,0.91,0.08,0.08], anchor='NE', zorder=1)
@@ -497,8 +509,7 @@ def make_frame(k):
     f3=plt.figtext(xclock+0.08,yclock,frame_time_str[8:10], ha='center',color=backcolor,fontsize=fsize+6)
     #hours
     f4=plt.figtext(xclock+0.12,yclock,frame_time_str[11:13], ha='center',color=backcolor,fontsize=fsize+6)
-    
-    
+        
     plt.tight_layout()
 
 
@@ -511,7 +522,7 @@ def make_frame(k):
     plt.close('all')
 
 
-# In[94]:
+# In[63]:
 
 
 plt.close('all')
@@ -544,7 +555,7 @@ high_res_mode=False
 
 
 # for adding ICMECAT indicators for ICMEs
-add_icmes=True
+add_icmes=False
 #this is the time how long an ICME is visible as a faded circle
 time_diff_icme=7 
 #how big the symbol for the ICME is
@@ -619,10 +630,10 @@ make_frame(1)
 #    make_frame(i)
     
 #os.system(ffmpeg_path+'ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k \
-#    -r 25 '+str(animdirectory)+'/positions_punch.mp4 -y -loglevel quiet')    
+#    -r 25 '+str(animdirectory)+'/positions_punch.mp4 -y -loglevel quiet')   
 
 
-# In[95]:
+# In[ ]:
 
 
 # ### Multiprocessing
@@ -657,6 +668,12 @@ print('plots done, frames saved in ',outputdirectory)
 os.system(ffmpeg_path+'ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k \
     -r 30 '+str(animdirectory)+'/'+movie_filename+'.mp4 -y -loglevel quiet')    
 print('movie done, saved in ',animdirectory)
+
+
+
+# In[ ]:
+
+
 
 
 

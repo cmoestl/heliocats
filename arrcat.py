@@ -38,7 +38,7 @@
 
 last_update='2025-April-2'
 debug_mode=0
-download_higeocat=0
+download_higeocat=1
 
 
 import numpy as np
@@ -226,9 +226,9 @@ python numpy arrays (pickle, as recarray and structured array), \n\
 npy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at \n\
 https://helioforecast.space/arrcat \n\n\
 Number of events in ARRCAT: '+str(len(ac))+' \n\
-Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, JUICE, MESSENGER, Ulysses, Venus, Mercury, Mars.\n\
+Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, JUICE, JUNO, MESSENGER, Venus Express, Ulysses, Venus, Mercury, Mars.\n\
 The catalog covers the timerange '+first_date[0:7]+' to '+last_date[0:7]+' \n\n\
-Authors: Christian Moestl (1), Eva weiler (1), D. Barnes (2), R. A. Harrison (2), J. A. Davies (2).\n\
+Authors: Christian Moestl (1), Eva Weiler (1), Emma E. Davies (1), D. Barnes (2), R. A. Harrison (2), J. A. Davies (2).\n\
 (1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria, (2) RAL Space, UK.\n\n\
 Rules: If results are produced with this catalog for peer-reviewed scientific publications,\n\
 please contact chris.moestl@outlook.com for co-authorships.\n\n\
@@ -496,7 +496,7 @@ ac_struct
 
 # ### plot directions and targets
 
-# In[13]:
+# In[11]:
 
 
 sns.set_context('talk')
@@ -611,7 +611,7 @@ print('saved as ',plotfile)
 
 # ### Plotly 3D plot
 
-# In[ ]:
+# In[12]:
 
 
 # Create polar plot
@@ -777,10 +777,11 @@ fig.update_layout(
 )
 
 fig.write_html(f'arrcat/plots_arrcat/arrcat_position_3D.html')
+pio.write_image(fig, 'arrcat/plots_arrcat/arrcat_position_3D.png',scale=2, width=1500, height=850)
 #fig.show()
 
 
-# In[ ]:
+# In[13]:
 
 
 sns.set_context('talk')
@@ -804,7 +805,7 @@ plt.ylim([0,2000])
 
 # ### plot error distributions
 
-# In[ ]:
+# In[14]:
 
 
 fig=plt.figure(2, figsize=(16,7), dpi=70)
@@ -849,7 +850,7 @@ print('saved as ',plotfile)
 # 
 # 
 
-# In[ ]:
+# In[15]:
 
 
 hiai=np.where(higeocat['SC']=='A')[0]
@@ -898,7 +899,7 @@ hist_hib_monthly[93:]=-1
 ########### TBD add an estimate for the rest of the year
 
 
-# In[ ]:
+# In[16]:
 
 
 sns.set_context("talk")     
@@ -953,7 +954,7 @@ print('saved as ',plotfile)
 
 
 
-# In[ ]:
+# In[17]:
 
 
 print(' ')
@@ -971,7 +972,7 @@ print(np.sort(arrcat_web.sse_launch_time)[-1])
 
 
 
-# In[ ]:
+# In[18]:
 
 
 t1all = time.time()

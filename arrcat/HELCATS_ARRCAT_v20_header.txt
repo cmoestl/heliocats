@@ -15,10 +15,10 @@ npy (numpy, no pickle), json, csv, xlsx, txt, hdf5, html at
 https://helioforecast.space/arrcat 
 
 Number of events in ARRCAT: 3096 
-Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, JUICE, MESSENGER, Ulysses, Venus, Mercury, Mars.
+Targets: Earth_L1, STEREO-A, STEREO-B, Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, JUICE, JUNO, MESSENGER, Venus Express, Ulysses, Venus, Mercury, Mars.
 The catalog covers the timerange 2007-04 to 2025-03 
 
-Authors: Christian Moestl (1), Eva weiler (1), D. Barnes (2), R. A. Harrison (2), J. A. Davies (2).
+Authors: Christian Moestl (1), Eva Weiler (1), Emma E. Davies (1), D. Barnes (2), R. A. Harrison (2), J. A. Davies (2).
 (1) Austrian Space Weather Office, GeoSphere Austria, Graz, Austria, (2) RAL Space, UK.
 
 Rules: If results are produced with this catalog for peer-reviewed scientific publications,

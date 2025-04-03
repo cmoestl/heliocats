@@ -481,7 +481,7 @@ plt.plot_date(juice.time,juice.r,'-')
 
 # ## Planets
 
-# In[8]:
+# In[ ]:
 
 
 def generic_furnish(kernels_path):
@@ -522,6 +522,8 @@ saturn=get_planet_positions(times,kernels_path, 'SATURN_BARYCENTER')
 uranus=get_planet_positions(times,kernels_path, 'URANUS_BARYCENTER')
 neptune=get_planet_positions(times,kernels_path, 'NEPTUNE_BARYCENTER')
 
+l4=get_planet_positions(times,kernels_path, 'L4')
+
 #to matplotlib datenumber
 mercury.time=mdates.date2num(mercury.time)
 venus.time=mdates.date2num(venus.time)
@@ -541,7 +543,49 @@ plt.plot_date(jupiter.time,jupiter.r,'-')
 plt.plot_date(saturn.time,saturn.r,'-')
 plt.plot_date(uranus.time,uranus.r,'-')
 plt.plot_date(neptune.time,neptune.r,'-')
+plt.plot_date(l4.time,l4.r,'-')
 
+
+
+# ### Lagrange points L4/L5
+
+# In[15]:
+
+
+def lagrange_furnish(kernel_path):
+    """Main"""
+    
+    juice_path = kernels_path+'lagrange/'
+    #put the latest file here manually
+  
+    #put the latest file here manually
+    juice_kernel = 'juice_orbc_000080_230414_310721_v01.bsp'
+    spiceypy.furnsh(os.path.join(juice_path, juice_kernel))
+    print(juice_kernel)
+
+def get_juice_pos(t,kernel_path):
+    if spiceypy.ktotal('ALL') < 1:
+        juice_furnish(kernel_path)
+    pos = spiceypy.spkpos("JUICE", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
+    position = t, pos[0], pos[1], pos[2], r, lat, lon
+    return position
+
+
+def get_juice_positions(time_series,kernel_path):
+    positions = []
+    for t in time_series:
+        position = get_juice_pos(t,kernel_path)
+        positions.append(position)
+    df_positions = pd.DataFrame(positions, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
+    return df_positions
+
+
+juice_furnish(kernels_path)    
+print(kernels_path)
+juice=get_juice_positions(times_juice,kernels_path)
+juice.time=mdates.date2num(juice.time)
+plt.plot_date(juice.time,juice.r,'-')
 
 
 # In[9]:
@@ -667,11 +711,7 @@ earth.time
 
 
 
-# In[ ]:
-
-
-
-
+# ### LAGRANGE POINTS
 
 # In[ ]:
 
@@ -703,11 +743,8 @@ earth.time
 
 
 
-# In[ ]:
-
-
-
-
+# ## JUNO
+# 
 
 # In[ ]:
 
@@ -732,7 +769,7 @@ earth.time
 # this seems to be the right file for the cruise phase
 # https://naif.jpl.nasa.gov/pub/naif/pds/data/mess-e_v_h-spice-6-v1.0/messsp_1000/
 
-# In[54]:
+# In[20]:
 
 
 #MESSENGER
@@ -761,12 +798,6 @@ def mes_furnish(kernels_path):
     spiceypy.furnsh(os.path.join(mes_path, mes_kernel))
     print(mes_kernel)
 
-    #for kernel in solo_kernels:
-    #    spiceypy.furnsh(os.path.join(solo_path, kernel))
-    #spiceypy.furnsh(solo_kernels)
-
-    
-    #bepi_kernels = astrospice.SPKKernel(bepi_path+'bc_mpo_fcp_00199_20181020_20270407_v02.bsp')    
     
     generic_path = kernels_path+'generic/'  
     generic_kernels = os.listdir(generic_path)
@@ -776,8 +807,7 @@ def mes_furnish(kernels_path):
 
 
 def get_mes_pos(t,kernels_path):
-    if spiceypy.ktotal('ALL') < 1:
-        mes_furnish(kernels_path)
+
     pos = spiceypy.spkpos("MESSENGER", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
     r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
@@ -792,12 +822,133 @@ def get_mes_positions(time_series,kernels_path):
     df_positions = pd.DataFrame(positions, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
     return df_positions
 
-
     
 mes_furnish(kernels_path)    
 print(kernels_path)
 mes=get_mes_positions(times_mes,kernels_path)
 plt.plot(mes.time,mes.r)
+
+
+# In[ ]:
+
+
+
+
+
+# ### STEREO-B
+
+# In[45]:
+
+
+# Start date
+start_date_stb = datetime.datetime(2010, 4, 1)
+
+# End date
+end_date_stb = datetime.datetime(2014, 3,18)
+
+times_stb=[]
+
+# Generate datetimes with increments of dt hours until the end date
+current_date = start_date_stb
+while current_date <= end_date_stb:
+    times_stb.append(current_date)
+    current_date += datetime.timedelta(hours=dt)
+    
+
+#STEREO-A and STEREO-B
+def furnish_stereo(kernel_path,aorb):
+
+    #need to load both directories
+    stereo_kernel_path = kernel_path+'stereo'+aorb+'_predicted/'
+
+    stereoa_kernels = os.listdir(stereo_kernel_path)
+    for kernel in stereoa_kernels:
+        spiceypy.furnsh(os.path.join(stereo_kernel_path, kernel))
+    
+    stereo_kernel_path = kernel_path+'stereo'+aorb+'/'
+
+    stereoa_kernels = os.listdir(stereo_kernel_path)
+    for kernel in stereoa_kernels:
+        spiceypy.furnsh(os.path.join(stereo_kernel_path, kernel))
+    
+    
+    
+    generic_path = kernel_path+'generic/'
+    generic_kernels = os.listdir(generic_path)
+    for kernel in generic_kernels:
+        spiceypy.furnsh(os.path.join(generic_path, kernel))
+
+
+
+
+def get_pos(t,name):    
+
+    pos = spiceypy.spkpos(name, spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
+    r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
+    position = t, pos[0], pos[1], pos[2], r, lat, lon
+    return position
+
+
+def get_sc_pos(time, name):
+    
+    position = get_pos(time, name)
+    return position
+
+kernels_file='stereob/behind_2009_049_definitive_predict.epm.bsp'
+
+#files from
+#https://soho.nascom.nasa.gov/solarsoft/stereo/gen/data/spice/depm/behind/
+
+
+furnish_stereo(kernels_path,'b') 
+
+coords=get_sc_pos(times_stb,"STEREO BEHIND")
+
+
+plt.plot(coords[0],coords)
+#plt.plot(coords.time,coords.r)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
