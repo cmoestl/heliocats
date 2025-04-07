@@ -5,7 +5,7 @@
 # 
 # This notebook demonstrates ways of getting positions with spiceypy, e.g. for position movies since 2020 or for current position plots
 # 
-# use spiceypy for positions at Bepi, PSP, Solo, STEREO-A, JUICE and the inner 4 planets
+# use spiceypy for positions at Bepi, PSP, Solo, STEREO-A, JUICE, L4, L5 and the inner 4 planets
 # 
 # https://spiceypy.readthedocs.io/en/stable/
 # 
@@ -481,7 +481,7 @@ plt.plot_date(juice.time,juice.r,'-')
 
 # ## Planets
 
-# In[ ]:
+# In[8]:
 
 
 def generic_furnish(kernels_path):
@@ -522,7 +522,6 @@ saturn=get_planet_positions(times,kernels_path, 'SATURN_BARYCENTER')
 uranus=get_planet_positions(times,kernels_path, 'URANUS_BARYCENTER')
 neptune=get_planet_positions(times,kernels_path, 'NEPTUNE_BARYCENTER')
 
-l4=get_planet_positions(times,kernels_path, 'L4')
 
 #to matplotlib datenumber
 mercury.time=mdates.date2num(mercury.time)
@@ -543,52 +542,48 @@ plt.plot_date(jupiter.time,jupiter.r,'-')
 plt.plot_date(saturn.time,saturn.r,'-')
 plt.plot_date(uranus.time,uranus.r,'-')
 plt.plot_date(neptune.time,neptune.r,'-')
-plt.plot_date(l4.time,l4.r,'-')
+
 
 
 
 # ### Lagrange points L4/L5
 
-# In[15]:
+# In[ ]:
 
 
-def lagrange_furnish(kernel_path):
-    """Main"""
-    
-    juice_path = kernels_path+'lagrange/'
-    #put the latest file here manually
-  
-    #put the latest file here manually
-    juice_kernel = 'juice_orbc_000080_230414_310721_v01.bsp'
-    spiceypy.furnsh(os.path.join(juice_path, juice_kernel))
-    print(juice_kernel)
-
-def get_juice_pos(t,kernel_path):
-    if spiceypy.ktotal('ALL') < 1:
-        juice_furnish(kernel_path)
-    pos = spiceypy.spkpos("JUICE", spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
+def lagrange_furnish(kernels_path):
+    generic_path = kernels_path+'lagrange/'  
+    generic_kernels = os.listdir(generic_path)
+    print(generic_kernels)    
+        
+    for kernel in generic_kernels:
+        spiceypy.furnsh(os.path.join(generic_path, kernel))
+        
+def get_lagrange_pos(t,kernels_path, lpoint):
+    pos = spiceypy.spkpos(lpoint, spiceypy.datetime2et(t), "HEEQ", "NONE", "SUN")[0]
     r, lat, lon = cart2sphere_emma_rad(pos[0],pos[1],pos[2])
     position = t, pos[0], pos[1], pos[2], r, lat, lon
     return position
 
-
-def get_juice_positions(time_series,kernel_path):
+def get_lagrange_positions(time_series,kernels_path,lpoint):
     positions = []
     for t in time_series:
-        position = get_juice_pos(t,kernel_path)
+        position = get_lagrange_pos(t,kernels_path, lpoint)
         positions.append(position)
     df_positions = pd.DataFrame(positions, columns=['time', 'x', 'y', 'z', 'r', 'lat', 'lon'])
     return df_positions
 
+lagrange_furnish(kernels_path)
+l4=get_lagrange_positions(times,kernels_path, '394') #L4
+l5=get_lagrange_positions(times,kernels_path, '395') #L5
+l4.time=mdates.date2num(l4.time)
+l5.time=mdates.date2num(l5.time)
 
-juice_furnish(kernels_path)    
-print(kernels_path)
-juice=get_juice_positions(times_juice,kernels_path)
-juice.time=mdates.date2num(juice.time)
-plt.plot_date(juice.time,juice.r,'-')
+plt.plot_date(l4.time,np.rad2deg(l4.lon),'k-')
+plt.plot_date(l5.time,np.rad2deg(l5.lon),'b-')
 
 
-# In[9]:
+# In[ ]:
 
 
 #%matplotlib
@@ -597,7 +592,7 @@ plt.plot(mercury.time,mercury.r)
 plt.plot(bepi.time,bepi.r)
 
 
-# In[10]:
+# In[ ]:
 
 
 ##make a plotly plot
@@ -625,7 +620,7 @@ plt.plot(bepi.time,bepi.r)
 # 
 # # overview plots
 
-# In[11]:
+# In[ ]:
 
 
 plt.plot_date(mercury.time,mercury.r,'-')
@@ -640,7 +635,7 @@ plt.plot_date(juice.time,juice.r,'-')
 
 
 
-# In[12]:
+# In[ ]:
 
 
 plt.plot_date(mercury.time,mercury.lat,'-')
@@ -659,12 +654,12 @@ plt.plot_date(solo.time,solo.lat,'-')
 # 
 # 
 
-# In[13]:
+# In[ ]:
 
 
 ##maybe need to convert times to matplotlib date numbers?
 
-pos = np.array([psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune])
+pos = np.array([psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune, l4, l5])
 pickle.dump(pos, open(filename, 'wb'))
 
 t1 = time.time()
@@ -680,38 +675,25 @@ print('merged positions file made')
 
 
 
-# In[14]:
+# In[ ]:
 
 
-[psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open(filename, "rb" ) )    
+[psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune, l4, l5]=pickle.load( open(filename, "rb" ) )    
 print('merged positions loaded')
 
 plt.plot(bepi.time,bepi.r)
 plt.plot(solo.time,solo.r)
 plt.plot(earth.time,earth.r)
+plt.plot(l5.time,l5.r,'ob', markersize=1)
 plt.plot(juice.time,juice.r)
 
 
 
-# In[15]:
-
-
-earth.time
-
-
 # In[ ]:
 
 
 
 
-
-# In[ ]:
-
-
-
-
-
-# ### LAGRANGE POINTS
 
 # In[ ]:
 
@@ -743,8 +725,53 @@ earth.time
 
 
 
-# ## JUNO
-# 
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
 
 # In[ ]:
 

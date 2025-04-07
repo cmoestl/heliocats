@@ -43,7 +43,7 @@
 # - add lagrange points, create with positions.ipynb first
 #  
 
-# In[58]:
+# In[3]:
 
 
 import os
@@ -119,7 +119,7 @@ dpisave=100 #for 1080p
 used=8
 
 
-# In[59]:
+# In[4]:
 
 
 ###########################################################
@@ -179,7 +179,7 @@ print(data_path)
 os.system('jupyter nbconvert --to script position_movies.ipynb')    
 
 
-# In[60]:
+# In[5]:
 
 
 #old files
@@ -199,6 +199,26 @@ file='icmecat/HELIO4CAST_ICMECAT_v23_numpy.p'
 ic=ic.to_records()
 
 print('done')
+
+
+# In[11]:
+
+
+l4.lon[0]
+#l4.time[0]
+#earth.time[0]
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[61]:

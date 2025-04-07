@@ -3367,7 +3367,7 @@ def plot_positions(time_date1, path,frame, **kwargs):
 
     #new version
     #made with positions.ipynb 10 min, in rad, matplotlib datenumber
-    [psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune]=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_10min_rad_cm.p', "rb" ) )    
+    [psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune,l4,l5]=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_10min_rad_cm.p', "rb" ) )    
     res_in_days=1/(24*6) #10 min resolution of positions file
     
  
@@ -3428,7 +3428,11 @@ def plot_positions(time_date1, path,frame, **kwargs):
     dct=time1-sta.time
     sta_timeind=np.argmin(abs(dct))
     
-    
+    dct=time1-l4.time
+    l4_timeind=np.argmin(abs(dct))
+
+    dct=time1-l5.time
+    l5_timeind=np.argmin(abs(dct))
     
     
     #dct=time1-stb.time
@@ -3444,13 +3448,23 @@ def plot_positions(time_date1, path,frame, **kwargs):
     bepi_color='blue'
     solo_color='green'
     juice_color='gold'
+    l4_color='orchid'
+    l5_color='orchid'
+    
+    print(l5.lon[l5_timeind])
 
     ax.scatter(venus.lon[venus_timeind], venus.r[venus_timeind]*np.cos(venus.lat[venus_timeind]), s=symsize_planet, c='orange', alpha=1,lw=0,zorder=3)
     ax.scatter(mercury.lon[mercury_timeind], mercury.r[mercury_timeind]*np.cos(mercury.lat[mercury_timeind]), s=symsize_planet, c='dimgrey', alpha=1,lw=0,zorder=3)
     ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_planet, c='mediumseagreen', alpha=1,lw=0,zorder=3)
     ax.scatter(sta.lon[sta_timeind], sta.r[sta_timeind]*np.cos(sta.lat[sta_timeind]), s=symsize_spacecraft, c='red', marker='s', alpha=1,lw=0,zorder=3)
     ax.scatter(mars.lon[mars_timeind], mars.r[mars_timeind]*np.cos(mars.lat[mars_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
+    ax.scatter(l4.lon[l4_timeind], l4.r[l4_timeind]*np.cos(l4.lat[l4_timeind]), s=symsize_planet-2, c=l4_color, alpha=1,lw=0,zorder=3,marker='p')
+    ax.scatter(l5.lon[l5_timeind], l5.r[l5_timeind]*np.cos(l5.lat[l5_timeind]), s=symsize_planet-2, c=l5_color, alpha=1,lw=0,zorder=3,marker='p')
 
+    plt.text(l4.lon[l4_timeind]+0.07,l4.r[l4_timeind],'L4', color='orchid', ha='center',fontsize=fsize-4,verticalalignment='top')
+    plt.text(l5.lon[l5_timeind]-0.05,l5.r[l5_timeind]-0.015,'L5', color='orchid', ha='center',fontsize=fsize-4,verticalalignment='top')
+
+    
     plt.text(sta.lon[sta_timeind]+0.1,sta.r[sta_timeind],'STEREO-A', color='red', ha='center',fontsize=fsize-4,verticalalignment='top')
   
     plt.text(0,0,'Sun', color='black', ha='center',fontsize=fsize-5,verticalalignment='top')

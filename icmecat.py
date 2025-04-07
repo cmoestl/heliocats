@@ -1458,7 +1458,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ### plotly radial distance and mean MO field
 
-# In[ ]:
+# In[16]:
 
 
 ################# 
@@ -1531,7 +1531,7 @@ fig.write_html(f'icmecat/icmecat_distance.html')
 
 # ### plotly event position in 3D
 
-# In[ ]:
+# In[17]:
 
 
 # Create polar plot
@@ -1694,7 +1694,7 @@ pio.write_image(fig, 'icmecat/icmecat_position_3D.png',scale=2, width=1500, heig
 
 # ### plotly radial distance and longitude
 
-# In[ ]:
+# In[18]:
 
 
 # Sample data
@@ -1766,7 +1766,7 @@ fig.write_html(f'icmecat/icmecat_longitudes.html')
 
 # ### 3D plotly for PSP, SolO, Bepi
 
-# In[ ]:
+# In[19]:
 
 
 #convert times to datetime
@@ -1808,7 +1808,7 @@ pspz=np.interp(psp_daily_num, pos2[0].time.astype(float), pos2[0].z)/const.au.va
     
 
 
-# In[ ]:
+# In[20]:
 
 
 # Create polar plot
@@ -2040,7 +2040,7 @@ pio.write_image(fig, 'icmecat/icmecat_orbit_3D_solo.png',scale=1, width=1500, he
 
 # ## Parameter distribution plots near 1 AU
 
-# In[ ]:
+# In[21]:
 
 
 #make distribution plots
@@ -2106,7 +2106,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[ ]:
+# In[22]:
 
 
 t1all = time.time()
@@ -2136,7 +2136,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 # 
 # #### check number of plots
 
-# In[ ]:
+# In[23]:
 
 
 files = os.listdir('icmecat/plots_icmecat')
