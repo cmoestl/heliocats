@@ -3048,6 +3048,27 @@ def get_noaa_json(magfile, plasmafile):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
 
 
@@ -5678,6 +5699,22 @@ def save_all_stereob_science_data(path,file,sceq):
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 
 def save_noaa_rtsw_data_predstorm(data_path,noaa_path,filenoaa):
@@ -5719,6 +5756,15 @@ def save_noaa_rtsw_data_predstorm(data_path,noaa_path,filenoaa):
     pickle.dump([noaa,header], open(data_path+filenoaa, "wb"))
 
     print('NOAA from predstorm done')        
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
 

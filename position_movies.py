@@ -9,7 +9,7 @@
 # Authors: C. Möstl, Eva Weiler, Emma Davies, Austrian Space Weather Office, GeoSphere Austria
 # bluesky @chrisoutofspace, https://github.com/cmoestl
 # 
-# last update: March 2025
+# last update: April 2025
 #  
 # needs the helio4 environment (see README.md)
 # 
@@ -43,7 +43,7 @@
 # - add lagrange points, create with positions.ipynb first
 #  
 
-# In[3]:
+# In[60]:
 
 
 import os
@@ -68,16 +68,16 @@ if os.path.isdir(outputdirectory) == False: os.mkdir(outputdirectory)
 if os.path.isdir(animdirectory) == False: os.mkdir(animdirectory)
 
 #movie_filename='positions_punch_2025_2030'
-#movie_filename='positions_punch_2025_2030_zoom'
-movie_filename='positions_2020_2030_test_lagrange'
+movie_filename='positions_punch_2025_2030_zoom'
+#movie_filename='positions_2020_2030_test_lagrange'
 #movie_filename=''
 
 
 ####################### Time resolution
 
 #res_in_hours=24
-#res_in_hours=6
-res_in_hours=24*14
+res_in_hours=6
+#res_in_hours=24*14
 
 
 print('time resolution in hours',res_in_hours)
@@ -85,12 +85,12 @@ print('time resolution in hours',res_in_hours)
 ############### make time range
 
 ##PUNCH 4.5 years
-#t_start = datetime(2025,4,1)
-#t_end   = datetime(2029,12,31)
+t_start = datetime(2025,4,1)
+t_end   = datetime(2029,12,31)
 
 ## Solar Orbiter 10 years
-t_start = datetime(2020,4,1)
-t_end   = datetime(2029,12,31)
+#t_start = datetime(2020,4,1)
+#t_end   = datetime(2029,12,31)
 
 ## from psp launch onwards
 #t_start = datetime(2018,10,1)
@@ -119,7 +119,7 @@ dpisave=100 #for 1080p
 used=8
 
 
-# In[4]:
+# In[61]:
 
 
 ###########################################################
@@ -179,7 +179,7 @@ print(data_path)
 os.system('jupyter nbconvert --to script position_movies.ipynb')    
 
 
-# In[5]:
+# In[62]:
 
 
 #old files
@@ -201,7 +201,7 @@ ic=ic.to_records()
 print('done')
 
 
-# In[11]:
+# In[63]:
 
 
 l4.lon[0]
@@ -221,14 +221,14 @@ l4.lon[0]
 
 
 
-# In[61]:
+# In[64]:
 
 
 psp.time.values[-1]
 np.max(solo.lon[0])
 
 
-# In[62]:
+# In[65]:
 
 
 def make_frame(k):
@@ -335,9 +335,8 @@ def make_frame(k):
         ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_planet, c='mediumseagreen', alpha=1,lw=0,zorder=3)
         ax.scatter(mars.lon[earth_timeind], mars.r[earth_timeind]*np.cos(mars.lat[earth_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
 
-        ax.scatter(l4.lon[l4_timeind], l4.r[l4_timeind]*np.cos(l4.lat[l4_timeind]), s=symsize_planet-2, c=l4_color, alpha=1,lw=0,zorder=3,marker='*')
-        ax.scatter(l5.lon[l5_timeind], l5.r[l5_timeind]*np.cos(l5.lat[l5_timeind]), s=symsize_planet-2, c=l5_color, alpha=1,lw=0,zorder=3,marker='*')
-
+        ax.scatter(l4.lon[l4_timeind], l4.r[l4_timeind]*np.cos(l4.lat[l4_timeind]), s=symsize_planet/2, c=l4_color, alpha=1,lw=0,zorder=3,marker='p')
+        ax.scatter(l5.lon[l5_timeind], l5.r[l5_timeind]*np.cos(l5.lat[l5_timeind]), s=symsize_planet/2, c=l5_color, alpha=1,lw=0,zorder=3,marker='p')
         
         ax.scatter(sta.lon[sta_timeind], sta.r[sta_timeind]*np.cos(sta.lat[sta_timeind]), s=symsize_spacecraft, c=sta_color, marker='s', alpha=1,lw=0,zorder=3)
 
@@ -542,7 +541,7 @@ def make_frame(k):
     plt.close('all')
 
 
-# In[63]:
+# In[66]:
 
 
 plt.close('all')
@@ -653,7 +652,7 @@ make_frame(1)
 #    -r 25 '+str(animdirectory)+'/positions_punch.mp4 -y -loglevel quiet')   
 
 
-# In[ ]:
+# In[67]:
 
 
 # ### Multiprocessing
@@ -688,6 +687,12 @@ print('plots done, frames saved in ',outputdirectory)
 os.system(ffmpeg_path+'ffmpeg -r 25 -i '+str(outputdirectory)+'/pos_anim_%05d.jpg -b 5000k \
     -r 30 '+str(animdirectory)+'/'+movie_filename+'.mp4 -y -loglevel quiet')    
 print('movie done, saved in ',animdirectory)
+
+
+
+# In[ ]:
+
+
 
 
 

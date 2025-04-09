@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.3, 2024 February 27, updated 2025 April 10
+# latest release: version 2.3, released 2025 April 9, updated 2025 April 9
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -35,8 +35,8 @@
 # 
 # 
 # **ISSUES**
-# 
-# 
+#  
+# - PSP ambient wind shorter for closer to the Sun
 # - STEREO-A beacon data contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
@@ -44,7 +44,7 @@
 # In[1]:
 
 
-last_update='2025-April-10'
+last_update='2025-April-9'
 
 #debug mode reloads the files with the functions
 debug_mode=0
@@ -424,12 +424,11 @@ if create_indices > 0:
     
     t0 = time.time()
 
-    #hc.create_icme_indices(solo,soli,ic,'SolarOrbiter')
-    #hc.create_icme_indices(win,wini,ic,'Wind')
-    #hc.create_icme_indices(psp,pspi,ic,'PSP')
-    #hc.create_icme_indices(sta,stai,ic,'STEREO-A')
-    
-    #hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
+    hc.create_icme_indices(solo,soli,ic,'SolarOrbiter')
+    hc.create_icme_indices(win,wini,ic,'Wind')
+    hc.create_icme_indices(psp,pspi,ic,'PSP')
+    hc.create_icme_indices(sta,stai,ic,'STEREO-A')
+    hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
     
     #hc.create_icme_indices(uly,ulyi,ic,'ULYSSES')
     #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
@@ -468,6 +467,7 @@ print('done')
 
 
 ###### 3c make all plots if wanted
+debug_mode=1
 if debug_mode > 0: 
     importlib.reload(hc) 
     importlib.reload(hp)
@@ -755,7 +755,7 @@ print()
 #save header and parameters as text file and prepare for html website
 header='ICME CATALOGUE v2.3 \n\n\
 This is the HELIO4CAST interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. \n\n\
-This is version 2.3, released 2024-February-27, updated '+last_update+', doi: 10.6084/m9.figshare.6356420 \n\n\
+This is version 2.3, released 2025-April-9, updated '+last_update+', doi: 10.6084/m9.figshare.6356420 \n\n\
 Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact chris.moestl@outlook.com for possible co-authorship. \n\
 References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017SW001614) and Moestl et al. 2020 (https://doi.org/10.3847/1538-4357/abb9a1).  \n\n\
 The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at \n\

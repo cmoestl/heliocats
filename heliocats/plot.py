@@ -1875,6 +1875,9 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     mercury=pos['mercury']
     venus=pos['venus']
     mars=pos['mars']
+    l4=pos['l4']
+    l5=pos['l5']
+    
     
     #find index for psp
     dct=time1-psp.time
@@ -1913,18 +1916,27 @@ def plot_icmecat_positions_mag_plasma(time_date1,frame,ax,pos,name):
     dct=time1-mes.time
     mes_timeind=np.argmin(abs(dct))
 
+    dct=time1-l4.time
+    l4_timeind=np.argmin(abs(dct))
+
+    dct=time1-l5.time
+    l5_timeind=np.argmin(abs(dct))
 
     
     backcolor='black'
     psp_color='black'
     bepi_color='blue'
     solo_color='green'
+    lagrange_color='orchid'
         
 
     ax.scatter(venus.lon[venus_timeind], venus.r[venus_timeind]*np.cos(venus.lat[venus_timeind]), s=symsize_planet, c='gold', alpha=1,lw=0,zorder=3)
     ax.scatter(mercury.lon[mercury_timeind], mercury.r[mercury_timeind]*np.cos(mercury.lat[mercury_timeind]), s=symsize_planet, c='dimgrey', alpha=1,lw=0,zorder=3)
     ax.scatter(earth.lon[earth_timeind], earth.r[earth_timeind]*np.cos(earth.lat[earth_timeind]), s=symsize_planet, c='mediumseagreen', alpha=1,lw=0,zorder=3)    
     ax.scatter(mars.lon[mars_timeind], mars.r[mars_timeind]*np.cos(mars.lat[mars_timeind]), s=symsize_planet, c='orangered', alpha=1,lw=0,zorder=3)
+
+    ax.scatter(l4.lon[l4_timeind], l4.r[l4_timeind]*np.cos(l4.lat[mars_timeind]), s=symsize_planet/2, c=lagrange_color, alpha=1,lw=0,zorder=3, marker='p')
+    ax.scatter(l5.lon[l5_timeind], l5.r[l5_timeind]*np.cos(l5.lat[l5_timeind]), s=symsize_planet/2, c=lagrange_color, alpha=1,lw=0,zorder=3,marker='p')
 
         
     #text thats always there on the plot

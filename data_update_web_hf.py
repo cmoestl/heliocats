@@ -16,9 +16,10 @@
 # 
 # Issues:
 # 
+# - positions should be changed for Earth and STEREO-A to not use astrospice
 # 
 
-# In[46]:
+# In[48]:
 
 
 #switches
