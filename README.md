@@ -1,29 +1,26 @@
 # heliocats
 
-This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections (ICMEs) and their analysis. [This is a link to a google colab notebook](https://colab.research.google.com/drive/1_zJMGJnX3XJx7FCHD04SC3Y0KCMdDGMz) for instructions how to read the catalogs produced with this package. The ICMECAT as the main result to be produced with this package is published at https://helioforecast.space/icmecat. It forms the largest living catalog of ICMEs.
+This package contains codes used for the creation of catalogs of interplanetary coronal mass ejections (ICMEs) and their analysis. [This is a link to a google colab notebook](https://colab.research.google.com/drive/1_zJMGJnX3XJx7FCHD04SC3Y0KCMdDGMz) for instructions how to read the catalogs produced with this package. The ICMECAT as the main result to be produced with this package is published at https://helioforecast.space/icmecat.
 
 
-**Authors**: C. Möstl, Austrian Space Weather Office, Geosphere Austria https:/helioforecast.space; contributions by E. E. Davies, E. Weiler, A. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow.
+**Authors**: C. Möstl, E. E. Davies, E. Weiler, Austrian Space Weather Office, Geosphere Austria https:/helioforecast.space; contributions by A. J. Weiss, R. L. Bailey, M. A. Reiss, C. L. Simon Wedlund, A. Isavnin, R. M. Winslow.
 
-Current status (**May 2024**): ICME catalog and data downloads work. This is a continuation of work done in the EU HELCATS project (2014-2017): 
-[https://www.helcats-fp7.eu](https://www.helcats-fp7.eu). 
+Last update: April 2025.
+
+This is a continuation of work done in the EU HELCATS project (2014-2017): [https://www.helcats-fp7.eu](https://www.helcats-fp7.eu). 
 
 If you want to use parts of this code for generating results for **peer-reviewed scientific publications, 
-please contact me per email** (chris.moestl@outlook.com) or via https://twitter.com/chrisoutofspace or https://mastodon.social/@chrisoutofspace for co-authorships.
-
-
+please contact me per email** (chris.moestl@outlook.com) for co-authorships.
 
 
 ---
 ## Usage
 
-For running the jupyter notebooks (files with .ipynb) or the python scripts (.py), first activate the helio environment (for installation instructions, see bottom of this readme):
+For running the jupyter notebooks (files with .ipynb) or the python scripts (.py), first activate the helio4 environment (for installation instructions, see bottom of this readme):
 
     conda activate helio4
 
-A data folder location can be set in *config.py* (e.g. *data/*) that contains all data files needed during the analysis. Outputs can be found in the folder *results/* or subfolders therein, e.g. the files created for the ICMECAT are in folder *icmecat/*. Jupyter notebooks can be converted to scripts by e.g. for icmecat.ipynb to icmecat.py:
-
-    jupyter nbconvert --to script icmecat.ipynb
+A data folder location can be set in *config.py* (e.g. *data/*) that contains all data files needed during the analysis. Outputs can be found in the folder *results/* or subfolders therein, e.g. the files created for the ICMECAT are in folder *icmecat/*. Jupyter notebooks are converted to scripts in their first cell.
     
 For some scripts there should be a systemwide installation of ffmpeg available.
     
@@ -47,7 +44,7 @@ The catalog is available in these formats: .p (pandas dataframe or numpy record 
 Load this catalog into python with 
 
     import pickle
-    file='icmecat/HELCATS_ICMECAT_v22_pandas.p'
+    file='icmecat/HELCATS_ICMECAT_v23_pandas.p'
     [ic,header,parameters]=pickle.load( open(file, 'rb'))
     
     
@@ -73,13 +70,13 @@ gives the header description and the list of all parameters with units.
 Alternatively, you can load the ICMECAT with 
 
     import pickle
-    file='icmecat/HELCATS_ICMECAT_v22_numpy.p'
+    file='icmecat/HELIO4CAST_ICMECAT_v23_numpy.p'
     [ic_nprec,ic_np,header,parameters]=pickle.load( open(file, 'rb'))  
 
 which returns a numpy record array (ic_nprec) or a numpy structured array (ic_np) consisting of strings and floats.
 
 In the pandas dataframe, all times (ic.icme_start_time, ic.mo_start_time, ic.mo_end_time) are python datetime objects. 
-In the numpy arrays, these times are given in matplotlib format (fractional days since year 0001 Jan 1, plus 1 day). 
+In the numpy arrays, these times are given in matplotlib format (fractional days since 1970-01-01). 
 Both formats can be used directly plotting with matplotlib, but can also easily 
 converted into many other formats by (given you have sunpy installed):
 
@@ -146,7 +143,7 @@ on Linux
 
 
 MIT LICENSE
-Copyright 2020-2024, Christian Moestl, Emma Davies, Eva Weiler
+Copyright 2020-2025, Christian Moestl, Emma Davies, Eva Weiler
 Permission is hereby granted, free of charge, to any person obtaining a copy of this 
 software and associated documentation files (the "Software"), to deal in the Software
 without restriction, including without limitation the rights to use, copy, modify, 
