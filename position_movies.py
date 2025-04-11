@@ -43,7 +43,7 @@
 # - add lagrange points, create with positions.ipynb first
 #  
 
-# In[60]:
+# In[9]:
 
 
 import os
@@ -119,7 +119,7 @@ dpisave=100 #for 1080p
 used=8
 
 
-# In[61]:
+# In[10]:
 
 
 ###########################################################
@@ -179,7 +179,7 @@ print(data_path)
 os.system('jupyter nbconvert --to script position_movies.ipynb')    
 
 
-# In[62]:
+# In[11]:
 
 
 #old files
@@ -201,7 +201,7 @@ ic=ic.to_records()
 print('done')
 
 
-# In[63]:
+# In[12]:
 
 
 l4.lon[0]
@@ -221,14 +221,14 @@ l4.lon[0]
 
 
 
-# In[64]:
+# In[13]:
 
 
 psp.time.values[-1]
 np.max(solo.lon[0])
 
 
-# In[65]:
+# In[14]:
 
 
 def make_frame(k):
@@ -541,7 +541,7 @@ def make_frame(k):
     plt.close('all')
 
 
-# In[66]:
+# In[15]:
 
 
 plt.close('all')
@@ -652,7 +652,7 @@ make_frame(1)
 #    -r 25 '+str(animdirectory)+'/positions_punch.mp4 -y -loglevel quiet')   
 
 
-# In[67]:
+# In[ ]:
 
 
 # ### Multiprocessing
