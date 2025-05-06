@@ -9,7 +9,7 @@
 # 
 # 
 
-# In[18]:
+# In[24]:
 
 
 import pickle
@@ -78,7 +78,7 @@ os.system('jupyter nbconvert --to script geomagnetic_storms.ipynb')
 
 # ### get Dst data
 
-# In[5]:
+# In[2]:
 
 
 ##get omni dst data
@@ -130,7 +130,7 @@ n=n[cutoffnoaa:]
 
 # ### plot Dst
 
-# In[6]:
+# In[3]:
 
 
 years=np.arange(1995,2040) 
@@ -160,6 +160,8 @@ ax1.xaxis.set_major_formatter(myformat)
 plt.xticks(yearly_start_times, fontsize=14,rotation=45) 
 
 ax1.set_xlim(datetime.datetime(1996,1,1),datetime.datetime(datetime.datetime.utcnow().year+1,1,1))
+#ax1.set_xlim(datetime.datetime(2000,1,1),datetime.datetime(2030,1,1))
+
 
 #ax1.set_xlim(datetime.datetime(2023,1,1),datetime.datetime(2024,1,1))
 
@@ -186,7 +188,93 @@ plt.tight_layout()
 plt.savefig(outputdir+'geomagnetic_storm_all.png',dpi=100)
 
 
-# In[7]:
+# ## Plots for proposals
+
+# In[4]:
+
+
+proposal_plot=0
+
+if proposal_plot==1:
+
+    years=np.arange(1995,2040) 
+    yearly_start_times=[datetime.datetime(year,1,1) for year in years]
+
+
+
+    color1='#E2DBBE'
+    color2='#D5D6AA'
+    color3='#9DBBAE'
+    color4='#769FB6'
+    color5='#188FA7'
+
+
+    sns.set_context('talk')
+    sns.set_style('ticks')
+    fig, ax1=plt.subplots(1,figsize=(12,5),dpi=100)
+
+    ax1.plot(o.time,o.dst,color=color5,linewidth=1.2,alpha=1.0, label='OMNI Dst')
+    ax1.plot(n.time,n.dst,color=color5,linewidth=1.2,alpha=1.0)##label='NOAA Dst')
+
+    #ax1.plot(o.time,np.zeros(np.size(o.time))-187, 'g')
+    #stack both OMNI and NOAA Dst and determine min max for last 27 years
+    plotmin=np.nanmin(np.hstack([o.dst,n.dst])[-365*24*27:-1] )
+    plotmax=np.nanmax(np.hstack([o.dst,n.dst])[-365*24*27:-1] )
+    print(plotmax, plotmin)
+    ax1.set_ylim(plotmin-50,plotmax+20)
+
+
+    ax1.set_xlim(start,end)
+
+    plt.ylabel('Dst [nT]')
+
+    ax1.xaxis_date()
+
+    #ax1.set_xlim(datetime.datetime(1996,1,1),datetime.datetime(datetime.datetime.utcnow().year+1,1,1))
+    ax1.set_xlim(datetime.datetime(2000,1,1),datetime.datetime(2030,1,1))
+
+
+    #ax1.set_xlim(datetime.datetime(2023,1,1),datetime.datetime(2024,1,1))
+
+    #plt.title('Geomagnetische Stürme 2015-2023')
+    #plt.title('Geomagnetic storms in solar cycles 23, 24, 25',fontsize=16)
+
+
+
+
+    years = mdates.YearLocator(5)   # 
+    ax1.xaxis.set_major_locator(years)
+    ax1.xaxis.set_minor_locator(mdates.YearLocator(1))
+    myformat = mdates.DateFormatter('%Y')
+    ax1.xaxis.set_major_formatter(myformat)
+
+    ax1.grid(linestyle='--',alpha=0.5)
+
+    ax1.set_yticks(np.arange(-450,100,50))
+
+    ax1.axvspan(datetime.datetime(2026,1,1),datetime.datetime(2028,12,31), alpha=0.3, color=color1, label='Project runtime')
+
+    fsize=12
+    plt.legend(loc='lower center',fontsize=13)
+    #plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
+    #plt.figtext(0.98,0.01,'helioforecast.space', color='black', ha='right',fontsize=11, style='italic')
+
+    #plt.figtext(0.10,0.93,'last update: '+str(datetime.datetime.utcnow())[0:16]+ ' UTC', ha='left', fontsize=10)
+
+    #ax1.axvline(x=datetime.datetime.utcnow(), color='k', linestyle='--',alpha=0.5, linewidth=1.0)
+
+
+    logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_S.png')
+    newax = fig.add_axes([0.84,0.84,0.09,0.09], anchor='NE', zorder=1)
+    newax.imshow(logo)
+    newax.axis('off')
+
+    plt.tight_layout()
+
+    plt.savefig(outputdir+'geomagnetic_storm_proposal.pdf',dpi=300)
+
+
+# In[5]:
 
 
 years=np.arange(1955,2040,5) 
@@ -253,7 +341,7 @@ plt.savefig(outputdir+'geomagnetic_storm_all_space_age.png',dpi=100)
 print('saved as', outputdir+'geomagnetic_storm_space_age.png')
 
 
-# In[8]:
+# In[6]:
 
 
 years=np.arange(1995,2040) 
@@ -327,7 +415,7 @@ print('saved as', outputdir+'geomagnetic_storm_latest.png')
 ##histogram
 
 
-# In[9]:
+# In[7]:
 
 
 nrows=1
@@ -361,7 +449,7 @@ fig.write_html(outputdir+'geomagnetic_storm_latest.html')
 print('saved',outputdir+'geomagnetic_storm_latest.html')
 
 
-# In[10]:
+# In[8]:
 
 
 ###same in german
@@ -437,7 +525,7 @@ print('saved as', outputdir+'geomagnetische_stuerme_letztes_Jahr.png')
 
 # ## Dst plot with thresholds
 
-# In[11]:
+# In[9]:
 
 
 #get current dst last 35 days
@@ -510,7 +598,7 @@ print('saved',outputdir+'geomagnetic_storm_latest_zoom.png')
 
 # ### plotly
 
-# In[12]:
+# In[10]:
 
 
 nrows=1
@@ -546,7 +634,7 @@ print('saved',outputdir+'geomagnetic_storm_latest_zoom.html')
 
 # ## Newell Coupling
 
-# In[13]:
+# In[11]:
 
 
 ###add plot and add to txt file without propagation 
@@ -679,7 +767,7 @@ print('saved as', outputdir+'newell_coupling_latest.png')
 
 # ### plotly
 
-# In[14]:
+# In[12]:
 
 
 #plot the last 30 days
@@ -728,7 +816,7 @@ print('saved as', outputdir+'newell_coupling_latest.html')
 # with geosphere colors
 # 
 
-# In[15]:
+# In[13]:
 
 
 #make cutouts for better plotting
@@ -754,7 +842,7 @@ w_nc_cut=w_nc[np.where(w.time > cutoff_time)[0]]
 w_nc_cut_time=w.time[np.where(w.time > cutoff_time)[0]]
 
 
-# In[21]:
+# In[14]:
 
 
 sns.set_context('talk')
@@ -895,10 +983,10 @@ ax3.set_ylim(0,ncplotrange)
 cest_time = utc_time.replace(tzinfo=datetime.timezone.utc).astimezone(ZoneInfo("Europe/Berlin"))
 print("CEST time:", cest_time)
 
-plt.figtext(0.06,0.92,'last update: '+str(utc_time)[0:16]+ ' UTC    '+str(cest_time)[10:16]+' CEST', ha='left', fontsize=11, fontname='Source Sans Pro')
+plt.figtext(0.06,0.92,'last update: '+str(utc_time)[0:16]+ ' UTC    '+str(cest_time)[10:16]+' CEST', ha='left', fontsize=12, fontname='Source Sans Pro')
 
-plt.figtext(0.5,0.02,'Austrian Space Weather Office    helioforecast.space  data: NOAA / NASA', color=c.geo_copyright, ha='center',fontsize=11, fontweight='bold',fontname='Source Sans Pro')
-plt.figtext(0.98,0.02,'© GeoSphere Austria ', ha='right',fontsize=11,color=c.geo_copyright,fontweight='bold', fontname='Source Sans Pro')
+plt.figtext(0.5,0.02,'Austrian Space Weather Office      helioforecast.space      data: NOAA / NASA', color=c.geo_copyright, ha='center',fontsize=12, fontweight='bold',fontname='Source Sans Pro')
+plt.figtext(0.98,0.02,'© GeoSphere Austria ', ha='right',fontsize=12,color=c.geo_copyright,fontweight='bold', fontname='Source Sans Pro')
 
 #plt.figtext(0.03,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=11, style='italic')
 
@@ -982,7 +1070,7 @@ plt.savefig(outputdir+'geomagnetic_quick.png')
 
 # ### save data for last few months as txt
 
-# In[17]:
+# In[15]:
 
 
 ## to do: indicate if data comes from OMNI or NOAA
@@ -1018,7 +1106,7 @@ print('latest data point',data.time[-1])
 
 
 
-# In[15]:
+# In[16]:
 
 
 print(' ')
@@ -1049,7 +1137,7 @@ print('------------------------')
 
 # #### looking into the data
 
-# In[16]:
+# In[17]:
 
 
 #https://plotly.com/python/
@@ -1070,7 +1158,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[17]:
+# In[18]:
 
 
 if data_lookup > 0:
@@ -1082,7 +1170,7 @@ if data_lookup > 0:
     fig.show()
 
 
-# In[18]:
+# In[19]:
 
 
 if data_lookup > 0:
@@ -1108,7 +1196,7 @@ if data_lookup > 0:
 
 # ### Histograms
 
-# In[19]:
+# In[20]:
 
 
 #years23=np.arange(1996,2009)
@@ -1144,7 +1232,7 @@ o24=o[ind24]
 o25=o[ind25]
 
 
-# In[20]:
+# In[21]:
 
 
 #compare rising phases
@@ -1199,7 +1287,7 @@ plt.tight_layout()
 #print('saved as ',plotfile)
 
 
-# In[21]:
+# In[22]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})
@@ -1228,7 +1316,7 @@ ax1.set_xlim(0, 20)
 plt.legend()
 
 
-# In[22]:
+# In[23]:
 
 
 sns.set_style("ticks",{'grid.linestyle': '--'})

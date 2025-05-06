@@ -48,7 +48,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[41]:
+# In[1]:
 
 
 #manually set latest solo kernel file for spiceypy
@@ -2177,6 +2177,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction.png',dpi=100)
 
 plt.legend(loc='upper right',fontsize=11)
 ax1.set_xlim(datetime.datetime(1965,1,1),datetime.datetime(2033,1,1))
+#ax1.set_xlim(datetime.datetime(2000,1,1),datetime.datetime(2030,1,1))
 
 
 years = mdates.YearLocator(5)   # every year
@@ -2197,9 +2198,129 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short.pdf')
 print(outputdirectory+'/cycle25_prediction_short.pdf')
 
 
+# ## Proposal plots
+
+# In[49]:
+
+
+proposal_plot=0
+
+if proposal_plot==1:
+
+
+    sns.set_context('talk')
+    sns.set_style('ticks')
+    fig=plt.figure(30,figsize=(12,5),dpi=100)
+
+    #print('get sunspot number from SIDC')    
+    #get 13month smoothed sunspot number from SIDC
+    #http://www.sidc.be/silso/datafiles
+    #add year;month;year2;spot;stand;obs;check in first row to read pandas dataframe
+
+
+    file='ssn_m.p'  
+    ssn_m=pickle.load(open(data_path+file, "rb"))
+
+    fsize=15
+
+
+    color1='#E2DBBE'
+    color2='#D5D6AA'
+    color3='#9DBBAE'
+    color4='#769FB6'
+    color5='#188FA7'
+
+    ax1 = plt.subplot(111) 
+    ax1.plot(ssn.time,ssn.spot,color=color2,alpha=0.9,linewidth=1.0,label='Observed sunspot number (SIDC, daily)')
+    #ax1.plot(ssn.time,ssn.spot_mean_13,'-k',alpha=0.5,linewidth=1.5,label='Observed sunspot number (SIDC, 13 month smoothed)')
+    ax1.plot(ssn_m.time+15,ssn_m.spot,'-k',alpha=0.9,linewidth=1.5,label='Observed sunspot number (monthly mean)')
+
+
+
+    #make pp19 begin time earlier
+    import copy
+    times_25_daily_shift=copy.deepcopy(times_25_daily)
+
+    for i in np.arange(len(times_25_daily_shift)):
+        times_25_daily_shift[i]=times_25_daily_shift[i]-timedelta(days=6*30)
+
+    #PP19 prediction
+    #ax1.plot(times_25_daily_shift,spots_predict_25pp_daily,'-b',alpha=1,linewidth=1.5,label='Prediction NOAA/NASA/ISES shifted -6 months')
+    #ax1.fill_between(times_25_daily_shift,spots_predict_25pp_daily_low,spots_predict_25pp_daily_high,alpha=0.2)
+
+    #MC20 prediction
+    #ax1.plot(times_25_daily,spots_predict_25_daily,'--r',alpha=0.5,linewidth=1.0,label='McIntosh et al. (2020)')
+    #ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
+
+    #MC22 prediction
+    #ax1.plot(times_25_daily,spots_predict_25_daily_mc2,'-r',alpha=1,linewidth=1.5,label='McIntosh+ 2023 ')
+    #ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68_mc2, spots_predict_25_daily_upper68_mc2, alpha=0.1, color='red')
+
+
+
+    #MC23 prediction
+    ax1.plot(times_25_daily,spots_predict_25_daily_mc3,color=color5,alpha=1,linewidth=2,label='McIntosh, Leamon, Egeland 2023 ± 1σ ')
+    ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68_mc3, spots_predict_25_daily_upper68_mc3, alpha=0.3, color=color5)
+
+
+
+    #mean cycle
+    ax1.plot(times_25_daily,spots_predict_25m_daily,color=color3,alpha=1,linewidth=2.0,label='Mean solar cycle since 1750')
+    ax1.set_xlim(datetime.datetime(1749,1,1),datetime.datetime(2035,1,1))
+
+
+    #ax1.plot(times_25_daily,spots_predict_25_daily,'-k',alpha=1,linewidth=1.5,label='Solar dynamo revolution April 2021')
+    #ax1.fill_between(times_25_daily, spots_predict_25_daily_lower68, spots_predict_25_daily_upper68, alpha=0.2)
+
+    ax1.set_ylim(0,380)
+    ax1.set_ylabel('Sunspot number')
+
+    plt.figtext(0.09,0.01,'Austrian Space Weather Office   GeoSphere Austria', color='black', ha='left',fontsize=fsize-4, style='italic')
+    plt.figtext(0.98,0.01,'helioforecast.space/solarcycle', color='black', ha='right',fontsize=fsize-4, style='italic')
+
+
+    #plt.savefig(outputdirectory+'/cycle25_prediction.png',dpi=100)
+
+    #with shorter interval
+
+
+    ax1.axvspan(datetime.datetime(2026,1,1),datetime.datetime(2028,12,31), alpha=0.3, color=color1, label='Project runtime')
+
+
+    plt.legend(loc='upper center',fontsize=11)
+    #ax1.set_xlim(datetime.datetime(1965,1,1),datetime.datetime(2033,1,1))
+    ax1.set_xlim(datetime.datetime(2000,1,1),datetime.datetime(2030,1,1))
+
+
+
+
+    years = mdates.YearLocator(5)   # 
+    ax1.xaxis.set_major_locator(years)
+    ax1.xaxis.set_minor_locator(mdates.YearLocator(1))
+    myformat = mdates.DateFormatter('%Y')
+    ax1.xaxis.set_major_formatter(myformat)
+
+
+
+    ax1.grid(linestyle='--',alpha=0.5)
+
+
+
+    logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_S.png')
+    newax = fig.add_axes([0.14,0.84,0.08,0.08], anchor='NE', zorder=1)
+    newax.imshow(logo)
+    newax.axis('off')
+
+    plt.tight_layout()
+
+    #plt.savefig(outputdirectory+'/cycle25_prediction_short.png',dpi=150)
+    plt.savefig(outputdirectory+'/cycle25_prediction_proposal.pdf', dpi=300)
+    print(outputdirectory+'/cycle25_prediction_proposal.pdf')
+
+
 # ### German plot 
 
-# In[23]:
+# In[50]:
 
 
 sns.set_context('talk')
@@ -2307,7 +2428,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short_german.pdf')
 print('saved', outputdirectory+'/cycle25_prediction_short_german.png')
 
 
-# In[24]:
+# In[40]:
 
 
 #with shortest interval
@@ -2402,7 +2523,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # ## Plotly html version for website
 
-# In[25]:
+# In[41]:
 
 
 #Plotly imports
@@ -2465,7 +2586,7 @@ print('saved as ',outputdirectory+'/cycle25_prediction.html')
 # 
 # 
 
-# In[26]:
+# In[42]:
 
 
 print(kernels_path)
@@ -2483,7 +2604,7 @@ def cart2sphere_emma_rad(x,y,z):
 
 
 
-# In[33]:
+# In[43]:
 
 
 ## for the moment PSP with astrospice, need to place kernel file
@@ -2543,7 +2664,7 @@ psp.time=mdates.date2num(psp.time)
 plt.plot_date(psp.time,psp.r,'-')
 
 
-# In[34]:
+# In[44]:
 
 
 def solo_furnish(kernels_path):
@@ -2601,7 +2722,7 @@ solo.lat=np.rad2deg(solo.lat)
 plt.plot_date(solo.time,solo.r,'-')
 
 
-# In[35]:
+# In[45]:
 
 
 #get the speed in hourly resolution
@@ -2633,7 +2754,7 @@ plt.plot_date(solo.time,solo.r,'-')
 
 # ### Make trajectory plots 
 
-# In[39]:
+# In[46]:
 
 
 #%matplotlib inline
@@ -2710,7 +2831,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[40]:
+# In[47]:
 
 
 #same thing for Solar Orbiter
@@ -2793,7 +2914,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
-# In[38]:
+# In[48]:
 
 
 t1all = time.time()

@@ -41,7 +41,7 @@
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
 # 
 
-# In[1]:
+# In[24]:
 
 
 last_update='2025-April-9'
@@ -161,7 +161,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[2]:
+# In[25]:
 
 
 # this file is used for the position plots in hp.plot_icmecat_positions_mag_plasma
@@ -173,7 +173,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[3]:
+# In[26]:
 
 
 load_data=1
@@ -390,7 +390,7 @@ print('loading data takes', np.round((t1-t0)/60,2), 'minutes')
 
 # ## (3) make ICMECAT 
 
-# In[4]:
+# In[27]:
 
 
 if debug_mode > 0: 
@@ -463,7 +463,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[5]:
+# In[28]:
 
 
 ###### 3c make all plots if wanted
@@ -736,7 +736,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[6]:
+# In[29]:
 
 
 ######## sort ICMECAT by date
@@ -902,7 +902,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[7]:
+# In[30]:
 
 
 ########## python formats
@@ -1078,7 +1078,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[8]:
+# In[31]:
 
 
 #load icmecat as pandas dataframe
@@ -1096,27 +1096,27 @@ pos2=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p',
 print('positions file loaded')
 
 
-# In[9]:
+# In[32]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[10]:
+# In[33]:
 
 
 ic_pandas
 
 
-# In[11]:
+# In[34]:
 
 
 #
 ic_nprec
 
 
-# In[12]:
+# In[35]:
 
 
 ic_nprec.icmecat_id
@@ -1124,7 +1124,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[13]:
+# In[36]:
 
 
 ic=ic_pandas
@@ -1251,7 +1251,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[14]:
+# In[37]:
 
 
 ic=ic_pandas
@@ -1392,7 +1392,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_latitude_solo.png', dpi=150,bbox_inches='tight')
 
 
-# In[15]:
+# In[38]:
 
 
 #markersize
@@ -1458,7 +1458,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ### plotly radial distance and mean MO field
 
-# In[16]:
+# In[39]:
 
 
 ################# 
@@ -1531,7 +1531,7 @@ fig.write_html(f'icmecat/icmecat_distance.html')
 
 # ### plotly event position in 3D
 
-# In[17]:
+# In[40]:
 
 
 # Create polar plot
@@ -1694,7 +1694,7 @@ pio.write_image(fig, 'icmecat/icmecat_position_3D.png',scale=2, width=1500, heig
 
 # ### plotly radial distance and longitude
 
-# In[18]:
+# In[41]:
 
 
 # Sample data
@@ -1766,7 +1766,7 @@ fig.write_html(f'icmecat/icmecat_longitudes.html')
 
 # ### 3D plotly for PSP, SolO, Bepi
 
-# In[19]:
+# In[42]:
 
 
 #convert times to datetime
@@ -1808,7 +1808,7 @@ pspz=np.interp(psp_daily_num, pos2[0].time.astype(float), pos2[0].z)/const.au.va
     
 
 
-# In[20]:
+# In[43]:
 
 
 # Create polar plot
@@ -2040,7 +2040,7 @@ pio.write_image(fig, 'icmecat/icmecat_orbit_3D_solo.png',scale=1, width=1500, he
 
 # ## Parameter distribution plots near 1 AU
 
-# In[21]:
+# In[44]:
 
 
 #make distribution plots
@@ -2106,7 +2106,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[22]:
+# In[45]:
 
 
 t1all = time.time()
@@ -2136,7 +2136,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 # 
 # #### check number of plots
 
-# In[23]:
+# In[46]:
 
 
 files = os.listdir('icmecat/plots_icmecat')

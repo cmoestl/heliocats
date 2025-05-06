@@ -85,10 +85,17 @@ clock_start = time.time()
 [psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune,l4,l5]=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p', "rb" ) )   
 
 
-# In[3]:
+# In[7]:
 
 
 time1=mdates.date2num(datetime.datetime.utcnow())
+
+
+#override current date
+#time1=mdates.date2num(datetime.datetime(2028,1,1))
+
+
+
 
 #psp['time']
 #psp_timeind:psp_timeind+fadeind
@@ -227,7 +234,7 @@ bepi_hover_now=np.stack((np.round(bepi['r'][bepi_timeind],3),
 #solo_hover_now[2]
 
 
-# In[4]:
+# In[8]:
 
 
 fig = go.Figure()
@@ -521,7 +528,7 @@ pio.write_image(fig, 'results/positions/position_3D.png',scale=1, width=2000, he
 ##pio.write_image(fig, 'results/positions/position_3D.png',scale=2, width=1500, height=850)
 
 
-# In[5]:
+# In[9]:
 
 
 clock_end = time.time()
@@ -570,7 +577,7 @@ sys.exit()
 
 
 
-# In[7]:
+# In[ ]:
 
 
 #######time slider example

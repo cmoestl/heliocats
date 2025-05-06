@@ -82,7 +82,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[42]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -136,7 +136,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions, Xray and SDO plots
 
-# In[43]:
+# In[3]:
 
 
 if debug_mode > 0: 
@@ -154,7 +154,7 @@ hp.plot_noaa_xray(data_path+xraypickle,data_path+xraypickle2,plot_path)
 
 
 
-# In[44]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -186,7 +186,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind 
 
-# In[ ]:
+# In[5]:
 
 
 if debug_mode > 0: 
