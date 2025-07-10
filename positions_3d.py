@@ -8,7 +8,9 @@
 # 
 # April 2025
 # 
-# TBD: deploying
+# - Issues: add times
+# 
+# 
 # 
 
 # In[1]:
@@ -85,7 +87,7 @@ clock_start = time.time()
 [psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune,l4,l5]=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p', "rb" ) )   
 
 
-# In[7]:
+# In[3]:
 
 
 time1=mdates.date2num(datetime.datetime.utcnow())
@@ -234,7 +236,7 @@ bepi_hover_now=np.stack((np.round(bepi['r'][bepi_timeind],3),
 #solo_hover_now[2]
 
 
-# In[8]:
+# In[4]:
 
 
 fig = go.Figure()
@@ -528,7 +530,7 @@ pio.write_image(fig, 'results/positions/position_3D.png',scale=1, width=2000, he
 ##pio.write_image(fig, 'results/positions/position_3D.png',scale=2, width=1500, height=850)
 
 
-# In[9]:
+# In[5]:
 
 
 clock_end = time.time()

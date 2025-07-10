@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.3, released 2025 April 9, updated 2025 April 9
+# latest release: version 2.3, released 2025 April 9, updated 2025 July 10
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -17,7 +17,7 @@
 # 
 # This notebook is part of the heliocats package https://github.com/cmoestl/heliocats
 # 
-# **Cite this catalog with the doi 10.6084/m9.figshare.6356420**  <br /> https://10.6084/m9.figshare.6356420 <br />
+# **Cite this catalog with the doi 10.6084/m9.figshare.6356420**  <br /> https://doi.org/10.6084/m9.figshare.6356420<br />
 # If this catalog is used for results that are published in peer-reviewed international journals, please contact chris.moestl@outlook.com for possible co-authorship. 
 # 
 # Install the helio4 conda environment to run this code, see folder /envs and the readme at https://github.com/cmoestl/heliocats
@@ -36,15 +36,17 @@
 # 
 # **ISSUES**
 #  
-# - PSP ambient wind shorter for closer to the Sun
+# - PSP ambient wind shorter interval for closer to the Sun
 # - STEREO-A beacon data contain a few plasma 0s instead of nan
 # - on some plots in the early 2000s, Wind has a few flybys of the Earth's magnetic field (should be removed)
+# - 1998 Oct 23 - dahinter Wind daten rausnehmen Erde, im datenfile
+# 
 # 
 
-# In[24]:
+# In[1]:
 
 
-last_update='2025-April-9'
+last_update='2025-July-10'
 
 #debug mode reloads the files with the functions
 debug_mode=0
@@ -161,7 +163,7 @@ os.system('jupyter nbconvert --to script icmecat.ipynb')
 # 
 # ### Load positions file
 
-# In[25]:
+# In[2]:
 
 
 # this file is used for the position plots in hp.plot_icmecat_positions_mag_plasma
@@ -173,7 +175,7 @@ print('positions file loaded')
 
 # ## (1) load data 
 
-# In[26]:
+# In[3]:
 
 
 load_data=1
@@ -390,7 +392,7 @@ print('loading data takes', np.round((t1-t0)/60,2), 'minutes')
 
 # ## (3) make ICMECAT 
 
-# In[27]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -424,11 +426,11 @@ if create_indices > 0:
     
     t0 = time.time()
 
-    hc.create_icme_indices(solo,soli,ic,'SolarOrbiter')
-    hc.create_icme_indices(win,wini,ic,'Wind')
-    hc.create_icme_indices(psp,pspi,ic,'PSP')
+    #hc.create_icme_indices(solo,soli,ic,'SolarOrbiter')
+    #hc.create_icme_indices(win,wini,ic,'Wind')
+    #hc.create_icme_indices(psp,pspi,ic,'PSP')
     hc.create_icme_indices(sta,stai,ic,'STEREO-A')
-    hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
+    #hc.create_icme_indices(bepi,beci,ic,'BepiColombo')
     
     #hc.create_icme_indices(uly,ulyi,ic,'ULYSSES')
     #hc.create_icme_indices(stb,stbi,ic,'STEREO-B')
@@ -463,7 +465,7 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[28]:
+# In[5]:
 
 
 ###### 3c make all plots if wanted
@@ -736,7 +738,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[29]:
+# In[6]:
 
 
 ######## sort ICMECAT by date
@@ -902,7 +904,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[30]:
+# In[7]:
 
 
 ########## python formats
@@ -1078,7 +1080,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[31]:
+# In[8]:
 
 
 #load icmecat as pandas dataframe
@@ -1096,27 +1098,27 @@ pos2=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p',
 print('positions file loaded')
 
 
-# In[32]:
+# In[9]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[33]:
+# In[10]:
 
 
 ic_pandas
 
 
-# In[34]:
+# In[11]:
 
 
 #
 ic_nprec
 
 
-# In[35]:
+# In[12]:
 
 
 ic_nprec.icmecat_id
@@ -1124,7 +1126,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[36]:
+# In[13]:
 
 
 ic=ic_pandas
@@ -1251,7 +1253,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[37]:
+# In[14]:
 
 
 ic=ic_pandas
@@ -1392,7 +1394,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_latitude_solo.png', dpi=150,bbox_inches='tight')
 
 
-# In[38]:
+# In[15]:
 
 
 #markersize
@@ -1458,7 +1460,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ### plotly radial distance and mean MO field
 
-# In[39]:
+# In[16]:
 
 
 ################# 
@@ -1531,7 +1533,7 @@ fig.write_html(f'icmecat/icmecat_distance.html')
 
 # ### plotly event position in 3D
 
-# In[40]:
+# In[17]:
 
 
 # Create polar plot
@@ -1694,7 +1696,7 @@ pio.write_image(fig, 'icmecat/icmecat_position_3D.png',scale=2, width=1500, heig
 
 # ### plotly radial distance and longitude
 
-# In[41]:
+# In[18]:
 
 
 # Sample data
@@ -1766,7 +1768,7 @@ fig.write_html(f'icmecat/icmecat_longitudes.html')
 
 # ### 3D plotly for PSP, SolO, Bepi
 
-# In[42]:
+# In[19]:
 
 
 #convert times to datetime
@@ -1808,7 +1810,7 @@ pspz=np.interp(psp_daily_num, pos2[0].time.astype(float), pos2[0].z)/const.au.va
     
 
 
-# In[43]:
+# In[20]:
 
 
 # Create polar plot
@@ -1944,8 +1946,8 @@ fig.add_trace(go.Scatter3d(
 
 #add 20° to SE line
 fig.add_trace(go.Scatter3d(
-    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(20)),
-    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(20)),
+    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(15)),
+    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(15)),
     z=np.zeros(num_points), 
     mode='lines', name='20°',
     line=dict(color='red', width=1)
@@ -1954,8 +1956,8 @@ fig.add_trace(go.Scatter3d(
 
 #add 30° to SE line
 fig.add_trace(go.Scatter3d(
-    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(30)),
-    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(30)),
+    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(20)),
+    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(20)),
     z=np.zeros(num_points), 
     mode='lines', name='30°',
     line=dict(color='red', width=1)
@@ -1973,8 +1975,8 @@ fig.add_trace(go.Scatter3d(
 
 #add 20° to SE line
 fig.add_trace(go.Scatter3d(
-    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(-20)),
-    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(-20)),
+    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(-15)),
+    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(-15)),
     z=np.zeros(num_points), 
     mode='lines', name='-20°',
     line=dict(color='red', width=1)
@@ -1984,8 +1986,8 @@ fig.add_trace(go.Scatter3d(
 
 #add 30° to SE line
 fig.add_trace(go.Scatter3d(
-    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(-30)),
-    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(-30)),
+    x=np.linspace(0,1,num_points)*np.cos(np.deg2rad(-20)),
+    y=np.linspace(0,1,num_points)*np.sin(np.deg2rad(-20)),
     z=np.zeros(num_points), 
     mode='lines', name='-30°',
     line=dict(color='red', width=1)
@@ -2040,7 +2042,7 @@ pio.write_image(fig, 'icmecat/icmecat_orbit_3D_solo.png',scale=1, width=1500, he
 
 # ## Parameter distribution plots near 1 AU
 
-# In[44]:
+# In[21]:
 
 
 #make distribution plots
@@ -2106,7 +2108,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[45]:
+# In[22]:
 
 
 t1all = time.time()
@@ -2136,7 +2138,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 # 
 # #### check number of plots
 
-# In[46]:
+# In[23]:
 
 
 files = os.listdir('icmecat/plots_icmecat')
