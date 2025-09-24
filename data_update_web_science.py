@@ -40,7 +40,7 @@
 # #### Data:
 # 
 # - STEREO-A science data: https://spdf.gsfc.nasa.gov/pub/data/stereo/ahead/l2/impact/magplasma/1min/
-# - PSP check data availability at: https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min
+# - PSP check data availability at: https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min, earlier at Berkeley https://research.ssl.berkeley.edu/data/psp/data/sci/fields/l2/mag_RTN_1min/2025/
 # - Wind plasma: https://spdf.gsfc.nasa.gov/pub/data/wind/swe/ascii/swe_kp_unspike/ 
 # - Wind MAG: https://spdf.gsfc.nasa.gov/pub/data/wind/mfi/ascii/1min_ascii/
 # 
@@ -355,7 +355,7 @@ if get_wind > 0:
 # ### Parker Solar Probe
 # 
 
-# In[6]:
+# In[18]:
 
 
 print(' ')
@@ -374,8 +374,9 @@ if debug_mode > 0:
     importlib.reload(hd) 
     importlib.reload(hp) 
 
-    start_time= datetime(2024,4,1)
-    end_time  = datetime(2024,9,1)
+    start_time= datetime(2024,10,1)
+    #end_time  = datetime(2025,4,30)
+    end_time  = datetime(2025,4,30)
     psp_file=data_path+'psp_rtn_test.p'
 
     
@@ -393,15 +394,18 @@ if get_psp > 0:
 
     
     #for debugging
-    #hd.download_pspmag_1min(datetime(2024,1,1),datetime(2024,4,30),psp_path)
-    #hd.download_pspplas(datetime(2024,11,1),datetime(2024,4,30),psp_path)
-
+    #hd.download_pspmag_1min(datetime(2025,1,1),datetime(2025,4,30),psp_path)
+    #hd.download_pspplas(datetime(2024,10,1),datetime(2025,4,30),psp_path)
     
+        
     #for loading data of the last few available months
-    hd.download_pspmag_1min(datetime(2024,4,1),datetime(2024,10,14),psp_path)
-    hd.download_pspplas(datetime(2024,4,1),datetime(2024,10,14),psp_path)
+    hd.download_pspmag_1min(datetime(2024,10,1),datetime(2025,4,30),psp_path)
+    hd.download_pspplas(datetime(2024,10,1),datetime(2025,4,30),psp_path)
+    
+    
+    print(psp_file)
 
-    print('process PSP to pickle')
+    print('process PSP to pickle')    
     hd.create_psp_pkl(start_time,end_time,psp_file,psp_path,kernels_path)
     #print(psph)
 
@@ -421,13 +425,14 @@ else:
   
 
 
-# In[8]:
+# In[19]:
 
 
 if get_psp > 0:   
     
     ### data checks
     filepsp='psp_2018_now_rtn.p'
+    
     if debug_mode > 0: filepsp='psp_rtn_test.p'
     [data,hpsp]=pickle.load(open(data_path+filepsp, "rb" ) )
 

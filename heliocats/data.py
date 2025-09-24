@@ -2014,6 +2014,8 @@ def download_pspmag_1min(start_timestamp,end_timestamp, psp_path):
     
     
     
+    ## switch data sources spdf and berkeley
+    
     ### fix here that the server timeout may happen when there is no output for too long when new files are searched
     
     path=psp_path+'fields/level2/'
@@ -2023,12 +2025,19 @@ def download_pspmag_1min(start_timestamp,end_timestamp, psp_path):
     #end = datetime.utcnow().date() + timedelta(days=1)
     while start < end:
         year = start.year
+        month = str(start.month).zfill(2)
         date_str = f'{year}{start.month:02}{start.day:02}'
-        data_url = f'https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/{year}/'
+        data_url = f'https://spdf.gsfc.nasa.gov/pub/data/psp/fields/l2/mag_rtn_1min/{year}/'  #for SPDF        
+        #data_url = f'https://research.ssl.berkeley.edu/data/psp/data/sci/fields/l2/mag_RTN_1min/{year}/{month}/'  #for Berkeley
+        
+        ####### NOTE DIFFERENCE RTN rtn for the two sources
+        print(data_url)
+        
         soup = BeautifulSoup(urlopen(data_url), 'html.parser')
         for link in soup.find_all('a'):
             href = link.get('href')
-            if href is not None and href.startswith('psp_fld_l2_mag_rtn_1min_'+date_str):
+            if href is not None and href.startswith('psp_fld_l2_mag_rtn_1min_'+date_str):#for SPDF
+            #if href is not None and href.startswith('psp_fld_l2_mag_RTN_1min_'+date_str):       #for Berkeley          
                 filename = href
                 if os.path.isfile(f"{path}{filename}") == True:
                     print(f'{filename} has already been downloaded.')
@@ -2036,7 +2045,10 @@ def download_pspmag_1min(start_timestamp,end_timestamp, psp_path):
                     urllib.request.urlretrieve(data_url+filename, f"{path}{filename}")
                     print(f'Successfully downloaded {filename}')
         start+= datetime.timedelta(days=1)
-        
+ 
+
+
+
 
 
 def download_pspplas(start_timestamp, end_timestamp,psp_path):
@@ -2075,7 +2087,7 @@ def get_pspmag_1min(fp):
         cdf = cdflib.CDF(fp)
         t1 = cdflib.cdfepoch.to_datetime(cdf.varget('epoch_mag_RTN_1min'))
         df = pd.DataFrame(t1, columns=['time'])
-        bx, by, bz = cdf['psp_fld_l2_mag_RTN_1min'][:].T
+        bx, by, bz = cdf['psp_fld_l2_mag_rtn_1min'][:].T
         df['bx'] = bx
         df['by'] = by
         df['bz'] = bz
@@ -2099,7 +2111,7 @@ def get_pspmag_range_1min(start_timestamp, end_timestamp,psp_path ):
     while start < end:
         date_str = f'{start.year}{start.month:02}{start.day:02}'
         try: 
-            fn = glob.glob(path+f'psp_fld_l2_mag_rtn_1min_{date_str}*')[0]
+            fn = glob.glob(path+f'psp_fld_l2_mag_rtn_1min_{date_str}*')[0] 
             _df = get_pspmag_1min(fn)
             if _df is not None:
                 if df is None:

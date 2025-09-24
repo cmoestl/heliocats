@@ -97,8 +97,6 @@ time1=mdates.date2num(datetime.datetime.utcnow())
 #time1=mdates.date2num(datetime.datetime(2028,1,1))
 
 
-
-
 #psp['time']
 #psp_timeind:psp_timeind+fadeind
 
