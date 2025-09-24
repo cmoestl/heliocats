@@ -49,7 +49,7 @@
 # 
 # 
 
-# In[1]:
+# In[20]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -60,12 +60,12 @@
 debug_mode=0
 #always turn off debug mode when deploying!
 
-get_omni=1
-get_wind=1
+get_omni=0
+get_wind=0
 get_psp=1
-get_solo=1
-get_bepi=1
-get_stereoa=1
+get_solo=0
+get_bepi=0
+get_stereoa=0
 
 import numpy as np
 import pandas as pd
@@ -144,7 +144,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[21]:
 
 
 if sys.platform == 'linux': 
@@ -212,7 +212,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### OMNI2
 
-# In[3]:
+# In[22]:
 
 
 if debug_mode > 0: 
