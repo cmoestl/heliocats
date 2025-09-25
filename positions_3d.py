@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[1]:
+# In[8]:
 
 
 #switches
@@ -234,7 +234,7 @@ bepi_hover_now=np.stack((np.round(bepi['r'][bepi_timeind],3),
 #solo_hover_now[2]
 
 
-# In[7]:
+# In[9]:
 
 
 fig = go.Figure()
@@ -518,12 +518,14 @@ fig.add_trace(go.Scatter3d(x=[bepi['x'][bepi_timeind]/au], y=[bepi['y'][bepi_tim
 
     
     
-if sys.platform == 'darwin': fig.show()        
+if sys.platform == 'darwin': 
+    fig.show()        
+    #save as image
+    pio.write_image(fig, 'results/positions/position_3D.png',scale=1, width=2000, height=1200)
+
 
 fig.write_html(f'results/positions/position_3D.html')
 
-#save as image
-pio.write_image(fig, 'results/positions/position_3D.png',scale=1, width=2000, height=1200)
 
 ##pio.write_image(fig, 'results/positions/position_3D.png',scale=2, width=1500, height=850)
 
