@@ -49,7 +49,7 @@
 # 
 # 
 
-# In[2]:
+# In[3]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -144,7 +144,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[21]:
+# In[4]:
 
 
 if sys.platform == 'linux': 
