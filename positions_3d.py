@@ -6,7 +6,7 @@
 # 
 # Christian Möstl, Emma Davies, Eva Weiler
 # 
-# April 2025
+# September 2025
 # 
 # - Issues: add times
 # 
@@ -234,7 +234,7 @@ bepi_hover_now=np.stack((np.round(bepi['r'][bepi_timeind],3),
 #solo_hover_now[2]
 
 
-# In[4]:
+# In[7]:
 
 
 fig = go.Figure()
@@ -518,7 +518,7 @@ fig.add_trace(go.Scatter3d(x=[bepi['x'][bepi_timeind]/au], y=[bepi['y'][bepi_tim
 
     
     
-fig.show()        
+if sys.platform == 'darwin': fig.show()        
 
 fig.write_html(f'results/positions/position_3D.html')
 
