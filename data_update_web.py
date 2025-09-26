@@ -20,14 +20,14 @@
 # 
 # 
 
-# In[8]:
+# In[10]:
 
 
 #switches
 debug_mode=0
 
 #switches
-get_noaa=0
+get_noaa=1
 get_stereoa=1
 
 
