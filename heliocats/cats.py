@@ -1163,8 +1163,17 @@ def get_cat_parameters(sc, sci, ic, name):
     
     for i in np.arange(len(sci))-1:
     
-        #MO B_max
+    
+        #print(i)
+        
+        #MO B_max                
+        #print(ic.mo_start_time[sci[i]] )
+        #print(mo_start_ind[i])
+        #print(mo_end_ind[i])
+        
         ic.at[sci[i],'mo_bmax']=np.round(np.nanmax(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)
+        
+        
     
         #MO B_mean
         ic.at[sci[i],'mo_bmean']=np.round(np.nanmean(sc.bt[mo_start_ind[i]:mo_end_ind[i]]),1)

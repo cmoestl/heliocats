@@ -186,7 +186,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind 
 
-# In[ ]:
+# In[5]:
 
 
 if debug_mode > 0: 
@@ -249,14 +249,12 @@ if get_noaa > 0:
         urllib.request.urlretrieve(dst, noaa_path+'dst/dst-7-day_'+datestr+'.json')
         print(noaa_path+'dst/dst-7-day_'+datestr+'.json')
     except urllib.error.URLError as e:
-        print(' ', dst,' ',e.reason)
-        
+        print(' ', dst,' ',e.reason)        
 
     print('NOAA RTSW download complete')
         
     ## SAVE NOAA DATA AS PICKLE, dst as extra file
-    # last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file
-    
+    # last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file    
     
     if debug_mode == 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,35)
     if debug_mode > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,3)
@@ -293,7 +291,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[ ]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -350,7 +348,7 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[ ]:
+# In[7]:
 
 
 if debug_mode > 0:     
@@ -363,7 +361,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[ ]:
+# In[8]:
 
 
 t1all = time.time()

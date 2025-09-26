@@ -5,7 +5,7 @@
 # 
 # Makes the interplanetary coronal mass ejection catalog ICMECAT, available at https://helioforecast.space/icmecat
 # 
-# latest release: version 2.3, released 2025 April 9, updated 2025 July 10
+# latest release: version 2.3, released 2025 April 9, updated 2025 September 30
 # 
 # **Authors**: Christian Möstl, Eva Weiler, Emma E. Davies, Austrian Space Weather Office, Geosphere Austria
 # 
@@ -27,7 +27,7 @@
 # - the solar orbiter, parker solar probe, bepicolombo and stereo-a kernel should be manually updated with every icmecat update, and the position files should be redone (currently by Emma Davies). positions can also be generated with positions.ipynb, but mainly used for the position movies
 # - use measure.ipynb to manually derive the 3 times for each ICME event
 # - manually edit the file icmecat/HELCATS_ICMECAT_v23_master.xlsx to add 3 times for each event, the event id and spacecraft name
-# - set the transition date from STEREO-A science data to beacon data manually
+# - set the transition date from STEREO-A science data to beacon data manually CHECK: use beacon for May 2024 events, science not good; later when more science data available, replace May with beacon
 # - set the switch to create_indices greater 0 and the indices will be redone for the new events so the script quickly loads the info where the ICMEs are in the data files
 # - redo the plots for a given spacecraft if there are new events
 # - for a new release, set the the last_update variable to the current date, for bigger updates, make a new version number
@@ -46,13 +46,13 @@
 # In[1]:
 
 
-last_update='2025-July-10'
+last_update='2025-September-30'
 
 #debug mode reloads the files with the functions
-debug_mode=0
+debug_mode=1
 
 #redo indices file for selected spacecraft (see cell)
-create_indices=0
+create_indices=1
 
 #define number of processes for plotting
 used=8 
@@ -62,8 +62,8 @@ used=8
 solo_plots=0
 bepi_plots=0
 psp_plots=0
-wind_plots=0
-sta_plots=0
+wind_plots=1
+sta_plots=1
 
 uly_plots=0
 juno_plots=0  
@@ -281,14 +281,13 @@ if load_data > 0:
     [sta1,hsta1]=pickle.load(open(data_path+filesta1, "rb" ) )  
     
     #beacon data
-    filesta2='stereoa_beacon_rtn_last_400days_now.p'
+    filesta2='stereoa_beacon_rtn_last_500days_now.p'
     
     [sta2,hsta2]=pickle.load(open(data_path+filesta2, "rb" ) )  
-    #cutoff with end of science data set here to April 30 deliberately bc of data gaps for May
+    #cutoff with end of science data 
+    ###  science goes to July 31 2024 currently
     
-    ### use beacon data for May events? science goes to July 31 2024
-    
-    sta2=sta2[np.where(sta2.time >= parse_time('2024-Apr-30 00:00').datetime)[0]]
+    sta2=sta2[np.where(sta2.time >= parse_time('2024-Apr-30 23:59').datetime)[0]]
 
     #make array
     sta=np.zeros(np.size(sta1.time)+np.size(sta2.time),dtype=[('time',object),('bx', float),('by', float),\
@@ -392,7 +391,7 @@ print('loading data takes', np.round((t1-t0)/60,2), 'minutes')
 
 # ## (3) make ICMECAT 
 
-# In[4]:
+# In[12]:
 
 
 if debug_mode > 0: 
@@ -446,11 +445,11 @@ if create_indices > 0:
 ####### 3b get parameters for all spacecraft one after another
 
 #missions to be updated
+ic=hc.get_cat_parameters(sta,stai,ic,'STEREO-A')
+ic=hc.get_cat_parameters(win,wini,ic,'Wind') 
 
 ic=hc.get_cat_parameters(solo,soli,ic,'SolarOrbiter')
-ic=hc.get_cat_parameters(win,wini,ic,'Wind') 
 ic=hc.get_cat_parameters(psp,pspi,ic,'PSP')
-ic=hc.get_cat_parameters(sta,stai,ic,'STEREO-A')
 ic=hc.get_cat_parameters(bepi,beci,ic,'BepiColombo')
 
 
@@ -465,7 +464,29 @@ ic=hc.get_cat_parameters(uly,ulyi,ic,'ULYSSES')
 print('done')
 
 
-# In[5]:
+# In[9]:
+
+
+start=datetime.datetime(2025,7,17)
+end=datetime.datetime(2025,7,19)
+startind=np.argmin(abs(start-sta.time))
+endind=np.argmin(abs(end-sta.time))
+
+sc=sta[startind:endind]
+
+
+# In[10]:
+
+
+plt.plot(sc.time,sc.bt)
+plt.plot(sc.time,sc.bx)
+plt.plot(sc.time,sc.by)
+plt.plot(sc.time,sc.bz)
+
+stai
+
+
+# In[ ]:
 
 
 ###### 3c make all plots if wanted
@@ -738,7 +759,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 4a save header
 
-# In[6]:
+# In[ ]:
 
 
 ######## sort ICMECAT by date
@@ -904,7 +925,7 @@ print()
 
 # ### 4b save into different formats
 
-# In[7]:
+# In[ ]:
 
 
 ########## python formats
@@ -1080,7 +1101,7 @@ print('ICMECAT saved as '+file)
 
 # ## 4c load ICMECAT pickle files
 
-# In[8]:
+# In[ ]:
 
 
 #load icmecat as pandas dataframe
@@ -1098,27 +1119,27 @@ pos2=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p',
 print('positions file loaded')
 
 
-# In[9]:
+# In[ ]:
 
 
 print(ic_pandas.keys())
 
 
 
-# In[10]:
+# In[ ]:
 
 
 ic_pandas
 
 
-# In[11]:
+# In[ ]:
 
 
 #
 ic_nprec
 
 
-# In[12]:
+# In[ ]:
 
 
 ic_nprec.icmecat_id
@@ -1126,7 +1147,7 @@ ic_nprec.icmecat_id
 
 # ## 5 plots
 
-# In[13]:
+# In[ ]:
 
 
 ic=ic_pandas
@@ -1253,7 +1274,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
 
 
-# In[14]:
+# In[ ]:
 
 
 ic=ic_pandas
@@ -1394,7 +1415,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_times_latitude_solo.png', dpi=150,bbox_inches='tight')
 
 
-# In[15]:
+# In[ ]:
 
 
 #markersize
@@ -1460,7 +1481,7 @@ plt.savefig('icmecat/icmecat_longitudes.png', dpi=150,bbox_inches='tight')
 
 # ### plotly radial distance and mean MO field
 
-# In[16]:
+# In[ ]:
 
 
 ################# 
@@ -1533,7 +1554,7 @@ fig.write_html(f'icmecat/icmecat_distance.html')
 
 # ### plotly event position in 3D
 
-# In[17]:
+# In[ ]:
 
 
 # Create polar plot
@@ -1696,7 +1717,7 @@ pio.write_image(fig, 'icmecat/icmecat_position_3D.png',scale=2, width=1500, heig
 
 # ### plotly radial distance and longitude
 
-# In[18]:
+# In[ ]:
 
 
 # Sample data
@@ -1768,7 +1789,7 @@ fig.write_html(f'icmecat/icmecat_longitudes.html')
 
 # ### 3D plotly for PSP, SolO, Bepi
 
-# In[19]:
+# In[ ]:
 
 
 #convert times to datetime
@@ -1810,7 +1831,7 @@ pspz=np.interp(psp_daily_num, pos2[0].time.astype(float), pos2[0].z)/const.au.va
     
 
 
-# In[20]:
+# In[ ]:
 
 
 # Create polar plot
@@ -1854,8 +1875,8 @@ fig.add_trace(go.Scatter3d(x=x[ibep], y=y[ibep], z=z[ibep], name='BepiColombo',m
 fig.add_trace(go.Scatter3d(x=x[iwin], y=y[iwin], z=z[iwin], name='Wind',mode='markers',marker=dict(color='mediumseagreen', size=np.log10(ic.mo_bmean[iwin])*mfac),
         hovertemplate='Wind<br>ID: %{text}', text=ic.icmecat_id[iwin] ))
 
-fig.add_trace(go.Scatter3d(x=x[ista], y=y[ista], z=z[ista], name='STEREO-A',mode='markers',marker=dict(color='red', size=np.log10(ic.mo_bmean[ista])*mfac),
-        hovertemplate='STEREO-A<br>ID: %{text}', text=ic.icmecat_id[ista] ))
+#fig.add_trace(go.Scatter3d(x=x[ista], y=y[ista], z=z[ista], name='STEREO-A',mode='markers',marker=dict(color='red', size=np.log10(ic.mo_bmean[ista])*mfac),
+#        hovertemplate='STEREO-A<br>ID: %{text}', text=ic.icmecat_id[ista] ))
 
 
 ############# add Sun
@@ -2042,7 +2063,7 @@ pio.write_image(fig, 'icmecat/icmecat_orbit_3D_solo.png',scale=1, width=1500, he
 
 # ## Parameter distribution plots near 1 AU
 
-# In[21]:
+# In[ ]:
 
 
 #make distribution plots
@@ -2108,7 +2129,7 @@ plt.tight_layout()
 plt.savefig('icmecat/icmecat_parameter_distribution.png', dpi=150,bbox_inches='tight')
 
 
-# In[22]:
+# In[ ]:
 
 
 t1all = time.time()
@@ -2138,7 +2159,7 @@ print('the full ICMECAT takes', np.round((t1all-t0all)/60,2), 'minutes')
 # 
 # #### check number of plots
 
-# In[23]:
+# In[ ]:
 
 
 files = os.listdir('icmecat/plots_icmecat')
@@ -2149,6 +2170,12 @@ fnames=[os.path.join(data_path, f) for f in files]
 print(len(fnames)-1)
 
 print(len(ic))
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
