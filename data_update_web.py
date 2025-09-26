@@ -20,7 +20,7 @@
 # 
 # 
 
-# In[7]:
+# In[1]:
 
 
 #switches
@@ -286,8 +286,8 @@ print(' ')
 print('------ STEREO-A beacon data ')
 
 #define filename
-file_sta_beacon_rtn='stereoa_beacon_rtn_last_400days_now.p'   
-file_sta_beacon_gsm='stereoa_beacon_gsm_last_400days_now.p'   
+file_sta_beacon_rtn='stereoa_beacon_rtn_last_500days_now.p'   
+file_sta_beacon_gsm='stereoa_beacon_gsm_last_500days_now.p'   
 
 
 if get_stereoa > 0:
@@ -297,9 +297,9 @@ if get_stereoa > 0:
     hd.stereoa_download_beacon(start=datetime.datetime.utcnow()-datetime.timedelta(days=30),end=datetime.datetime.utcnow(),stereoa_path=stereoa_path)   
     print(' ')
 
-    print('--- process STEREO-A beacon data to pickle last 400 days') 
+    print('--- process STEREO-A beacon data to pickle last 500 days') 
     #save pickle file
-    hd.save_stereoa_beacon_data(data_path,stereoa_path,file_sta_beacon_rtn,file_sta_beacon_gsm,datetime.datetime.utcnow()-datetime.timedelta(days=400),datetime.datetime.utcnow(),coord='RTN' )   
+    hd.save_stereoa_beacon_data(data_path,stereoa_path,file_sta_beacon_rtn,file_sta_beacon_gsm,datetime.datetime.utcnow()-datetime.timedelta(days=500),datetime.datetime.utcnow(),coord='RTN' )   
     
 #plot
   
@@ -324,7 +324,7 @@ print()
 print('STEREO-A beacon downloading last 30 days, save as pickle last 400 days and plotting takes', np.round(t1-t0,2), 'seconds')
 
 
-# In[ ]:
+# In[6]:
 
 
 t1all = time.time()
@@ -338,13 +338,19 @@ print('-------------------------------------------------------------------------
 
 
 
-# In[ ]:
+# In[7]:
 
 
 #also make the last 2500 files, 3900 available in total
 filenoaa2='noaa_rtsw_last_2500files_now.p'
 filedst2='noaa_dst_last_2500_now.p'    
 hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa2,filedst2,2500)
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
