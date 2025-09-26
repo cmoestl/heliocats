@@ -20,14 +20,14 @@
 # 
 # 
 
-# In[1]:
+# In[2]:
 
 
 #switches
 debug_mode=0
 
 #switches
-get_noaa=1
+get_noaa=0
 get_stereoa=1
 
 
@@ -79,7 +79,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[2]:
+# In[3]:
 
 
 if sys.platform == 'linux': 
@@ -133,7 +133,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[3]:
+# In[4]:
 
 
 #if debug_mode > 0: 
@@ -173,7 +173,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind and Dst
 
-# In[4]:
+# In[ ]:
 
 
 if debug_mode > 0: 
