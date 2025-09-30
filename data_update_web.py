@@ -20,7 +20,7 @@
 # 
 # 
 
-# In[10]:
+# In[1]:
 
 
 #switches
@@ -79,7 +79,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[3]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -133,7 +133,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions and SDO plot
 
-# In[4]:
+# In[3]:
 
 
 #if debug_mode > 0: 
@@ -173,7 +173,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind and Dst
 
-# In[ ]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -186,8 +186,8 @@ print('------ NOAA real time solar wind data ')
 #test execution times
 t0 = time.time()
 
-filenoaa='noaa_rtsw_last_300files_now.p'
-filedst='noaa_dst_last_300files_now.p'
+filenoaa='noaa_rtsw_last_2_years_now.p'
+filedst='noaa_dst_last_2_years_now.p'
 
 
 if get_noaa > 0:
@@ -237,8 +237,8 @@ if get_noaa > 0:
     ## SAVE NOAA DATA AS PICKLE, dst as extra file
     # last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file
     
-    #make the last 300 files
-    hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,300)
+    #make a file for the last 2 years, ephemerides on server available from 2023 August 7
+    hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,2*365)
     
     
     print('NOAA RTSW saved as pickle file complete')
@@ -264,7 +264,7 @@ hp.plot_insitu_update_noaa_rtsw(noaa, start, end,'NOAA_RTSW',plot_path+'noaa/',n
 t1 = time.time()
 
 print()
-print('NOAA download latest file, save as pickle last 300 files and plotting takes', np.round(t1-t0,2), 'seconds')
+print('NOAA download latest file, save as pickle 2 years files and plotting takes', np.round(t1-t0,2), 'seconds')
 
     
 
