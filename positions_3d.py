@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[10]:
+# In[11]:
 
 
 #switches
@@ -81,13 +81,13 @@ os.system('jupyter nbconvert --to script positions_3d.ipynb')
 clock_start = time.time()
 
 
-# In[2]:
+# In[12]:
 
 
 [psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune,l4,l5]=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p', "rb" ) )   
 
 
-# In[3]:
+# In[13]:
 
 
 time1=mdates.date2num(datetime.datetime.utcnow())
@@ -234,7 +234,7 @@ bepi_hover_now=np.stack((np.round(bepi['r'][bepi_timeind],3),
 #solo_hover_now[2]
 
 
-# In[9]:
+# In[14]:
 
 
 fig = go.Figure()
@@ -530,7 +530,7 @@ fig.write_html(f'results/positions/position_3D.html')
 ##pio.write_image(fig, 'results/positions/position_3D.png',scale=2, width=1500, height=850)
 
 
-# In[5]:
+# In[15]:
 
 
 clock_end = time.time()
