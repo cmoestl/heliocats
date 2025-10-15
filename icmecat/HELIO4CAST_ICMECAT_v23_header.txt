@@ -2,7 +2,7 @@ ICME CATALOGUE v2.3
 
 This is the HELIO4CAST interplanetary coronal mass ejection (ICME) catalog, based on in situ magnetic field and bulk plasma observations in the heliosphere. 
 
-This is version 2.3, released 2025-April-9, updated 2025-September-30, doi: 10.6084/m9.figshare.6356420 
+This is version 2.3, released 2025-April-9, updated 2025-October-15, doi: 10.6084/m9.figshare.6356420 
 
 Rules: If results are produced with this catalog for peer-reviewed scientific publications, please contact chris.moestl@outlook.com for possible co-authorship. 
 References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017SW001614) and Moestl et al. 2020 (https://doi.org/10.3847/1538-4357/abb9a1).  
@@ -10,7 +10,7 @@ References for this catalog are Moestl et al. 2017 (https://doi.org/10.1002/2017
 The catalog is available as a python pandas dataframe (pickle), python numpy structured array (pickle), json, csv, xlsx, txt, hdf5, at 
 https://helioforecast.space/icmecat 
 
-Number of events in ICMECAT: 1975 
+Number of events in ICMECAT: 1976 
 ICME observatories: Solar Orbiter, Parker Solar Probe (PSP), BepiColombo, Wind, STEREO-A, Juno, MAVEN, STEREO-B, Venus Express (VEX), MESSENGER, Ulysses.   
 Time range: 1990-12 to 2025-08 
  
