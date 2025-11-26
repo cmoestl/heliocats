@@ -8,7 +8,7 @@
 # 
 # last update: November 2025
 # 
-# - Issues: add times on the trajectory
+# - Issues:
 # 
 # 
 # 
@@ -17,9 +17,8 @@
 
 
 #switches
-debug_mode=0
+#debug_mode=0
 #always turn off debug mode when deploying!
-
 
 import pickle
 import importlib
@@ -29,18 +28,9 @@ import matplotlib.dates as mdates
 import sys
 import numpy as np
 import datetime
-import scipy.signal
-import urllib
-import json
 import os   
 import time
-import h5py
-import pytz
-import copy
-import cdflib
 import sunpy
-import pickle
-
 
 import plotly.graph_objects as go
 from plotly.offline import iplot, init_notebook_mode
@@ -50,10 +40,9 @@ import plotly.express as px
 pio.renderers.default = 'browser'
 
 import astropy.constants as const
-
 import astropy.units as u
+
 from heliocats import data as hd
-from heliocats import plot as hp
 
 ##### check for system type
 #server
@@ -67,13 +56,12 @@ if sys.platform =='darwin':
     get_ipython().run_line_magic('matplotlib', 'inline')
     #matplotlib.use('Agg') 
 
-au=const.au.value*1e-3
+au=const.au.value*1e-3 #au in km
 
 ################################################ CHECK  ##############################################
 
 #make sure to convert the current notebook to a script
 os.system('jupyter nbconvert --to script positions_3d.ipynb')   
-
 
 ####################################################################################################################
 
@@ -81,24 +69,23 @@ os.system('jupyter nbconvert --to script positions_3d.ipynb')
 clock_start = time.time()
 
 
+# ### load position files
+
 # In[2]:
 
 
 [psp, bepi, solo, sta, juice, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune,l4,l5]=pickle.load( open( 'results/positions/positions_2020_all_HEEQ_1h_rad_cm.p', "rb" ) )   
 
 
+# ### prepare data
+
 # In[3]:
 
 
 time1=mdates.date2num(datetime.datetime.utcnow())
 
-
 #override current date
 #time1=mdates.date2num(datetime.datetime(2028,1,1))
-
-
-#psp['time']
-#psp_timeind:psp_timeind+fadeind
 
 fadeind=24*80 #80 days for 1 hour resolution
 
@@ -115,12 +102,8 @@ solo_timeind=np.argmin(abs(dct))
 dct=time1-juice.time
 juice_timeind=np.argmin(abs(dct))
 
-
 dct=time1-earth.time
 earth_timeind=np.argmin(abs(dct))
-
-#dct=time1-l1.time
-#l1_timeind=np.argmin(abs(dct))
 
 dct=time1-venus.time
 venus_timeind=np.argmin(abs(dct))
@@ -130,7 +113,6 @@ mars_timeind=np.argmin(abs(dct))
 
 dct=time1-jupiter.time
 jupiter_timeind=np.argmin(abs(dct))
-
 
 dct=time1-mercury.time
 mercury_timeind=np.argmin(abs(dct))
@@ -143,112 +125,106 @@ l4_timeind=np.argmin(abs(dct))
 
 dct=time1-l5.time
 l5_timeind=np.argmin(abs(dct))
-#solo['x'][solo_timeind]/au
-#solo['y'][solo_timeind]/au
-#solo['z'][solo_timeind]/au
+
+#dct=time1-l1.time
+#l1_timeind=np.argmin(abs(dct))
+
 
 #current frame time
 frame_time=mdates.num2date(earth['time'][earth_timeind])
+
+#convert for plotting the time along the past and future trajectories
 solo_time=mdates.num2date(solo.time)
+psp_time=mdates.num2date(psp.time)
+bepi_time=mdates.num2date(bepi.time)
+sta_time=mdates.num2date(sta.time)
 
 
-# In[6]:
-
-
-##need to make custom data for plotting the position for the position cutout converted to spherical coordinates
-##### **** add times here
-
-#for future times
-#solo_hover=np.stack((np.round(solo['r'][solo_timeind:solo_timeind+fadeind],3), 
-#                     np.round(np.rad2deg(solo['lon'][solo_timeind:solo_timeind+fadeind]),1),
-#                     np.round(np.rad2deg(solo['lat'][solo_timeind:solo_timeind+fadeind]),1)), axis=-1)
-
+####################### SOLAR ORBITER
 #for future times
 solo_hover=np.stack((np.round(solo['r'][solo_timeind:solo_timeind+fadeind],3), 
                      np.round(np.rad2deg(solo['lon'][solo_timeind:solo_timeind+fadeind]),1),
                      np.round(np.rad2deg(solo['lat'][solo_timeind:solo_timeind+fadeind]),1),solo_time[solo_timeind:solo_timeind+fadeind]),axis=-1)
 
-
 #for past
 solo_hover_past=np.stack((np.round(solo['r'][solo_timeind-fadeind:solo_timeind],3), 
                      np.round(np.rad2deg(solo['lon'][solo_timeind-fadeind:solo_timeind]),1),
                      np.round(np.rad2deg(solo['lat'][solo_timeind-fadeind:solo_timeind]),1),solo_time[solo_timeind-fadeind:solo_timeind]), axis=-1)
-
 #for now
 solo_hover_now=np.stack((np.round(solo['r'][solo_timeind],3), 
                      np.round(np.rad2deg(solo['lon'][solo_timeind]),1),
-                     np.round(np.rad2deg(solo['lat'][solo_timeind]),1)), axis=-1)
+                     np.round(np.rad2deg(solo['lat'][solo_timeind]),1),solo_time[solo_timeind]), axis=-1)
 
 
+###################### PSP
 #for future times
 psp_hover=np.stack((np.round(psp['r'][psp_timeind:psp_timeind+fadeind],3), 
                      np.round(np.rad2deg(psp['lon'][psp_timeind:psp_timeind+fadeind]),1),
-                     np.round(np.rad2deg(psp['lat'][psp_timeind:psp_timeind+fadeind]),1)), axis=-1)
+                     np.round(np.rad2deg(psp['lat'][psp_timeind:psp_timeind+fadeind]),1),psp_time[psp_timeind:psp_timeind+fadeind]), axis=-1)
 
 #for past
 psp_hover_past=np.stack((np.round(psp['r'][psp_timeind-fadeind:psp_timeind],3), 
                      np.round(np.rad2deg(psp['lon'][psp_timeind-fadeind:psp_timeind]),1),
-                     np.round(np.rad2deg(psp['lat'][psp_timeind-fadeind:psp_timeind]),1)), axis=-1)
+                     np.round(np.rad2deg(psp['lat'][psp_timeind-fadeind:psp_timeind]),1),psp_time[psp_timeind-fadeind:psp_timeind]), axis=-1)
 
 #for now
 psp_hover_now=np.stack((np.round(psp['r'][psp_timeind],3), 
                      np.round(np.rad2deg(psp['lon'][psp_timeind]),1),
-                     np.round(np.rad2deg(psp['lat'][psp_timeind]),1)), axis=-1)
+                     np.round(np.rad2deg(psp['lat'][psp_timeind]),1),psp_time[psp_timeind]), axis=-1)
 
 
-
+##################### STEREO-A
 #for future times
 sta_hover=np.stack((np.round(sta['r'][sta_timeind:sta_timeind+fadeind],3), 
                      np.round(np.rad2deg(sta['lon'][sta_timeind:sta_timeind+fadeind]),1),
-                     np.round(np.rad2deg(sta['lat'][sta_timeind:sta_timeind+fadeind]),1)), axis=-1)
+                     np.round(np.rad2deg(sta['lat'][sta_timeind:sta_timeind+fadeind]),1),sta_time[sta_timeind:sta_timeind+fadeind]), axis=-1)
 
 #for past
 sta_hover_past=np.stack((np.round(sta['r'][sta_timeind-fadeind:sta_timeind],3), 
                      np.round(np.rad2deg(sta['lon'][sta_timeind-fadeind:sta_timeind]),1),
-                     np.round(np.rad2deg(sta['lat'][sta_timeind-fadeind:sta_timeind]),1)), axis=-1)
+                     np.round(np.rad2deg(sta['lat'][sta_timeind-fadeind:sta_timeind]),1),sta_time[sta_timeind-fadeind:sta_timeind]), axis=-1)
 
 #for now
 sta_hover_now=np.stack((np.round(sta['r'][sta_timeind],3), 
                      np.round(np.rad2deg(sta['lon'][sta_timeind]),1),
-                     np.round(np.rad2deg(sta['lat'][sta_timeind]),1)), axis=-1)
+                     np.round(np.rad2deg(sta['lat'][sta_timeind]),1),sta_time[sta_timeind]), axis=-1)
 
 
-
-
+#################### BEPI COLOMBO
 #for future times
 bepi_hover=np.stack((np.round(bepi['r'][bepi_timeind:bepi_timeind+fadeind],3), 
                      np.round(np.rad2deg(bepi['lon'][bepi_timeind:bepi_timeind+fadeind]),1),
-                     np.round(np.rad2deg(bepi['lat'][bepi_timeind:bepi_timeind+fadeind]),1)), axis=-1)
+                     np.round(np.rad2deg(bepi['lat'][bepi_timeind:bepi_timeind+fadeind]),1),bepi_time[bepi_timeind:bepi_timeind+fadeind]), axis=-1)
 
 #for past
 bepi_hover_past=np.stack((np.round(bepi['r'][bepi_timeind-fadeind:bepi_timeind],3), 
                      np.round(np.rad2deg(bepi['lon'][bepi_timeind-fadeind:bepi_timeind]),1),
-                     np.round(np.rad2deg(bepi['lat'][bepi_timeind-fadeind:bepi_timeind]),1)), axis=-1)
+                     np.round(np.rad2deg(bepi['lat'][bepi_timeind-fadeind:bepi_timeind]),1),bepi_time[bepi_timeind-fadeind:bepi_timeind]), axis=-1)
 
 #for now
 bepi_hover_now=np.stack((np.round(bepi['r'][bepi_timeind],3), 
                      np.round(np.rad2deg(bepi['lon'][bepi_timeind]),1),
-                     np.round(np.rad2deg(bepi['lat'][bepi_timeind]),1)), axis=-1)
-
+                     np.round(np.rad2deg(bepi['lat'][bepi_timeind]),1),bepi_time[bepi_timeind]), axis=-1)
 
 
 #solo_hover2=np.stack((solo['r'], np.rad2deg(solo['lon']),np.rad2deg(solo['lat'])), axis=-1)
-
-
 #print(solo_hover_now)
 #solo_hover_now[2]
 
 
-# In[10]:
+# ### Make figure
+
+# In[4]:
 
 
 fig = go.Figure()
 
 mfac=15
-sunsize=8
-planetsize=3
+sunsize=5 #solar radii
+planetsize=3 #solar radii, Earth size
 
-############# add Sun
+######################### SUN AND PLANETS
+
 # Create data for a sphere
 theta = np.linspace(0, np.pi, 100)
 phi = np.linspace(0, 2*np.pi, 100)
@@ -261,47 +237,29 @@ r = (700*1e3)/(149.5*1e6)*sunsize
 # Create 3D surface plot
 
 #Sun
-fig.add_trace(go.Surface(x=x, y=y,z=z, colorscale='hot', showscale=False, name='5 R_Sun'))
+fig.add_trace(go.Surface(x=x, y=y,z=z, colorscale='hot', showscale=False, name='5 R_Sun')) #5 solar radii
 
 #Earth
-r = (700*1e3)/(149.5*1e6)*planetsize # 1 solar radii
+r = (700*1e3)/(149.5*1e6)*planetsize # 3 solar radii
 [x,y,z]=hd.sphere2cart(r, theta,phi)
-fig.add_trace(go.Surface(x=x+earth['x'][earth_timeind]/au, y=y+earth['y'][earth_timeind]/au,z=z+earth['z'][earth_timeind]/au, colorscale='blugrn', showscale=False, name='Earth'))
+fig.add_trace(go.Surface(x=x+earth['x'][earth_timeind]/au, y=y+earth['y'][earth_timeind]/au,z=z+earth['z'][earth_timeind]/au, colorscale='Blues', showscale=False, name='Earth'))
 
 #mercury
-r = (700*1e3)/(149.5*1e6)*planetsize  # 1 solar radii
+r = (700*1e3)/(149.5*1e6)*planetsize*2440/6371  # 3 solar radii times factor relative to Earth
 [x,y,z]=hd.sphere2cart(r, theta,phi)
-fig.add_trace(go.Surface(x=x+mercury['x'][mercury_timeind]/au, y=y+mercury['y'][mercury_timeind]/au,z=z+mercury['z'][mercury_timeind]/au, colorscale='algae', showscale=False, name='Mercury'))
+fig.add_trace(go.Surface(x=x+mercury['x'][mercury_timeind]/au, y=y+mercury['y'][mercury_timeind]/au,z=z+mercury['z'][mercury_timeind]/au, colorscale='gray', showscale=False, name='Mercury'))
 
 #venus
-r = (700*1e3)/(149.5*1e6)*planetsize  # 1 solar radii
+r = (700*1e3)/(149.5*1e6)*planetsize*6052/6371 # 3 solar radii times factor relative to Earth
 [x,y,z]=hd.sphere2cart(r, theta,phi)
 fig.add_trace(go.Surface(x=x+venus['x'][venus_timeind]/au, y=y+venus['y'][venus_timeind]/au,z=z+venus['z'][venus_timeind]/au, colorscale='solar', showscale=False, name='Venus'))
 
 #mars
-r = (700*1e3)/(149.5*1e6)*planetsize  # 1 solar radii
+r = (700*1e3)/(149.5*1e6)*planetsize*3390/6371 # 3 solar radii times factor relative to Earth
 [x,y,z]=hd.sphere2cart(r, theta,phi)
 fig.add_trace(go.Surface(x=x+mars['x'][mars_timeind]/au, y=y+mars['y'][mars_timeind]/au,z=z+mars['z'][mars_timeind]/au, colorscale='magma', showscale=False, name='Mars'))
 
-
-#   ['aggrnyl', 'agsunset', 'algae', 'amp', 'armyrose', 'balance',
-#             'blackbody', 'bluered', 'blues', 'blugrn', 'bluyl', 'brbg',
-#             'brwnyl', 'bugn', 'bupu', 'burg', 'burgyl', 'cividis', 'curl',
-#             'darkmint', 'deep', 'delta', 'dense', 'earth', 'edge', 'electric',
-#             'emrld', 'fall', 'geyser', 'gnbu', 'gray', 'greens', 'greys',
-#             'haline', 'hot', 'hsv', 'ice', 'icefire', 'inferno', 'jet',
-#             'magenta', 'magma', 'matter', 'mint', 'mrybm', 'mygbm', 'oranges',
-#             'orrd', 'oryel', 'oxy', 'peach', 'phase', 'picnic', 'pinkyl',
-#             'piyg', 'plasma', 'plotly3', 'portland', 'prgn', 'pubu', 'pubugn',
-#             'puor', 'purd', 'purp', 'purples', 'purpor', 'rainbow', 'rdbu',
-#             'rdgy', 'rdpu', 'rdylbu', 'rdylgn', 'redor', 'reds', 'solar',
-#             'spectral', 'speed', 'sunset', 'sunsetdark', 'teal', 'tealgrn',
-#             'tealrose', 'tempo', 'temps', 'thermal', 'tropic', 'turbid',
-#             'turbo', 'twilight', 'viridis', 'ylgn', 'ylgnbu', 'ylorbr',
-#             'ylorrd'].
-
-
-################### add circle at 1 AU
+################### add solar system geometries
 
 gridc='white'
 num_points = 100
@@ -319,22 +277,21 @@ fig.add_trace(go.Scatter3d(
     line=dict(color=gridc, width=1)
 ))
 
+fig.add_trace(go.Scatter3d(
+    x=x_values*0.86,
+    y=y_values*0.86,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='0.86 AU',
+    line=dict(color=gridc, width=1)
+))
 
 fig.add_trace(go.Scatter3d(
-    x=x_values*0.7,
-    y=y_values*0.7,
+    x=x_values*0.72,
+    y=y_values*0.72,
     z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
     mode='lines', name='0.7 AU',
     line=dict(color=gridc, width=1)
 ))
-
-#fig.add_trace(go.Scatter3d(
-#    x=x_values*0.5,
-#    y=y_values*0.5,
-#    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
-#    mode='lines', name='0.5 AU',
-#    line=dict(color=gridc, width=1)
-#))
 
 fig.add_trace(go.Scatter3d(
     x=x_values*0.3,
@@ -344,100 +301,52 @@ fig.add_trace(go.Scatter3d(
     line=dict(color=gridc, width=1)
 ))
 
-#fig.add_trace(go.Scatter3d(
-#    x=x_values*0.1,
-#    y=y_values*0.1,
-#    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
-#    mode='lines', name='0.1 AU',
-#    line=dict(color=gridc, width=1)
-#))
+fig.add_trace(go.Scatter3d(
+    x=x_values*0.1,
+    y=y_values*0.1,
+    z=np.zeros(num_points),  # Set z-values to zero for 2D appearance
+    mode='lines', name='0.1 AU',
+    line=dict(color=gridc, width=1)
+))
 
-
-#add Sun-Earth line for HEEQ latitude 0
+#add Sun- 1 AU line for HEEQ latitude 0
 fig.add_trace(go.Scatter3d(
     x=np.linspace(0,1,num_points),
     y=np.zeros(num_points),
     z=np.zeros(num_points), 
-    mode='lines', name='Sun-Earth line',
+    mode='lines', name='Sun-1 AU line',
     line=dict(color=gridc, width=1)
 ))
 
 
-
-zoom=1.0
-
-fig.update_layout(
-    scene=dict( aspectmode='data',
-        camera=dict(
-            eye=dict(x=0, y=-zoom, z=zoom),  # Set the position of the camera
-            center=dict(x=0, y=0, z=0),      # Set the point the camera is looking at
-            up=dict(x=0, y=0, z=1),          # Set the up vector of the camera
+#add L5
+fig.add_trace(go.Scatter3d(
+    x=[l5['x'][l5_timeind]/au],
+    y=[l5['y'][l5_timeind]/au],
+    z=[l5['z'][l5_timeind]/au], 
+    mode='markers', name='L5',
+    marker=dict(
+        size=7,
+        symbol='diamond', 
+        color=['gold', 'yellow'],
+        )
     ))
-)
 
 
-# Update layout for black background and styling
-fig.update_layout(
-    title='Spacecraft positions '+frame_time.strftime('%Y %b %d %H:00 UTC'),
-    scene=dict(
-        xaxis=dict(title='X [HEEQ]', gridcolor='#444', zerolinecolor='#666', backgroundcolor='black'),
-        yaxis=dict(title='Y [HEEQ]', gridcolor='#444', zerolinecolor='#666', backgroundcolor='black'),
-        zaxis=dict(title='Z [HEEQ]', gridcolor='#444', zerolinecolor='#666', backgroundcolor='black'),
-        bgcolor='black'
-    ),
-    paper_bgcolor='black',
-    plot_bgcolor='black',
-    font=dict(color='white'),
-    margin=dict(l=0, r=0, t=50, b=0)
-)
+#add L4
+fig.add_trace(go.Scatter3d(
+    x=[l4['x'][l4_timeind]/au],
+    y=[l4['y'][l4_timeind]/au],
+    z=[l4['z'][l4_timeind]/au], 
+    mode='markers', name='L4',
+    marker=dict(
+        size=7,
+        symbol='diamond', 
+        color=['purple', 'blue'],
+        )
+    ))   
 
-
-
-msize=5
-
-
-##### Orbits
-
-# SOLO 
-fig.add_trace(go.Scatter3d(x=solo['x'][solo_timeind:solo_timeind+fadeind]/au, y=solo['y'][solo_timeind:solo_timeind+fadeind]/au, 
-                           z=solo['z'][solo_timeind:solo_timeind+fadeind]/au, name='Solar Orbiter',mode='lines',line=dict(color='lightgreen', width=3),
-                           customdata=solo_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}'  ))
-
-fig.add_trace(go.Scatter3d(x=solo['x'][solo_timeind-fadeind:solo_timeind]/au, y=solo['y'][solo_timeind-fadeind:solo_timeind]/au, 
-                           z=solo['z'][solo_timeind-fadeind:solo_timeind]/au, name='Solar Orbiter',mode='lines',line=dict(color='lightgreen', dash='dash' , width=3), 
-                           customdata=solo_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}', showlegend=False))
-
-#PSP
-fig.add_trace(go.Scatter3d(x=psp['x'][psp_timeind:psp_timeind+fadeind]/au, y=psp['y'][psp_timeind:psp_timeind+fadeind]/au, 
-                           z=psp['z'][psp_timeind:psp_timeind+fadeind]/au, name='PSP',mode='lines',line=dict(color='white', width=3),
-                           customdata=psp_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°'  ))
-
-fig.add_trace(go.Scatter3d(x=psp['x'][psp_timeind-fadeind:psp_timeind]/au, y=psp['y'][psp_timeind-fadeind:psp_timeind]/au, 
-                           z=psp['z'][psp_timeind-fadeind:psp_timeind]/au, name='PSP',mode='lines',line=dict(color='white',dash='dash', width=3),
-                           customdata=psp_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°', showlegend=False))
-
-#Bepi
-fig.add_trace(go.Scatter3d(x=bepi['x'][bepi_timeind:bepi_timeind+fadeind]/au, y=bepi['y'][bepi_timeind:bepi_timeind+fadeind]/au, 
-                           z=bepi['z'][bepi_timeind:bepi_timeind+fadeind]/au, name='BepiColombo',mode='lines',line=dict(color='lightskyblue', width=3),
-                           customdata=bepi_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°'  ))
-
-fig.add_trace(go.Scatter3d(x=bepi['x'][bepi_timeind-fadeind:bepi_timeind]/au, y=bepi['y'][bepi_timeind-fadeind:bepi_timeind]/au, 
-                           z=bepi['z'][bepi_timeind-fadeind:bepi_timeind]/au, name='BepiColomb',mode='lines',line=dict(color='lightskyblue',dash='dash', width=3), 
-                           customdata=bepi_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°',showlegend=False))
-
-#STEREO-A
-fig.add_trace(go.Scatter3d(x=sta['x'][sta_timeind:sta_timeind+fadeind]/au, y=sta['y'][sta_timeind:sta_timeind+fadeind]/au, 
-                           z=sta['z'][sta_timeind:sta_timeind+fadeind]/au, name='STEREO-A',mode='lines',line=dict(color='tomato', width=3),
-                           customdata=sta_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°',showlegend=False))
-
-fig.add_trace(go.Scatter3d(x=sta['x'][sta_timeind-fadeind:sta_timeind]/au, y=sta['y'][sta_timeind-fadeind:sta_timeind]/au, 
-                           z=sta['z'][sta_timeind-fadeind:sta_timeind]/au, name='STEREO-A',mode='lines',line=dict(color='tomato',dash='dash', width=3), 
-                           customdata=sta_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°',showlegend=False))
-
-
-
-
-#parker spiral
+######################### parker spiral
 res_in_days=1/24
 k=0
 sun_rot=26.24
@@ -464,86 +373,108 @@ for i in np.arange(0,12):
    
    
 
-#### spacecraft
+
+msize=5  #markersize
+
+################### Orbits future and past
+
+# SOLO 
+fig.add_trace(go.Scatter3d(x=solo['x'][solo_timeind:solo_timeind+fadeind]/au, y=solo['y'][solo_timeind:solo_timeind+fadeind]/au, 
+                           z=solo['z'][solo_timeind:solo_timeind+fadeind]/au, name='Solar Orbiter',mode='lines',line=dict(color='lightgreen', width=3),
+                           customdata=solo_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False  ))
+
+fig.add_trace(go.Scatter3d(x=solo['x'][solo_timeind-fadeind:solo_timeind]/au, y=solo['y'][solo_timeind-fadeind:solo_timeind]/au, 
+                           z=solo['z'][solo_timeind-fadeind:solo_timeind]/au, name='Solar Orbiter',mode='lines',line=dict(color='lightgreen', dash='dash' , width=3), 
+                           customdata=solo_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}', showlegend=False))
+
+#PSP
+fig.add_trace(go.Scatter3d(x=psp['x'][psp_timeind:psp_timeind+fadeind]/au, y=psp['y'][psp_timeind:solo_timeind+fadeind]/au, 
+                           z=psp['z'][psp_timeind:psp_timeind+fadeind]/au, name='PSP',mode='lines',line=dict(color='white', width=3),
+                           customdata=psp_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False  ))
+
+fig.add_trace(go.Scatter3d(x=psp['x'][psp_timeind-fadeind:psp_timeind]/au, y=psp['y'][psp_timeind-fadeind:psp_timeind]/au, 
+                           z=psp['z'][psp_timeind-fadeind:psp_timeind]/au, name='PSP',mode='lines',line=dict(color='white', dash='dash' , width=3), 
+                           customdata=psp_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}', showlegend=False))
+
+#Bepi
+fig.add_trace(go.Scatter3d(x=bepi['x'][bepi_timeind:bepi_timeind+fadeind]/au, y=bepi['y'][bepi_timeind:bepi_timeind+fadeind]/au, 
+                           z=bepi['z'][bepi_timeind:bepi_timeind+fadeind]/au, name='BepiColombo',mode='lines',line=dict(color='lightskyblue', width=3),
+                           customdata=bepi_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False  ))
+
+fig.add_trace(go.Scatter3d(x=bepi['x'][bepi_timeind-fadeind:bepi_timeind]/au, y=bepi['y'][bepi_timeind-fadeind:bepi_timeind]/au, 
+                           z=bepi['z'][bepi_timeind-fadeind:bepi_timeind]/au, name='BepiColomb',mode='lines',line=dict(color='lightskyblue',dash='dash', width=3), 
+                           customdata=bepi_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False))
+
+#STEREO-A
+fig.add_trace(go.Scatter3d(x=sta['x'][sta_timeind:sta_timeind+fadeind]/au, y=sta['y'][sta_timeind:sta_timeind+fadeind]/au, 
+                           z=sta['z'][sta_timeind:sta_timeind+fadeind]/au, name='STEREO-A',mode='lines',line=dict(color='tomato', width=3),
+                           customdata=sta_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False))
+
+fig.add_trace(go.Scatter3d(x=sta['x'][sta_timeind-fadeind:sta_timeind]/au, y=sta['y'][sta_timeind-fadeind:sta_timeind]/au, 
+                           z=sta['z'][sta_timeind-fadeind:sta_timeind]/au, name='STEREO-A',mode='lines',line=dict(color='tomato',dash='dash', width=3), 
+                           customdata=sta_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False))
+
+
+
+#### spacecraft positions
 
 fig.add_trace(go.Scatter3d(x=[solo['x'][solo_timeind]/au], y=[solo['y'][solo_timeind]/au], z=[solo['z'][solo_timeind]/au], name='Solar Orbiter',
         mode='markers',marker=dict(color='lightgreen', size=msize, symbol=['square']),
-        customdata=[solo_hover_now],hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}° '+'<extra></extra>'))
-                           
-#                           customdata
-#                   hovertemplate='<b>%{customdata[1]}</b><br>' +
-#                  'Date: %{x}<br>' +
-#                  'Temperature: %{y}°C<br>' +
-#                  'Humidity: %{customdata[0]}%<br>' +
-#                  'Weather: %{text}<br>' +
-#                  '<extra></extra>'
-                         
-                           
-                           
-#                           hovertemplate='Solar Orbiter %{text}',
-#              text=[np.round(solo['r'][solo_timeind],2)+' '+solo['lat'][solo_timeind]+'  '+solo['lon'][solo_timeind] ] ))
-
+        customdata=[solo_hover_now],hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]} '+'<extra></extra>'))
 
 fig.add_trace(go.Scatter3d(x=[psp['x'][psp_timeind]/au], y=[psp['y'][psp_timeind]/au], z=[psp['z'][psp_timeind]/au], name='PSP',
-    mode='markers',marker=dict(color='white', size=msize, symbol=['square'])))
-              #hovertemplate='%{text}', text=str(psp['r'][psp_timeind])   ))
-
+        mode='markers',marker=dict(color='white', size=msize, symbol=['square']),
+        customdata=[psp_hover_now],hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]} '+'<extra></extra>'))
 
 fig.add_trace(go.Scatter3d(x=[sta['x'][sta_timeind]/au], y=[sta['y'][sta_timeind]/au], z=[sta['z'][sta_timeind]/au], name='STEREO-A',
-    mode='markers',marker=dict(color='tomato', size=msize, symbol=['square'])))
-
+        mode='markers',marker=dict(color='tomato', size=msize, symbol=['square']),
+        customdata=[sta_hover_now],hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]} '+'<extra></extra>'))
 
 fig.add_trace(go.Scatter3d(x=[bepi['x'][bepi_timeind]/au], y=[bepi['y'][bepi_timeind]/au], z=[bepi['z'][bepi_timeind]/au], name='BepiColombo',
-    mode='markers',marker=dict(color='lightskyblue', size=msize,symbol=['square'])))
+        mode='markers',marker=dict(color='lightskyblue', size=msize, symbol=['square']),
+        customdata=[bepi_hover_now],hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]} '+'<extra></extra>'))
 
 
-#fig.add_trace(go.Scatter3d(x=x[iwin], y=y[iwin], z=z[iwin], name='Wind',mode='markers',marker=dict(color='mediumseagreen', size=msize) ))
-#        hovertemplate='Wind<br>ID: %{text}', text=ic.icmecat_id[iwin] ))
+######## set camera position
+zoom=1.0
+fig.update_layout(
+    scene=dict( aspectmode='data',
+        camera=dict(
+            eye=dict(x=0, y=-zoom, z=zoom),  # Set the position of the camera
+            center=dict(x=0, y=0, z=0),      # Set the point the camera is looking at
+            up=dict(x=0, y=0, z=1),          # Set the up vector of the camera
+    ))
+)
 
-#fig.add_trace(go.Scatter3d(x=x[ista], y=y[ista], z=z[ista], name='STEREO-A',mode='markers',marker=dict(color='red', size=msize) ))
-#        hovertemplate='STEREO-A<br>ID: %{text}', text=ic.icmecat_id[ista] ))
+########### Update layout for black background and styling
+fig.update_layout(
+    title='Spacecraft positions '+frame_time.strftime('%Y %b %d %H:00 UTC'),
+    scene=dict(
+        xaxis=dict(title='X [HEEQ]', gridcolor='#444', zerolinecolor='#666', backgroundcolor='black'),
+        yaxis=dict(title='Y [HEEQ]', gridcolor='#444', zerolinecolor='#666', backgroundcolor='black'),
+        zaxis=dict(title='Z [HEEQ]', gridcolor='#444', zerolinecolor='#666', backgroundcolor='black'),
+        bgcolor='black'
+    ),
+    paper_bgcolor='black',
+    plot_bgcolor='black',
+    font=dict(color='white'),
+    margin=dict(l=0, r=0, t=50, b=0)
+)
 
-    
-    
-if sys.platform == 'darwin': 
-    fig.show()        
-    #save as image
-    pio.write_image(fig, 'results/positions/position_3D.png',scale=1, width=2000, height=1200)
-
+fig.show()        
+#save as image
+#pio.write_image(fig, 'results/positions/position_3D.png',scale=1, width=2000, height=1200)
 
 fig.write_html(f'results/positions/position_3D.html')
-
 
 ##pio.write_image(fig, 'results/positions/position_3D.png',scale=2, width=1500, height=850)
 
 
-# In[ ]:
+# In[5]:
 
 
 clock_end = time.time()
 print('done, all took ',np.round(clock_end - clock_start,2),' seconds.')
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[6]:
-
 
 sys.exit()
 
@@ -565,6 +496,32 @@ sys.exit()
 
 
 
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# ### tests
 
 # In[ ]:
 
