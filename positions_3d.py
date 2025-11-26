@@ -214,7 +214,7 @@ bepi_hover_now=np.stack((np.round(bepi['r'][bepi_timeind],3),
 
 # ### Make figure
 
-# In[4]:
+# In[11]:
 
 
 fig = go.Figure()
@@ -380,38 +380,38 @@ msize=5  #markersize
 
 # SOLO 
 fig.add_trace(go.Scatter3d(x=solo['x'][solo_timeind:solo_timeind+fadeind]/au, y=solo['y'][solo_timeind:solo_timeind+fadeind]/au, 
-                           z=solo['z'][solo_timeind:solo_timeind+fadeind]/au, name='Solar Orbiter',mode='lines',line=dict(color='lightgreen', width=3),
+                           z=solo['z'][solo_timeind:solo_timeind+fadeind]/au, name='Solar Orbiter',mode='lines',line=dict(color='lightgreen',dash='dash', width=3),
                            customdata=solo_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False  ))
 
 fig.add_trace(go.Scatter3d(x=solo['x'][solo_timeind-fadeind:solo_timeind]/au, y=solo['y'][solo_timeind-fadeind:solo_timeind]/au, 
-                           z=solo['z'][solo_timeind-fadeind:solo_timeind]/au, name='Solar Orbiter',mode='lines',line=dict(color='lightgreen', dash='dash' , width=3), 
+                           z=solo['z'][solo_timeind-fadeind:solo_timeind]/au, name='Solar Orbiter',mode='lines',line=dict(color='lightgreen', width=3), 
                            customdata=solo_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}', showlegend=False))
 
 #PSP
 fig.add_trace(go.Scatter3d(x=psp['x'][psp_timeind:psp_timeind+fadeind]/au, y=psp['y'][psp_timeind:solo_timeind+fadeind]/au, 
-                           z=psp['z'][psp_timeind:psp_timeind+fadeind]/au, name='PSP',mode='lines',line=dict(color='white', width=3),
+                           z=psp['z'][psp_timeind:psp_timeind+fadeind]/au, name='PSP',mode='lines',line=dict(color='white', dash='dash',width=3),
                            customdata=psp_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False  ))
 
 fig.add_trace(go.Scatter3d(x=psp['x'][psp_timeind-fadeind:psp_timeind]/au, y=psp['y'][psp_timeind-fadeind:psp_timeind]/au, 
-                           z=psp['z'][psp_timeind-fadeind:psp_timeind]/au, name='PSP',mode='lines',line=dict(color='white', dash='dash' , width=3), 
+                           z=psp['z'][psp_timeind-fadeind:psp_timeind]/au, name='PSP',mode='lines',line=dict(color='white' , width=3), 
                            customdata=psp_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}', showlegend=False))
 
 #Bepi
 fig.add_trace(go.Scatter3d(x=bepi['x'][bepi_timeind:bepi_timeind+fadeind]/au, y=bepi['y'][bepi_timeind:bepi_timeind+fadeind]/au, 
-                           z=bepi['z'][bepi_timeind:bepi_timeind+fadeind]/au, name='BepiColombo',mode='lines',line=dict(color='lightskyblue', width=3),
+                           z=bepi['z'][bepi_timeind:bepi_timeind+fadeind]/au, name='BepiColombo',mode='lines',line=dict(color='lightskyblue',dash='dash', width=3),
                            customdata=bepi_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False  ))
 
 fig.add_trace(go.Scatter3d(x=bepi['x'][bepi_timeind-fadeind:bepi_timeind]/au, y=bepi['y'][bepi_timeind-fadeind:bepi_timeind]/au, 
-                           z=bepi['z'][bepi_timeind-fadeind:bepi_timeind]/au, name='BepiColomb',mode='lines',line=dict(color='lightskyblue',dash='dash', width=3), 
+                           z=bepi['z'][bepi_timeind-fadeind:bepi_timeind]/au, name='BepiColomb',mode='lines',line=dict(color='lightskyblue', width=3), 
                            customdata=bepi_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False))
 
 #STEREO-A
 fig.add_trace(go.Scatter3d(x=sta['x'][sta_timeind:sta_timeind+fadeind]/au, y=sta['y'][sta_timeind:sta_timeind+fadeind]/au, 
-                           z=sta['z'][sta_timeind:sta_timeind+fadeind]/au, name='STEREO-A',mode='lines',line=dict(color='tomato', width=3),
+                           z=sta['z'][sta_timeind:sta_timeind+fadeind]/au, name='STEREO-A',mode='lines',line=dict(color='tomato',dash='dash', width=3),
                            customdata=sta_hover,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False))
 
 fig.add_trace(go.Scatter3d(x=sta['x'][sta_timeind-fadeind:sta_timeind]/au, y=sta['y'][sta_timeind-fadeind:sta_timeind]/au, 
-                           z=sta['z'][sta_timeind-fadeind:sta_timeind]/au, name='STEREO-A',mode='lines',line=dict(color='tomato',dash='dash', width=3), 
+                           z=sta['z'][sta_timeind-fadeind:sta_timeind]/au, name='STEREO-A',mode='lines',line=dict(color='tomato',width=3), 
                            customdata=sta_hover_past,hovertemplate='R %{customdata[0]} au<br>lon %{customdata[1]}°<br>lat %{customdata[2]}°<br>%{customdata[3]}',showlegend=False))
 
 
@@ -436,7 +436,7 @@ fig.add_trace(go.Scatter3d(x=[bepi['x'][bepi_timeind]/au], y=[bepi['y'][bepi_tim
 
 
 ######## set camera position
-zoom=1.0
+zoom=0.8
 fig.update_layout(
     scene=dict( aspectmode='data',
         camera=dict(
@@ -461,7 +461,7 @@ fig.update_layout(
     margin=dict(l=0, r=0, t=50, b=0)
 )
 
-#fig.show()        
+if sys.platform=='darwin': fig.show()        
 #save as image
 #pio.write_image(fig, 'results/positions/position_3D.png',scale=1, width=2000, height=1200)
 
