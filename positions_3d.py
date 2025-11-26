@@ -461,7 +461,7 @@ fig.update_layout(
     margin=dict(l=0, r=0, t=50, b=0)
 )
 
-fig.show()        
+#fig.show()        
 #save as image
 #pio.write_image(fig, 'results/positions/position_3D.png',scale=1, width=2000, height=1200)
 
