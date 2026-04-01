@@ -9,7 +9,7 @@
 # science examples
 # 
 
-# In[4]:
+# In[10]:
 
 
 import pickle
@@ -36,6 +36,8 @@ import plotly.io as pio
 from plotly.offline import iplot, init_notebook_mode
 import plotly.express as px
 
+
+from sunpy.time import parse_time
 
 #import geosphere colors
 import colors as c
@@ -84,7 +86,28 @@ def add_logo(location):
     
 
 
-# In[5]:
+# Tabellenüberschrift
+# 
+# Source Sans Pro Bold, 30 Px, Farbe: #052E37, RGB (5/46/55)
+# 
+# 2) Achsenbeschriftung
+# 
+# Source Sans Pro Bold, 16 Px, Farbe: #052E37, RGB (5/46/55)
+# 
+# 3) Copyrightvermerk
+# 
+# Source Sans Pro Bold, 16 Px, Farbe: #9AACAF, RGB (154/172/175)
+# 
+# wenn möglich rechts unten (kein Logo!)
+# 
+# 4) Rahmen
+# Breite: 1 Px, Farbe: #9AACAF, RGB (154/172/175)
+# Wenn Grafiken im Content eingesetzt werden und sie auf weiß auslaufen, sollte man einen entsprechenden Rahmen zur opti- schen Begrenzung anlegen. Wenn sie in einem Slider zum Ein- satz kommen, kann dieser Rahmen auch weggelassen werden, da der Slider bereits selbst durch einen Rahmen begrenzt ist.
+# 
+# 5) Achsen
+# Breite: 1 Px, Farbe: #052E37, RGB (5/46/55)
+
+# In[14]:
 
 
 sns.set_context('talk')
@@ -104,8 +127,12 @@ add_logo([0.9,0.9,0.1,0.1])
 plt.savefig(outputdir+'test.png')
 
 
-# In[5]:
+# In[23]:
 
+
+#load icmecat as pandas dataframe
+file='icmecat/HELIO4CAST_ICMECAT_v22_pandas.p'
+[ic_pandas,h,p]=pickle.load( open(file, 'rb'))   
 
 ic=ic_pandas
 
@@ -126,126 +153,217 @@ ibep=np.where(ic.sc_insitu=='BepiColombo')[0]
 iuly=np.where(ic.sc_insitu=='ULYSSES')[0]
 
 
-sns.set_context("talk")     
-sns.set_style('darkgrid')
+# ## ICME fields english
+
+# In[120]:
+
+
+sns.set_context('talk')
+sns.set_style('whitegrid')
+sns.set_style("ticks")
 
 ###############################################################################
-fig=plt.figure(3,figsize=(18,7),dpi=200)
+fig=plt.figure(3,figsize=(19.2,10.8),dpi=100,edgecolor=c.geo_green)
 
 #########################################################################
-ax1=plt.subplot(121)
-plt.title('ICMECAT event times and distance')
 
-#markersize
-ms=5
-#alpha
-al=0.7
-
-ax1.plot_date(ic_mo_start_time_num[iuly],ic.mo_sc_heliodistance[iuly],'o',c='chocolate', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[imes],ic.mo_sc_heliodistance[imes],'o',c='coral', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[ivex],ic.mo_sc_heliodistance[ivex],'o',c='orange', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[istb],ic.mo_sc_heliodistance[istb],'o',c='royalblue', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[iwin],ic.mo_sc_heliodistance[iwin],'o',c='mediumseagreen', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[imav],ic.mo_sc_heliodistance[imav],'o',c='orangered', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[ista],ic.mo_sc_heliodistance[ista],'o',c='red', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[ijun],ic.mo_sc_heliodistance[ijun],'o',c='black',markerfacecolor='yellow', alpha=1,ms=ms)
-
-ax1.plot_date(ic_mo_start_time_num[ipsp],ic.mo_sc_heliodistance[ipsp],'o',c='black', alpha=al,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[isol],ic.mo_sc_heliodistance[isol],'o',c='black',markerfacecolor='white', alpha=1.0,ms=ms)
-ax1.plot_date(ic_mo_start_time_num[ibep],ic.mo_sc_heliodistance[ibep],'o',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms)
+#ax3=plt.subplot(111)
+ax3 = plt.axes([0.1, 0.13, 0.8, 0.77])
+# 10% from left, 20% from bottom, 80% width, 60% height
 
 
+ms=8
+ax3.plot(ic.mo_sc_heliodistance[imes],ic.mo_bmean[imes],'o',c=c.geo_magenta , alpha=al,ms=ms,label='MESSENGER')
+ax3.plot(ic.mo_sc_heliodistance[ivex],ic.mo_bmean[ivex],'o',c=c.geo_orange , alpha=al,ms=ms,label='Venus Express')
+ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c=c.geo_green2, alpha=al,ms=ms, label='Ulysses')
+ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'o',c=c.geo_orangered , alpha=al,ms=ms, label='MAVEN')
+ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c=c.geo_cornflowerblue, alpha=al,ms=ms, label='STEREO-B')
+ax3.plot(ic.mo_sc_heliodistance[ijun],ic.mo_bmean[ijun],'o', c=c.geo_green ,markerfacecolor=c.geo_yellow, alpha=al,ms=ms, label='Juno')
 
-ax1.set_ylabel('Heliocentric distance $r$ [au]')
-ax1.set_ylim([0,5.7])
-ax1.set_yticks(np.arange(0,6,0.5))
-#ax1.tick_params(axis="y", labelsize=12)
-
-
-ax1.set_xlabel('Year')
-years = mdates.YearLocator(5)   # every year
-ax1.xaxis.set_major_locator(years)
-myformat = mdates.DateFormatter('%Y')
-ax1.xaxis.set_major_formatter(myformat)
-
-#ax1.tick_params(axis="x", labelsize=12)
-
-#ax1.set_xlim([datetime.datetime(2007,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=50)])
-
-ax1.set_xlim([datetime.datetime(1990,1,1),datetime.datetime.utcnow()+datetime.timedelta(days=50)])
+ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c=c.geo_red, alpha=al,ms=ms, label='STEREO-A')
+ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c=c.geo_lime, alpha=al,ms=ms,label='Wind')
+ax3.plot(ic.mo_sc_heliodistance[ibep],ic.mo_bmean[ibep],'o',c=c.geo_lilac,markerfacecolor='lightgrey', alpha=al,ms=ms,label='BepiColombo')
+ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c=c.geo_green, alpha=al,ms=ms, label='Parker Solar Probe',zorder=3)
+ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c=c.geo_green, markerfacecolor='white',alpha=al,ms=ms, label='Solar Orbiter',zorder=3)
 
 
-
-##############################################################################
-ax3=plt.subplot(122)
-plt.title('ICMECAT mean MO magnetic field')
-ax3.set_xlabel('Heliocentric distance $r$ [au]')
-ax3.set_ylabel('$B$ [nT]')
-
-
-ax3.plot(ic.mo_sc_heliodistance[imes],ic.mo_bmean[imes],'o',c='coral', alpha=al,ms=ms,label='MESSENGER')
-ax3.plot(ic.mo_sc_heliodistance[ivex],ic.mo_bmean[ivex],'o',c='orange', alpha=al,ms=ms,label='Venus Express')
-ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c='chocolate', alpha=al,ms=ms, label='Ulysses')
-ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'o',c='orangered', alpha=al,ms=ms, label='MAVEN')
-ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c='royalblue', alpha=al,ms=ms, label='STEREO-B')
-ax3.plot(ic.mo_sc_heliodistance[ijun],ic.mo_bmean[ijun],'o', c='black',markerfacecolor='yellow', alpha=al,ms=ms, label='Juno')
-
-ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c='red', alpha=al,ms=ms, label='STEREO-A')
-ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c='mediumseagreen', alpha=al,ms=ms,label='Wind')
-ax3.plot(ic.mo_sc_heliodistance[ibep],ic.mo_bmean[ibep],'o',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms,label='BepiColombo')
-ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c='black', alpha=al,ms=ms, label='Parker Solar Probe',zorder=3)
-ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c='black', markerfacecolor='white',alpha=al,ms=ms, label='Solar Orbiter',zorder=3)
-
-
-ax3.set_xticks(np.arange(0,6,0.5))
-#ax3.tick_params(axis="x", labelsize=12)
-ax3.set_xlim([0,5.6])
 
 ax3.set_yscale('log')
-#ax3.set_ylim([0,np.max(ic.mo_bmean)+50])
-#ax3.set_yticks(np.arange(0,1000,10))
-#ax3.set_ylim([0,1000])
-#ax3.tick_params(axis="y", labelsize=12)
+ax3.set_ylabel('Mean magnetic field [nano Tesla] ',fontname='Source Sans Pro',fontsize=18)
+#ax3.set_yticks(color=c.geo_axes_title,fontname='Source Sans Pro',fontsize=18)
 
+ax3.set_xticks(np.arange(0,6,0.5),color=c.geo_axes_title,fontname='Source Sans Pro',fontsize=18)
+ax3.set_xlabel('Distance to the Sun [astronomical units]',fontname='Source Sans Pro',fontsize=18)
+ax3.set_xlim([0,5.6])
 
-ax3.legend(loc=1,fontsize=12)#, rows=2)
+ax3.legend(loc=1,fontsize=16)
 
+plt.title('Magnetic fields in solar storms',fontname='Source Sans Pro',fontsize=30,color=c.geo_axes_title )
 
-#ax3.annotate('Quiet Sun',xy=(0.0065,3*1e6),xycoords='data',fontsize=annotfs,ha='left')
-#ax3.axvline(1.5,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
-#ax3.axvline(1.0,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
-#ax3.axvline(0.72,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
-#ax3.axvline(0.3,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
-#ax3.axvline(5.3,linestyle='--',c='black',alpha=0.5,linewidth=0.7)
-#np.max(p_jupiter.r)
-#4,95 – 5,458 AE
 
 
 #Logo
-logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
-newax = fig.add_axes([0.89,0.92,0.08,0.08], anchor='NE', zorder=1)
-newax.imshow(logo)
-newax.axis('off')
+#logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+#newax = fig.add_axes([0.89,0.92,0.08,0.08], anchor='NE', zorder=1)
+#newax.imshow(logo)
+#newax.axis('off')
 
-plt.tight_layout()
-plt.savefig('icmecat/icmecat_times_distance.png', dpi=150,bbox_inches='tight')
+#grid lighter
+
+ax3.grid(alpha=1.0,color=c.geo_raster,lw=2)
+
+sns.despine()
+ax3.spines['left'].set_color(c.geo_axes_title)     # Left spine color
+ax3.spines['bottom'].set_color(c.geo_axes_title) # Bottom spine color
+ax3.spines['left'].set_linewidth(1) 
+ax3.spines['bottom'].set_linewidth(1) 
+ax3.tick_params(axis='both', width=1) 
+
+# Add a border around the entire figure
+fig.patch.set_linewidth(1)      # Set the width of the border
+fig.patch.set_edgecolor(c.geo_copyright) # Set the color of the border
 
 
-# Tabellenüberschrift
-# Source Sans Pro Bold, 30 Px, Farbe: #052E37, RGB (5/46/55)
-# 2 Achsenbeschriftung
-# Source Sans Pro Bold, 16 Px, Farbe: #052E37, RGB (5/46/55)
-# 3 Copyrightvermerk
-# Source Sans Pro Bold, 16 Px, Farbe: #9AACAF, RGB (154/172/175)
-# wenn möglich rechts unten (kein Logo!)
-# 4 Rahmen
-# Breite: 1 Px, Farbe: #9AACAF, RGB (154/172/175)
-# Wenn Grafiken im Content eingesetzt werden und sie auf weiß auslaufen, sollte man einen entsprechenden Rahmen zur opti- schen Begrenzung anlegen. Wenn sie in einem Slider zum Ein- satz kommen, kann dieser Rahmen auch weggelassen werden, da der Slider bereits selbst durch einen Rahmen begrenzt ist.
-# 5 Achsen
-# Breite: 1 Px, Farbe: #052E37, RGB (5/46/55)
-# 
+plt.figtext(0.95,0.05,'© GeoSphere Austria ', ha='right',fontsize=16,color=c.geo_copyright,fontweight='bold', fontname='Source Sans Pro')
 
-# In[3]:
+#plt.show()
+plt.savefig(outputdir+'solar_storm_fields_en.png', dpi=150)
+
+
+# In[121]:
+
+
+sns.set_context('talk')
+sns.set_style('whitegrid')
+sns.set_style("ticks")
+
+###############################################################################
+fig=plt.figure(3,figsize=(19.2,10.8),dpi=100,edgecolor=c.geo_green)
+
+#########################################################################
+
+#ax3=plt.subplot(111)
+ax3 = plt.axes([0.1, 0.13, 0.8, 0.77])
+# 10% from left, 20% from bottom, 80% width, 60% height
+
+
+#original colors
+
+ms=10
+#ax3.plot(ic.mo_sc_heliodistance[imes],ic.mo_bmean[imes],'o',c='coral', alpha=al,ms=ms,label='MESSENGER')
+#ax3.plot(ic.mo_sc_heliodistance[ivex],ic.mo_bmean[ivex],'o',c='orange', alpha=al,ms=ms,label='Venus Express')
+#ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c='chocolate', alpha=al,ms=ms, label='Ulysses')
+#ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'o',c='orangered', alpha=al,ms=ms, label='MAVEN')
+#ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c='royalblue', alpha=al,ms=ms, label='STEREO-B')
+#ax3.plot(ic.mo_sc_heliodistance[ijun],ic.mo_bmean[ijun],'o', c='black',markerfacecolor='yellow', alpha=al,ms=ms, label='Juno')
+
+#ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c='red', alpha=al,ms=ms, label='STEREO-A')
+#ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c='mediumseagreen', alpha=al,ms=ms,label='Wind')
+#ax3.plot(ic.mo_sc_heliodistance[ibep],ic.mo_bmean[ibep],'o',c='darkblue',markerfacecolor='lightgrey', alpha=al,ms=ms,label='BepiColombo')
+#ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c='black', alpha=al,ms=ms, label='Parker Solar Probe',zorder=3)
+#ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c='black', markerfacecolor='white',alpha=al,ms=ms, label='Solar Orbiter',zorder=3)
+
+ms=8
+ax3.plot(ic.mo_sc_heliodistance[imes],ic.mo_bmean[imes],'o',c=c.geo_magenta , alpha=al,ms=ms,label='MESSENGER')
+ax3.plot(ic.mo_sc_heliodistance[ivex],ic.mo_bmean[ivex],'o',c=c.geo_orange , alpha=al,ms=ms,label='Venus Express')
+ax3.plot(ic.mo_sc_heliodistance[iuly],ic.mo_bmean[iuly],'o',c=c.geo_green2, alpha=al,ms=ms, label='Ulysses')
+ax3.plot(ic.mo_sc_heliodistance[imav],ic.mo_bmean[imav],'o',c=c.geo_orangered , alpha=al,ms=ms, label='MAVEN')
+ax3.plot(ic.mo_sc_heliodistance[istb],ic.mo_bmean[istb],'o',c=c.geo_cornflowerblue, alpha=al,ms=ms, label='STEREO-B')
+ax3.plot(ic.mo_sc_heliodistance[ijun],ic.mo_bmean[ijun],'o', c=c.geo_green ,markerfacecolor=c.geo_yellow, alpha=al,ms=ms, label='Juno')
+
+ax3.plot(ic.mo_sc_heliodistance[ista],ic.mo_bmean[ista],'o',c=c.geo_red, alpha=al,ms=ms, label='STEREO-A')
+ax3.plot(ic.mo_sc_heliodistance[iwin],ic.mo_bmean[iwin],'o',c=c.geo_lime, alpha=al,ms=ms,label='Wind')
+ax3.plot(ic.mo_sc_heliodistance[ibep],ic.mo_bmean[ibep],'o',c=c.geo_lilac,markerfacecolor='lightgrey', alpha=al,ms=ms,label='BepiColombo')
+ax3.plot(ic.mo_sc_heliodistance[ipsp],ic.mo_bmean[ipsp],'o',c=c.geo_green, alpha=al,ms=ms, label='Parker Solar Probe',zorder=3)
+ax3.plot(ic.mo_sc_heliodistance[isol],ic.mo_bmean[isol],'o',c=c.geo_green, markerfacecolor='white',alpha=al,ms=ms, label='Solar Orbiter',zorder=3)
+
+
+
+
+ax3.set_yscale('log')
+ax3.set_ylabel('Mittleres Magnetfeld in der Flussröhre [nano Tesla] ',fontname='Source Sans Pro',fontsize=18)
+#ax3.set_xticklabel(color=c.geo_axes_title,fontname='Source Sans Pro',fontsize=30)
+
+ax3.set_xticks(np.arange(0,6,0.5),color=c.geo_axes_title,fontname='Source Sans Pro',fontsize=18)
+ax3.set_xlabel('Abstand zur Sonne [Astronomische Einheiten]',fontname='Source Sans Pro',fontsize=18)
+ax3.set_xlim([0,5.6])
+
+ax3.legend(loc=1,fontsize=16)
+
+plt.title('Magnetfelder in Sonnenstürmen',fontname='Source Sans Pro',fontsize=30,color=c.geo_axes_title )
+
+
+#Logo
+#logo = plt.imread('logo/GSA_Basislogo_Positiv_RGB_XXS.png')
+#newax = fig.add_axes([0.89,0.92,0.08,0.08], anchor='NE', zorder=1)
+#newax.imshow(logo)
+#newax.axis('off')
+
+#grid lighter
+
+ax3.grid(alpha=1.0,color=c.geo_raster,lw=2)
+
+sns.despine()
+ax3.spines['left'].set_color(c.geo_axes_title)     # Left spine color
+ax3.spines['bottom'].set_color(c.geo_axes_title) # Bottom spine color
+ax3.spines['left'].set_linewidth(1) 
+ax3.spines['bottom'].set_linewidth(1) 
+ax3.tick_params(axis='both', width=1) 
+
+# Add a border around the entire figure
+fig.patch.set_linewidth(1)      # Set the width of the border
+fig.patch.set_edgecolor(c.geo_copyright) # Set the color of the border
+
+
+plt.figtext(0.95,0.05,'© GeoSphere Austria ', ha='right',fontsize=16,color=c.geo_copyright,fontweight='bold', fontname='Source Sans Pro')
+
+#plt.show()
+plt.savefig(outputdir+'solar_storm_fields_de.png', dpi=150)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[95]:
 
 
 sns.set_context('talk')
@@ -469,6 +587,8 @@ ax32.tick_params(axis='x', width=1)
 
 plt.savefig(outputdir+'geomagnetic_quick.png')
 
+
+# ## ICME catalog english
 
 # In[ ]:
 

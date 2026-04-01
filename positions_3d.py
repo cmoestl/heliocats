@@ -214,7 +214,7 @@ bepi_hover_now=np.stack((np.round(bepi['r'][bepi_timeind],3),
 
 # ### Make figure
 
-# In[11]:
+# In[4]:
 
 
 fig = go.Figure()
@@ -441,7 +441,7 @@ fig.update_layout(
     scene=dict( aspectmode='data',
         camera=dict(
             eye=dict(x=0, y=-zoom, z=zoom),  # Set the position of the camera
-            center=dict(x=0, y=0, z=0),      # Set the point the camera is looking at
+            center=dict(x=0, y=-0.1, z=0),      # Set the point the camera is looking at
             up=dict(x=0, y=0, z=1),          # Set the up vector of the camera
     ))
 )

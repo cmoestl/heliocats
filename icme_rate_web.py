@@ -48,7 +48,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# In[52]:
+# In[1]:
 
 
 #manually set latest solo kernel file for spiceypy
@@ -2200,7 +2200,7 @@ print(outputdirectory+'/cycle25_prediction_short.pdf')
 
 # ## Proposal plots
 
-# In[49]:
+# In[23]:
 
 
 proposal_plot=0
@@ -2320,7 +2320,7 @@ if proposal_plot==1:
 
 # ### German plot 
 
-# In[50]:
+# In[24]:
 
 
 sns.set_context('talk')
@@ -2428,7 +2428,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_short_german.pdf')
 print('saved', outputdirectory+'/cycle25_prediction_short_german.png')
 
 
-# In[40]:
+# In[25]:
 
 
 #with shortest interval
@@ -2523,7 +2523,7 @@ plt.savefig(outputdirectory+'/cycle25_prediction_focus.png',dpi=100)
 
 # ## Plotly html version for website
 
-# In[41]:
+# In[26]:
 
 
 #Plotly imports
@@ -2586,7 +2586,7 @@ print('saved as ',outputdirectory+'/cycle25_prediction.html')
 # 
 # 
 
-# In[42]:
+# In[27]:
 
 
 print(kernels_path)
@@ -2604,7 +2604,7 @@ def cart2sphere_emma_rad(x,y,z):
 
 
 
-# In[43]:
+# In[28]:
 
 
 ## for the moment PSP with astrospice, need to place kernel file
@@ -2664,7 +2664,7 @@ psp.time=mdates.date2num(psp.time)
 plt.plot_date(psp.time,psp.r,'-')
 
 
-# In[44]:
+# In[29]:
 
 
 def solo_furnish(kernels_path):
@@ -2722,7 +2722,7 @@ solo.lat=np.rad2deg(solo.lat)
 plt.plot_date(solo.time,solo.r,'-')
 
 
-# In[45]:
+# In[30]:
 
 
 #get the speed in hourly resolution
@@ -2754,7 +2754,7 @@ plt.plot_date(solo.time,solo.r,'-')
 
 # ### Make trajectory plots 
 
-# In[46]:
+# In[31]:
 
 
 #%matplotlib inline
@@ -2831,7 +2831,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/psp_orbits.png', dpi=100)
 
 
-# In[47]:
+# In[32]:
 
 
 #same thing for Solar Orbiter
@@ -2914,7 +2914,7 @@ plt.figtext(0.05,0.008,'Austrian Space Weather Office  GeoSphere Austria', fonts
 plt.savefig(outputdirectory+'/solo_orbits.png', dpi=100)
 
 
-# In[48]:
+# In[33]:
 
 
 t1all = time.time()

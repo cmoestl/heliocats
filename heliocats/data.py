@@ -2960,21 +2960,42 @@ def get_noaa_ephem(ephemfile):
 
 def get_noaa_dst(dstfile):
     
-    dm = json.loads(dstfile.read())
     
+    #takes as input the json file name
+ 
+    #old
+    #dm = json.loads(dstfile.read())
+    #print(dm)
     
-    #make array for 7 days
-    dst=np.zeros(len(dm)-1,dtype=[('time',object),('dst', float)]) 
+    with open(dstfile, "r") as f:
+        dm = json.load(f)
+    
+    #make array for 7 days without data
+    dst=np.zeros(len(dm),dtype=[('time',object),('dst', float)]) 
     dst=dst.view(np.recarray)    
+    
+    
+    #old files
+    #dst.time = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S")  for x in dm[1:]]
+    #dst.dst=[x[1] for x in dm[1:]]
+    
+    #put the data in the array 
+    for entry in dm:
+        x = [entry["time_tag"] for entry in dm]
+        dst.dst = [entry["dst"] for entry in dm]        
 
-    dst.time = [datetime.datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S")  for x in dm[1:]]
-    dst.dst=[x[1] for x in dm[1:]]
+    
+    for i in np.arange(0,len(dst)):
+           dst.time[i]=datetime.datetime.strptime(x[i], "%Y-%m-%dT%H:%M:%S") 
 
+        
     return dst
 
 
 def get_noaa_json(magfile, plasmafile):
     
+    
+    #***** CHANGES FOR APRIL 2026 still to be done here
     
     
     # Read magnetic field data:
@@ -3309,8 +3330,9 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
     dstlist=np.sort(dstlist)
     #cutoff last N files
     dstlist=dstlist[-cutoff:]
-
-    print(dstlist)
+    
+  
+    #print(dstlist)
 
         
     #make array 
@@ -3324,20 +3346,24 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
 
         #read in data of corresponding files
         
-        dstfile1=open(noaa_path+'dst/'+dstlist[i],'r')
+        #old
+        #dstfile1=open(noaa_path+'dst/'+dstlist[i],'r')
+        
+        #only filename, file is opened in get_noaa_dst
+        dstfile1=noaa_path+'dst/'+dstlist[i]
  
         #extract data from files
         try: 
             dst1=get_noaa_dst(dstfile1)
             dst[k:k+np.size(dst1)]=dst1
-            k=k+np.size(dst1) 
+            k=k+np.size(dst1)             
         except:
             print('json could not be loaded')
             print(dstfile1)
       
            
     #cut zeros, sort, convert to recarray, and find unique times and data
-
+    
     dst_cut=dst[0:k]
     dst_cut.sort()    
              
@@ -3348,8 +3374,7 @@ def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
     
     #calculate newell coupling from the solar wind
     #TBD
-    
-    
+       
     
     #put both in a recarray
     
