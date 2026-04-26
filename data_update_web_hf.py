@@ -306,8 +306,36 @@ else:
     print('NOAA data NOT downloaded and saved as pickle, turn on switch')  
 
 
-#load data file
+#load data file insitu_python folder
 [noaa,hnoaa]=pickle.load(open(data_path+filenoaa, "rb" ) ) 
+
+################ piece together with older file for transition April 2026
+#load 35 days transition file April 26
+filenoaa_transition='noaa_rtsw_last_35files_2026_04_26.p'
+[noaa_t,hnoaa1]=pickle.load(open(noaa_path+filenoaa_transition, "rb" ) ) 
+
+### first datapoint of new file
+noaa[0].time
+
+#find this in old file
+endind=np.where(noaa[0].time < noaa_t.time)[0][0]
+#noaa1.time[endind-2]
+
+#cutoff old array
+noaa_t=noaa_t[0:endind-1]
+
+#merge 2 arrays
+noaa = np.concatenate([noaa_t, noaa]).view(np.recarray)
+
+#overwrite previous file,note header times not correct but only for transition
+
+pickle.dump([noaa,hnoaa], open(data_path+filenoaa, "wb"))
+
+################################
+
+
+
+
 
 #load dst file
 #dst=pickle.load(open(data_path+filedst, "rb" ) ) 
