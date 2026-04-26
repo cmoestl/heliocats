@@ -17,9 +17,33 @@
 # Issues:
 # 
 # - positions should be changed for Earth and STEREO-A to not use astrospice
+# - positions need to be fixed with the new ephemerides files
+# 
+# - check again all new file sources
+# 
+# https://services.swpc.noaa.gov/json/rtsw/rtsw_ephemerides_1h.json
+# 
+# https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json
+# 
+# https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json
+# 
+# https://services.swpc.noaa.gov/products/kyoto-dst.json
+# 
+# https://services.swpc.noaa.gov/products/summary/10cm-flux.json
+# 
+# https://services.swpc.noaa.gov/products/10cm-flux-30-day.json
+# 
+# https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json
+# 
+# https://services.swpc.noaa.gov/products/summary/solar-wind-mag-field.json
+# 
+# https://services.swpc.noaa.gov/products/summary/solar-wind-speed.json
+# 
+# https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json
+# 
 # 
 
-# In[96]:
+# In[1]:
 
 
 #switches
@@ -82,7 +106,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[97]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -136,7 +160,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions, Xray and SDO plots
 
-# In[98]:
+# In[3]:
 
 
 if debug_mode > 0: 
@@ -154,7 +178,7 @@ hp.plot_noaa_xray(data_path+xraypickle,data_path+xraypickle2,plot_path)
 
 
 
-# In[99]:
+# In[4]:
 
 
 if debug_mode > 0: 
@@ -186,7 +210,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind 
 
-# In[100]:
+# In[5]:
 
 
 if debug_mode > 0: 
@@ -216,16 +240,11 @@ if get_noaa > 0:
     print(datestr+' UTC')
 
     #solar wind
-    #ephemerides are done with the daily update
-    #ephem='http://services.swpc.noaa.gov/products/solar-wind/ephemerides.json' 
+    #ephemerides are done with the daily update - for the moment its done here
+    #ephem_old='http://services.swpc.noaa.gov/products/solar-wind/ephemerides.json' 
+    #new url
+    #ephem='https://services.swpc.noaa.gov/json/rtsw/rtsw_ephemerides_1h.json'    
     
-    plasma='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
-    mag='http://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json'
-    
-    dst='https://services.swpc.noaa.gov/products/kyoto-dst.json'
-        
-
-    #the ephemerides are done with the daily update
     #try: 
     #    urllib.request.urlretrieve(ephem, noaa_path+'ephem/ephemerides_'+datestr+'.json')
     #    print(noaa_path+'ephem/ephemerides_'+datestr+'.json')
@@ -233,15 +252,25 @@ if get_noaa > 0:
     #    print(' ', ephem,' ',e.reason)
 
     
+    #plasma_old='http://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json'
+    #mag_old='http://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json'    
+    
+    #new format from April 2026
+    dst='https://services.swpc.noaa.gov/products/kyoto-dst.json'        
+    mag='https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json'
+    plasma='https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json'
+    ephem='https://services.swpc.noaa.gov/json/rtsw/rtsw_ephemerides_1h.json'
+        
+    
     try: 
-        urllib.request.urlretrieve(plasma, noaa_path+'plasma/plasma-7-day_'+datestr+'.json')
-        print(noaa_path+'plasma/plasma-7-day_'+datestr+'.json')
+        urllib.request.urlretrieve(plasma, noaa_path+'plasma/plasma-1-day_'+datestr+'.json')
+        print(noaa_path+'plasma/plasma-1-day_'+datestr+'.json')
     except urllib.error.URLError as e:
         print(' ', plasma,' ',e.reason)
 
     try: 
-        urllib.request.urlretrieve(mag, noaa_path+'mag/mag-7-day_'+datestr+'.json')
-        print(noaa_path+'mag/mag-7-day_'+datestr+'.json')
+        urllib.request.urlretrieve(mag, noaa_path+'mag/mag-1-day_'+datestr+'.json')
+        print(noaa_path+'mag/mag-1-day_'+datestr+'.json')
     except urllib.error.URLError as e:
         print(' ', mag,' ',e.reason)
     
@@ -251,12 +280,23 @@ if get_noaa > 0:
     except urllib.error.URLError as e:
         print(' ', dst,' ',e.reason)        
 
+    try: 
+        urllib.request.urlretrieve(plasma, noaa_path+'ephem/ephemerides_'+datestr+'.json')
+        print(noaa_path+'ephem/ephemerides_'+datestr+'.json')
+    except urllib.error.URLError as e:
+        print(' ', ephemerides,' ',e.reason)        
+        
+        
     print('NOAA RTSW download complete')
         
+    print(data_path)
+    print(noaa_path)
     ## SAVE NOAA DATA AS PICKLE, dst as extra file
-    # last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file    
+    # last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file   
     
-    if debug_mode == 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,35)
+    #for new format, only 1 day at the moment
+    
+    if debug_mode == 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,1)
     if debug_mode > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,3)
 
     print('NOAA RTSW saved as pickle file complete')
@@ -291,7 +331,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[101]:
+# In[6]:
 
 
 if debug_mode > 0: 
@@ -348,7 +388,7 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[102]:
+# In[7]:
 
 
 if debug_mode > 0:     
@@ -361,7 +401,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[103]:
+# In[8]:
 
 
 t1all = time.time()

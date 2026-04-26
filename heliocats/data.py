@@ -2992,7 +2992,429 @@ def get_noaa_dst(dstfile):
     return dst
 
 
+
+
+
+
+
+
 def get_noaa_json(magfile, plasmafile):
+    
+    
+    #new version April 2026     
+    
+    # Read magnetic field data:
+    dm = json.loads(magfile.read())
+        
+    #get data from active spacecraft    
+    #make array
+    dtype = np.dtype([("time_tag", "datetime64[m]"),("bt", "f8"),("bx_gsm", "f8"),("by_gsm", "f8"),("bz_gsm", "f8"),])
+    noaa_m = np.array([(r["time_tag"], r["bt"], r["bx_gsm"], r["by_gsm"], r["bz_gsm"]) for r in dm if r["active"]], dtype=dtype)   
+    noaa_m['time_tag'] = [datetime.datetime.fromisoformat(r["time_tag"]) for r in dm if r["active"]]  
+    noaa_m['bx_gsm']=[(r["bx_gsm"]) for r in dm if r["active"]]
+    noaa_m['by_gsm']=[(r["by_gsm"]) for r in dm if r["active"]]
+    noaa_m['bz_gsm']=[(r["bz_gsm"]) for r in dm if r["active"]]
+    noaa_m['bt']=[(r["bt"]) for r in dm if r["active"]]    
+    #sort so that earlier dates come first
+    noaa_m=np.sort(noaa_m)
+         
+    
+    # Read plasma data:    
+    dp = json.loads(plasmafile.read())
+    
+    #get data from active spacecraft    
+    #make array
+    dtype = np.dtype([("time_tag", "datetime64[m]"),("speed", "f8"),("density", "f8"),("temperature", "f8"),])
+    noaa_p = np.array([(r["time_tag"], r["proton_speed"], r["proton_density"], r["proton_temperature"]) for r in dp if r["active"]], dtype=dtype)   
+    noaa_p['time_tag'] = [datetime.datetime.fromisoformat(r["time_tag"]) for r in dp if r["active"]]
+    noaa_p['speed']=[(r["proton_speed"]) for r in dp if r["active"]]
+    noaa_p['density']=[(r["proton_density"]) for r in dp if r["active"]]
+    noaa_p['temperature']=[(r["proton_temperature"]) for r in dp if r["active"]]
+    #sort so that earlier dates come first
+    noaa_p=np.sort(noaa_p)
+        
+    
+    #use mag for times 
+    t_start=noaa_m['time_tag'][0]
+    t_end=noaa_m['time_tag'][-1]
+
+    #1 minute resolution between t_start and t_end for given mag file
+    itime = np.arange(t_start, t_end + np.timedelta64(1, 'm'), np.timedelta64(1, 'm'), dtype='datetime64[m]')
+    
+    #make date numbers
+    itime_num=mdates.date2num(itime)
+    magdates=mdates.date2num(noaa_m['time_tag'])
+    plasmadates=mdates.date2num(noaa_p['time_tag'])
+    
+    #interpolate all onto itime_num    
+    rbtot_m = np.interp(itime_num, magdates, noaa_m['bt'])
+    rbxgsm_m = np.interp(itime_num, magdates, noaa_m['bx_gsm'])
+    rbygsm_m = np.interp(itime_num, magdates, noaa_m['by_gsm'])
+    rbzgsm_m = np.interp(itime_num, magdates, noaa_m['bz_gsm'])
+    rpv_m = np.interp(itime_num, plasmadates, noaa_p['speed'])
+    rpn_m = np.interp(itime_num, plasmadates, noaa_p['density'])
+    rpt_m = np.interp(itime_num, plasmadates, noaa_p['temperature'])
+
+    #make array
+    noaa_data=np.zeros(np.size(rbtot_m),dtype=[('time',object),('bx', float),('by', float),\
+                ('bz', float),('bt', float),('vt', float),('vx', float),('vy', float),('vz', float),('np', float),('tp', float),\
+                ('x', float),('y', float),('z', float),\
+                ('r', float),('lat', float),('lon', float)])   
+                        
+    #convert to recarray
+    noaa_data = noaa_data.view(np.recarray)                             
+
+    noaa_data.time=itime
+    noaa_data.bt=rbtot_m
+    noaa_data.bx=rbxgsm_m
+    noaa_data.by=rbygsm_m
+    noaa_data.bz=rbzgsm_m
+
+    noaa_data.vt=rpv_m
+    noaa_data.np=rpn_m
+    noaa_data.tp=rpt_m
+
+    noaa_data.vx=np.nan
+    noaa_data.vy=np.nan
+    noaa_data.vz=np.nan
+    
+    
+    #print('NOAA data read completed for file with end time: ',itime[-1])
+    
+      
+    return noaa_data
+
+
+
+
+
+
+
+
+
+def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
+
+    
+    ###reads new format from April 2026
+
+    print(' ')
+    print('convert NOAA real time solar wind archive to pickle file')
+    
+    print('directories for the json data')
+    
+    #get mag data files
+    print(noaa_path+'mag/')
+    items=os.listdir(noaa_path+'mag/')  
+    maglist = [] 
+    for names in items: 
+       if names.startswith("mag-1"):
+            print(names)
+            maglist.append(names)
+    maglist=np.sort(maglist)
+    #print(maglist)    
+    
+    #cutoff last N files
+    maglist=maglist[-cutoff:]
+    print('Sorted file list to be read with cutoff ',cutoff,' files. ')
+    print(maglist)
+    
+    #---------------------------------
+
+    #get plasma data files
+    print(noaa_path+'plasma/')
+    items=os.listdir(noaa_path+'plasma/')  
+    plasmalist = [] 
+    for names in items: 
+       if names.startswith("plasma-1"):
+            plasmalist.append(names)
+    plasmalist=np.sort(plasmalist)        
+
+    #cutoff last N files
+    plasmalist=plasmalist[-cutoff:]
+
+    print(plasmalist)
+    print()
+        
+    #-------------------------        
+    #get ephemerides files
+    print(noaa_path+'ephem/')
+    items=os.listdir(noaa_path+'ephem/')  
+    ephemlist = [] 
+    for names in items: 
+       if names.endswith(".json"):
+            ephemlist.append(names)
+    ephemlist=np.sort(ephemlist)        
+
+    #cutoff last N files
+    ephemlist=ephemlist[-cutoff:]
+
+    print(ephemlist)
+    print()
+     
+    ###### read new files ok    
+   
+    #make array 
+    noaa=np.zeros(int(1e7),dtype=[('time',object),('bx', float),('by', float),\
+                    ('bz', float),('bt', float),('vt', float),('vx', float),('vy', float),('vz', float),('np', float),('tp', float),\
+                    ('x', float),('y', float),('z', float),\
+                    ('r', float),('lat', float),('lon', float)])   
+
+ 
+
+    #counter    
+    k=0
+    
+    
+    
+    
+    #plasma and mag
+
+    for i in np.arange(len(maglist))-1:
+
+        #read in data of corresponding files
+        
+        m1=open(noaa_path+'mag/'+maglist[i],'r')
+        #print(noaa_path+'mag/'+maglist[i])
+        p1=open(noaa_path+'plasma/'+plasmalist[i],'r')
+        #print(noaa_path+'plasma/'+plasmalist[i])
+        
+      
+        #extract data from files
+        try: 
+            d1=get_noaa_json(m1, p1)
+            #save in large array
+            noaa[k:k+np.size(d1)]=d1
+            k=k+np.size(d1) 
+        except:
+            print('one of these json could not be loaded')
+            print(m1)
+            print(p1)
+            
+
+    #cut zeros, sort, convert to recarray, and find unique times and data
+
+    noaa_cut=noaa[0:k]
+    noaa_cut.sort()
+    
+    nu=noaa_cut.view(np.recarray)
+    [dum,ind]=np.unique(nu.time,return_index=True)  
+    nf=nu[ind]
+   
+    
+    
+    #add positions to the final array - for new files ephemerides still do be done in April 2026
+        
+    print('position start')
+    
+    ephem=np.zeros(int(1e6),dtype=[('time',object),('xgse', float),('ygse', float),('zgse', float)]) 
+    ephem=ephem.view(np.recarray)  
+
+    
+    # exact position from ephemerides.json files, downloaded each day        
+    #k=0
+    
+    #for i in np.arange(len(ephemlist))-1:
+    #
+    #    #read in data of corresponding files
+    #    
+    #    e1=open(noaa_path+'ephem/'+ephemlist[i],'r')
+    #  
+    #    #extract data from files
+    #    try: 
+    #        e2=get_noaa_ephem(e1)
+    #        ephem[k:k+np.size(e2)]=e2
+    #        k=k+np.size(e2) 
+    #    except:
+    #        print('one of these json could not be loaded')
+    #        print(e1)
+            
+
+    #ephem_cut=ephem[0:k]
+    #ephem_cut.sort()   
+             
+    #eu=ephem_cut.view(np.recarray)
+    #[dum,ind]=np.unique(eu.time,return_index=True)  
+    #ef=eu[ind]
+
+    au_km = au.to('km').value
+    
+    #interpolate hourly ephemerides onto 1 minute data 
+    #but only for those times where it is available, otherwise 
+    #set x_gse to 0.01 AU and thats it
+    
+    nf_mat=mdates.date2num(nf.time)
+    #ef_mat=mdates.date2num(ef.time)
+    
+    
+    #first set all xyz_gse to 0.01 and 0 for L1
+    x_gse=np.zeros(len(nf_mat))+0.01
+    y_gse=np.zeros(len(nf_mat))
+    z_gse=np.zeros(len(nf_mat))
+    
+    
+    ### fix this for new files
+    
+    #ef_mat is the earliest available ephemerides time
+    #nf_eph_ind=np.where(nf_mat > ef_mat[0])[0]
+    #print(nf_eph_ind)
+
+    #only interpolate the nf_mat times after this date
+    #x_gse[nf_eph_ind] = np.interp(nf_mat[nf_eph_ind], ef_mat,ef.xgse )/au_km 
+    #    y_gse[nf_eph_ind] = np.interp(nf_mat[nf_eph_ind], ef_mat,ef.ygse )/au_km 
+    #z_gse[nf_eph_ind] = np.interp(nf_mat[nf_eph_ind], ef_mat,ef.zgse )/au_km 
+    
+    ###################
+
+    #print(x_gse)
+    #print(y_gse)
+    #print(z_gse)
+
+    coords_earth = astrospice.generate_coords('Earth', nf.time)
+    #coords_earth_heeq=coords_earth.transform_to(HeliographicStonyhurst())  #returns degrees, km
+    coords_earth_hee=coords_earth.transform_to(HeliocentricEarthEcliptic())  #returns degrees, km
+
+    #change angles to -90/90 latitude, distance to AU
+    [earth_hee_x, earth_hee_y, earth_hee_z] = sphere2cart(coords_earth_hee.distance.value/au_km,\
+                                                              np.deg2rad(-coords_earth_hee.lat.value+90),\
+                                                          np.deg2rad(coords_earth_hee.lon.value))
+    
+ 
+    nf.x=earth_hee_x-x_gse  #both values are in au, 0.01 for L1
+    nf.y=earth_hee_y-y_gse
+    nf.z=earth_hee_z+z_gse
+    
+    #convert position to HEEQ  for xyz
+    nf = convert_HEE_to_HEEQ(nf)
+    
+    [nf.r, nf.lat, nf.lon]=cart2sphere(nf.x,nf.y,nf.z)       
+    nf.lat=np.rad2deg(nf.lat)
+    nf.lon=np.rad2deg(nf.lon)  
+
+
+
+    
+    print('position end ')
+       
+        
+    header='Real time solar wind magnetic field and plasma data from NOAA, ' + \
+        'obtained daily from https://services.swpc.noaa.gov/products/solar-wind/  '+ \
+        'Timerange: '+nf.time[0].strftime("%Y-%b-%d %H:%M")+' to '+nf.time[-1].strftime("%Y-%b-%d %H:%M")+\
+        ', linearly interpolated to a time resolution of '+str(np.mean(np.diff(nf.time)).seconds)+' seconds. '+\
+        'The data are available in a numpy recarray, fields can be accessed by nf.time, nf.bx, nf.vt etc. '+\
+        'Total number of data points: '+str(nf.size)+'. '+\
+        'Units are btxyz [nT, GSM], vt  [km s^-1], np[cm^-3], tp [K], heliospheric position x/y/z/r/lon/lat [AU, degree, HEEQ]. '+\
+        'Made with https://github.com/cmoestl/heliocats save_noaa_rtsw_data  '+\
+        'By C. Moestl (twitter @chrisoutofspace) and R. Bailey. File creation date: '+\
+        datetime.datetime.utcnow().strftime("%Y-%b-%d %H:%M")+' UTC'
+
+    
+    print('file saved ',data_path+filenoaa)
+    pickle.dump([nf,header], open(data_path+filenoaa, "wb"))
+    
+    
+    
+    #################### dst file
+    
+    print()
+    print()
+    print('-------- make Dst file ----')
+
+    
+    #get dst data files
+    print(noaa_path+'dst/')
+    items=os.listdir(noaa_path+'dst/')  
+    dstlist = [] 
+    for names in items: 
+       if names.endswith(".json"):
+            dstlist.append(names)
+    dstlist=np.sort(dstlist)
+    #cutoff last N files
+    dstlist=dstlist[-cutoff:]
+    
+  
+    #print(dstlist)
+
+        
+    #make array 
+    #dst=np.zeros(int(1e7),dtype=[('time',object),('dst', float),('nc',float)])   
+    dst=np.zeros(int(1e7),dtype=[('time',object),('dst', float)])
+
+    #counter    
+    k=0
+    
+    for i in np.arange(len(dstlist))-1:
+
+        #read in data of corresponding files
+        
+        #old
+        #dstfile1=open(noaa_path+'dst/'+dstlist[i],'r')
+        
+        #only filename, file is opened in get_noaa_dst
+        dstfile1=noaa_path+'dst/'+dstlist[i]
+ 
+        #extract data from files
+        try: 
+            dst1=get_noaa_dst(dstfile1)
+            dst[k:k+np.size(dst1)]=dst1
+            k=k+np.size(dst1)             
+        except:
+            print('json could not be loaded')
+            print(dstfile1)
+      
+           
+    #cut zeros, sort, convert to recarray, and find unique times and data
+    
+    dst_cut=dst[0:k]
+    dst_cut.sort()    
+             
+    dstu=dst_cut.view(np.recarray)
+    [dum,ind]=np.unique(dstu.time,return_index=True)  
+    dstf=dstu[ind]
+    
+    
+    #calculate newell coupling from the solar wind
+    #TBD
+       
+    
+    #put both in a recarray
+    
+    dst_nc=np.zeros(len(dstf),dtype=[('time',object),('dst', float),('nc',float)])   
+    dst_nc=dst_nc.view(np.recarray)
+    
+    dst_nc.time=dstf.time
+    dst_nc.dst=dstf.dst
+    dst_nc.nc=np.zeros(len(dstf))
+    
+    print('file saved ',data_path+filedst)
+    pickle.dump(dst_nc, open(data_path+filedst, "wb"))
+    print(' ')
+    print(' ')
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#deprecated 
+
+
+
+
+def get_noaa_json_old(magfile, plasmafile):
     
     
     #***** CHANGES FOR APRIL 2026 still to be done here
@@ -3078,31 +3500,10 @@ def get_noaa_json(magfile, plasmafile):
     return noaa_data
 
 
+#deprecated
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst, cutoff):
+def save_noaa_rtsw_data_old(data_path,noaa_path,filenoaa,filedst, cutoff):
 
 
     print(' ')
