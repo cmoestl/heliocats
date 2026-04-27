@@ -17,9 +17,9 @@
 # Issues:
 # 
 # - positions should be changed for Earth and STEREO-A to not use astrospice
-# - positions need to be fixed with the new ephemerides files
+# - positions need to be fixed with the new ephemerides files, position is L1 at the moment
 # 
-# - check again all new file sources
+# - check again all new file sources (NOAA changes April 2026):
 # 
 # https://services.swpc.noaa.gov/json/rtsw/rtsw_ephemerides_1h.json
 # 
@@ -101,6 +101,9 @@ os.system('jupyter nbconvert --to script data_update_web_hf.ipynb')
 
 #test execution times
 t0all = time.time()
+
+import warnings
+warnings. filterwarnings('ignore')
 
 
 # ### Configure paths depending on server or local machine
@@ -296,8 +299,8 @@ if get_noaa > 0:
     
     #for new format, only 1 day at the moment
     
-    if debug_mode == 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,1)
-    if debug_mode > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,3)
+    if debug_mode == 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,2)
+    if debug_mode > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,1)
 
     print('NOAA RTSW saved as pickle file complete')
     
@@ -314,8 +317,10 @@ else:
 filenoaa_transition='noaa_rtsw_last_35files_2026_04_26.p'
 [noaa_t,hnoaa1]=pickle.load(open(noaa_path+filenoaa_transition, "rb" ) ) 
 
-### first datapoint of new file
-noaa[0].time
+### first and last datapoint of new file
+print(noaa[0].time)
+print(noaa[-1].time)
+
 
 #find this in old file
 endind=np.where(noaa[0].time < noaa_t.time)[0][0]
@@ -332,10 +337,6 @@ noaa = np.concatenate([noaa_t, noaa]).view(np.recarray)
 pickle.dump([noaa,hnoaa], open(data_path+filenoaa, "wb"))
 
 ################################
-
-
-
-
 
 #load dst file
 #dst=pickle.load(open(data_path+filedst, "rb" ) ) 
