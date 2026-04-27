@@ -49,7 +49,7 @@
 # 
 # 
 
-# In[ ]:
+# In[3]:
 
 
 # https://github.com/cmoestl/heliocats  data_update_web_science.py
@@ -144,7 +144,7 @@ t0all = time.time()
 # ### Configure paths depending on server or local machine
 # 
 
-# In[4]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -376,7 +376,7 @@ if debug_mode > 0:
 
     start_time= datetime(2024,10,1)
     #end_time  = datetime(2025,4,30)
-    end_time  = datetime(2025,4,30)
+    end_time  = datetime(2025,10,31)
     psp_file=data_path+'psp_rtn_test.p'
 
     
@@ -399,8 +399,8 @@ if get_psp > 0:
     
         
     #for loading data of the last few available months
-    hd.download_pspmag_1min(datetime(2024,10,1),datetime(2025,4,30),psp_path)
-    hd.download_pspplas(datetime(2024,10,1),datetime(2025,4,30),psp_path)
+    hd.download_pspmag_1min(datetime(2025,4,1),datetime(2025,10,31),psp_path)
+    hd.download_pspplas(datetime(2025,4,1),datetime(2025,10,31),psp_path)
     
     
     print(psp_file)
