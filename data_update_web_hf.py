@@ -297,9 +297,9 @@ if get_noaa > 0:
     ## SAVE NOAA DATA AS PICKLE, dst as extra file
     # last parameter gives a cutoff, so only the latest N files are taken for the NOAA data pickle file   
     
-    #for new format, only 1 day at the moment
+    #for new format only files with "1 day are taken"
     
-    if debug_mode == 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,2)
+    if debug_mode == 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,35)
     if debug_mode > 0: hd.save_noaa_rtsw_data(data_path,noaa_path,filenoaa,filedst,1)
 
     print('NOAA RTSW saved as pickle file complete')
