@@ -43,7 +43,7 @@
 # 
 # 
 
-# In[2]:
+# In[1]:
 
 
 #switches
@@ -109,7 +109,7 @@ warnings. filterwarnings('ignore')
 # ### Configure paths depending on server or local machine
 # 
 
-# In[3]:
+# In[2]:
 
 
 if sys.platform == 'linux': 
@@ -163,7 +163,7 @@ if os.path.isdir(data_path_ml) == False: os.mkdir(data_path_ml)
 
 # ### positions, Xray and SDO plots
 
-# In[4]:
+# In[3]:
 
 
 if debug_mode > 0: 
@@ -181,7 +181,7 @@ hp.plot_noaa_xray(data_path+xraypickle,data_path+xraypickle2,plot_path)
 
 
 
-# In[5]:
+# In[ ]:
 
 
 if debug_mode > 0: 
@@ -213,7 +213,7 @@ print('Positions and SDO images takes', np.round(t1-t0,2), 'seconds')
 
 # ### NOAA real time solar wind 
 
-# In[6]:
+# In[ ]:
 
 
 if debug_mode > 0: 
@@ -314,27 +314,28 @@ else:
 
 ################ piece together with older file for transition April 2026
 #load 35 days transition file April 26
-filenoaa_transition='noaa_rtsw_last_35files_2026_04_26.p'
-[noaa_t,hnoaa1]=pickle.load(open(noaa_path+filenoaa_transition, "rb" ) ) 
+
+##filenoaa_transition='noaa_rtsw_last_35files_2026_04_26.p'
+##[noaa_t,hnoaa1]=pickle.load(open(noaa_path+filenoaa_transition, "rb" ) ) 
 
 ### first and last datapoint of new file
-print(noaa[0].time)
-print(noaa[-1].time)
+##print(noaa[0].time)
+##print(noaa[-1].time)
 
 
 #find this in old file
-endind=np.where(noaa[0].time < noaa_t.time)[0][0]
+#endind=np.where(noaa[0].time < noaa_t.time)[0][0]
 #noaa1.time[endind-2]
 
 #cutoff old array
-noaa_t=noaa_t[0:endind-1]
+#noaa_t=noaa_t[0:endind-1]
 
 #merge 2 arrays
-noaa = np.concatenate([noaa_t, noaa]).view(np.recarray)
+#noaa = np.concatenate([noaa_t, noaa]).view(np.recarray)
 
 #overwrite previous file,note header times not correct but only for transition
 
-pickle.dump([noaa,hnoaa], open(data_path+filenoaa, "wb"))
+#pickle.dump([noaa,hnoaa], open(data_path+filenoaa, "wb"))
 
 ################################
 
@@ -360,7 +361,7 @@ print('NOAA download latest file, save as pickle last 35 files and plotting take
 
 # ### STEREO-A beacon data
 
-# In[6]:
+# In[ ]:
 
 
 if debug_mode > 0: 
@@ -417,7 +418,7 @@ print('STEREO-A beacon downloading last 10 days, save as pickle last 35 days and
 
 # ## Combined plot STEREO-A NOAA RTSW
 
-# In[7]:
+# In[ ]:
 
 
 if debug_mode > 0:     
@@ -430,7 +431,7 @@ hp.plot_insitu_update_stereoa_noaa(noaa, sta_gsm, start, end,'NOAA_RTSW_STEREO-A
     
 
 
-# In[8]:
+# In[ ]:
 
 
 t1all = time.time()
